@@ -1,0 +1,79 @@
+---
+title: "4.Progress_Outlier_Gene_zscore"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+#Mean, Median, Trimmed mean files
+```{r}
+
+library(BoutrosLab.plotting.general)
+
+#CPC-GENE RNA-seq data - 2018-01-23_rnaseq_rsem_gene_FPKM
+cpcg.fpkm <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", row.names = 1);
+#Mean
+cpcg.zscore.bygene.symbol <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", row.names = 1);
+#Median
+cpcg.zscore.bymedian <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bymedian.txt", row.names = 1);
+#Trimmed Mean
+cpcg.zscore.bytrimmean <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bytrimmean.txt", row.names = 1);
+
+```
+
+#Spearman corelation
+```{r fig.width=6, fig.height=6}
+#Make file with Mean, Median and Trimmed Mean
+gene.name <- data.frame(row.names(cpcg.zscore.bygene.symbol));
+cpcg.score <- cbind(cpcg.zscore.bygene.symbol$Mean, cpcg.zscore.bymedian$Median, cpcg.zscore.bytrimmean$Trimmean);
+rownames(cpcg.score) <- gene.name[,1];
+colnames(cpcg.score) <- c("Mean", "Median", "Trimmed mean");
+
+
+#Make a correlation plot
+spearman <- cor(cpcg.score[,1:ncol(cpcg.score)], method = 'spearman');
+spearman <- round(spearman, 2);
+x <- spearman;
+x[x == 1] <- colnames(spearman);
+y <- x;
+for (i in 1:(ncol(y)-1)) {
+    y[i, (i+1):nrow(y)] <- "";
+    };
+create.heatmap(x = spearman,
+          #clustering.method = "none",
+          main = "Spearman correlation",
+          main.cex = 2,
+          yaxis.lab = NA,
+          yaxis.cex = 1,
+          xaxis.lab = NA,
+          xaxis.cex = 1,
+          xaxis.rot = 0,
+          # show each colour once (i.e, four values, four colours)
+          print.colour.key = TRUE,
+          # remove y-axis ticks
+          yaxis.tck = 0.1,
+          xaxis.tck = 0.1,
+          #height = 1,
+          colour.scheme = c('red4', 'white', 'dodgerblue4'),
+          colour.centering.value = 0,
+          at = seq(-1,1,0.001),
+          colourkey.cex = 1,
+          grid.col = TRUE,
+          grid.row = TRUE,
+          grid.colour = 'white',
+          resolution = 50,
+          colour.alpha = 0.7,
+          clustering.method = 'ward.D',
+          plot.dendrograms = 'none',
+          rows.distance.method = 'correlation',
+          cols.distance.method = 'correlation',
+          cor.method = 'spearman',
+          col.pos = which(y != '1', arr.ind = TRUE)[,1],
+          row.pos = which(y != '1', arr.ind = TRUE)[,2],
+          cell.text = spearman,
+          text.fontface = 1,
+          text.col = 'white',
+          text.cex = 1
+          )
+```
+
