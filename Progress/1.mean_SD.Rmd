@@ -1,0 +1,125 @@
+---
+title: "CPCGENE-outlier gene"
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+
+library(BoutrosLab.plotting.general)
+
+#####READ TABLE#####
+
+
+#CPC-GENE RAN-seq data - 2018-01-23_rnaseq_rsem_gene_FPKM
+cpcg.fpkm <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", row.names = NULL);
+
+```
+
+
+#Noramlize within genes 
+```{r, fig.width=11, fig.height=8}
+
+#Calculate z score within genes
+patient.part <- c(2:145);
+cpcg.fpkm.onlygene <- cpcg.fpkm[ ,patient.part];
+cpcg.fpkm.onlygene.mean <- apply(cpcg.fpkm.onlygene, 1, mean);
+cpcg.fpkm.onlygene.sd <- apply(cpcg.fpkm.onlygene, 1, sd);
+zscore.gene <- function(x){
+  (cpcg.fpkm.onlygene[x,] - cpcg.fpkm.onlygene.mean[x]) / cpcg.fpkm.onlygene.sd[x]
+};
+
+
+
+#Make Z-score matrix - all genes
+#cpcg.zscore.bygene <- data.frame();
+#for (i in 1 : nrow(cpcg.fpkm.onlygene)) {
+#  cpcg.zscore.bygene[i,1:ncol(cpcg.fpkm.onlygene)] <- zscore.gene(i)
+#};
+#cpcg.zscore.bygene.symbol <- cbind(data.frame(cpcg.fpkm$row.names),cpcg.zscore.bygene, data.frame(cpcg.fpkm$Symbol), cpcg.fpkm.onlygene.mean, cpcg.fpkm.onlygene.sd);
+#colnames(cpcg.zscore.bygene.symbol) <- c(colnames(cpcg.fpkm), "Mean", "sd");
+#write.table(cpcg.zscore.bygene.symbol, file = 'cpcg.zscore.bygene.symbol.txt', sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
+
+#Z-score file
+cpcg.zscore.bygene.symbol <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", row.names = NULL);
+
+#Gene order - have high z-score range: max(z-score)-min(z-score) - all genes
+z.max <- apply(cpcg.zscore.bygene.symbol[patient.part], 1, max);
+z.min <- apply(cpcg.zscore.bygene.symbol[patient.part], 1, min);
+z.range <- z.max - z.min;
+z.range <- data.frame(z.range);
+cpcg.zscore.bygene.symbol.zrange <- cbind(cpcg.zscore.bygene.symbol, z.range);
+cpcg.zrange.decrease <- cpcg.zscore.bygene.symbol.zrange[order(cpcg.zscore.bygene.symbol.zrange$z.range, decreasing = TRUE),];
+#head(cpcg.zrange.decrease[1:100,])
+
+
+#Heatmap - for 100 genes
+cpcg.zrange.decrease.sub <- cpcg.zrange.decrease[1:100,]
+zscore.heat <- create.heatmap(x = cpcg.zrange.decrease.sub[,patient.part],
+          #clustering.method = "complete",
+          clustering.method = "none",
+          yaxis.lab = NA,
+          yaxis.cex = 0.3,
+          xaxis.lab = cpcg.zrange.decrease.sub$Symbol,
+          xaxis.cex = 0.5,
+          # show each colour once (i.e, four values, four colours)
+          grid.col = FALSE,
+          print.colour.key = TRUE,
+          # remove y-axis ticks
+          yaxis.tck = 0.1,
+          xaxis.tck = 0.1,
+          #height = 1,
+          colour.scheme = c('red4', 'white', 'dodgerblue4'),
+          colour.centering.value = 0,
+          #colourkey.labels.at = seq(-5,5,1),
+          at = seq(-3,3,0.001),
+          colourkey.cex = 1,
+          #force.grid.col = TRUE,
+          #row.colour = "black"
+          resolution = 300,
+          #rows.distance.method = 'euclidean',
+          #cols.distance.method = 'manhattan'
+               );
+zscore.heat;
+
+```
+
+#Waterfall plot for each top 100 genes
+```{r, fig.width=12, fig.height=9}
+
+#Make for loop for making multiple plots
+for (i in 1:100) {
+  a <- t(data.frame(cpcg.zrange.decrease.sub[i,patient.part]))
+  gene.a <- cbind(data.frame(row.names(a)), data.frame(as.numeric(cpcg.zrange.decrease.sub[i,patient.part])))
+  colnames(gene.a) <- c("patient", "gene")
+  fraction.bar <- create.barplot(
+   formula = gene ~ patient,
+   data = gene.a,
+   main = cpcg.zrange.decrease.sub$Symbol[i],
+   main.cex = 1.5,
+   ylab.lab = 'Z-Score',
+   #ylimits = c(0,1),
+   #yat = seq(0,1,0.5),
+   yaxis.cex = 1,
+   ylab.cex = 1,
+   xaxis.tck = 0.2,
+   #xaxis.lab = NA,
+   xlab.lab = "Patient",
+   xaxis.rot = 90,
+   xaxis.cex = 0.5,
+   xlab.cex = 1,
+   yaxis.tck = 1,
+   yaxis.fontface = 'bold',
+   #ylab.axis.padding	= 3,
+   sample.order = 'decreasing'
+  )
+  print(fraction.bar)
+};
+
+
+
+```
+
