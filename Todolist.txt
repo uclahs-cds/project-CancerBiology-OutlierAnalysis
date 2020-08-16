@@ -1,0 +1,34 @@
++ Outlier Gene Expression in Cancer
+
+	1. Starting with prostate cancer, understand really weird gene expression outliers (Use CPC-GENE RNA-seq data : normalized by FPKM)
+	▪ Define "really weird" genes with three methods for each transcript
+		○ Use mean and SD
+		○ Use median and MAD
+		○ Use trimmed-mean and trimmed-SD
+		○ Use median and MAD excluding zero FPKM value
+	▪ Calculate the z-score and filter the genes by the range of z-score (max Z – min Z for that gene, across patients)
+		○ Make heatmap for each methods
+		○ Make waterfall plot with z-score and FPKM value with showing the fraction of patients in which a gene is detected
+		○ Do a direct comparison amongst four methods and make correlation plot (use Spearman correlation)
+			§ Show high correlation
+	▪ Make consensus clustering with top 200 outliers by the union of three methods
+			§ Consensus clustering doesn't look promising
+	▪ Sort genes by their chromosome position
+		○ Make heatmap for each chromosome with z-score
+		○ See if that reveals any trends such as CNAs or enhancer changes
+	▪ Add TCGA Prostate cancer data: normalized by FPKM, 496 patients
+		○ Check the reproducibility: check the correlation of z-score range between CPC-gene and TCGA-PC data set
+			§ Show high reproducibility
+	▪ Create an R package of functions for outlier detection
+	▪ Check for enrichment in specific pathways (g:Profiler)
+	▪ Check to see what the best hits with very low (i.e. negative) z-scores
+	
+
+	2. Quantify different mechanisms by which this can happen
+	▪ enhancer hijacking
+	▪ copy-neutral SVs (translocations, inversions)
+	▪ non-coding SNVs & indels
+	▪ extrachromosomal DNA
+	▪ synonymous SNVs for protein abundance?
+	▪ associations with high miRNA, circRNA, m6A features
+
