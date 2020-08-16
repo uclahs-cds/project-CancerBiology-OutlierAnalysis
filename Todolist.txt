@@ -19,6 +19,7 @@
 	▪ Add TCGA Prostate cancer data: normalized by FPKM, 496 patients
 		○ Check the reproducibility: check the correlation of z-score range between CPC-gene and TCGA-PC data set
 			§ Show high reproducibility
+	▪ Add SU2C data 
 	▪ Create an R package of functions for outlier detection
 	▪ Check for enrichment in specific pathways (g:Profiler)
 	▪ Check to see what the best hits with very low (i.e. negative) z-scores
