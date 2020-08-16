@@ -12,7 +12,10 @@ library(BoutrosLab.plotting.general)
 
 
 #CPC-GENE RNA-seq data - 2018-01-23_rnaseq_rsem_gene_FPKM
-cpcg.fpkm <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", row.names = 1);
+cpcg.fpkm <- read.delim(
+   file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", 
+   row.names = 1
+   );
 
 
 ```
@@ -65,10 +68,21 @@ zscore.gene.median <- function(x){
 #for (i in 1 : nrow(cpcg.fpkm)) {
 #  zscore.bymedian[i,1:length(patient.part)] <- zscore.gene.median(i)
 #};
-#zscore.bymedian.symbol <- cbind(data.frame(cpcg.fpkm$row.names),zscore.bymedian, data.frame(cpcg.fpkm$Symbol), patient.median, patient.mad);
-#colnames(zscore.bymedian.symbol) <- c(colnames(cpcg.fpkm), "Median", "mad");
-#write.table(zscore.bymedian.symbol, file = 'cpcg.zscore.bymedian.txt', sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
-cpcg.zscore.bymedian <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bymedian.txt", row.names = 1);
+# zscore.bymedian.symbol <- cbind(zscore.bymedian, 
+#                                 data.frame(cpcg.fpkm$Symbol), 
+#                                 patient.median, 
+#                                 patient.mad);
+# colnames(zscore.bymedian.symbol) <- c(colnames(cpcg.fpkm), "Median", "mad");
+# write.table(zscore.bymedian.symbol, 
+#             file = 'cpcg.zscore.bymedian.txt', 
+#             sep = "\t", 
+#             col.names = TRUE, 
+#             row.names = TRUE, 
+#             quote = FALSE);
+cpcg.zscore.bymedian <- read.delim(
+   file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bymedian.txt", 
+   row.names = 1
+   );
 
 #Gene order - have high z-score range: max(z-score)-min(z-score) - all genes : Using Median and MAD
 z.max.median <- apply(cpcg.zscore.bymedian[patient.part], 1, max);
@@ -76,7 +90,8 @@ z.min.median <- apply(cpcg.zscore.bymedian[patient.part], 1, min);
 z.range.median <- z.max.median - z.min.median;
 z.range.median <- data.frame(z.range.median);
 cpcg.zscore.zrange.median <- cbind(cpcg.zscore.bymedian, z.range.median);
-cpcg.zrange.decrease.median <- cpcg.zscore.zrange.median[order(cpcg.zscore.zrange.median$z.range, decreasing = TRUE),];
+cpcg.zrange.decrease.median <- cpcg.zscore.zrange.median[order(cpcg.zscore.zrange.median$z.range.median, decreasing = TRUE),];
+#write.table(cpcg.zrange.decrease.median, file = '~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zrange.decrease.median.txt', sep = "\t", col.names = TRUE, row.names = TRUE, quote = FALSE)
 
 ```
 
@@ -140,7 +155,7 @@ for (i in 1:100) {
    fpkm.gene <- as.numeric(cpcg.fpkm[rownames(cpcg.zrange.decrease.median)[i],patient.part])
    fpkm.b <- cbind(row.a, fpkm.gene)
    colnames(fpkm.b) <- c("patient", "gene")
-   nonzero.fpkm <- round(sum(ifelse(fpkm.b$gene == 0, 0, 1))/144*100, 2)
+   nonzero.fpkm <- round(sum(ifelse(fpkm.b$gene == 0, 0, 1))/length(patient.part)*100, 2)
    fpkm.bar <- create.barplot(
       formula = gene ~ patient,
       data = fpkm.b,
@@ -230,10 +245,21 @@ zscore.gene.trimmean <- function(x){
 #for (i in 1 : nrow(cpcg.fpkm)) {
 #  zscore.bytrimmean[i,1:length(patient.part)] <- zscore.gene.trimmean(i)
 #};
-#zscore.bytrimmean.symbol <- cbind(data.frame(cpcg.fpkm$row.names),zscore.bytrimmean, data.frame(cpcg.fpkm$Symbol), patient.trimmean, patient.trimsd);
-#colnames(zscore.bytrimmean.symbol) <- c(colnames(cpcg.fpkm), "Trimmean", "Trimsd");
-#write.table(zscore.bytrimmean.symbol, file = 'cpcg.zscore.bytrimmean.txt', sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
-cpcg.zscore.bytrimmean <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bytrimmean.txt", row.names = 1);
+# zscore.bytrimmean.symbol <- cbind(zscore.bytrimmean, 
+#                                   data.frame(cpcg.fpkm$Symbol), 
+#                                   patient.trimmean, 
+#                                   patient.trimsd);
+# colnames(zscore.bytrimmean.symbol) <- c(colnames(cpcg.fpkm), "Trimmean", "Trimsd");
+# write.table(zscore.bytrimmean.symbol, 
+#             file = 'cpcg.zscore.bytrimmean.txt', 
+#             sep = "\t", 
+#             col.names = TRUE, 
+#             row.names = FALSE, 
+#             quote = FALSE)
+cpcg.zscore.bytrimmean <- read.delim(
+   file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bytrimmean.txt", 
+   row.names = 1
+   );
 
 
 #Gene order - have high z-score range: max(z-score)-min(z-score) - all genes
@@ -242,7 +268,13 @@ z.min.trimmean <- apply(cpcg.zscore.bytrimmean[patient.part], 1, min);
 z.range.trimmean <- z.max.trimmean - z.min.trimmean;
 z.range.trimmean <- data.frame(z.range.trimmean);
 cpcg.zscore.zrange.trimmean <- cbind(cpcg.zscore.bytrimmean, z.range.trimmean);
-cpcg.zrange.decrease.trimmean <- cpcg.zscore.zrange.trimmean[order(cpcg.zscore.zrange.trimmean$z.range, decreasing = TRUE),];
+cpcg.zrange.decrease.trimmean <- cpcg.zscore.zrange.trimmean[order(cpcg.zscore.zrange.trimmean$z.range.trimmean, decreasing = TRUE),];
+# write.table(cpcg.zrange.decrease.trimmean, 
+#             file = '~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zrange.decrease.trimmean.txt', 
+#             sep = "\t", 
+#             col.names = TRUE, 
+#             row.names = TRUE, 
+#             quote = FALSE);
 
 
 ```
@@ -318,7 +350,7 @@ for (i in 1:100) {
    fpkm.gene <- as.numeric(cpcg.fpkm[rownames(cpcg.zrange.decrease.trimmean)[i],patient.part])
    fpkm.b <- cbind(row.a, fpkm.gene)
    colnames(fpkm.b) <- c("patient", "gene")
-   nonzero.fpkm <- round(sum(ifelse(fpkm.b$gene == 0, 0, 1))/144*100, 2)
+   nonzero.fpkm <- round(sum(ifelse(fpkm.b$gene == 0, 0, 1))/length(patient.part)*100, 2)
    fpkm.bar <- create.barplot(
       formula = gene ~ patient,
       data = fpkm.b,

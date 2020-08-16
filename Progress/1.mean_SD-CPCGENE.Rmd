@@ -15,7 +15,10 @@ library(BoutrosLab.plotting.general)
 
 
 #CPC-GENE RAN-seq data - 2018-01-23_rnaseq_rsem_gene_FPKM
-cpcg.fpkm <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", row.names = NULL);
+cpcg.fpkm <- read.delim(
+   file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", 
+   row.names = NULL
+   );
 
 ```
 
@@ -24,7 +27,7 @@ cpcg.fpkm <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01
 ```{r, fig.width=11, fig.height=8}
 
 #Calculate z score within genes
-patient.part <- c(2:145);
+patient.part <- 1:(ncol(cpcg.fpkm)-1);
 cpcg.fpkm.onlygene <- cpcg.fpkm[ ,patient.part];
 cpcg.fpkm.onlygene.mean <- apply(cpcg.fpkm.onlygene, 1, mean);
 cpcg.fpkm.onlygene.sd <- apply(cpcg.fpkm.onlygene, 1, sd);
@@ -39,12 +42,23 @@ zscore.gene <- function(x){
 #for (i in 1 : nrow(cpcg.fpkm.onlygene)) {
 #  cpcg.zscore.bygene[i,1:ncol(cpcg.fpkm.onlygene)] <- zscore.gene(i)
 #};
-#cpcg.zscore.bygene.symbol <- cbind(data.frame(cpcg.fpkm$row.names),cpcg.zscore.bygene, data.frame(cpcg.fpkm$Symbol), cpcg.fpkm.onlygene.mean, cpcg.fpkm.onlygene.sd);
+# cpcg.zscore.bygene.symbol <- cbind(cpcg.zscore.bygene, data.frame(cpcg.fpkm$Symbol), 
+#                                    cpcg.fpkm.onlygene.mean, 
+#                                    cpcg.fpkm.onlygene.sd);
 #colnames(cpcg.zscore.bygene.symbol) <- c(colnames(cpcg.fpkm), "Mean", "sd");
-#write.table(cpcg.zscore.bygene.symbol, file = 'cpcg.zscore.bygene.symbol.txt', sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
+# write.table(cpcg.zscore.bygene.symbol, 
+#             file = 'cpcg.zscore.bygene.symbol.txt', 
+#             sep = "\t", 
+#             col.names = TRUE, 
+#             row.names = TRUE, 
+#             quote = FALSE)
 
 #Z-score file
-cpcg.zscore.bygene.symbol <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", row.names = NULL);
+cpcg.zscore.bygene.symbol <- read.delim(
+   file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", 
+   row.names = 1
+   );
+
 
 #Gene order - have high z-score range: max(z-score)-min(z-score) - all genes
 z.max <- apply(cpcg.zscore.bygene.symbol[patient.part], 1, max);
@@ -52,7 +66,8 @@ z.min <- apply(cpcg.zscore.bygene.symbol[patient.part], 1, min);
 z.range <- z.max - z.min;
 z.range <- data.frame(z.range);
 cpcg.zscore.bygene.symbol.zrange <- cbind(cpcg.zscore.bygene.symbol, z.range);
-cpcg.zrange.decrease <- cpcg.zscore.bygene.symbol.zrange[order(cpcg.zscore.bygene.symbol.zrange$z.range, decreasing = TRUE),];
+cpcg.zrange.decrease <- cpcg.zscore.bygene.symbol.zrange[order(cpcg.zscore.bygene.symbol.zrange$z.range, 
+                                                               decreasing = TRUE),];
 #head(cpcg.zrange.decrease[1:100,])
 
 

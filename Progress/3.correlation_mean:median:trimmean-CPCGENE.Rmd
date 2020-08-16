@@ -11,13 +11,25 @@ editor_options:
 library(BoutrosLab.plotting.general)
 
 #CPC-GENE RNA-seq data - 2018-01-23_rnaseq_rsem_gene_FPKM
-cpcg.fpkm <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", row.names = 1);
+cpcg.fpkm <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", 
+  row.names = 1
+  );
 #Mean
-cpcg.zscore.bygene.symbol <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", row.names = 1);
+cpcg.zscore.bygene.symbol <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", 
+  row.names = 1
+  );
 #Median
-cpcg.zscore.bymedian <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bymedian.txt", row.names = 1);
+cpcg.zscore.bymedian <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bymedian.txt", 
+  row.names = 1
+  );
 #Trimmed Mean
-cpcg.zscore.bytrimmean <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bytrimmean.txt", row.names = 1);
+cpcg.zscore.bytrimmean <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bytrimmean.txt", 
+  row.names = 1
+  );
 
 ```
 
@@ -25,7 +37,9 @@ cpcg.zscore.bytrimmean <- read.delim("~/Documents/1.Project/1.CPCGENE_RNA-seq/Ra
 ```{r fig.width=6, fig.height=6}
 #Make file with Mean, Median and Trimmed Mean
 gene.name <- data.frame(row.names(cpcg.zscore.bygene.symbol));
-cpcg.score <- cbind(cpcg.zscore.bygene.symbol$Mean, cpcg.zscore.bymedian$Median, cpcg.zscore.bytrimmean$Trimmean);
+cpcg.score <- cbind(cpcg.zscore.bygene.symbol$Mean, 
+                    cpcg.zscore.bymedian$Median, 
+                    cpcg.zscore.bytrimmean$Trimmean);
 rownames(cpcg.score) <- gene.name[,1];
 colnames(cpcg.score) <- c("Mean", "Median", "Trimmed mean");
 
@@ -40,7 +54,6 @@ for (i in 1:(ncol(y)-1)) {
     y[i, (i+1):nrow(y)] <- "";
     };
 create.heatmap(x = spearman,
-          #clustering.method = "none",
           main = "Spearman correlation",
           main.cex = 2,
           yaxis.lab = NA,
@@ -48,9 +61,7 @@ create.heatmap(x = spearman,
           xaxis.lab = NA,
           xaxis.cex = 1,
           xaxis.rot = 0,
-          # show each colour once (i.e, four values, four colours)
           print.colour.key = TRUE,
-          # remove y-axis ticks
           yaxis.tck = 0.1,
           xaxis.tck = 0.1,
           #height = 1,

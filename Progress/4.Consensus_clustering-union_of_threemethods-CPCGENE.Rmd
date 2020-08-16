@@ -1,0 +1,751 @@
+---
+title: "5.Progress_Outlier_Gene_zscore"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+### INCLUDES ######################################################################################
+library(BoutrosLab.plotting.general);
+library(ConsensusClusterPlus);
+library(biomaRt);
+
+
+
+#CPC-GENE RNA-seq data - 2018-01-23_rnaseq_rsem_gene_FPKM
+cpcg.fpkm <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/2018-01-23_rnaseq_rsem_gene_FPKM.txt", 
+  row.names = 1
+  );
+#Mean
+cpcg.zscore.bygene.symbol <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bygene.symbol.txt", 
+  row.names = 1
+  );
+#Median
+cpcg.zscore.bymedian <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bymedian.txt", 
+  row.names = 1
+  );
+#Trimmed Mean
+cpcg.zscore.bytrimmean <- read.delim(
+  file = "~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/cpcg.zscore.bytrimmean.txt", 
+  row.names = 1
+  );
+
+#Patient part
+patient.part <- 1:(ncol(cpcg.fpkm)-1);
+
+```
+
+
+#Make VennDiagram with Top 200 genes(Z-score range) from each method
+```{r, fig.width=5.5, fig.height=5}
+
+#Gene order - have high z-score range: max(z-score)-min(z-score) - all genes
+z.max <- apply(cpcg.zscore.bygene.symbol[patient.part], 1, max);
+z.min <- apply(cpcg.zscore.bygene.symbol[patient.part], 1, min);
+z.range <- z.max - z.min;
+z.range <- data.frame(z.range);
+cpcg.zscore.zrange.mean <- cbind(cpcg.zscore.bygene.symbol, z.range);
+cpcg.zrange.decrease.mean <- cpcg.zscore.zrange.mean[order(cpcg.zscore.zrange.mean$z.range, decreasing = TRUE),];
+
+#Gene order - have high z-score range: max(z-score)-min(z-score) - all genes : Using Median and MAD
+z.max.median <- apply(cpcg.zscore.bymedian[patient.part], 1, max);
+z.min.median <- apply(cpcg.zscore.bymedian[patient.part], 1, min);
+z.range.median <- z.max.median - z.min.median;
+z.range.median <- data.frame(z.range.median);
+cpcg.zscore.zrange.median <- cbind(cpcg.zscore.bymedian, z.range.median);
+cpcg.zrange.decrease.median <- cpcg.zscore.zrange.median[order(cpcg.zscore.zrange.median$z.range, decreasing = TRUE),];
+
+#Gene order - have high z-score range: max(z-score)-min(z-score) - all genes : Using Trimmend-mean and Trimmed-sd
+z.max.trimmean <- apply(cpcg.zscore.bytrimmean[patient.part], 1, max);
+z.min.trimmean <- apply(cpcg.zscore.bytrimmean[patient.part], 1, min);
+z.range.trimmean <- z.max.trimmean - z.min.trimmean;
+z.range.trimmean <- data.frame(z.range.trimmean);
+cpcg.zscore.zrange.trimmean <- cbind(cpcg.zscore.bytrimmean, z.range.trimmean);
+cpcg.zrange.decrease.trimmean <- cpcg.zscore.zrange.trimmean[order(cpcg.zscore.zrange.trimmean$z.range, decreasing = TRUE),];
+
+
+#Get top 200 gene list
+mean.symbol.top <- rownames(cpcg.zrange.decrease.mean)[1:200];
+median.symbol.top <- rownames(cpcg.zrange.decrease.median)[1:200];
+trimmean.symbol.top <- rownames(cpcg.zrange.decrease.trimmean)[1:200];
+
+
+### VennDiagram
+library(VennDiagram);
+library(futile.logger);
+library(grDevices);
+
+#Up regulated gene in three dataset
+venn <- venn.diagram(
+  list(
+    Mean = mean.symbol.top, 
+    Median = median.symbol.top,
+    TrimmedMean = trimmean.symbol.top
+    ),
+  fill = c("firebrick4", "deepskyblue4", "yellow3"), 
+  alpha = c(0.35, 0.35, 0.35),
+  cat.fontface = "bold",
+  cat.default.pos = "outer",
+  cat.pos = c(-27, 27, 135),
+  cat.dist = c(0.055, 0.055, 0.085),
+  cat.fontfamily = "sans",
+  lty = 1,
+  lwd = 0.5,
+  fontfamily = "sans",
+  euler.d = TRUE,
+  scaled = TRUE,
+  filename = NULL
+  );
+grid.draw(venn);
+```
+
+
+```{r, fig.width=12, fig.height=11}
+
+#Union of gene list
+mean.median.gene <- union(mean.symbol.top, median.symbol.top);
+union.gene <- union(mean.median.gene, trimmean.symbol.top);
+
+#Make a heatmap with united gene in FPKM space
+fpkm.union.gene <- cpcg.fpkm[rownames(cpcg.fpkm) %in% union.gene,];
+# write.table(fpkm.union.gene, 
+#             file = 'fpkm.union.gene.txt', 
+#             sep = "\t", 
+#             col.names = TRUE, 
+#             row.names = TRUE, 
+#             quote = FALSE);
+union.heat.range.small <- create.heatmap(x = fpkm.union.gene[,patient.part],
+          clustering.method = 'ward.D2',
+	        #file = generate.filename('', '','png'),
+        	cluster.dimensions = 'both',
+          yaxis.lab = NA,
+          yaxis.cex = 0.3,
+          xaxis.lab = fpkm.union.gene$Symbol,
+          xaxis.cex = 0.2,
+          main = "Union of Top 200 genes - 0:10",
+          main.cex = 1.5,
+          # show each colour once (i.e, four values, four colours)
+          grid.col = FALSE,
+          print.colour.key = TRUE,
+          # remove y-axis ticks
+          yaxis.tck = 0.1,
+          xaxis.tck = 0.1,
+          #height = 1,
+          colour.scheme = c('white', 'dodgerblue4'),
+          #colourkey.labels.at = seq(-5,5,1),
+          at = seq(0,10,0.001),
+          colourkey.cex = 1,
+          #force.grid.col = TRUE,
+          #row.colour = "black"
+          resolution = 300,
+          rows.distance.method = 'euclidean',
+          cols.distance.method = 'euclidean'
+          );
+union.heat.range.small;
+
+union.heat.range.large <- create.heatmap(x = fpkm.union.gene[,patient.part],
+          clustering.method = 'ward.D2',
+	        #file = generate.filename('', '','png'),
+        	cluster.dimensions = 'both',
+          yaxis.lab = NA,
+          yaxis.cex = 0.3,
+          xaxis.lab = fpkm.union.gene$Symbol,
+          xaxis.cex = 0.2,
+          main = "Union of Top 200 genes - 0:100",
+          main.cex = 1.5,
+          # show each colour once (i.e, four values, four colours)
+          grid.col = FALSE,
+          print.colour.key = TRUE,
+          # remove y-axis ticks
+          yaxis.tck = 0.1,
+          xaxis.tck = 0.1,
+          #height = 1,
+          colour.scheme = c('white', 'dodgerblue4'),
+          #colourkey.labels.at = seq(-5,5,1),
+          at = seq(0,100,0.001),
+          colourkey.cex = 1,
+          #force.grid.col = TRUE,
+          #row.colour = "black"
+          resolution = 300,
+          rows.distance.method = 'euclidean',
+          cols.distance.method = 'euclidean'
+          );
+union.heat.range.large;
+```
+
+#Consensus clustering - union of three method
+```{r, fig.width=12, fig.height=11}
+
+#Make sample cluster
+sample.matrix <- as.matrix(fpkm.union.gene[,patient.part]);
+#sample.cluster <- ConsensusClusterPlus(
+#        	sample.matrix,
+#        	maxK = 20,
+#        	reps = 1000,
+#        	pItem = 0.8,
+#        	pFeature = 0.8,
+#        	clusterAlg = 'hc',
+#        	distance = 'euclidean',
+#        	innerLinkage = 'ward.D',
+#        	finalLinkage = 'ward.D',
+#        	seed = 17,
+#        	title = 'sample_ConsensusClusterPlus',
+#        	writeTable = TRUE,
+#        	corUse = 'complete.obs',
+#        	verbose = TRUE,
+#        	plot = 'pdf'
+#        	);
+
+#save(sample.cluster, file = 'sample.cluster.rda');
+
+#Make gene cluster
+gene.matrix <- as.matrix(t(fpkm.union.gene[,patient.part]));
+# gene.cluster <- ConsensusClusterPlus(
+#         	gene.matrix,
+#         	maxK = 20,
+#         	reps = 1000,
+#         	pItem = 0.8,
+#         	pFeature = 0.8,
+#         	clusterAlg = 'hc',
+#         	distance = 'euclidean',
+#         	innerLinkage = 'ward.D',
+#         	finalLinkage = 'ward.D',
+#         	seed = 17,
+#         	title = 'gene_ConsensusClusterPlus',
+#         	writeTable = TRUE,
+#         	corUse = 'complete.obs',
+#         	verbose = TRUE,
+#         	plot = 'pdf'
+#         	);
+
+#save(gene.cluster, file = 'gene.cluster.rda');
+
+#load the two files you created in the last script
+load('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/sample.cluster.rda');
+load('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/gene.cluster.rda');
+
+# assign the number of clusters
+sample.k <- 4;
+gene.k <- 6;
+
+cc.gene <- data.frame(gene.cluster = sort(gene.cluster[[gene.k]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample <- data.frame(sample.cluster = sort(sample.cluster[[sample.k]]$consensusClass), stringsAsFactors = FALSE);
+
+# write.table(cc.gene, file = 'cc.gene.txt', quote = FALSE, sep = '\t');
+# write.table(cc.sample, file = 'cc.sample.txt', quote = FALSE, sep = '\t');
+
+cc.sample.ord <- cc.sample[match(colnames(fpkm.union.gene[,patient.part]), rownames(cc.sample)), ];
+cc.gene.ord <- cc.gene[match(rownames(fpkm.union.gene[,patient.part]), rownames(cc.gene)), ];
+
+
+gene.ord <- labels(as.dendrogram(gene.cluster[[gene.k]]$consensusTree));
+samples.ord <- labels(as.dendrogram(sample.cluster[[sample.k]]$consensusTree));
+sample.col <- default.colours(sample.k, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster[[sample.k]]$consensusClass, 1:sample.k)][samples.ord];
+
+
+#Make sample covariate
+sample.covariate <- list(
+	rect = list(
+		col = 'transparent',
+		fill = sample.col,
+		lwd = 1.5
+		)
+	);
+
+#Make gene covariate
+gene.col <- default.colours(gene.k, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster[[gene.k]]$consensusClass, 1:gene.k)][gene.ord];
+gene.covariate <- list(
+	rect = list(
+		col = 'transparent',
+		fill = gene.col,
+		lwd = 1.5
+		)
+	);
+
+                  
+consensus.heat <- create.heatmap(
+            	x = fpkm.union.gene[gene.ord, samples.ord],
+            	clustering.method = "none",
+            	cluster.dimensions = 'none',
+            	main = "Consensus Clustering - Union of Top 200 genes",
+            	main.cex = 1.5,
+            	colour.scheme = c('white', 'dodgerblue4'),
+            	covariates= sample.covariate,
+            	covariates.top = gene.covariate,
+            	#covariate.legend = covariates.legend,
+            	covariates.grid.border = list(col = 'black', lwd = 2),
+            	legend.cex = 1,
+            	legend.title.cex = 1,
+            	#same.as.matrix = TRUE,
+            	colourkey.cex = 1,
+            	scale.data = FALSE,
+            	at = seq(0, 10,0.001),
+              yaxis.lab = NA,
+              yaxis.cex = 0.5,
+              xaxis.lab = fpkm.union.gene[gene.ord, c(samples.ord, 145)]$Symbol, #add Symbol column
+              xaxis.cex = 0.2,
+            	resolution = 300
+            	);
+consensus.heat;
+
+
+```
+
+#Sort by position - - union of three method
+```{r, fig.width=12, fig.height=11}
+
+#Get gene position
+gene.list <- rownames(fpkm.union.gene);
+gene.list.sub <- substr(gene.list,1,15);
+ensembl <- useEnsembl(biomart = "ensembl", 
+                   dataset = "hsapiens_gene_ensembl", 
+                   mirror = "uswest");
+ensembl <- useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl)
+gene.position <- getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+                   'start_position', 'end_position', 'band'),
+      filters = 'ensembl_gene_id', 
+      values = gene.list.sub, 
+      mart = ensembl)
+
+#Some genes don't match with any position
+"%ni%" <- Negate("%in%")
+subset(gene.list.sub, gene.list.sub %ni% gene.position$ensembl_gene_id)
+
+#Get the gene, position matrix
+fpkm.union.gene.biomart <- subset(fpkm.union.gene, gene.list.sub %in% gene.position$ensembl_gene_id)
+gene.position.order <- gene.position[order(as.numeric(gene.position$chromosome_name), 
+                                           as.numeric(gene.position$start_position), decreasing = FALSE),]
+fpkm.union.gene.biomart.fpkm <- fpkm.union.gene.biomart[match(gene.position.order$ensembl_gene_id, 
+                                                              substr(rownames(fpkm.union.gene.biomart), 1, 15)),]
+union.chr.ord <- cbind(fpkm.union.gene.biomart.fpkm, gene.position.order[,3:5]) 
+
+
+#Make chromosme covariates : convert "Y"/"X" to numeric value
+union.chr.ord.numeric <- union.chr.ord
+for (i in 1 : nrow(union.chr.ord.numeric)){
+  if(union.chr.ord.numeric$chromosome_name[i] == "Y") {
+    union.chr.ord.numeric$chromosome_name[i] <- "23"
+  }
+  if(union.chr.ord.numeric$chromosome_name[i] == "X") {
+    union.chr.ord.numeric$chromosome_name[i] <- "24"
+  }
+}
+union.chr.ord.numeric.reorder <- union.chr.ord.numeric[order(as.numeric(union.chr.ord.numeric$chromosome_name), 
+                                                             as.numeric(union.chr.ord.numeric$start_position), decreasing = FALSE),]
+gene.chr <- union.chr.ord.numeric.reorder$chromosome_name
+chr <- unique(gene.chr)
+cov.colours <- c('darkslategray3','indianred2','darkseagreen1','gold2','honeydew2',
+                 'lemonchiffon3','turquoise','khaki','hotpink','darkslateblue',
+                 "indianred4", 'lavender', 'lightblue', 'dodgerblue4', 'darkseagreen3', 
+                 'chartreuse3', 'orange', 'lightcoral', 'lightblue4', 'mediumpurple1', 
+                 'blueviolet', 'royalblue2', 'ivory2', 'darkslategrey');
+
+sample.col <- cov.colours[as.numeric(gene.chr)];
+chr.covariate <- list(
+	rect = list(
+		col = 'transparent',
+		fill = sample.col,
+		lwd = 1.5
+		)
+	);
+covariates.legend <- list(
+	legend = list(
+		colours = cov.colours,
+		labels = as.character(c(1:22, "Y", "X")),
+		title = expression(bold(underline('Chromosome')))
+		)
+	);
+
+
+#Make heatmap by gene position
+create.heatmap(
+	x = union.chr.ord[, patient.part],
+	clustering.method = "none",
+	#file = generate.filename('', '','png'),
+	cluster.dimensions = 'none',
+	main = "Chromosome position - Union of Top 200 genes",
+	main.cex = 1.5,
+	colour.scheme = c('white', 'dodgerblue4'),
+	covariates.top = chr.covariate,
+	covariate.legend = covariates.legend,
+	legend.cex = 1,
+	legend.title.cex = 1,
+	#same.as.matrix = TRUE,
+	colourkey.cex = 1,
+	scale.data = FALSE,
+	at = seq(0, 10,0.001),
+  yaxis.lab = NA,
+  yaxis.cex = 0.5,
+  xaxis.lab = union.chr.ord$Symbol,
+  xaxis.cex = 0.2,
+	resolution = 400
+	);
+
+
+
+#Check the position on chromosome
+max <- apply(union.chr.ord[patient.part], 1, max);
+union.chr.ord.max <- cbind(union.chr.ord, max);
+#chr1
+union.chr.ord.max.chr1 <- union.chr.ord.max[union.chr.ord.max$chromosome_name == 1,];
+create.manhattanplot(
+  formula = max ~ start_position,
+  data = union.chr.ord.max.chr1,
+  main = "Chr1",
+  pch = 18
+);
+#chr10
+union.chr.ord.max.chr10 <- union.chr.ord.max[union.chr.ord.max$chromosome_name == 10,];
+create.manhattanplot(
+  formula = max ~ start_position,
+  data = union.chr.ord.max.chr10,
+  main = "Chr10",
+  pch = 18
+);
+#chr15
+union.chr.ord.max.chr15 <- union.chr.ord.max[union.chr.ord.max$chromosome_name == 15,];
+create.manhattanplot(
+  formula = max ~ start_position,
+  data = union.chr.ord.max.chr15,
+  main = "Chr15",
+  pch = 18
+);
+
+
+
+```
+
+
+
+```{r, fig.width=12, fig.height=11}
+#Data-filter : exclude the maximum FPKM of the gene is less than 1
+fpkm.max <- apply(fpkm.union.gene[patient.part], 1, max);
+fpkm.union.gene.max <- cbind(fpkm.union.gene, fpkm.max);
+fpkm.union.gene.max.one <- fpkm.union.gene.max[fpkm.union.gene.max$fpkm.max > 1,];
+union.heat <- create.heatmap(x = fpkm.union.gene.max.one[,patient.part],
+          clustering.method = "complete",
+          #clustering.method = "none",
+          yaxis.lab = NA,
+          yaxis.cex = 0.3,
+          xaxis.lab = fpkm.union.gene.max.one$Symbol,
+          xaxis.cex = 0.2,
+          main = "Union of Top 200 genes (max FPKM >1) - 0:10",
+          main.cex = 1.5,
+          # show each colour once (i.e, four values, four colours)
+          grid.col = FALSE,
+          print.colour.key = TRUE,
+          # remove y-axis ticks
+          yaxis.tck = 0.1,
+          xaxis.tck = 0.1,
+          #height = 1,
+          colour.scheme = c('white', 'dodgerblue4'),
+          colour.centering.value = 0,
+          #colourkey.labels.at = seq(-5,5,1),
+          at = seq(0,10,0.001),
+          colourkey.cex = 1,
+          #force.grid.col = TRUE,
+          #row.colour = "black"
+          resolution = 300,
+          rows.distance.method = 'euclidean',
+          cols.distance.method = 'manhattan'
+          );
+union.heat;
+
+
+#Data-filter : exclude the maximum FPKM of the gene is less than 5
+fpkm.max <- apply(fpkm.union.gene[patient.part], 1, max);
+fpkm.union.gene.max <- cbind(fpkm.union.gene, fpkm.max);
+fpkm.union.gene.max.five <- fpkm.union.gene.max[fpkm.union.gene.max$fpkm.max > 5,];
+union.heat <- create.heatmap(x = fpkm.union.gene.max.five[,patient.part],
+          clustering.method = "complete",
+          #clustering.method = "none",
+          yaxis.lab = NA,
+          yaxis.cex = 0.3,
+          xaxis.lab = fpkm.union.gene.max.five$Symbol,
+          xaxis.cex = 0.2,
+          main = "Union of Top 200 genes (max FPKM > 5) - 0:10",
+          main.cex = 1.5,
+          # show each colour once (i.e, four values, four colours)
+          grid.col = FALSE,
+          print.colour.key = TRUE,
+          # remove y-axis ticks
+          yaxis.tck = 0.1,
+          xaxis.tck = 0.1,
+          #height = 1,
+          colour.scheme = c('white', 'dodgerblue4'),
+          colour.centering.value = 0,
+          #colourkey.labels.at = seq(-5,5,1),
+          at = seq(0,10,0.001),
+          colourkey.cex = 1,
+          #force.grid.col = TRUE,
+          #row.colour = "black"
+          resolution = 300,
+          rows.distance.method = 'euclidean',
+          cols.distance.method = 'manhattan'
+          );
+union.heat;
+
+
+
+```
+
+
+#Consensus clustering - filtered union of gene (max FPKM > 1)
+```{r, fig.width=12, fig.height=11}
+
+
+####Filter the genes with max FPKM > 1####
+#Make sample cluster
+sample.matrix.one <- as.matrix(fpkm.union.gene.max.one[,patient.part]);
+# sample.cluster.one <- ConsensusClusterPlus(
+#         	sample.matrix.one,
+#         	maxK = 20,
+#         	reps = 1000,
+#         	pItem = 0.8,
+#         	pFeature = 0.8,
+#         	clusterAlg = 'hc',
+#         	distance = 'euclidean',
+#         	innerLinkage = 'ward.D',
+#         	finalLinkage = 'ward.D',
+#         	seed = 17,
+#         	title = 'filter_1_sample_ConsensusClusterPlus',
+#         	writeTable = TRUE,
+#         	corUse = 'complete.obs',
+#         	verbose = TRUE,
+#         	plot = 'pdf'
+#         	);
+# 
+# save(sample.cluster.one, file = 'filter_1_sample.cluster.rda');
+
+
+#Make gene cluster
+gene.matrix.one <- as.matrix(t(fpkm.union.gene.max.one[,patient.part]));
+# gene.cluster.one <- ConsensusClusterPlus(
+#         	gene.matrix.one,
+#         	maxK = 20,
+#         	reps = 1000,
+#         	pItem = 0.8,
+#         	pFeature = 0.8,
+#         	clusterAlg = 'hc',
+#         	distance = 'euclidean',
+#         	innerLinkage = 'ward.D',
+#         	finalLinkage = 'ward.D',
+#         	seed = 17,
+#         	title = 'filter_1_gene_ConsensusClusterPlus',
+#         	writeTable = TRUE,
+#         	corUse = 'complete.obs',
+#         	verbose = TRUE,
+#         	plot = 'pdf'
+#         	);
+# 
+# save(gene.cluster.one, file = 'filter_1_gene.cluster.rda');
+
+
+#load the two files you created in the last script
+load('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/filter_1_sample.cluster.rda');
+load('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/filter_1_gene.cluster.rda');
+
+# assign the number of clusters
+sample.k <- 4;
+gene.k <- 6;
+
+
+cc.gene.one <- data.frame(gene.cluster.one = sort(gene.cluster.one[[gene.k]]$consensusClass), 
+                          stringsAsFactors = FALSE);
+cc.sample.one <- data.frame(sample.cluster.one = sort(sample.cluster.one[[sample.k]]$consensusClass), 
+                            stringsAsFactors = FALSE);
+
+# write.table(cc.gene.one, file = 'cc.gene.one.txt', quote = FALSE, sep = '\t');
+# write.table(cc.sample.one, file = 'cc.sample.one.txt', quote = FALSE, sep = '\t');
+
+cc.sample.one.ord <- cc.sample.one[match(colnames(fpkm.union.gene.max.one[,patient.part]), 
+                                         rownames(cc.sample.one)), ];
+
+cc.gene.one.ord <- cc.gene.one[match(rownames(fpkm.union.gene.max.one[,patient.part]), 
+                                     rownames(cc.gene.one)), ];
+
+
+gene.one.ord <- labels(as.dendrogram(gene.cluster.one[[gene.k]]$consensusTree));
+samples.one.ord <- labels(as.dendrogram(sample.cluster.one[[sample.k]]$consensusTree));
+sample.one.col <- default.colours(sample.k, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.one[[sample.k]]$consensusClass, 1:sample.k)][samples.one.ord];
+
+
+# these are your sample covariates
+sample.covariate.one <- list(
+	rect = list(
+		col = 'transparent',
+		fill = sample.one.col,
+		lwd = 1.5
+		)
+	);
+
+# these are your gene covariates
+gene.one.col <- default.colours(gene.k, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.one[[gene.k]]$consensusClass, 1:gene.k)][gene.one.ord];
+gene.covariate.one <- list(
+	rect = list(
+		col = 'transparent',
+		fill = gene.one.col,
+		lwd = 1.5
+		)
+	);
+
+
+create.heatmap(
+	x = fpkm.union.gene.max.one[gene.one.ord, samples.one.ord],
+	clustering.method = "none",
+	#file = generate.filename('', '','png'),
+	cluster.dimensions = 'none',
+	main = "Consensus Clustering - Union of Top 200 genes (max FPKM > 1)",
+	main.cex = 1.5,
+	colour.scheme = c('white', 'dodgerblue4'),
+	covariates= sample.covariate.one,
+	covariates.top = gene.covariate.one,
+	#covariate.legend = covariates.legend,
+	covariates.grid.border = list(col = 'black', lwd = 2),
+	legend.cex = 1,
+	legend.title.cex = 1,
+	#same.as.matrix = TRUE,
+	colourkey.cex = 1,
+	scale.data = FALSE,
+	at = seq(0, 10,0.001),
+  yaxis.lab = NA,
+  yaxis.cex = 0.5,
+  xaxis.lab = fpkm.union.gene.max.one[gene.one.ord, c(samples.one.ord, 145)]$Symbol,
+  xaxis.cex = 0.2,
+	resolution = 400
+	);
+
+
+
+####Filter the genes with max FPKM > 5####
+#Make sample cluster
+sample.matrix.five <- as.matrix(fpkm.union.gene.max.five[,patient.part]);
+# sample.cluster.five  <- ConsensusClusterPlus(
+#         	sample.matrix.five ,
+#         	maxK = 20,
+#         	reps = 1000,
+#         	pItem = 0.8,
+#         	pFeature = 0.8,
+#         	clusterAlg = 'hc',
+#         	distance = 'euclidean',
+#         	innerLinkage = 'ward.D',
+#         	finalLinkage = 'ward.D',
+#         	seed = 17,
+#         	title = 'filter_5_sample_ConsensusClusterPlus',
+#         	writeTable = TRUE,
+#         	corUse = 'complete.obs',
+#         	verbose = TRUE,
+#         	plot = 'pdf'
+#         	);
+# 
+# save(sample.cluster.five , file = 'filter_5_sample.cluster.rda');
+
+#Make gene cluster
+gene.matrix.five  <- as.matrix(t(fpkm.union.gene.max.five[,patient.part]));
+# gene.cluster.five  <- ConsensusClusterPlus(
+#         	gene.matrix.five ,
+#         	maxK = 20,
+#         	reps = 1000,
+#         	pItem = 0.8,
+#         	pFeature = 0.8,
+#         	clusterAlg = 'hc',
+#         	distance = 'euclidean',
+#         	innerLinkage = 'ward.D',
+#         	finalLinkage = 'ward.D',
+#         	seed = 17,
+#         	title = 'filter_5_gene_ConsensusClusterPlus',
+#         	writeTable = TRUE,
+#         	corUse = 'complete.obs',
+#         	verbose = TRUE,
+#         	plot = 'pdf'
+#         	);
+# 
+# save(gene.cluster.five , file = 'filter_5_gene.cluster.rda');
+
+#load the two files you created in the last script
+load('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/filter_5_sample.cluster.rda');
+load('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/filter_5_gene.cluster.rda');
+
+# assign the number of clusters
+sample.k <- 4;
+gene.k <- 6;
+
+cc.gene.five  <- data.frame(gene.cluster.five  = sort(gene.cluster.five [[gene.k]]$consensusClass), 
+                            stringsAsFactors = FALSE);
+cc.sample.five  <- data.frame(sample.cluster.five  = sort(sample.cluster.five [[sample.k]]$consensusClass), 
+                              stringsAsFactors = FALSE);
+
+# write.table(cc.gene.five , 
+#             file = 'cc.gene.five.txt', 
+#             quote = FALSE, 
+#             sep = '\t');
+# write.table(cc.sample.five , 
+#             file = 'cc.sample.five.txt', 
+#             quote = FALSE, 
+#             sep = '\t');
+
+cc.sample.five.ord <- cc.sample.five[match(colnames(fpkm.union.gene.max.five[,patient.part]), 
+                                           rownames(cc.sample.five)), ];
+
+cc.gene.five.ord <- cc.gene.five[match(rownames(fpkm.union.gene.max.five[,patient.part]), 
+                                       rownames(cc.gene.five)), ];
+
+
+gene.five.ord <- labels(as.dendrogram(gene.cluster.five[[gene.k]]$consensusTree));
+samples.five.ord <- labels(as.dendrogram(sample.cluster.five[[sample.k]]$consensusTree));
+sample.five.col <- default.colours(sample.k, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.five[[sample.k]]$consensusClass, 1:sample.k)][samples.five.ord];
+
+
+# these are your sample covariates
+sample.covariate.five <- list(
+	rect = list(
+		col = 'transparent',
+		fill = sample.five.col,
+		lwd = 1.5
+		)
+	);
+
+# these are your gene covariates
+gene.five.col <- default.colours(gene.k, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.five[[gene.k]]$consensusClass, 1:gene.k)][gene.five.ord];
+gene.covariate.five <- list(
+	rect = list(
+		col = 'transparent',
+		fill = gene.five.col,
+		lwd = 1.5
+		)
+	);
+
+
+create.heatmap(
+	x = fpkm.union.gene.max.five[gene.five.ord, samples.five.ord],
+	clustering.method = "none",
+	#file = generate.filename('', '','png'),
+	cluster.dimensions = 'none',
+	main = "Consensus Clustering - Union of Top 200 genes (max FPKM > 5)",
+	main.cex = 1.5,
+	colour.scheme = c('white', 'dodgerblue4'),
+	covariates= sample.covariate.five,
+	covariates.top = gene.covariate.five,
+	#covariate.legend = covariates.legend,
+	covariates.grid.border = list(col = 'black', lwd = 2),
+	legend.cex = 1,
+	legend.title.cex = 1,
+	#same.as.matrix = TRUE,
+	colourkey.cex = 1,
+	scale.data = FALSE,
+	at = seq(0, 10,0.001),
+  yaxis.lab = NA,
+  yaxis.cex = 0.5,
+  xaxis.lab = fpkm.union.gene.max.five[gene.five.ord, c(samples.five.ord, 145)]$Symbol,
+  xaxis.cex = 0.2,
+	resolution = 400
+	);
+
+
+```
+
+
+
