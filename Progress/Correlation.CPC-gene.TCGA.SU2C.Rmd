@@ -1,0 +1,156 @@
+---
+title: "Correlation between data set"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#####Packages#####
+library(BoutrosLab.plotting.general)
+
+
+#####READ TABLE#####
+setwd("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/")
+#Processed CPC-GENE data
+#CPC-GENE z-score file calculated using Median
+cpcg.zrange.decrease.median <- read.delim(
+  file = 'cpcg.zrange.decrease.median.txt', 
+  row.names = 1
+  );
+
+#Processed TCGA-PC data
+#TCGA-PC z-score file calculated using Median
+tcga.zrange.decrease.median <- read.delim(
+  file = 'TCGA_PC/tcga.zrange.decrease.median.txt', 
+  row.names = 1
+  );
+
+#Processed SU2C data
+#TCGA-PC z-score file calculated using Median
+su2c.zrange.decrease.median <- read.delim(
+  file = 'SU2C/SU2C.data.median.t.txt', 
+  row.names = 1
+  );
+
+
+```
+
+
+#Correlation with CPC-GENE data (All calculated using Median)
+```{r, fig.width=7, fig.height=7}
+
+
+#Compare z-score range of CPC-GENE and TCGA-PC data 
+# - Using all genes
+subset.median.tcga.order.all <- tcga.zrange.decrease.median[match(rownames(cpcg.zrange.decrease.median),                                                                rownames(tcga.zrange.decrease.median)),];
+tcga.median.range.all <- data.frame(subset.median.tcga.order.all$z.range.median);
+cpcg.median.range.all <- data.frame(cpcg.zrange.decrease.median$z.range.median);
+subset.zrange.median.all <- cbind(tcga.median.range.all, cpcg.median.range.all);
+rownames(subset.zrange.median.all) <- rownames(subset.median.tcga.order.all);
+colnames(subset.zrange.median.all) <- c("TCGA", "CPCGENE");
+subset.zrange.median.all.na <- na.omit(subset.zrange.median.all); #Some genes have NA
+subset.zrange.median.all.na.log <- log2(subset.zrange.median.all.na); #Use log2
+
+#Make scatterplot - all genes
+create.scatterplot(
+    formula = CPCGENE ~ TCGA,
+    data = subset.zrange.median.all.na.log,
+    main = 'Correlation of z-score range by Median - All genes',
+    main.cex = 1,
+    xlab.label = expression("TCGA-PC log"[2]*"(z-score range)"), 
+    ylab.label = expression("CPC-GENE log"[2]*"(z-score range)"),
+    xlab.cex = 0.7,
+    ylab.cex = 0.7,
+    xaxis.cex = 0.5,
+    yaxis.cex = 0.5,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    xlimits = c(0, 16.5),
+    ylimits = c(0, 16.5),
+    xat = seq(0, 16, 4),
+    yat = seq(0, 16, 4),
+    type = c("p", "r", "g"),
+    cex = 0.5,
+    lwd = 1.5,
+    resolution = 300);
+
+
+
+#Compare z-score range of CPC-GENE and SU2C data 
+# - Using all genes
+#Calculate the range of z-score
+outlier.detection.zrange <- function(x) {
+  zrange <- max(x) - min(x)
+  zrange.matrix <- c(x, zrange)
+  names(zrange.matrix) <- c(names(x), "zrange")
+  zrange.matrix
+  }
+zrange.median <- apply(su2c.zrange.decrease.median, 1, outlier.detection.zrange);
+su2c.median <- data.frame(t(zrange.median));
+
+
+subset.median.su2c.order.all <- su2c.median[match(rownames(cpcg.zrange.decrease.median),                                                                rownames(su2c.median)),];
+su2c.median.range.all <- data.frame(subset.median.su2c.order.all$zrange);
+cpcg.median.range.all <- data.frame(cpcg.zrange.decrease.median$z.range.median);
+subset.zrange.median.all <- cbind(su2c.median.range.all, cpcg.median.range.all);
+rownames(subset.zrange.median.all) <- rownames(subset.median.tcga.order.all);
+colnames(subset.zrange.median.all) <- c("SU2C", "CPCGENE");
+subset.zrange.median.all.na <- na.omit(subset.zrange.median.all); #Some genes have NA
+subset.zrange.median.all.na.log <- log2(subset.zrange.median.all.na); #Use log2
+
+#Make scatterplot - all genes
+create.scatterplot(
+    formula = CPCGENE ~ SU2C,
+    data = subset.zrange.median.all.na.log,
+    main = 'Correlation of z-score range by Median - All genes',
+    main.cex = 1,
+    xlab.label = expression("SU2C-PC log"[2]*"(z-score range)"), 
+    ylab.label = expression("CPC-GENE log"[2]*"(z-score range)"),
+    xlab.cex = 0.7,
+    ylab.cex = 0.7,
+    xaxis.cex = 0.5,
+    yaxis.cex = 0.5,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    xlimits = c(0, 16.5),
+    ylimits = c(0, 16.5),
+    xat = seq(0, 16, 4),
+    yat = seq(0, 16, 4),
+    type = c("p", "r", "g"),
+    cex = 0.5,
+    lwd = 1.5,
+    resolution = 300);
+
+
+#Compare z-score range of SU2C and TCGA-PC data 
+# - Using all genes
+subset.zrange.median.all <- cbind(tcga.median.range.all, su2c.median.range.all);
+rownames(subset.zrange.median.all) <- rownames(subset.median.tcga.order.all);
+colnames(subset.zrange.median.all) <- c("TCGA", "SU2C");
+subset.zrange.median.all.na <- na.omit(subset.zrange.median.all); #Some genes have NA
+subset.zrange.median.all.na.log <- log2(subset.zrange.median.all.na); #Use log2
+
+#Make scatterplot - all genes
+create.scatterplot(
+    formula = SU2C ~ TCGA,
+    data = subset.zrange.median.all.na.log,
+    main = 'Correlation of z-score range by Median - All genes',
+    main.cex = 1,
+    xlab.label = expression("TCGA-PC log"[2]*"(z-score range)"), 
+    ylab.label = expression("SU2C log"[2]*"(z-score range)"),
+    xlab.cex = 0.7,
+    ylab.cex = 0.7,
+    xaxis.cex = 0.5,
+    yaxis.cex = 0.5,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    xlimits = c(0, 16.5),
+    ylimits = c(0, 16.5),
+    xat = seq(0, 16, 4),
+    yat = seq(0, 16, 4),
+    type = c("p", "r", "g"),
+    cex = 0.5,
+    lwd = 1.5,
+    resolution = 300);
+```

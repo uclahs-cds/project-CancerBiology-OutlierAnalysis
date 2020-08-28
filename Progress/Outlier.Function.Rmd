@@ -1,0 +1,639 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+
+#Make z-score matrix from each method
+```{r}
+###TEST
+#SU2C prostate cancer RNA-seq data - 2018-05-31_rnaseq_rsem_gene_FPKM.txt
+setwd("~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/SU2C")
+su2c.fpkm <- read.delim(
+  file = "2019-06-13_rnaseq_rsem_gene_FPKM.txt", 
+  row.names = 1
+  );
+
+###Give variable
+data.fpkm <- su2c.fpkm;
+#Patient part
+patient.part <- 1:(ncol(data.fpkm)-1);
+data <- data.fpkm[, patient.part];
+
+```
+
+
+#####Function for making z-score matrix using each method (8 methods)#####
+```{r}
+###MEAN
+#Make gene-wise outlier matrix by mean
+outlier.mean <- function(x){
+  data.mean <- mean(x)
+  data.sd <- sd(x)
+  data.zscore <- (x - data.mean) / data.sd
+  data.zscore
+  }
+
+data.mean <- apply(data, 1, outlier.mean);
+data.mean.t <- t(data.mean);
+data.mean.t <- data.frame(data.mean.t);
+write.table(data.mean.t,
+            file = 'SU2C.data.mean.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.mean.t <- read.delim(
+#   file = "SU2C.data.mean.t.txt", 
+#   row.names = 1
+#   );
+
+#Make gene-wise outlier matrix by mean excluding zero value
+outlier.mean.nonzero <- function(x){
+  non.zero <- x[x > 0]
+  data.mean.nonzero <- mean(non.zero)
+  data.sd.nonzero <- sd(non.zero)
+  data.zscore.nonzero <- (x - data.mean.nonzero) / data.sd.nonzero
+  data.zscore.nonzero
+  }
+
+data.mean.nonzero <- apply(data, 1, outlier.mean.nonzero);
+data.mean.nonzero.t <- t(data.mean.nonzero);
+data.mean.nonzero.t <- data.frame(data.mean.nonzero.t);
+write.table(data.mean.nonzero.t,
+            file = 'SU2C.data.mean.nonzero.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.mean.nonzero.t <- read.delim(
+#   file = "SU2C.data.mean.nonzero.t.txt", 
+#   row.names = 1
+#   );
+
+
+###MEDIAN
+#Make gene-wise outlier matrix by median
+outlier.median <- function(x){
+  data.median <- median(x)
+  data.mad <- mad(x)
+  data.zscore <- (x - data.median) / data.mad
+  data.zscore
+  }
+
+data.median <- apply(data, 1, outlier.median);
+data.median.t <- t(data.median);
+data.median.t <- data.frame(data.median.t);
+write.table(data.median.t,
+            file = 'SU2C.data.median.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.median.t <- read.delim(
+#   file = "SU2C.data.median.t.txt", 
+#   row.names = 1
+#   );
+
+
+#Make gene-wise outlier matrix by median excluding zero value
+outlier.median.nonzero <- function(x){
+  non.zero <- x[x > 0]
+  data.median <- median(non.zero)
+  data.mad <- mad(non.zero)
+  data.zscore <- (x - data.median) / data.mad
+  data.zscore
+  }
+
+data.median.nonzero <- apply(data, 1, outlier.median.nonzero);
+data.median.nonzero.t <- t(data.median.nonzero);
+data.median.nonzero.t <- data.frame(data.median.nonzero.t);
+write.table(data.median.nonzero.t,
+            file = 'SU2C.data.median.nonzero.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.median.nonzero.t <- read.delim(
+#   file = "SU2C.data.median.nonzero.t.txt", 
+#   row.names = 1
+#   );
+
+
+###TRIMMED MEAN
+#Make gene-wise outlier matrix by Trimmed mean
+outlier.trimmean <- function(x){
+  top.patient <- round(length(x)*0.05, digit = 0);
+  low.patient <- round(length(x)*0.95, digit = 0);
+  data.trimmean <- mean(x, trim = 0.05)
+  gene.order <- order(x, decreasing = TRUE)
+  gene.order.sd <- sd(gene.order[(top.patient+1):(low.patient)])
+  data.zscore <- (x - data.trimmean) / gene.order.sd
+  data.zscore
+  }
+
+data.trimmean <- apply(data, 1, outlier.trimmean);
+data.trimmean.t <- t(data.trimmean);
+data.trimmean.t <- data.frame(data.trimmean.t);
+write.table(data.trimmean.t,
+            file = 'SU2C.data.trimmean.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.trimmean.t <- read.delim(
+#   file = "SU2C.data.trimmean.t.txt", 
+#   row.names = 1
+#   );
+
+#Make gene-wise outlier matrix by trimmed mean excluding zero value
+outlier.trimmean.nonzero <- function(x){
+  non.zero <- x[x > 0]
+  top.patient <- round(length(non.zero)*0.05, digit = 0);
+  low.patient <- round(length(non.zero)*0.95, digit = 0);
+  data.trimmean <- mean(non.zero, trim = 0.05)
+  gene.order <- order(non.zero, decreasing = TRUE)
+  gene.order.sd <- sd(gene.order[(top.patient+1):(low.patient)])
+  data.zscore <- (x - data.trimmean) / gene.order.sd
+  data.zscore
+  }
+
+data.trimmean.nonzero <- apply(data, 1, outlier.trimmean.nonzero);
+data.trimmean.nonzero.t <- t(data.trimmean.nonzero);
+data.trimmean.nonzero.t <- data.frame(data.trimmean.nonzero.t);
+write.table(data.trimmean.nonzero.t,
+            file = 'SU2C.data.trimmean.nonzero.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.trimmean.nonzero.t <- read.delim(
+#   file = "SU2C.data.trimmean.nonzero.t.txt", 
+#   row.names = 1
+#   );
+
+
+###KMEAN
+#Make gene-wise outlier matrix by k-mean clustering : k = 2
+outlier.kmean <- function(x) {
+  if (length(unique(as.numeric(x))) == 1) {
+    kmean.matrix <- rep(NA, length(x))
+    kmean.matrix
+  } else {
+    kmean <- kmeans(x, 2, nstart = 1000)
+    cluster <- kmean$cluster
+    kmean.matrix <- cluster
+    }
+  kmean.matrix
+  }
+
+data.kmean <- apply(data, 1, outlier.kmean);
+data.kmean.t <- t(data.kmean);
+data.kmean.t <- data.frame(data.kmean.t);
+write.table(data.kmean.t,
+            file = 'SU2C.data.kmean.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.kmean.t <- read.delim(
+#   file = "SU2C.data.kmean.t.txt", 
+#   row.names = 1
+#   );
+
+#Make gene-wise outlier matrix by k-mean clustering excluding zero value : k = 2
+outlier.kmean.nonzero <- function(x) {
+  if (length(unique(as.numeric(x))) == 1) {
+    kmean.matrix <- rep(NA, length(x))
+    names(kmean.matrix) <- names(x)
+  } else {
+    data.order <- sort(x, decreasing = TRUE)
+    non.zero <- data.order[data.order > 0]
+      if(length(unique(as.numeric(non.zero))) <= 2) {
+        na.matrix <- rep(NA, length(non.zero))
+        cluster.zero <- c(na.matrix, rep(0, length(x[x == 0])))
+        kmean.matrix <- cluster.zero[match(x, data.order)]
+        names(kmean.matrix) <- names(x)     
+      } else {
+        kmean <- kmeans(non.zero, 2, nstart = 1000)
+        cluster <- kmean$cluster
+        cluster.zero <- c(cluster, rep(0, length(x[x == 0])))
+        kmean.matrix <- cluster.zero[match(x, data.order)]
+        names(kmean.matrix) <- names(x)       
+      }
+    }
+  kmean.matrix
+  }
+
+data.kmean.nonzero <- apply(data, 1, outlier.kmean.nonzero);
+data.kmean.nonzero.t <- t(data.kmean.nonzero);
+data.kmean.nonzero.t <- data.frame(data.kmean.nonzero.t);
+write.table(data.kmean.nonzero.t,
+            file = 'SU2C.data.kmean.nonzero.t.txt',
+            sep = "\t",
+            col.names = TRUE,
+            row.names = TRUE,
+            quote = FALSE
+            );
+# data.kmean.nonzero.t <- read.delim(
+#   file = "SU2C.data.kmean.nonzero.t.txt", 
+#   row.names = 1
+#   );
+
+```
+
+
+
+#####Function for outlier detection (calculating z-score range and kmean fraction#####
+```{r}
+
+###Calculate the range of z-score
+outlier.detection.zrange <- function(x) {
+  zrange <- max(x) - min(x)
+  zrange.matrix <- c(x, zrange)
+  names(zrange.matrix) <- c(names(x), "zrange")
+  zrange.matrix
+  }
+
+#Mean
+zrange.mean <- apply(data.mean.t, 1, outlier.detection.zrange);
+zrange.mean.t <- data.frame(t(zrange.mean));
+mean.matrix <- cbind(zrange.mean.t, data.fpkm$Symbol);
+colnames(mean.matrix) <- c(colnames(zrange.mean.t), "Symbol");
+#Mean.nonzero
+zrange.mean.nonzero <- apply(data.mean.nonzero.t, 1, outlier.detection.zrange);
+zrange.mean.nonzero.t <- data.frame(t(zrange.mean.nonzero));
+mean.nonzero.matrix <- cbind(zrange.mean.nonzero.t, data.fpkm$Symbol);
+colnames(mean.nonzero.matrix) <- c(colnames(zrange.mean.nonzero.t), "Symbol");
+#Median
+zrange.median <- apply(data.median.t, 1, outlier.detection.zrange);
+zrange.median.t <- data.frame(t(zrange.median));
+median.matrix <- cbind(zrange.median.t, data.fpkm$Symbol);
+colnames(median.matrix) <- c(colnames(zrange.median.t), "Symbol");
+#Median.nonzero
+zrange.median.nonzero <- apply(data.median.nonzero.t, 1, outlier.detection.zrange);
+zrange.median.nonzero.t <- data.frame(t(zrange.median.nonzero));
+median.nonzero.matrix <- cbind(zrange.median.nonzero.t, data.fpkm$Symbol);
+colnames(median.nonzero.matrix) <- c(colnames(zrange.median.nonzero.t), "Symbol");
+#Trimmed mean
+zrange.trimmean <- apply(data.trimmean.t, 1, outlier.detection.zrange);
+zrange.trimmean.t <- data.frame(t(zrange.trimmean));
+trimmean.matrix <- cbind(zrange.trimmean.t, data.fpkm$Symbol);
+colnames(trimmean.matrix) <- c(colnames(zrange.trimmean.t), "Symbol");
+#Trimmed mean.nonzero
+zrange.trimmean.nonzero <- apply(data.trimmean.nonzero.t, 1, outlier.detection.zrange);
+zrange.trimmean.nonzero.t <- data.frame(t(zrange.trimmean.nonzero));
+trimmean.nonzero.matrix <- cbind(zrange.trimmean.nonzero.t, data.fpkm$Symbol);
+colnames(trimmean.nonzero.matrix) <- c(colnames(zrange.trimmean.nonzero.t), "Symbol");
+
+
+
+###Calculate the kmean fraction
+outlier.detection.kmean <- function(x) {
+    if (length(unique(as.numeric(x))) == 1) {
+      fraction <- NA
+    } else {
+      cluster.one <- length(x[x == 1]) 
+      cluster.two <- length(x[x == 2])
+      cluster.sum <- cluster.one + cluster.two
+      smaller.value <- min(cluster.one, cluster.two)
+      fraction <- round(smaller.value/cluster.sum, digit = 2)
+    }
+  fraction.matrix <- c(x, fraction)
+  names(fraction.matrix) <- c(names(x), "fraction")
+  fraction.matrix
+  }
+
+#the fraction of kmean
+fraction.kmean <- apply(data.kmean.t, 1, outlier.detection.kmean);
+fraction.kmean.t <- data.frame(t(fraction.kmean));
+kmean.matrix <- cbind(fraction.kmean.t, data.fpkm$Symbol);
+colnames(kmean.matrix) <- c(colnames(fraction.kmean.t), "Symbol");
+#the fraction of kmean.nonzero
+fraction.kmean.nonzero <- apply(data.kmean.nonzero.t, 1, outlier.detection.kmean);
+fraction.kmean.nonzero.t <- data.frame(t(fraction.kmean.nonzero));
+kmean.nonzero.matrix <- cbind(fraction.kmean.nonzero.t, data.fpkm$Symbol);
+colnames(kmean.nonzero.matrix) <- c(colnames(fraction.kmean.nonzero.t), "Symbol");
+
+
+
+###Final gene-wise matrix
+gene.matrix <- cbind(mean.matrix$zrange,
+                     mean.nonzero.matrix$zrange,
+                     median.matrix$zrange,
+                     median.nonzero.matrix$zrange,
+                     median.nonzero.matrix$zrange,
+                     trimmean.nonzero.matrix$zrange,
+                     kmean.matrix$fraction,
+                     kmean.nonzero.matrix$fraction);
+rownames(gene.matrix) <- rownames(data);
+colnames(gene.matrix) <- c("zrange.mean", "zrange.mean.nonzero", "zrange.median", 
+                           "zrange.median.nonzero", "zrange.trimmean", "zrange.trimmeannonzero", 
+                           "fraction.kmean", "fraction.kmean.nonzero")
+head(gene.matrix);
+
+```
+
+
+#Function for making heatmap of z-score and FPKM
+```{r}
+#####Packages#####
+library(BoutrosLab.plotting.general)
+
+outlier.heatmap.zscore <- function(x) {
+  order <- x[order(x[,(length(x)-1)], decreasing = TRUE),]
+  order.na <- na.omit(order)
+  order.na.inf <- order.na[is.finite(order.na[,(length(x)-1)]),]
+  zscore.heat <- create.heatmap(
+   x = order.na.inf[1:200, 1:(length(x)-2)],
+   clustering.method = 'ward.D2',
+   cluster.dimensions = 'both',
+   yaxis.lab = NA,
+   yaxis.cex = 0.3,
+   xaxis.lab = order.na.inf$Symbol,
+   xaxis.cex = 0.3,
+   main = "Top 200 genes from",
+   main.cex = 1.5,
+   grid.col = FALSE,
+   print.colour.key = TRUE,
+   yaxis.tck = 0.1,
+   xaxis.tck = 0.1,
+   colour.scheme = c('red4', 'white', 'dodgerblue4'),
+   colour.centering.value = 0,
+   at = seq(-5,5,0.001),
+   colourkey.cex = 1,
+   resolution = 300,
+   rows.distance.method = 'euclidean',
+   cols.distance.method = 'euclidean'
+   )
+  zscore.heat
+  }
+
+outlier.heatmap.zscore(mean.matrix);
+
+
+#Make a heatmap in FPKM space
+outlier.heatmap.fpkm <- function(x) {
+  order <- x[order(x[,(length(x)-1)], decreasing = TRUE),]
+  order.na <- na.omit(order)
+  order.na.inf <- order.na[is.finite(order.na[,(length(x)-1)]),]
+  fpkm <- data.fpkm[rownames(data.fpkm) %in% rownames(order.na.inf)[1:200],]
+  fpkm.heat <- create.heatmap(
+    x = fpkm[ , 1:(length(fpkm)-1)],
+    clustering.method = 'ward.D2',
+  	cluster.dimensions = 'both',
+    yaxis.lab = NA,
+    yaxis.cex = 0.3,
+    xaxis.lab = fpkm$Symbol,
+    xaxis.cex = 0.3,
+    main = "Top 200 genes in FPKM space",
+    main.cex = 1.5,
+    grid.col = FALSE,
+    print.colour.key = TRUE,
+    yaxis.tck = 0.1,
+    xaxis.tck = 0.1,
+    colour.scheme = c('white', 'dodgerblue4'),
+    at = seq(0,10,0.001),
+    colourkey.cex = 1,
+    resolution = 300,
+    rows.distance.method = 'euclidean',
+    cols.distance.method = 'euclidean'
+    )
+  fpkm.heat
+}
+
+outlier.heatmap.fpkm(median.matrix);
+
+```
+
+
+
+#Make function for Waterfall plot 
+```{r, fig.width=10, fig.height=6}
+
+#Make multiplot for z-score and FPKM value
+# x : z-score matrix
+# y : FPKM matrix
+# z : number of plot
+outlier.waterfallplot <- function(x, y, z) {
+  order <- x[order(x[,(length(x)-1)], decreasing = TRUE),]
+  order.na <- na.omit(order)
+  order.na.inf <- order.na[is.finite(order.na[,(length(x)-1)]),]
+  for (i in 1: z) {
+   pateint.part <- 1: (length(order.na.inf)-2)
+   a <- t(order.na.inf[i,patient.part])
+   z.gene <- as.numeric(order.na.inf[i,patient.part])
+   row.a <- data.frame(row.names(a))
+   gene.a <- cbind(row.a, z.gene)
+   colnames(gene.a) <- c("patient", "gene")
+   fraction.bar <- create.barplot(
+      formula = gene ~ patient,
+      data = gene.a,
+      main = order.na.inf$Symbol[i],
+      main.cex = 1.5,
+      ylab.lab = 'Z-Score',
+      yaxis.cex = 1,
+      ylab.cex = 1,
+      xaxis.tck = 0.2,
+      xlab.lab = "Patient",
+      xaxis.rot = 90,
+      xaxis.cex = 0.3,
+      xlab.cex = 1,
+      yaxis.tck = 1,
+      yaxis.fontface = 'bold',
+      sample.order = 'decreasing'
+      )
+  
+   fpkm.gene <- as.numeric(y[rownames(order.na.inf)[i],patient.part])
+   fpkm.b <- cbind(row.a, fpkm.gene)
+   colnames(fpkm.b) <- c("patient", "gene")
+   nonzero.fpkm <- round(sum(ifelse(fpkm.b$gene == 0, 0, 1))/length(patient.part)*100, 2)
+   fpkm.bar <- create.barplot(
+      formula = gene ~ patient,
+      data = fpkm.b,
+      main = order.na.inf$Symbol[i],
+      main.cex = 1.5,
+      ylab.lab = 'FPKM',
+      yaxis.cex = 1,
+      ylab.cex = 1,
+      xaxis.tck = 0.2,
+      xlab.lab = "Patient",
+      xaxis.rot = 90,
+      xaxis.cex = 0.3,
+      xlab.cex = 1,
+      yaxis.tck = 1,
+      yaxis.fontface = 'bold',
+      sample.order = 'decreasing'
+      )
+ 
+   final.plot <- create.multiplot(
+      plot.objects = list(fpkm.bar, fraction.bar),
+      main = order.na.inf$Symbol[i],
+      xlab.label = "Patient",
+      ylab.label = c("Z-score", "FPKM"),
+      y.relation = "free",
+      main.cex = 1.5,
+      xaxis.cex = 0.3,
+      yaxis.cex = 0.7,
+      ylab.cex = 1,
+      xlab.cex = 1,
+      xaxis.rot = 90,
+      xaxis.tck = 0.2,
+      key = list(
+        title = expression(underline("Fraction of patient")),
+           text = list(
+              lab = paste(as.character(nonzero.fpkm),"%"),
+              cex = 1.1,
+              col = 'black'
+              ),
+        x = 0.75,
+        y = 0.4,
+        padding.text = 3,
+        columns = 1
+        ),
+      resolution = 50
+      )
+  print(final.plot)
+  }
+}
+
+outlier.waterfallplot(median.matrix, data.fpkm, 5);
+
+
+```
+
+
+#Function for making heatmap of each chromosome position
+```{r, fig.width=11, fig.height=10}
+
+#####Packages#####
+library(biomaRt);
+
+#Get gene position
+outlier.position <- function(x) {
+  order <- x[order(x[,(length(x)-1)], decreasing = TRUE),]
+  order.na <- na.omit(order)
+  order.na.inf <- order.na[is.finite(order.na[,(length(x)-1)]),]
+  pateint.part <- 1: (length(order.na.inf)-2)
+  gene.list.all <- rownames(order.na.inf)
+  gene.list.all.sub <- substr(gene.list.all, 1, 15)
+  ensembl.all <- useEnsembl(biomart = "ensembl", 
+                            dataset = "hsapiens_gene_ensembl", 
+                            mirror = "uswest");
+  ensembl.all <- useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl.all)
+  gene.position.all <- getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+                                            'start_position', 'end_position', 'band'),
+                             filters = 'ensembl_gene_id', 
+                             values = gene.list.all.sub, 
+                             mart = ensembl.all)
+  gene.all <- subset(order.na.inf, gene.list.all.sub %in% gene.position.all$ensembl_gene_id);
+  gene.position.order.all <- gene.position.all[order(as.numeric(gene.position.all$chromosome_name),
+                                                     as.numeric(gene.position.all$start_position), 
+                                                     decreasing = FALSE),]
+  gene.biomart.fpkm.all <- gene.all[match(gene.position.order.all$ensembl_gene_id, 
+                                                            substr(rownames(gene.all), 1, 15)),]
+  chr.ord.all <- cbind(gene.biomart.fpkm.all, 
+                            gene.position.order.all[,3:5]
+                            )
+  chr.ord.na <- na.omit(chr.ord.all)
+  chr.name <- unique(chr.ord.na$chromosome_name)
+  chr.ord.na.numeric <- chr.ord.na
+  for (i in 1 : nrow(chr.ord.na.numeric)){
+    if(chr.ord.na.numeric$chromosome_name[i] == "MT") {
+      chr.ord.na.numeric$chromosome_name[i] <- "23"
+    }
+    if(chr.ord.na.numeric$chromosome_name[i] == "X") {
+      chr.ord.na.numeric$chromosome_name[i] <- "24"
+    }
+    if(chr.ord.na.numeric$chromosome_name[i] == "Y") {
+      chr.ord.na.numeric$chromosome_name[i] <- "25"
+    }
+  }
+  for (i in 1:25){
+    heat <- create.heatmap(
+    	x = chr.ord.na.numeric[chr.ord.na.numeric$chromosome_name == i, patient.part],
+    	clustering.method = 'ward.D2',
+    	#file = generate.filename('', '','png'),
+      cluster.dimensions = 'row',
+    	main = paste("Chr", chr.name[i], "- z-score"),
+    	main.cex = 1.5,
+    	colourkey.cex = 1,
+    	scale.data = FALSE,
+    	colour.scheme = c('red4', 'white', 'dodgerblue4'),
+      colour.centering.value = 0,
+      at = seq(-5,5,0.001),
+      yaxis.lab = NA,
+      yaxis.cex = 0.3,
+    	rows.distance.method = 'euclidean',
+    	resolution = 500
+    	)
+    print(heat)
+  }
+}
+
+outlier.position(median.matrix);
+
+
+
+###Check the FPKM of the patients###
+#Some patients group (6 ~ 7 patients) shows very low FPKM in half of chromosomes
+x <- data.fpkm #Check raw SU2C data
+order <- x[order(x[,(length(x)-1)], decreasing = TRUE),]
+order.na <- na.omit(order)
+order.na.inf <- order.na[is.finite(order.na[,(length(x)-1)]),]
+pateint.part <- 1: (length(order.na.inf)-2)
+gene.list.all <- rownames(order.na.inf)
+gene.list.all.sub <- substr(gene.list.all, 1, 15)
+ensembl<- useEnsembl(biomart = "ensembl", 
+                          dataset = "hsapiens_gene_ensembl", 
+                          mirror = "uswest");
+ensembl <- useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl)
+gene.position.all <- getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+                                          'start_position', 'end_position', 'band'),
+                           filters = 'ensembl_gene_id', 
+                           values = gene.list.all.sub, 
+                           mart = ensembl)
+gene.all <- subset(order.na.inf, gene.list.all.sub %in% gene.position.all$ensembl_gene_id);
+gene.position.order.all <- gene.position.all[order(as.numeric(gene.position.all$chromosome_name),
+                                                   as.numeric(gene.position.all$start_position), 
+                                                   decreasing = FALSE),]
+gene.biomart.fpkm.all <- gene.all[match(gene.position.order.all$ensembl_gene_id, 
+                                                          substr(rownames(gene.all), 1, 15)),]
+chr.ord.all <- cbind(gene.biomart.fpkm.all, 
+                          gene.position.order.all[,3:5]
+                          )
+# In chr12, two patients show this pattern 
+chr <- rownames(chr.ord.all[chr.ord.all$chromosome_name == 12, ])
+chr.zero <- subset(data.fpkm, rownames(data.fpkm) %in% chr)
+head(chr.zero)
+# In chr13, six patients show this pattern 
+chr <- rownames(chr.ord.all[chr.ord.all$chromosome_name == 13, ])
+chr.zero <- subset(data.fpkm, rownames(data.fpkm) %in% chr)
+head(chr.zero)
+# In chr14, almost eight patients show this pattern 
+chr <- rownames(chr.ord.all[chr.ord.all$chromosome_name == 14, ])
+chr.zero <- subset(data.fpkm, rownames(data.fpkm) %in% chr)
+head(chr.zero)
+# In chr20, eight patients show this pattern 
+chr <- rownames(chr.ord.all[chr.ord.all$chromosome_name == 20, ])
+chr.zero <- subset(data.fpkm, rownames(data.fpkm) %in% chr)
+head(chr.zero)
+
+
+
+chr <- rownames(chr.ord.all[chr.ord.all$chromosome_name == 2, ])
+chr.zero <- subset(tcga.fpkm, rownames(data.fpkm) %in% chr)
+head(chr.zero)
+
+```
+
+
+
+
