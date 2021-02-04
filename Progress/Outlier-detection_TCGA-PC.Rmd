@@ -83,18 +83,18 @@ editor_options:
 #TCGA prostate cancer RNA-seq data - 2018-05-31_rnaseq_rsem_gene_FPKM.txt
 #                                    2018-07-23_rnaseq_rsem_gene_FPKM.txt
 setwd('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/TCGA_PC');
-data.fpkm <- read.delim(
+fpkm.data <- read.delim(
     file = '2018_rnaseq_rsem_gene_FPKM.txt',
     row.names = 1
     );
 
 #Give variable
 # input file : FPKM normalized RNA-seq data
-# input variable : data.fpkm - raw FPKM data
+# input variable : fpkm.data - raw FPKM data
 #                  patient.part - exclude Symbol column for downstream analysis
 #                  molecular.data - data without Symbol column. Only have FPKM data
-patient.part <- 1:(ncol(data.fpkm)-1);
-molecular.data <- data.fpkm[, patient.part];
+patient.part <- 1:(ncol(fpkm.data)-1);
+molecular.data <- fpkm.data[, patient.part];
 
 
 
@@ -129,7 +129,7 @@ clinical.data <- read.delim(
 
 # Function - outlier.mean()
 quantify.outliers <- function(x, method = 'mean', trim = 0, exclude.zero = FALSE) {
-    x.num <- as.numeric(x);
+    x.num <- as.numeric(x); #names(x) will need for final output
     if (any(is.na(x.num))) {
         x <- 0;
         }
@@ -148,31 +148,31 @@ quantify.outliers <- function(x, method = 'mean', trim = 0, exclude.zero = FALSE
             }
         else if ('kmean' == method) {
             if (exclude.zero) {
-                if (length(unique(as.numeric(x.num))) == 1) {
+                if (1 == length(unique(as.numeric(x.num))) ) {
                     kmean.matrix <- rep(NA, length(x.num));
                     names(kmean.matrix) <- names(x);
                     } 
                 else {
-                    data.order <- sort(x.num, decreasing = TRUE);
-                    non.zero <- data.order[data.order > 0];
+                    x.order <- sort(x.num, decreasing = TRUE);
+                    non.zero <- x.order[x.order > 0];
                     if (length(unique(as.numeric(non.zero))) <= 2) {
                         na.matrix <- rep(NA, length(non.zero));
                         cluster.zero <- c(na.matrix, rep(0, length(x.num[x.num == 0])));
-                        kmean.matrix <- cluster.zero[match(x.num, data.order)];
+                        kmean.matrix <- cluster.zero[match(x.num, x.order)];
                         names(kmean.matrix) <- names(x);  
                         } 
                     else {
                         kmean <- kmeans(non.zero, 2, nstart = 1000);
                         cluster <- kmean$cluster;
                         cluster.zero <- c(cluster, rep(0, length(x.num[x.num == 0])));
-                        kmean.matrix <- cluster.zero[match(x.num, data.order)];
+                        kmean.matrix <- cluster.zero[match(x.num, x.order)];
                         names(kmean.matrix) <- names(x);   
                         }
                     }
                 } 
             
             else {
-                if (length(unique(x.num)) == 1) {
+                if (1 == length(unique(x.num))) {
                     kmean.matrix <- rep(NA, length(x.num));
                     names(kmean.matrix) <- names(x);  
                     } 
@@ -207,44 +207,44 @@ quantify.outliers <- function(x, method = 'mean', trim = 0, exclude.zero = FALSE
 
 
 # 1. MEAN and SD : method = 'mean', trim = 0, exclude.zero = FALSE
-data.mean <- apply(molecular.data, 1, quantify.outliers);
-data.mean.t <- t(data.mean);
-data.mean.t <- data.frame(data.mean.t);
+molecular.mean <- apply(molecular.data, 1, quantify.outliers);
+molecular.mean.t <- t(molecular.mean);
+molecular.mean.t <- data.frame(molecular.mean.t);
 
 # 2. MEAN and SD excluding zero : method = 'mean', trim = 0, exclude.zero = TRUE
-data.mean.nonzero <- apply(molecular.data, 1, quantify.outliers, exclude.zero = TRUE);
-data.mean.nonzero.t <- t(data.mean.nonzero);
-data.mean.nonzero.t <- data.frame(data.mean.nonzero.t);
+molecular.mean.nonzero <- apply(molecular.data, 1, quantify.outliers, exclude.zero = TRUE);
+molecular.mean.nonzero.t <- t(molecular.mean.nonzero);
+molecular.mean.nonzero.t <- data.frame(molecular.mean.nonzero.t);
 
 # 3. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5, exclude.zero = FALSE
-data.trimmean <- apply(molecular.data, 1, quantify.outliers, trim = 5);
-data.trimmean.t <- t(data.trimmean);
-data.trimmean.t <- data.frame(data.trimmean.t);
+molecular.trimmean <- apply(molecular.data, 1, quantify.outliers, trim = 5);
+molecular.trimmean.t <- t(molecular.trimmean);
+molecular.trimmean.t <- data.frame(molecular.trimmean.t);
 
 # 4. TRIMMED MEAN and TRIMMED SD excluding zero : method = 'mean', trim = 5, exclude.zero = TRUE
-data.trimmean.nonzero <- apply(molecular.data, 1, quantify.outliers, trim = 5, exclude.zero = TRUE);
-data.trimmean.nonzero.t <- t(data.trimmean.nonzero);
-data.trimmean.nonzero.t <- data.frame(data.trimmean.nonzero.t);
+molecular.trimmean.nonzero <- apply(molecular.data, 1, quantify.outliers, trim = 5, exclude.zero = TRUE);
+molecular.trimmean.nonzero.t <- t(molecular.trimmean.nonzero);
+molecular.trimmean.nonzero.t <- data.frame(molecular.trimmean.nonzero.t);
 
 # 5. MEDIAN and MAD : method = 'median', exclude.zero = FALSE
-data.median <- apply(molecular.data, 1, quantify.outliers, method = 'median');
-data.median.t <- t(data.median);
-data.median.t <- data.frame(data.median.t);
+molecular.median <- apply(molecular.data, 1, quantify.outliers, method = 'median');
+molecular.median.t <- t(molecular.median);
+molecular.median.t <- data.frame(molecular.median.t);
 
 # 6. MEDIAN and MAD excluding zero : method = 'median', exclude.zero = TRUE
-data.median.nonzero <- apply(molecular.data, 1, quantify.outliers, method = 'median', exclude.zero = TRUE);
-data.median.nonzero.t <- t(data.median.nonzero);
-data.median.nonzero.t <- data.frame(data.median.nonzero.t);
+molecular.median.nonzero <- apply(molecular.data, 1, quantify.outliers, method = 'median', exclude.zero = TRUE);
+molecular.median.nonzero.t <- t(molecular.median.nonzero);
+molecular.median.nonzero.t <- data.frame(molecular.median.nonzero.t);
 
 # 7. KMEAN : method = 'kmean', exclude.zero = FALSE
-data.kmean <- apply(molecular.data, 1, quantify.outliers, method = 'kmean');
-data.kmean.t <- t(data.kmean);
-data.kmean.t <- data.frame(data.kmean.t);
+molecular.kmean <- apply(molecular.data, 1, quantify.outliers, method = 'kmean');
+molecular.kmean.t <- t(molecular.kmean);
+molecular.kmean.t <- data.frame(molecular.kmean.t);
 
 # 8. KMEAN excluding zero : method = 'kmean', exclude.zero = TRUE
-data.kmean.nonzero <- apply(molecular.data, 1, quantify.outliers, method = 'kmean', exclude.zero = TRUE);
-data.kmean.nonzero.t <- t(data.kmean.nonzero);
-data.kmean.nonzero.t <- data.frame(data.kmean.nonzero.t);
+molecular.kmean.nonzero <- apply(molecular.data, 1, quantify.outliers, method = 'kmean', exclude.zero = TRUE);
+molecular.kmean.nonzero.t <- t(molecular.kmean.nonzero);
+molecular.kmean.nonzero.t <- data.frame(molecular.kmean.nonzero.t);
 
 
 ```
@@ -264,40 +264,40 @@ outlier.detection.zrange <- function(x) {
 
 
 # 1. MEAN and SD
-data.zrange.mean <- apply(data.mean.t, 1, outlier.detection.zrange);
-data.zrange.mean.t <- data.frame(t(data.zrange.mean));
-mean.zscore <- cbind(data.zrange.mean.t, data.fpkm$Symbol);
-colnames(mean.zscore) <- c(colnames(data.zrange.mean.t), 'Symbol');
+molecular.zrange.mean <- apply(molecular.mean.t, 1, outlier.detection.zrange);
+molecular.zrange.mean.t <- data.frame(t(molecular.zrange.mean));
+mean.zscore <- cbind(molecular.zrange.mean.t, fpkm.data$Symbol);
+colnames(mean.zscore) <- c(colnames(molecular.zrange.mean.t), 'Symbol');
 
 # 2. MEAN and SD excluding zero
-data.zrange.mean.nonzero <- apply(data.mean.nonzero.t, 1, outlier.detection.zrange);
-data.zrange.mean.nonzero.t <- data.frame(t(data.zrange.mean.nonzero));
-mean.nonzero.zscore <- cbind(data.zrange.mean.nonzero.t, data.fpkm$Symbol);
-colnames(mean.nonzero.zscore) <- c(colnames(data.zrange.mean.nonzero.t), 'Symbol');
+molecular.zrange.mean.nonzero <- apply(molecular.mean.nonzero.t, 1, outlier.detection.zrange);
+molecular.zrange.mean.nonzero.t <- data.frame(t(molecular.zrange.mean.nonzero));
+mean.nonzero.zscore <- cbind(molecular.zrange.mean.nonzero.t, fpkm.data$Symbol);
+colnames(mean.nonzero.zscore) <- c(colnames(molecular.zrange.mean.nonzero.t), 'Symbol');
 
 # 3. TRIMMED MEAN and TRIMMED SD
-data.zrange.trimmean <- apply(data.trimmean.t, 1, outlier.detection.zrange);
-data.zrange.trimmean.t <- data.frame(t(data.zrange.trimmean));
-trimmean.zscore <- cbind(data.zrange.trimmean.t, data.fpkm$Symbol);
-colnames(trimmean.zscore) <- c(colnames(data.zrange.trimmean.t), 'Symbol');
+molecular.zrange.trimmean <- apply(molecular.trimmean.t, 1, outlier.detection.zrange);
+molecular.zrange.trimmean.t <- data.frame(t(molecular.zrange.trimmean));
+trimmean.zscore <- cbind(molecular.zrange.trimmean.t, fpkm.data$Symbol);
+colnames(trimmean.zscore) <- c(colnames(molecular.zrange.trimmean.t), 'Symbol');
 
 # 4. TRIMMED MEAN and TRIMMED SD excluding zero
-data.zrange.trimmean.nonzero <- apply(data.trimmean.nonzero.t, 1, outlier.detection.zrange);
-data.zrange.trimmean.nonzero.t <- data.frame(t(data.zrange.trimmean.nonzero));
-trimmean.nonzero.zscore <- cbind(data.zrange.trimmean.nonzero.t, data.fpkm$Symbol);
-colnames(trimmean.nonzero.zscore) <- c(colnames(data.zrange.trimmean.nonzero.t), 'Symbol');
+molecular.zrange.trimmean.nonzero <- apply(molecular.trimmean.nonzero.t, 1, outlier.detection.zrange);
+molecular.zrange.trimmean.nonzero.t <- data.frame(t(molecular.zrange.trimmean.nonzero));
+trimmean.nonzero.zscore <- cbind(molecular.zrange.trimmean.nonzero.t, fpkm.data$Symbol);
+colnames(trimmean.nonzero.zscore) <- c(colnames(molecular.zrange.trimmean.nonzero.t), 'Symbol');
 
 # 5. MEDIAN and MAD
-data.zrange.median <- apply(data.median.t, 1, outlier.detection.zrange);
-data.zrange.median.t <- data.frame(t(data.zrange.median));
-median.zscore <- cbind(data.zrange.median.t, data.fpkm$Symbol);
-colnames(median.zscore) <- c(colnames(data.zrange.median.t), 'Symbol');
+molecular.zrange.median <- apply(molecular.median.t, 1, outlier.detection.zrange);
+molecular.zrange.median.t <- data.frame(t(molecular.zrange.median));
+median.zscore <- cbind(molecular.zrange.median.t, fpkm.data$Symbol);
+colnames(median.zscore) <- c(colnames(molecular.zrange.median.t), 'Symbol');
 
 # 6. MEDIAN and MAD excluding zero
-data.zrange.median.nonzero <- apply(data.median.nonzero.t, 1, outlier.detection.zrange);
-data.zrange.median.nonzero.t <- data.frame(t(data.zrange.median.nonzero));
-median.nonzero.zscore <- cbind(data.zrange.median.nonzero.t, data.fpkm$Symbol);
-colnames(median.nonzero.zscore) <- c(colnames(data.zrange.median.nonzero.t), 'Symbol');
+molecular.zrange.median.nonzero <- apply(molecular.median.nonzero.t, 1, outlier.detection.zrange);
+molecular.zrange.median.nonzero.t <- data.frame(t(molecular.zrange.median.nonzero));
+median.nonzero.zscore <- cbind(molecular.zrange.median.nonzero.t, fpkm.data$Symbol);
+colnames(median.nonzero.zscore) <- c(colnames(molecular.zrange.median.nonzero.t), 'Symbol');
 
 
 
@@ -305,7 +305,7 @@ colnames(median.nonzero.zscore) <- c(colnames(data.zrange.median.nonzero.t), 'Sy
 ### Calculate the kmean fraction #####
 # Function 
 outlier.detection.kmean <- function(x) {
-    if (1== length(unique(as.numeric(x)))) {
+    if (1 == length(unique(as.numeric(x)))) {
         fraction <- NA;
         } 
     else {
@@ -321,16 +321,16 @@ outlier.detection.kmean <- function(x) {
     }
 
 # 7. KMEAN fraction
-data.fraction.kmean <- apply(data.kmean.t, 1, outlier.detection.kmean);
-data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
-kmean.fraction <- cbind(data.fraction.kmean.t, data.fpkm$Symbol);
-colnames(kmean.fraction) <- c(colnames(data.fraction.kmean.t), 'Symbol');
+molecular.fraction.kmean <- apply(molecular.kmean.t, 1, outlier.detection.kmean);
+molecular.fraction.kmean.t <- data.frame(t(molecular.fraction.kmean));
+kmean.fraction <- cbind(molecular.fraction.kmean.t, fpkm.data$Symbol);
+colnames(kmean.fraction) <- c(colnames(molecular.fraction.kmean.t), 'Symbol');
 
 # 8. KMEAN fraction excluding zero
-data.fraction.kmean.nonzero <- apply(data.kmean.nonzero.t, 1, outlier.detection.kmean);
-data.fraction.kmean.nonzero.t <- data.frame(t(data.fraction.kmean.nonzero));
-kmean.nonzero.fraction <- cbind(data.fraction.kmean.nonzero.t, data.fpkm$Symbol);
-colnames(kmean.nonzero.fraction) <- c(colnames(data.fraction.kmean.nonzero.t), 'Symbol');
+molecular.fraction.kmean.nonzero <- apply(molecular.kmean.nonzero.t, 1, outlier.detection.kmean);
+molecular.fraction.kmean.nonzero.t <- data.frame(t(molecular.fraction.kmean.nonzero));
+kmean.nonzero.fraction <- cbind(molecular.fraction.kmean.nonzero.t, fpkm.data$Symbol);
+colnames(kmean.nonzero.fraction) <- c(colnames(molecular.fraction.kmean.nonzero.t), 'Symbol');
 
 
 
@@ -344,7 +344,7 @@ gene.zrange.fraction <- cbind(mean.zscore$zrange,
                      trimmean.nonzero.zscore$zrange,
                      kmean.fraction$fraction,
                      kmean.nonzero.fraction$fraction,
-                     data.frame(data.fpkm$Symbol));
+                     data.frame(fpkm.data$Symbol));
 rownames(gene.zrange.fraction) <- rownames(molecular.data);
 colnames(gene.zrange.fraction) <- c('zrange.mean', 'zrange.mean.nonzero', 'zrange.median',
                            'zrange.median.nonzero', 'zrange.trimmean', 'zrange.trimmean.nonzero',
@@ -359,7 +359,7 @@ colnames(gene.zrange.fraction) <- c('zrange.mean', 'zrange.mean.nonzero', 'zrang
 # Function 
 # Show the max or min value
 zrange.direction <- function (x) {
-    num.x <- as.numeric(x);
+    num.x <- as.numeric(x); #names(x) will need for final output
     if (is.na(max(x)) | is.infinite(max(num.x))) {
         max.min <- NA;
         }
@@ -421,7 +421,7 @@ head(gene.zrange.fraction.direction);
 # Mark the patients over/under threshold
 outlier.sample <- function(x, zscore) { 
     outlier.count <- NA;
-    x.num <- as.numeric(x);
+    x.num <- as.numeric(x); #names(x) will need for final output
     for (i in 1: length(x)) {
         if (is.na(x.num[i]) | is.infinite(x.num[i])) {
             outlier.count[i] <- 0;
@@ -445,7 +445,7 @@ outlier.sample <- function(x, zscore) {
 # Function 
 # Calculate the sum of outliers per patient
 outlier.sample.sum <- function(x) {
-    x.num <- as.numeric(x);
+    x.num <- as.numeric(x); #names(x) will need for final output 
     high.number <- length(x.num[x.num == 1]) ;
     low.number <- length(x.num[x.num == -1]) ;
     number.outlier <- high.number + low.number;
@@ -682,7 +682,7 @@ data.list <- list(mean.zscore,
                   adjust.p.median.nonzero.sum);
 
 for (i in 1:length(data.list)) {
-    patient.match.check(data.fpkm[,patient.part], data.list[[i]][,patient.part]);
+    patient.match.check(fpkm.data[,patient.part], data.list[[i]][,patient.part]);
     }
 
 
@@ -771,7 +771,7 @@ outlier.heatmap.fpkm <- function(x, y) {
     fpkm.heat;
     }
 
-outlier.heatmap.fpkm(median.zscore, data.fpkm);
+outlier.heatmap.fpkm(median.zscore, fpkm.data);
 
 ```
 
@@ -989,7 +989,7 @@ outlier.waterfallplot <- function(x, y, plot.num = 1, kmean = FALSE, threshold =
 ## Mark the patients over/under threshold
 # p-value 
 p.value <- qnorm(0.05/2, lower.tail=FALSE);
-outlier.waterfallplot(median.zscore, data.fpkm, plot.num = 1, threshold = p.value);
+outlier.waterfallplot(median.zscore, fpkm.data, plot.num = 1, threshold = p.value);
 
 
 ### Use threshold Bonferroni < 0.05  ###
@@ -997,7 +997,7 @@ outlier.waterfallplot(median.zscore, data.fpkm, plot.num = 1, threshold = p.valu
 # Bonferroni correction 
 bon <- 0.05/length(patient.part);
 bon.zscore <- qnorm(bon/2, lower.tail=FALSE);
-outlier.waterfallplot(median.zscore, data.fpkm, plot.num = 1, threshold = bon.zscore);
+outlier.waterfallplot(median.zscore, fpkm.data, plot.num = 1, threshold = bon.zscore);
 
 
 ### Use threshold p-threshold-adjusted = p-threshold / (number.patient x number.methods) ###
@@ -1006,11 +1006,11 @@ outlier.waterfallplot(median.zscore, data.fpkm, plot.num = 1, threshold = bon.zs
 methods.num <- c('mean', 'mean.nonzero', 'trimmean', 'trimmean.nonzero', 'median', 'median.nonzero');
 adjust.p.threshold <- 0.05/(length(patient.part)*length(methods.num));
 adjust.p.zscore <- qnorm(adjust.p.threshold/2, lower.tail=FALSE);
-outlier.waterfallplot(median.zscore, data.fpkm, plot.num = 1, threshold = adjust.p.zscore);
+outlier.waterfallplot(median.zscore, fpkm.data, plot.num = 1, threshold = adjust.p.zscore);
 
 
 ### K-mean matrix in waterfall plot
-outlier.waterfallplot(kmean.fraction, data.fpkm, plot.num = 1, kmean = TRUE);
+outlier.waterfallplot(kmean.fraction, fpkm.data, plot.num = 1, kmean = TRUE);
 
 
 ```
@@ -1036,7 +1036,7 @@ outlier.technical.problem <- function(x) {
                                          filters = 'ensembl_gene_id', 
                                          values = gene.list.all.sub, 
                                          mart = ensembl.all);
-    gene.all <- subset(data.fpkm, gene.list.all.sub %in% gene.position.all$ensembl_gene_id);
+    gene.all <- subset(fpkm.data, gene.list.all.sub %in% gene.position.all$ensembl_gene_id);
     gene.position.order.all <- gene.position.all[order(as.numeric(gene.position.all$chromosome_name),
                                                        as.numeric(gene.position.all$start_position), 
                                                        decreasing = FALSE),];
@@ -1136,21 +1136,22 @@ outlier.position <- function(x, chr.num = 24) {
                                                        decreasing = FALSE),];
     gene.biomart.fpkm.all <- gene.all[match(gene.position.order.all$ensembl_gene_id, 
                                             substr(rownames(gene.all), 1, 15)),];
+    chr.position <- c(3, 4, 5); # chromosome_name, start_position, end_position
     chr.ord.all <- cbind(gene.biomart.fpkm.all, 
-                         gene.position.order.all[,3:5]);
+                         gene.position.order.all[,colnames(gene.position.order) %in% c('chromosome_name', 'start_position', 'end_position')]);
     chr.ord.na <- na.omit(chr.ord.all);
     chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 
                   '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', 
                   '21', '22', 'MT', 'X', 'Y');
     chr.ord.na.numeric <- chr.ord.na;
     for (i in 1 : nrow(chr.ord.na.numeric)){
-        if(chr.ord.na.numeric$chromosome_name[i] == 'MT') {
+        if('MT' == chr.ord.na.numeric$chromosome_name[i]) {
             chr.ord.na.numeric$chromosome_name[i] <- '23';
             }
-        if(chr.ord.na.numeric$chromosome_name[i] == 'X') {
+        if('X' == chr.ord.na.numeric$chromosome_name[i]) {
             chr.ord.na.numeric$chromosome_name[i] <- '24';
             }
-        if(chr.ord.na.numeric$chromosome_name[i] == 'Y') {
+        if('Y' == chr.ord.na.numeric$chromosome_name[i]) {
             chr.ord.na.numeric$chromosome_name[i] <- '25';
             }
         }
@@ -1242,7 +1243,7 @@ gene.rank.order.6$Symbol[1:1000];
 ### Heatmap of TOP ranked genes ###
 # Top 1000 genes in FPKM space
 outlier.heatmap.rank <- function(x) {
-    fpkm <- data.fpkm[rownames(data.fpkm) %in% rownames(x)[1:1000],];
+    fpkm <- fpkm.data[rownames(fpkm.data) %in% rownames(x)[1:1000],];
     fpkm.log <- log10((fpkm[ , 1:(length(fpkm)-1)])+1);
     fpkm.heat <- BoutrosLab.plotting.general:::create.heatmap(
         x = fpkm.log,
@@ -1369,12 +1370,12 @@ patient.order.outlier.heatmap(patient.median.adjust.p.sum, median.zscore, gene.r
 ```{r, fig.width=14, fig.height=15.05, warning = FALSE}
 ### Make covariates ###
 
-# Match the patients between data.fpkm vs clinical.data
+# Match the patients between fpkm.data vs clinical.data
 clinical.data$Patient.ID <- gsub('-', '.', clinical.data$Patient.ID);
-clinical.data.match <- clinical.data[clinical.data$Patient.ID %in% colnames(data.fpkm[,patient.part]),];
+clinical.data.match <- clinical.data[clinical.data$Patient.ID %in% colnames(fpkm.data[,patient.part]),];
 duplicate.sample <- clinical.data.match[duplicated(clinical.data.match$Patient.ID),]$Sample.ID;
 clinical.data.match.dup <- clinical.data.match[clinical.data.match$Sample.ID != duplicate.sample,];
-clinical.outcome <- clinical.data.match.dup[match(colnames(data.fpkm[,patient.part]), clinical.data.match.dup$Patient.ID),];
+clinical.outcome <- clinical.data.match.dup[match(colnames(fpkm.data[,patient.part]), clinical.data.match.dup$Patient.ID),];
 
 
 ## 1. ISUP GG ##
@@ -1386,13 +1387,13 @@ for (i in 1:length(primary.gs)) {
     if (final.gs[i] <= 6) {
         isup[i,1] <- 1;
         }
-    else if (primary.gs[i] == 3 & secondary.gs[i] == 4) {
+    else if (3 == primary.gs[i] & 4 == secondary.gs[i]) {
         isup[i,1] <- 2;
         }
-    else if (primary.gs[i] == 4 & secondary.gs[i] == 3) {
+    else if (4 == primary.gs[i] & 3 == secondary.gs[i]) {
         isup[i,1] <- 3;
         }
-    else if (final.gs[i] == 8) {
+    else if (8 == final.gs[i]) {
         isup[i,1] <- 4;
         }
     else if (final.gs[i] >= 9) {
@@ -1453,24 +1454,24 @@ for (i in 1:length(grade.sub)) {
     if (is.na(grade.sub[i])) {
        grade.sub.stage[i,1] <- 6;
         }
-    else if (grade.sub[i] == 'T2') {
+    else if ('T2' == grade.sub[i]) {
         grade.sub.stage[i,1] <- 15;
         }
-    else if (grade.sub[i] == 'T3') {
+    else if ('T3' == grade.sub[i]) {
         grade.sub.stage[i,1] <- 16;
         }
-    else if (grade.sub[i] == 'T4') {
+    else if ('T4' == grade.sub[i]) {
         grade.sub.stage[i,1] <- 17;
         }
     }
 
 ### Make data.frame for heatmap ###
 all.clinical <- cbind(isup, psa.stage, age.stage, grade.sub.stage);
-rownames(all.clinical) <- colnames(data.fpkm[,patient.part]);
+rownames(all.clinical) <- colnames(fpkm.data[,patient.part]);
 
 
 ## Waterfall plot
-# x: data.fpkm file
+# x: fpkm.data file
 # a: gene.rank.order.6 - ranked gene file
 # b: mean.zscore
 # c: mean.nonzero.zscore
@@ -1934,7 +1935,7 @@ outlier.multiwaterfallplot <- function(x, a, b, c, d, e, f, g, h, i, j, num = 1)
     }
 
 # Multi-waterfall plot
-outlier.multiwaterfallplot(data.fpkm, gene.rank.order.6, mean.zscore, mean.nonzero.zscore,
+outlier.multiwaterfallplot(fpkm.data, gene.rank.order.6, mean.zscore, mean.nonzero.zscore,
                            trimmean.zscore, trimmean.nonzero.zscore, median.zscore,
                            median.nonzero.zscore, kmean.fraction, kmean.nonzero.fraction, all.clinical, num = 1);
 
@@ -1967,20 +1968,20 @@ rank.chromosomal.position.bar <- function(x, chr.num = 24, data.col = 'steelblue
     gene.biomart.fpkm <- gene.biomart[match(gene.position.order$ensembl_gene_id, 
                                             substr(rownames(gene.biomart), 1, 15)),];
     chr.ord <- cbind(gene.biomart.fpkm, 
-                     gene.position.order[,3:5]);
+                     gene.position.order[, colnames(gene.position.order) %in% c('chromosome_name', 'start_position', 'end_position')]);
     chr.ord.na <- na.omit(chr.ord);
-    chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 
-                  '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', 
-                  '21', '22', 'MT', 'X', 'Y');
+    chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+                  '11', '12', '13', '14', '15', '16', '17', '18', '19', 
+                  '20', '21', '22', 'MT', 'X', 'Y');
     chr.ord.na.numeric <- chr.ord.na;
     for (i in 1 : nrow(chr.ord.na.numeric)){
-        if(chr.ord.na.numeric$chromosome_name[i] == 'MT') {
+        if('MT' == chr.ord.na.numeric$chromosome_name[i]) {
             chr.ord.na.numeric$chromosome_name[i] <- '23';
             }
-        if(chr.ord.na.numeric$chromosome_name[i] == 'X') {
+        if('X' == chr.ord.na.numeric$chromosome_name[i]) {
             chr.ord.na.numeric$chromosome_name[i] <- '24';
             }
-        if(chr.ord.na.numeric$chromosome_name[i] == 'Y') {
+        if('Y' == chr.ord.na.numeric$chromosome_name[i]) {
             chr.ord.na.numeric$chromosome_name[i] <- '25';
             }
         }
@@ -2051,7 +2052,7 @@ data.list <- list(mean.zscore,
                   trimmean.nonzero.zscore);
 
 for (i in 1:length(data.list)) {
-    data.match.check(data.fpkm[,patient.part], data.list[[i]][,patient.part]);
+    data.match.check(fpkm.data[,patient.part], data.list[[i]][,patient.part]);
     }
         
         
@@ -2064,7 +2065,7 @@ for (i in 1:length(data.list)) {
 # ### Save session #####
 # # Gene-wise session
 # setwd('~/Documents/1.Project/1.CPCGENE_RNA-seq/Rawdata/TCGA_PC');
-# save(data.fpkm,
+# save(fpkm.data,
 #      patient.part,
 #      molecular.data,
 #      mean.zscore,
@@ -2082,7 +2083,7 @@ for (i in 1:length(data.list)) {
 #      file = '2020-12-15_TCGA_gene-wise_Outlier.rda');
 #
 # # Patient-wise session
-# save(data.fpkm,
+# save(fpkm.data,
 #      patient.part,
 #      molecular.data,
 #      pvalue.mean.sum,
