@@ -144,7 +144,7 @@ quantify.outliers <- function(x, method = 'mean', trim = 0, exclude.zero = FALSE
                 x.median <- median(x.num);
                 x.mad <- mad(x.num);
                 }
-            (x.num - x.median) / x.mad;
+            (x - x.median) / x.mad;
             }
         else if ('kmean' == method) {
             if (exclude.zero) {
