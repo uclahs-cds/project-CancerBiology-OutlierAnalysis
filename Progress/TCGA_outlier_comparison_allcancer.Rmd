@@ -1,0 +1,1983 @@
+---
+title: "TCGA outlier"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+### Rank product of whole cancer dataset
+```{r}
+### TCGA.outlier.Rmd ###########################################################
+# - Combine each rank product data of all cancer types
+# - Find the most common outlier across cancer types
+# - Classify cancer subtype by outliers
+# - Count the number of significant outlier per cancer types
+#
+### 1. The whole rank product matrix of all cancer types
+# - Make one matrix with rank product data of all cancer types
+# - Compute rank product with those data to order the outliers across all cancer types
+# - Find the top ranked outliers
+#
+### 2. Count the overlap outliers - Use ENSG ID
+# (Use ENSG ID to avoid the multiple heat of gene symbol)
+# - Order top ranked genes in each cancer type using ENSG ID
+# - Compare the outlier and calculate the overlap ratio 
+# - Generate the heatmaps with comparison of 500/1000/2000 top outliers with consensus clustering
+#
+### 3. Function for checking whether the outliers are highly abundant or lowly abundant
+# - Generate the direction matrix
+
+### 4. Function for making patient-wise outlier matrix
+# 1. P-value < 0.05
+# 2. Bonferroni  correction < 0.05
+# 3. Adjusted p-value < 0.05
+# - Generate function for marking the patients over/under threshold
+# - Generate function for calculating the number of outliers per patient
+
+### 5. File check - match the name of patients
+# - Match the name of patients between FPKM file and z-score file
+
+### 6. Function for making heatmap of z-score and FPKM
+# - Generate function for making heatmap in z-score and fpkm space
+
+### 7. Function for making Waterfall plot
+# - Generate function for making waterfall plot with z-score and FPKM with showing the fraction of patients
+
+### 8. Function for checking out the technical problem
+# - Generate heatmap for the fraction of genes enriched on each chromosome
+# - Check if there is any chromosome of which genes are enriched less than 20%
+
+### 9. Function for making heatmap of each chromosome position
+# - Generate function for making heatmap for each chromosomal position
+
+### 10. Function for ranking outliers
+# - Generate the ranking of outliers using rank product method
+# - Generate heatmap for top 1000 ranked outliers in FPKM space
+# - Generate heatmap for top 1000 ranked outliers in z-score
+# - Count the number of outliers per patient
+# - Generate heatmap for top 1000 ranked outliers ordered by the number of outliers per patient
+
+### 11. Function for making multi-waterfall plot with clinical data
+# 1. ISUP
+# 2. PSA
+# 3. Age
+# 4. Tumor grade
+# - Merge clinical data in waterfall plot
+
+### 12. Function for making bar plot of gene rank on each chromosome position
+# - Generate bar plot for each chromosome with rank of genes
+
+### 13. File check - Check the correlation between FPKM and z-score
+# - Generate an error if the correlation is low
+
+### 14. Save session 
+
+################################################################################
+
+
+# ### Load cancer type list
+# # - 'tcga.cancer.types.txt': list of TCGA cancer types
+setwd('~/Documents/1.Project/TCGA/TCGA');
+cancer.types <- read.table(file = 'tcga.cancer.types.txt')[,1];
+# 
+# ### Load all rank datasets
+# # - load the rank product data of all cancer types
+# rank.cancer <- paste('rank.', cancer.types, sep = '');
+# for ( i in seq_along(rank.cancer)) {
+#     setwd(paste('~/Documents/1.Project/TCGA/TCGA-', cancer.types[i], sep = ''));
+#     load(paste(file = '2021-04-21_outlier_', cancer.types[i], '.rda', sep = ''));
+#     file.name <- paste('~/Documents/1.Project/TCGA/TCGA/', rank.cancer[i], '.txt', sep = '');
+#     rank <- gene.rank.order.4
+#     assign(rank.cancer[i], rank);
+#     }
+
+### Load the data 
+# (Used the saved data to save running time)
+# - Pan-cancer rank product data
+# - Consensus clustering data
+load(file = '2021-04-23_TCGA_outlier_allcancer.rda');
+
+
+```
+
+### 1. The whole rank product matrix of all cancer types
+```{r}
+################################################################################
+### 1. The whole rank product matrix of all cancer types
+# - Make one matrix with rank product data of all cancer types
+# - Compute rank product with those data to order the outliers across all cancer types
+# - Find the top ranked outliers
+################################################################################
+
+### Make whole rank matrix of all cancer types
+# - included in '2021-03-10_TCGA_outlier.rda'
+
+# Order genes to make one rank product matrix
+# cancer.rank <- NULL;
+# for ( i in seq_along(rank.cancer)) {
+#     rank.product <- get(rank.cancer[i])
+#     rank.product.order <- rank.product[match(rownames(rank.LAML), rownames(rank.product)), ]$rank.product.4
+#     cancer.rank <- data.frame(cbind(cancer.rank, rank.product.order));
+#     }
+# colnames(cancer.rank) <- cancer.types;
+# rownames(cancer.rank) <- rownames(rank.LAML);
+# cancer.rank.symbol <- data.frame(cancer.rank, rank.LAML$Symbol);
+# colnames(cancer.rank.symbol) <- c(cancer.types, 'Symbol');
+
+
+### Find the top ranked outliers from the overlap genes
+# - Compute the rank product using each rank product data from each cancer type to find the top ranked outlier across cancer types
+outlier.rank.product <- function(x, NA.number = 0) {
+    rank <- as.numeric(x[1:(length(x)-1)]);
+    num <- sum(!is.na(rank));
+    if (NA.number >= num) {
+        NA;
+        }
+    else {
+        (prod(rank, na.rm = TRUE))^(1/num);
+        }
+    }
+
+# cancer.rank.product <- apply(cancer.rank.symbol, 1, outlier.rank.product, NA.number = 29);
+# cancer.rank.product.symbol <- data.frame(cbind(cancer.rank.symbol, cancer.rank.product));
+# cancer.rank.product.symbol.order <- cancer.rank.product.symbol[order(cancer.rank.product.symbol$cancer.rank.product, decreasing = FALSE),];
+# colnames(cancer.rank.product.symbol.order) <- c(colnames(cancer.rank.product.symbol.order)[1:(length(cancer.rank.product.symbol.order)-1)], 'rank.product');
+
+# Top ranked outliers across all cancer types from the rank product using ecah rank product data of each cancer type
+head(cancer.rank.product.symbol.order);
+cancer.rank.product.symbol.order$Symbol[1:100];
+
+
+```
+
+### 2. Count the overlap outliers - Use ENSG ID
+```{r, fig.width=12, fig.height=11}
+
+### ENSG ID rank matrix
+# - Ordered top ranked genes in each cancer type using ENSG ID
+cancer.rank.gene <- data.frame(matrix(nrow = nrow(cancer.rank.symbol)));
+for (i in 1:length(cancer.types)) {
+    cancer.rank.gene[,i] <- rownames(cancer.rank.symbol[order(cancer.rank.symbol[,i], decreasing = FALSE),]);
+    }
+colnames(cancer.rank.gene) <- cancer.types;
+
+
+### Function - Count the overlap genes across cancer types
+# - Input variable: cancer.rank.gene - ENSGID matrix ordered by rank product data
+# - Parameter: number.gene - the number of top ranked genes to be compared
+# - Output variable: the ratio of number of overlap outliers across cancer type
+count.outlier <- function (x, number.gene = 500) {
+    count.num <- data.frame();
+    for (k in 1:length(cancer.types)) {
+        for (i in 1:length(cancer.types)) {
+            count.num[k,i] <- sum(cancer.rank.gene[,k][1:number.gene] %in% cancer.rank.gene[,i][1:number.gene]);
+            }
+        }
+    rownames(count.num) <- colnames(cancer.rank.gene);
+    colnames(count.num) <- colnames(cancer.rank.gene);
+    round(count.num/number.gene, 2);
+    }
+
+
+
+### Count the overlap genes from top 500 ranked outliers across cancer types
+# - Count the overlap ratio within top 500 ranked genes
+cancer.outlier.ratio.500 <- count.outlier(cancer.rank.gene, number.gene = 500);
+# 
+# # Make cancer cluster
+# # - included in '2021-03-10_TCGA_outlier.rda'
+# cancer.outlier.ratio.500.cluster <- as.matrix(cancer.outlier.ratio.500);
+# sample.cluster.500.ratio <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.outlier.ratio.500.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.500.ratio_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.500.ratio,
+#      file = 'top500.ratio.cluster.rda');
+
+
+# Assign K value
+sample.k.500.ratio <- 6;
+
+# Give order depending on consensus clustering
+cc.sample.500.ratio <- data.frame(sample.cluster = sort(sample.cluster.500.ratio[[sample.k.500.ratio]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.500.ratio <- cc.sample.500.ratio[match(colnames(cancer.outlier.ratio.500), rownames(cc.sample.500.ratio)), ];
+samples.ord.500.ratio <- labels(as.dendrogram(sample.cluster.500.ratio[[sample.k.500.ratio]]$consensusTree));
+
+# Make sample covariate
+sample.col.500.ratio <- BoutrosLab.plotting.general:::default.colours(sample.k.500.ratio, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.500.ratio[[sample.k.500.ratio]]$consensusClass, 1:sample.k.500.ratio)][samples.ord.500.ratio];
+sample.covariate.500.ratio <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.500.ratio,
+    		lwd = 1.5
+    		)
+  	);
+
+# Make text array
+x <- as.matrix(cancer.outlier.ratio.500[samples.ord.500.ratio, samples.ord.500.ratio]);
+x[x == 1] <- colnames(cancer.outlier.ratio.500[samples.ord.500.ratio, samples.ord.500.ratio]); 
+y <- x;
+for (i in 1:(ncol(y)-1)) { 
+    y[i, (i+1):nrow(y)] <- ''; 
+    }
+
+# Adjust color ramp - to show clearer pattern
+mid.color <- colorRampPalette(c('white', 'grey10'))(n = 100)[70];
+my_palette <- colorRampPalette(c('white', mid.color, 'grey10'), bias = 2)(n = 1000);
+
+# Heatmap of the number of overlap genes across cancer types
+consensus.heat.top500.ratio <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.outlier.ratio.500[samples.ord.500.ratio, samples.ord.500.ratio],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The overlap top 500 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    covariates= sample.covariate.500.ratio,
+    covariates.top = sample.covariate.500.ratio,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    # grid.row = TRUE,
+    # row.lwd = 0.5,
+    # row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cancer.outlier.ratio.500[samples.ord.500.ratio, samples.ord.500.ratio]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+consensus.heat.top500.ratio;
+
+
+
+
+
+
+
+### Count the overlap genes from top 1000 ranked outliers across cancer types
+# - Count the overlap ratio within top 1000 ranked genes
+cancer.outlier.ratio.1000 <- count.outlier(cancer.rank.gene, number.gene = 1000);
+
+# # Make cancer cluster
+# # - included in '2021-03-10_TCGA_outlier.rda'
+# cancer.outlier.ratio.1000.cluster <- as.matrix(cancer.outlier.ratio.1000);
+# sample.cluster.1000.ratio <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.outlier.ratio.1000.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.1000.ratio_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.1000.ratio,
+#      file = 'top1000.ratio.cluster.rda');
+
+
+# Assign K value
+sample.k.1000.ratio <- 6;
+
+# Give order depending on consensus clustering
+cc.sample.1000.ratio <- data.frame(sample.cluster = sort(sample.cluster.1000.ratio[[sample.k.1000.ratio]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.1000.ratio <- cc.sample.1000.ratio[match(colnames(cancer.outlier.ratio.1000), rownames(cc.sample.1000.ratio)), ];
+samples.ord.1000.ratio <- labels(as.dendrogram(sample.cluster.1000.ratio[[sample.k.1000.ratio]]$consensusTree));
+
+# Make sample covariate
+sample.col.1000.ratio <- BoutrosLab.plotting.general:::default.colours(sample.k.1000.ratio, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.1000.ratio[[sample.k.1000.ratio]]$consensusClass, 1:sample.k.1000.ratio)][samples.ord.1000.ratio];
+sample.covariate.1000.ratio <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.1000.ratio,
+    		lwd = 1.5
+    		)
+  	);
+
+# Make text array
+x <- as.matrix(cancer.outlier.ratio.1000[samples.ord.1000.ratio, samples.ord.1000.ratio]);
+x[x == 1] <- colnames(cancer.outlier.ratio.1000[samples.ord.1000.ratio, samples.ord.1000.ratio]); 
+y <- x;
+for (i in 1:(ncol(y)-1)) { 
+    y[i, (i+1):nrow(y)] <- ''; 
+    }
+
+# Adjust color ramp - to show clearer pattern
+mid.color <- colorRampPalette(c('white', 'grey10'))(n = 100)[60];
+my_palette <- colorRampPalette(c('white', mid.color, 'grey10'), bias = 2)(n = 1000);
+
+# Heatmap of the number of overlap genes across cancer types
+consensus.heat.top1000.ratio <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.outlier.ratio.1000[samples.ord.1000.ratio, samples.ord.1000.ratio],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The overlap top 1000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    covariates= sample.covariate.1000.ratio,
+    covariates.top = sample.covariate.1000.ratio,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    # grid.row = TRUE,
+    # row.lwd = 0.5,
+    # row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cancer.outlier.ratio.1000[samples.ord.1000.ratio, samples.ord.1000.ratio]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+consensus.heat.top1000.ratio;
+
+# Use different clustering method - euclidean
+BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.outlier.ratio.1000[samples.ord.1000.ratio, samples.ord.1000.ratio],
+    clustering.method = 'ward.D2',
+    cluster.dimensions = 'both',
+    main = 'The overlap top 1000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    legend.cex = 1,
+    legend.title.cex = 1,
+    # grid.row = TRUE,
+    # row.lwd = 0.5,
+    # row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    rows.distance.method = 'euclidean',
+    cols.distance.method = 'euclidean',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cancer.outlier.ratio.1000[samples.ord.1000.ratio, samples.ord.1000.ratio]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+
+
+
+
+
+
+### Count the overlap genes from top 2000 ranked outliers across cancer types
+# - Count the overlap ratio within top 2000 ranked genes
+cancer.outlier.ratio.2000 <- count.outlier(cancer.rank.gene, number.gene = 2000);
+
+# # Make cancer cluster
+# # - included in '2021-03-10_TCGA_outlier.rda'
+# cancer.outlier.ratio.2000.cluster <- as.matrix(cancer.outlier.ratio.2000);
+# sample.cluster.2000.ratio <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.outlier.ratio.2000.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.2000.ratio_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.2000.ratio,
+#      file = 'top2000.ratio.cluster.rda');
+
+
+# Assign K value
+sample.k.2000.ratio <- 6;
+
+# Give order depending on consensus clustering
+cc.sample.2000.ratio <- data.frame(sample.cluster = sort(sample.cluster.2000.ratio[[sample.k.2000.ratio]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.2000.ratio <- cc.sample.2000.ratio[match(colnames(cancer.outlier.ratio.2000), rownames(cc.sample.2000.ratio)), ];
+samples.ord.2000.ratio <- labels(as.dendrogram(sample.cluster.2000.ratio[[sample.k.2000.ratio]]$consensusTree));
+
+# Make sample covariate
+sample.col.2000.ratio <- BoutrosLab.plotting.general:::default.colours(sample.k.2000.ratio, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.2000.ratio[[sample.k.2000.ratio]]$consensusClass, 1:sample.k.2000.ratio)][samples.ord.2000.ratio];
+sample.covariate.2000.ratio <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.2000.ratio,
+    		lwd = 1.5
+    		)
+  	);
+
+# Make text array
+x <- as.matrix(cancer.outlier.ratio.2000[samples.ord.2000.ratio, samples.ord.2000.ratio]);
+x[x == 1] <- colnames(cancer.outlier.ratio.2000[samples.ord.2000.ratio, samples.ord.2000.ratio]); 
+y <- x;
+for (i in 1:(ncol(y)-1)) { 
+    y[i, (i+1):nrow(y)] <- ''; 
+    }
+
+# Adjust color ramp - to show clearer pattern
+mid.color <- colorRampPalette(c('white', 'grey10'))(n = 100)[60];
+my_palette <- colorRampPalette(c('white', mid.color, 'grey10'), bias = 2)(n = 2000);
+
+# Heatmap of the number of overlap genes across cancer types
+consensus.heat.top2000.ratio <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.outlier.ratio.2000[samples.ord.2000.ratio, samples.ord.2000.ratio],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The overlap top 2000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    covariates= sample.covariate.2000.ratio,
+    covariates.top = sample.covariate.2000.ratio,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    # grid.row = TRUE,
+    # row.lwd = 0.5,
+    # row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cancer.outlier.ratio.2000[samples.ord.2000.ratio, samples.ord.2000.ratio]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+consensus.heat.top2000.ratio;
+
+# Use different clustering method - euclidean
+BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.outlier.ratio.2000[samples.ord.2000.ratio, samples.ord.2000.ratio],
+    clustering.method = 'ward.D2',
+    cluster.dimensions = 'both',
+    main = 'The overlap top 2000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    legend.cex = 1,
+    legend.title.cex = 1,
+    # grid.row = TRUE,
+    # row.lwd = 0.5,
+    # row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    rows.distance.method = 'euclidean',
+    cols.distance.method = 'euclidean',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cancer.outlier.ratio.2000[samples.ord.2000.ratio, samples.ord.2000.ratio]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+
+```
+
+### Consensus clustering for the common outliers 
+```{r, fig.width=12, fig.height=11}
+### Check if the overlap genes are exist in each type of cancer
+
+
+### Compare top 500 outliers
+common.outlier.id.500 <- data.frame(table(unlist(cancer.rank.gene[1:500,])));
+common.outlier.id.order.500 <- common.outlier.id.500[order(common.outlier.id.500$Freq, decreasing = TRUE),];
+common.outlier.id.order.symbol.500 <- cbind(common.outlier.id.order.500, cancer.rank.symbol[match(common.outlier.id.order.500$Var1, rownames(cancer.rank.symbol)),]$Symbol);
+colnames(common.outlier.id.order.symbol.500) <- c('Gene', 'Freq', 'Symbol');
+common.outlier.id.order.symbol.500[1:50,];
+# Check the cancer types with top 100 common outliers from comparison of top 500 outliers from each cancer type 
+cancer.500.outlier.status <- data.frame(matrix(nrow = 100));
+for (i in seq_along(cancer.types)){
+    cancer.500.outlier.status[,i] <- ifelse(common.outlier.id.order.symbol.500$Gene[1:100] %in% cancer.rank.gene[1:500,i], 1, 0);
+    }
+colnames(cancer.500.outlier.status) <- cancer.types;
+rownames(cancer.500.outlier.status) <- common.outlier.id.order.symbol.500$Symbol[1:100];
+
+# # Make cancer cluster
+# cancer.types.cluster <- as.matrix(cancer.500.outlier.status);
+# sample.cluster <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.types.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# # Make gene cluster
+# gene.500.cluster <- as.matrix(t(cancer.500.outlier.status));
+# gene.cluster <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     gene.500.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'gene_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster,
+#      gene.cluster,
+#      file = 'top500.count.cluster.rda');
+
+
+# Assign K value
+sample.k <- 6;
+gene.k <- 6;
+
+# Give order and color
+cc.gene <- data.frame(gene.cluster = sort(gene.cluster[[gene.k]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample <- data.frame(sample.cluster = sort(sample.cluster[[sample.k]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord <- cc.sample[match(colnames(cancer.500.outlier.status), rownames(cc.sample)), ];
+cc.gene.ord <- cc.gene[match(rownames(cancer.500.outlier.status), rownames(cc.gene)), ];
+gene.ord <- labels(as.dendrogram(gene.cluster[[gene.k]]$consensusTree));
+samples.ord <- labels(as.dendrogram(sample.cluster[[sample.k]]$consensusTree));
+
+#Make sample covariate
+sample.col <- BoutrosLab.plotting.general:::default.colours(sample.k, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster[[sample.k]]$consensusClass, 1:sample.k)][samples.ord];
+sample.covariate <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col,
+    		lwd = 1.5
+    		)
+  	);
+#Make gene covariate
+gene.col <- BoutrosLab.plotting.general:::default.colours(gene.k, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster[[gene.k]]$consensusClass, 1:gene.k)][gene.ord];
+gene.covariate <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = gene.col,
+    		lwd = 1.5
+    		)
+  	);
+
+consensus.heat.top500.count <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.500.outlier.status[gene.ord, samples.ord],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The common 100 outliers from the comparison of top 500 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = c('white', 'grey20'),
+    covariates= sample.covariate,
+    covariates.top = gene.covariate,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    ylab.label = 'Cancer types',
+    ylab.cex = 1,
+    xlab.label = 'Genes',
+    xlab.cex = 1,
+    at = seq(0, 1,0.5),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = rownames(cancer.500.outlier.status[gene.ord,samples.ord]), 
+    xaxis.cex = 0.5,
+    resolution = 300
+    );
+consensus.heat.top500.count;
+
+
+
+
+
+### Compare top 1000 outliers
+common.outlier.id.1000 <- data.frame(table(unlist(cancer.rank.gene[1:1000,])));
+common.outlier.id.order.1000 <- common.outlier.id.1000[order(common.outlier.id.1000$Freq, decreasing = TRUE),];
+common.outlier.id.order.symbol.1000 <- cbind(common.outlier.id.order.1000, cancer.rank.symbol[match(common.outlier.id.order.1000$Var1, rownames(cancer.rank.symbol)),]$Symbol);
+colnames(common.outlier.id.order.symbol.1000) <- c('Gene', 'Freq', 'Symbol');
+common.outlier.id.order.symbol.1000[1:50,];
+# Check the cancer types with top 100 common outliers from comparison of top 1000 outliers from each cancer type 
+cancer.1000.outlier.status <- data.frame(matrix(nrow = 100));
+for (i in seq_along(cancer.types)){
+    cancer.1000.outlier.status[,i] <- ifelse(common.outlier.id.order.symbol.1000$Gene[1:100] %in% cancer.rank.gene[1:1000,i], 1, 0);
+    }
+colnames(cancer.1000.outlier.status) <- cancer.types;
+rownames(cancer.1000.outlier.status) <- common.outlier.id.order.symbol.1000$Symbol[1:100];
+
+
+
+BoutrosLab.plotting.general:::create.barplot(
+                    formula = Freq ~ Symbol,
+                    data = common.outlier.id.order.symbol.1000[1:50,],
+                    main = 'The overlap frequency of the top 1000 outliers of each cancer type',
+                    main.cex = 1.5,
+                    ylab.lab = 'Frequency',
+                    yaxis.cex = 1,
+                    ylab.cex = 1,
+                    xaxis.tck = 0.1,
+                    yaxis.tck = 0.1,
+                    xlab.lab = 'The overlap outliers',
+                    xaxis.rot = 90,
+                    xaxis.cex = 0.8,
+                    ylimits = c(0, max(common.outlier.id.order.symbol.1000$Freq)+1),
+                    xlab.cex = 1,
+                    yaxis.fontface = 'bold',
+                    sample.order = 'decreasing'
+                    );
+
+
+# # Make cancer cluster
+# cancer.types.cluster.1000 <- as.matrix(cancer.1000.outlier.status);
+# sample.cluster.1000 <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.types.cluster.1000,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.1000_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# # Make gene cluster
+# gene.1000.cluster <- as.matrix(t(cancer.1000.outlier.status));
+# gene.cluster.1000 <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     gene.1000.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'gene.1000_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.1000,
+#      gene.cluster.1000,
+#      file = 'top1000.count.cluster.rda');
+
+
+# Assign K value
+sample.k.1000 <- 6;
+gene.k.1000 <- 6;
+
+# Give order and color
+cc.gene.1000 <- data.frame(gene.cluster = sort(gene.cluster.1000[[gene.k.1000]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.1000 <- data.frame(sample.cluster = sort(sample.cluster.1000[[sample.k.1000]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.1000 <- cc.sample.1000[match(colnames(cancer.1000.outlier.status), rownames(cc.sample.1000)), ];
+cc.gene.ord.1000 <- cc.gene.1000[match(rownames(cancer.1000.outlier.status), rownames(cc.gene.1000)), ];
+gene.ord.1000 <- labels(as.dendrogram(gene.cluster.1000[[gene.k.1000]]$consensusTree));
+samples.ord.1000 <- labels(as.dendrogram(sample.cluster.1000[[sample.k.1000]]$consensusTree));
+
+#Make sample covariate
+sample.col.1000 <- BoutrosLab.plotting.general:::default.colours(sample.k.1000, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.1000[[sample.k.1000]]$consensusClass, 1:sample.k.1000)][samples.ord.1000];
+sample.covariate.1000 <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.1000,
+    		lwd = 1.5
+    		)
+  	);
+#Make gene covariate
+gene.col.1000 <- BoutrosLab.plotting.general:::default.colours(gene.k.1000, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.1000[[gene.k.1000]]$consensusClass, 1:gene.k.1000)][gene.ord.1000];
+gene.covariate.1000 <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = gene.col.1000,
+    		lwd = 1.5
+    		)
+  	);
+
+consensus.heat.top1000.count <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.1000.outlier.status[gene.ord.1000, samples.ord.1000],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The common 100 outliers from the comparison of top 1000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = c('white', 'grey20'),
+    covariates= sample.covariate.1000,
+    covariates.top = gene.covariate.1000,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    ylab.label = 'Cancer types',
+    ylab.cex = 1,
+    xlab.label = 'Genes',
+    xlab.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1,0.5),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = rownames(cancer.1000.outlier.status[gene.ord.1000,samples.ord.1000]), 
+    xaxis.cex = 0.5,
+    resolution = 300
+    );
+consensus.heat.top1000.count;
+
+
+
+
+### Compare top 2000 outliers
+common.outlier.id.2000 <- data.frame(table(unlist(cancer.rank.gene[1:2000,])));
+common.outlier.id.order.2000 <- common.outlier.id.2000[order(common.outlier.id.2000$Freq, decreasing = TRUE),];
+common.outlier.id.order.symbol.2000 <- cbind(common.outlier.id.order.2000, cancer.rank.symbol[match(common.outlier.id.order.2000$Var1, rownames(cancer.rank.symbol)),]$Symbol);
+colnames(common.outlier.id.order.symbol.2000) <- c('Gene', 'Freq', 'Symbol');
+common.outlier.id.order.symbol.2000[1:50,];
+# Check the cancer types with top 100 common outliers from comparison of top 2000 outliers from each cancer type 
+cancer.2000.outlier.status <- data.frame(matrix(nrow = 100));
+for (i in seq_along(cancer.types)){
+    cancer.2000.outlier.status[,i] <- ifelse(common.outlier.id.order.symbol.2000$Gene[1:100] %in% cancer.rank.gene[1:2000,i], 1, 0);
+    }
+colnames(cancer.2000.outlier.status) <- cancer.types;
+rownames(cancer.2000.outlier.status) <- common.outlier.id.order.symbol.2000$Symbol[1:100];
+
+# # Make cancer cluster
+# cancer.types.cluster.2000 <- as.matrix(cancer.2000.outlier.status);
+# sample.cluster.2000 <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.types.cluster.2000,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.2000_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# # Make gene cluster
+# gene.2000.cluster <- as.matrix(t(cancer.2000.outlier.status));
+# gene.cluster.2000 <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     gene.2000.cluster,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'gene.2000_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.2000,
+#      gene.cluster.2000,
+#      file = 'top2000.count.cluster.rda');
+
+
+# Assign K value
+sample.k.2000 <- 6;
+gene.k.2000 <- 6;
+
+# Give order and color
+cc.gene.2000 <- data.frame(gene.cluster = sort(gene.cluster.2000[[gene.k.2000]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.2000 <- data.frame(sample.cluster = sort(sample.cluster.2000[[sample.k.2000]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.2000 <- cc.sample.2000[match(colnames(cancer.2000.outlier.status), rownames(cc.sample.2000)), ];
+cc.gene.ord.2000 <- cc.gene.2000[match(rownames(cancer.2000.outlier.status), rownames(cc.gene.2000)), ];
+gene.ord.2000 <- labels(as.dendrogram(gene.cluster.2000[[gene.k.2000]]$consensusTree));
+samples.ord.2000 <- labels(as.dendrogram(sample.cluster.2000[[sample.k.2000]]$consensusTree));
+
+#Make sample covariate
+sample.col.2000 <- BoutrosLab.plotting.general:::default.colours(sample.k.2000, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.2000[[sample.k.2000]]$consensusClass, 1:sample.k.2000)][samples.ord.2000];
+sample.covariate.2000 <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.2000,
+    		lwd = 1.5
+    		)
+  	);
+#Make gene covariate
+gene.col.2000 <- BoutrosLab.plotting.general:::default.colours(gene.k.2000, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.2000[[gene.k.2000]]$consensusClass, 1:gene.k.2000)][gene.ord.2000];
+gene.covariate.2000 <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = gene.col.2000,
+    		lwd = 1.5
+    		)
+  	);
+
+consensus.heat.top2000.count <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.2000.outlier.status[gene.ord.2000, samples.ord.2000],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The common 100 outliers from the comparison of top 2000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = c('white', 'grey20'),
+    covariates= sample.covariate.2000,
+    covariates.top = gene.covariate.2000,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    ylab.label = 'Cancer types',
+    ylab.cex = 1,
+    xlab.label = 'Genes',
+    xlab.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.5),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = rownames(cancer.2000.outlier.status[gene.ord.2000,samples.ord.2000]), 
+    xaxis.cex = 0.5,
+    resolution = 300
+    );
+consensus.heat.top2000.count;
+
+
+```
+
+
+### Consensus clustering for the common outliers- compare the gene ranks
+```{r, fig.width=12, fig.height=11}
+### Compare the rank of the overlap genes across cancer types
+### Rank the rank product data per cancer types
+cancer.types.rank <- NULL;
+for (i in (1:length(cancer.types))) {
+    cancer.column.rank <- rank(cancer.rank[,i], ties.method = 'max', na.last = 'keep');
+    cancer.types.rank <- cbind(cancer.types.rank, cancer.column.rank);
+    }
+cancer.types.rank.symbol <- data.frame(cancer.types.rank, cancer.rank.symbol$Symbol);
+rownames(cancer.types.rank.symbol) <- rownames(cancer.rank);
+colnames(cancer.types.rank.symbol) <- c(cancer.types, 'Symbol');
+
+
+
+
+### Compare top 500 outliers
+common.outlier.id.500 <- data.frame(table(unlist(cancer.rank.gene[1:500,])));
+common.outlier.id.order.500 <- common.outlier.id.500[order(common.outlier.id.500$Freq, decreasing = TRUE),];
+common.outlier.id.order.symbol.500 <- cbind(common.outlier.id.order.500, cancer.rank.symbol[match(common.outlier.id.order.500$Var1, rownames(cancer.rank.symbol)),]$Symbol);
+colnames(common.outlier.id.order.symbol.500) <- c('Gene', 'Freq', 'Symbol');
+# Get the gene ranks of top 100 common genes
+cancer.types.rank.top500 <- cancer.types.rank.symbol[rownames(cancer.types.rank.symbol) %in%
+                                                     common.outlier.id.order.symbol.500$Gene[1:100],];
+
+
+# # Make cancer cluster
+# cancer.types.cluster.500.rank <- as.matrix(cancer.types.rank.top500[,seq_along(cancer.types)]);
+# sample.cluster.500.rank <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.types.cluster.500.rank,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.500.rank_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# # Make gene cluster
+# gene.cluster.500.rank <- as.matrix(t(cancer.types.rank.top500[,seq_along(cancer.types)]));
+# gene.cluster.500.rank <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     gene.cluster.500.rank,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'gene.500.rank_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.500.rank,
+#      gene.cluster.500.rank,
+#      file = 'top500.rank.count.cluster.rda');
+
+
+# Assign K value
+sample.k.500.rank <- 6;
+gene.k.500.rank <- 6;
+
+# Give order and color
+cc.gene.500.rank <- data.frame(gene.cluster = sort(gene.cluster.500.rank[[gene.k.500.rank]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.500.rank <- data.frame(sample.cluster = sort(sample.cluster.500.rank[[sample.k.500.rank]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.500.rank <- cc.sample.500.rank[match(colnames(cancer.types.rank.top500[,seq_along(cancer.types)]), rownames(cc.sample.500.rank)), ];
+cc.gene.ord.500.rank <- cc.gene.500.rank[match(rownames(cancer.types.rank.top500), rownames(cc.gene.500.rank)), ];
+gene.ord.500.rank <- labels(as.dendrogram(gene.cluster.500.rank[[gene.k.500.rank]]$consensusTree));
+samples.ord.500.rank <- labels(as.dendrogram(sample.cluster.500.rank[[sample.k.500.rank]]$consensusTree));
+
+#Make sample covariate
+sample.col.500.rank <- BoutrosLab.plotting.general:::default.colours(sample.k.500.rank, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.500.rank[[sample.k.500.rank]]$consensusClass, 1:sample.k.500.rank)][samples.ord.500.rank];
+sample.covariate.500.rank <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.500.rank,
+    		lwd = 1.5
+    		)
+  	);
+#Make gene covariate
+gene.col.500.rank <- BoutrosLab.plotting.general:::default.colours(gene.k.500.rank, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.500.rank[[gene.k.500.rank]]$consensusClass, 1:gene.k.500.rank)][gene.ord.500.rank];
+gene.covariate.500.rank <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = gene.col.500.rank,
+    		lwd = 1.5
+    		)
+  	);
+
+consensus.heat.top500.rank <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.types.rank.top500[gene.ord.500.rank, samples.ord.500.rank],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The common 100 outliers from the comparison of top 500 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = c('grey10', 'white'),
+    covariates= sample.covariate.500.rank,
+    covariates.top = gene.covariate.500.rank,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    ylab.label = 'Cancer types',
+    ylab.cex = 1,
+    xlab.label = 'Genes',
+    xlab.cex = 1,
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 500, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = cancer.types.rank.top500[gene.ord.500.rank,]$Symbol, 
+    xaxis.cex = 0.5,
+    resolution = 300
+    );
+consensus.heat.top500.rank;
+
+
+
+
+
+### Compare top 1000 outliers
+common.outlier.id.1000 <- data.frame(table(unlist(cancer.rank.gene[1:1000,])));
+common.outlier.id.order.1000 <- common.outlier.id.1000[order(common.outlier.id.1000$Freq, decreasing = TRUE),];
+common.outlier.id.order.symbol.1000 <- cbind(common.outlier.id.order.1000, cancer.rank.symbol[match(common.outlier.id.order.1000$Var1, rownames(cancer.rank.symbol)),]$Symbol);
+colnames(common.outlier.id.order.symbol.1000) <- c('Gene', 'Freq', 'Symbol');
+# Get the gene ranks of top 100 common genes 
+cancer.types.rank.top1000 <- cancer.types.rank.symbol[rownames(cancer.types.rank.symbol) %in%
+                                                     common.outlier.id.order.symbol.1000$Gene[1:100],];
+
+# # Make cancer cluster
+# cancer.types.cluster.1000.rank <- as.matrix(cancer.types.rank.top1000[,seq_along(cancer.types)]);
+# sample.cluster.1000.rank <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.types.cluster.1000.rank,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.1000.rank_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# # Make gene cluster
+# gene.cluster.1000.rank <- as.matrix(t(cancer.types.rank.top1000[,seq_along(cancer.types)]));
+# gene.cluster.1000.rank <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     gene.cluster.1000.rank,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'gene.1000.rank_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.1000.rank,
+#      gene.cluster.1000.rank,
+#      file = 'top1000.rank.count.cluster.rda');
+
+
+# Assign K value
+sample.k.1000.rank <- 5;
+gene.k.1000.rank <- 5;
+
+# Give order and color
+cc.gene.1000.rank <- data.frame(gene.cluster = sort(gene.cluster.1000.rank[[gene.k.1000.rank]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.1000.rank <- data.frame(sample.cluster = sort(sample.cluster.1000.rank[[sample.k.1000.rank]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.1000.rank <- cc.sample.1000.rank[match(colnames(cancer.types.rank.top1000[,seq_along(cancer.types)]), rownames(cc.sample.1000.rank)), ];
+cc.gene.ord.1000.rank <- cc.gene.1000.rank[match(rownames(cancer.types.rank.top1000), rownames(cc.gene.1000.rank)), ];
+gene.ord.1000.rank <- labels(as.dendrogram(gene.cluster.1000.rank[[gene.k.1000.rank]]$consensusTree));
+samples.ord.1000.rank <- labels(as.dendrogram(sample.cluster.1000.rank[[sample.k.1000.rank]]$consensusTree));
+
+#Make sample covariate
+sample.col.1000.rank <- BoutrosLab.plotting.general:::default.colours(sample.k.1000.rank, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.1000.rank[[sample.k.1000.rank]]$consensusClass, 1:sample.k.1000.rank)][samples.ord.1000.rank];
+sample.covariate.1000.rank <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.1000.rank,
+    		lwd = 1.5
+    		)
+  	);
+#Make gene covariate
+gene.col.1000.rank <- BoutrosLab.plotting.general:::default.colours(gene.k.1000.rank, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.1000.rank[[gene.k.1000.rank]]$consensusClass, 1:gene.k.1000.rank)][gene.ord.1000.rank];
+gene.covariate.1000.rank <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = gene.col.1000.rank,
+    		lwd = 1.5
+    		)
+  	);
+
+consensus.heat.top1000.rank <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.types.rank.top1000[gene.ord.1000.rank, samples.ord.1000.rank],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The common 100 outliers from the comparison of top 1000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = c('grey10', 'white'),
+    covariates= sample.covariate.1000.rank,
+    covariates.top = gene.covariate.1000.rank,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    ylab.label = 'Cancer types',
+    ylab.cex = 1,
+    xlab.label = 'Genes',
+    xlab.cex = 1,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1000, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = cancer.types.rank.top1000[gene.ord.1000.rank,]$Symbol, 
+    xaxis.cex = 0.5,
+    resolution = 300
+    );
+consensus.heat.top1000.rank;
+
+
+
+
+### Compare top 2000 outliers
+common.outlier.id.2000 <- data.frame(table(unlist(cancer.rank.gene[1:2000,])));
+common.outlier.id.order.2000 <- common.outlier.id.2000[order(common.outlier.id.2000$Freq, decreasing = TRUE),];
+common.outlier.id.order.symbol.2000 <- cbind(common.outlier.id.order.2000, cancer.rank.symbol[match(common.outlier.id.order.2000$Var1, rownames(cancer.rank.symbol)),]$Symbol);
+colnames(common.outlier.id.order.symbol.2000) <- c('Gene', 'Freq', 'Symbol');
+# Get the gene ranks of top 100 common genes
+cancer.types.rank.top2000 <- cancer.types.rank.symbol[rownames(cancer.types.rank.symbol) %in%
+                                                     common.outlier.id.order.symbol.2000$Gene[1:100],];
+
+# # Make cancer cluster
+# cancer.types.cluster.2000.rank <- as.matrix(cancer.types.rank.top2000[,seq_along(cancer.types)]);
+# sample.cluster.2000.rank <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     cancer.types.cluster.2000.rank,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.2000.rank_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# # Make gene cluster
+# gene.cluster.2000.rank <- as.matrix(t(cancer.types.rank.top2000[,seq_along(cancer.types)]));
+# gene.cluster.2000.rank <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     gene.cluster.2000.rank,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'gene.2000.rank_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.cluster.2000.rank,
+#      gene.cluster.2000.rank,
+#      file = 'top2000.rank.count.cluster.rda');
+
+
+# Assign K value
+sample.k.2000.rank <- 8;
+gene.k.2000.rank <- 6;
+
+# Give order and color
+cc.gene.2000.rank <- data.frame(gene.cluster = sort(gene.cluster.2000.rank[[gene.k.2000.rank]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.2000.rank <- data.frame(sample.cluster = sort(sample.cluster.2000.rank[[sample.k.2000.rank]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.2000.rank <- cc.sample.2000.rank[match(colnames(cancer.types.rank.top2000[,seq_along(cancer.types)]), rownames(cc.sample.2000.rank)), ];
+cc.gene.ord.2000.rank <- cc.gene.2000.rank[match(rownames(cancer.types.rank.top2000), rownames(cc.gene.2000.rank)), ];
+gene.ord.2000.rank <- labels(as.dendrogram(gene.cluster.2000.rank[[gene.k.2000.rank]]$consensusTree));
+samples.ord.2000.rank <- labels(as.dendrogram(sample.cluster.2000.rank[[sample.k.2000.rank]]$consensusTree));
+
+#Make sample covariate
+sample.col.2000.rank <- BoutrosLab.plotting.general:::default.colours(sample.k.2000.rank, palette.type = 'qual', is.greyscale = TRUE)[match(sample.cluster.2000.rank[[sample.k.2000.rank]]$consensusClass, 1:sample.k.2000.rank)][samples.ord.2000.rank];
+sample.covariate.2000.rank <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.2000.rank,
+    		lwd = 1.5
+    		)
+  	);
+#Make gene covariate
+gene.col.2000.rank <- BoutrosLab.plotting.general:::default.colours(gene.k.2000.rank, palette.type = 'qual', is.greyscale = TRUE)[match(gene.cluster.2000.rank[[gene.k.2000.rank]]$consensusClass, 1:gene.k.2000.rank)][gene.ord.2000.rank];
+gene.covariate.2000.rank <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = gene.col.2000.rank,
+    		lwd = 1.5
+    		)
+  	);
+
+consensus.heat.top2000.rank <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cancer.types.rank.top2000[gene.ord.2000.rank, samples.ord.2000.rank],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The common 100 outliers from the comparison of top 2000 outliers across cancer types',
+    main.cex = 1.5,
+    colour.scheme = c('grey10', 'white'),
+    covariates= sample.covariate.2000.rank,
+    covariates.top = gene.covariate.2000.rank,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    ylab.label = 'Cancer types',
+    ylab.cex = 1,
+    xlab.label = 'Genes',
+    xlab.cex = 1,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 2000, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = cancer.types.rank.top2000[gene.ord.2000.rank,]$Symbol, 
+    xaxis.cex = 0.5,
+    resolution = 300
+    );
+consensus.heat.top2000.rank;
+
+
+
+
+```
+
+        
+### Correlation between cancer types
+```{r, fig.width=13, fig.height=11}
+# Check the correlation between cancer types using rank product data
+# cor.cancer.type <- cor(cancer.rank.product.symbol.order[,1:33], method = 'spearman');
+# cor.cancer.type.spearman <- round(cor.cancer.type, 2); 
+
+cor.rank.product <- data.frame(matrix(nrow = 33, ncol = 33));
+for (i in seq_along(cancer.types)) {
+        for (k in seq_along(cancer.types)) {
+        cor.rank.product[k,i] <- cor(na.omit(cancer.rank.product.symbol.order[,c(i,k)]), method = 'spearman')[2,1];
+        }
+    }
+cor.rank.product <- round(cor.rank.product, 2); 
+rownames(cor.rank.product) <- cancer.types;
+colnames(cor.rank.product) <- cancer.types;
+
+
+# # Make cancer cluster
+# sample.spearman <- as.matrix(cor.rank.product);
+# sample.spearman.cluster <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     sample.spearman,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.spearman_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.spearman.cluster,
+#      file = 'sample.spearman.cluster.rda');
+
+
+# Assign K value
+sample.k.spearman <- 6;
+
+# Give order and color
+
+cc.sample.spearman <- data.frame(sample.cluster = sort(sample.spearman.cluster[[sample.k.spearman]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.spearman <- cc.sample.spearman[match(colnames(cor.rank.product), rownames(cc.sample.spearman)), ];
+samples.ord.spearman <- labels(as.dendrogram(sample.spearman.cluster[[sample.k.spearman]]$consensusTree));
+
+#Make sample covariate
+sample.col.spearman <- BoutrosLab.plotting.general:::default.colours(sample.k.spearman, palette.type = 'qual', is.greyscale = TRUE)[match(sample.spearman.cluster[[sample.k.spearman]]$consensusClass, 1:sample.k.spearman)][samples.ord.spearman];
+sample.covariate.spearman <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.spearman,
+    		lwd = 1.5
+    		)
+  	);
+
+x <- as.matrix(cor.rank.product[samples.ord.spearman, samples.ord.spearman]);
+x[x == 1] <- colnames(cor.rank.product[samples.ord.spearman, samples.ord.spearman]); 
+y <- x;
+for (i in 1:(ncol(y)-1)) { 
+    y[i, (i+1):nrow(y)] <- ''; 
+    }
+
+mid.color <- colorRampPalette(c('white', 'dodgerblue4'))(n = 100)[70];
+my_palette <- colorRampPalette(c('white', mid.color, 'dodgerblue4'), bias = 1)(n = 1000);
+consensus.heat.spearman <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cor.rank.product[samples.ord.spearman, samples.ord.spearman],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The correlation of the rank product across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    covariates= sample.covariate.spearman,
+    covariates.top = sample.covariate.spearman,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(0, 1, 0.001),
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cor.rank.product[samples.ord.spearman, samples.ord.spearman]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+consensus.heat.spearman;
+
+
+
+
+
+
+
+# Check the correlation of the rank product of top 1000 genes across cancer types
+# cor.cancer.type.top1000 <- cor(na.omit(cancer.rank.product.symbol.order)[1:1000,1:33], method = 'spearman')
+# cor.cancer.type.spearman.top1000 <- round(cor.cancer.type.top1000, 2); 
+
+cor.rank.product.top1000 <- data.frame(matrix(nrow = 33, ncol = 33));
+for (i in seq_along(cancer.types)) {
+        for (k in seq_along(cancer.types)) {
+        cor.rank.product.top1000[k,i] <- cor(na.omit(cancer.rank.product.symbol.order[1:1000,c(i,k)]), method = 'spearman')[2,1];
+        }
+    }
+cor.rank.product.top1000 <- round(cor.rank.product.top1000, 2); 
+rownames(cor.rank.product.top1000) <- cancer.types;
+colnames(cor.rank.product.top1000) <- cancer.types;
+
+# # Make cancer cluster
+# sample.spearman.top1000 <- as.matrix(cor.rank.product.top1000);
+# sample.spearman.top1000.cluster <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     sample.spearman.top1000,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.spearman.top1000_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.spearman.top1000.cluster,
+#      file = 'sample.spearman.top1000.cluster.rda');
+
+
+# Assign K value
+sample.k.spearman.top1000 <- 6;
+
+# Give order and color
+cc.sample.spearman.top1000 <- data.frame(sample.cluster = sort(sample.spearman.top1000.cluster[[sample.k.spearman.top1000]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.spearman.top1000 <- cc.sample.spearman.top1000[match(colnames(cor.rank.product.top1000), rownames(cc.sample.spearman.top1000)), ];
+samples.ord.spearman.top1000 <- labels(as.dendrogram(sample.spearman.top1000.cluster[[sample.k.spearman.top1000]]$consensusTree));
+
+#Make sample covariate
+sample.col.spearman.top1000 <- BoutrosLab.plotting.general:::default.colours(sample.k.spearman.top1000, palette.type = 'qual', is.greyscale = TRUE)[match(sample.spearman.top1000.cluster[[sample.k.spearman.top1000]]$consensusClass, 1:sample.k.spearman.top1000)][samples.ord.spearman.top1000];
+sample.covariate.spearman.top1000 <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.spearman.top1000,
+    		lwd = 1.5
+    		)
+  	);
+
+x <- as.matrix(cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000]);
+x[x == 1] <- colnames(cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000]); 
+y <- x;
+for (i in 1:(ncol(y)-1)) { 
+    y[i, (i+1):nrow(y)] <- ''; 
+    }
+
+# # Change color ramp
+# mid.color <- colorRampPalette(c('white', 'dodgerblue4'))(n = 100)[69];
+# my_palette <- colorRampPalette(c('white', mid.color, 'dodgerblue4'), bias = 1.7)(n = 1000);
+# consensus.heat.spearman.top1000 <- BoutrosLab.plotting.general:::create.heatmap(
+#     x = cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000],
+#     clustering.method = 'none',
+#     cluster.dimensions = 'none',
+#     main = 'The correlation of the rank product of top 1000 genes across cancer types',
+#     main.cex = 1.5,
+#     colour.scheme = my_palette,
+#     covariates= sample.covariate.spearman.top1000,
+#     covariates.top = sample.covariate.spearman.top1000,
+#     #covariate.legend = covariates.legend,
+#     covariates.grid.border = list(col = 'black', lwd = 2),
+#     legend.cex = 1,
+#     legend.title.cex = 1,
+#     grid.row = TRUE,
+#     row.lwd = 0.5,
+#     row.colour = 'grey50',
+#     #same.as.matrix = TRUE,
+#     colourkey.cex = 1,
+#     scale.data = FALSE,
+#     at = seq(0, 1, 0.001),
+#     colour.alpha = 0.7, 
+#     yaxis.lab = NA,
+#     yaxis.cex = 0.8,
+#     xaxis.lab = NA, 
+#     xaxis.cex = 0.8,
+#     resolution = 300,
+#     cor.method = 'spearman',
+#     col.pos = which(y != '1', arr.ind = TRUE)[,1],
+#     row.pos = which(y != '1', arr.ind = TRUE)[,2],
+#     cell.text = as.matrix(cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000]),
+#     text.fontface = 1, 
+#     text.col = 'grey20', 
+#     text.cex = 0.7
+#     );
+# consensus.heat.spearman.top1000;
+
+# Give colors for the negative correlation
+mid.red <- colorRampPalette(c('white', 'darkred'))(n = 100)[65];
+mid.blue <- colorRampPalette(c('white', 'dodgerblue4'))(n = 100)[85];
+my_palette <- colorRampPalette(c('darkred',  mid.red, 'white', mid.blue, 'dodgerblue4'))(n = 2000);
+consensus.heat.spearman.top1000.color <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The correlation of the rank product of top 1000 genes across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    covariates= sample.covariate.spearman.top1000,
+    covariates.top = sample.covariate.spearman.top1000,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(-1, 1, 0.001),
+    colour.alpha = 0.7, 
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+consensus.heat.spearman.top1000.color;
+
+# Use different clustering method - euclidean
+BoutrosLab.plotting.general:::create.heatmap(
+    x = cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000],
+    clustering.method = 'ward.D2',
+    cluster.dimensions = 'both',
+    main = 'The correlation of the rank product of top 1000 genes across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(-1, 1, 0.001),
+    colour.alpha = 0.7, 
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    rows.distance.method = 'euclidean',
+    cols.distance.method = 'euclidean',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cor.rank.product.top1000[samples.ord.spearman.top1000, samples.ord.spearman.top1000]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+
+
+
+
+# Check the correlation of the rank product of top 2000 genes across cancer types
+# cor.cancer.type.top2000 <- cor(na.omit(cancer.rank.product.symbol.order)[1:2000,1:33], method = 'spearman')
+# cor.cancer.type.spearman.top2000 <- round(cor.cancer.type.top2000, 2); 
+
+cor.rank.product.top2000 <- data.frame(matrix(nrow = 33, ncol = 33));
+for (i in seq_along(cancer.types)) {
+        for (k in seq_along(cancer.types)) {
+        cor.rank.product.top2000[k,i] <- cor(na.omit(cancer.rank.product.symbol.order[1:2000,c(i,k)]), method = 'spearman')[2,1];
+        }
+    }
+cor.rank.product.top2000 <- round(cor.rank.product.top2000, 2); 
+rownames(cor.rank.product.top2000) <- cancer.types;
+colnames(cor.rank.product.top2000) <- cancer.types;
+
+# # Make cancer cluster
+# sample.spearman.top2000 <- as.matrix(cor.rank.product.top2000);
+# sample.spearman.top2000.cluster <- ConsensusClusterPlus:::ConsensusClusterPlus(
+#     sample.spearman.top2000,
+#     maxK = 20,
+#     reps = 1000,
+#     pItem = 0.8,
+#     pFeature = 0.8,
+#     clusterAlg = 'hc',
+#     distance = 'euclidean',
+#     innerLinkage = 'ward.D',
+#     finalLinkage = 'ward.D',
+#     seed = 17,
+#     title = 'sample.spearman.top2000_ConsensusClusterPlus',
+#     writeTable = TRUE,
+#     corUse = 'complete.obs',
+#     verbose = TRUE,
+#     plot = 'pdf'
+#     );
+# 
+# save(sample.spearman.top2000.cluster,
+#      file = 'sample.spearman.top2000.cluster.rda');
+
+
+# Assign K value
+sample.k.spearman.top2000 <- 6;
+
+# Give order and color
+cc.sample.spearman.top2000 <- data.frame(sample.cluster = sort(sample.spearman.top2000.cluster[[sample.k.spearman.top2000]]$consensusClass), stringsAsFactors = FALSE);
+cc.sample.ord.spearman.top2000 <- cc.sample.spearman.top2000[match(colnames(cor.rank.product.top2000), rownames(cc.sample.spearman.top2000)), ];
+samples.ord.spearman.top2000 <- labels(as.dendrogram(sample.spearman.top2000.cluster[[sample.k.spearman.top2000]]$consensusTree));
+
+#Make sample covariate
+sample.col.spearman.top2000 <- BoutrosLab.plotting.general:::default.colours(sample.k.spearman.top2000, palette.type = 'qual', is.greyscale = TRUE)[match(sample.spearman.top2000.cluster[[sample.k.spearman.top2000]]$consensusClass, 1:sample.k.spearman.top2000)][samples.ord.spearman.top2000];
+sample.covariate.spearman.top2000 <- list(
+  	rect = list(
+    		col = 'transparent',
+    		fill = sample.col.spearman.top2000,
+    		lwd = 1.5
+    		)
+  	);
+
+x <- as.matrix(cor.rank.product.top2000[samples.ord.spearman.top2000, samples.ord.spearman.top2000]);
+x[x == 1] <- colnames(cor.rank.product.top2000[samples.ord.spearman.top2000, samples.ord.spearman.top2000]); 
+y <- x;
+for (i in 1:(ncol(y)-1)) { 
+    y[i, (i+1):nrow(y)] <- ''; 
+    }
+
+# Give colors for the negative correlation
+mid.red <- colorRampPalette(c('white', 'darkred'))(n = 100)[85];
+mid.blue <- colorRampPalette(c('white', 'dodgerblue4'))(n = 100)[85];
+my_palette <- colorRampPalette(c('darkred',  mid.red, 'white', mid.blue, 'dodgerblue4'))(n = 2000);
+consensus.heat.spearman.top2000 <- BoutrosLab.plotting.general:::create.heatmap(
+    x = cor.rank.product.top2000[samples.ord.spearman.top2000, samples.ord.spearman.top2000],
+    clustering.method = 'none',
+    cluster.dimensions = 'none',
+    main = 'The correlation of the rank product of top 2000 genes across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    covariates= sample.covariate.spearman.top2000,
+    covariates.top = sample.covariate.spearman.top2000,
+    #covariate.legend = covariates.legend,
+    covariates.grid.border = list(col = 'black', lwd = 2),
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(-1, 1, 0.001),
+    colour.alpha = 0.7, 
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cor.rank.product.top2000[samples.ord.spearman.top2000, samples.ord.spearman.top2000]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+consensus.heat.spearman.top2000;
+
+# Use different clustering method - euclidean
+BoutrosLab.plotting.general:::create.heatmap(
+    x = cor.rank.product.top2000[samples.ord.spearman.top2000, samples.ord.spearman.top2000],
+    clustering.method = 'ward.D2',
+    cluster.dimensions = 'both',
+    main = 'The correlation of the rank product of top 2000 genes across cancer types',
+    main.cex = 1.5,
+    colour.scheme = my_palette,
+    legend.cex = 1,
+    legend.title.cex = 1,
+    grid.row = TRUE,
+    row.lwd = 0.5,
+    row.colour = 'grey50',
+    #same.as.matrix = TRUE,
+    colourkey.cex = 1,
+    scale.data = FALSE,
+    at = seq(-1, 1, 0.001),
+    colour.alpha = 0.7, 
+    yaxis.lab = NA,
+    yaxis.cex = 0.8,
+    xaxis.lab = NA, 
+    xaxis.cex = 0.8,
+    resolution = 300,
+    cor.method = 'spearman',
+    rows.distance.method = 'euclidean',
+    cols.distance.method = 'euclidean',
+    col.pos = which(y != '1', arr.ind = TRUE)[,1],
+    row.pos = which(y != '1', arr.ind = TRUE)[,2],
+    cell.text = as.matrix(cor.rank.product.top2000[samples.ord.spearman.top2000, samples.ord.spearman.top2000]),
+    text.fontface = 1, 
+    text.col = 'grey20', 
+    text.cex = 0.7
+    );
+
+
+```
+
+# comparison between CESC and HNSC
+```{r}
+
+# Load HNSC data
+setwd('~/Documents/1.Project/TCGA/TCGA-HNSC');
+load(file = '2021-04-21_outlier_HNSC.rda');
+# The overlap gene between the top 100 outlier from each cancer
+c.h <- cancer.rank.gene[1:1000, c('CESC')][cancer.rank.gene[, c('CESC')][1:1000] %in% cancer.rank.gene[, c('HNSC')][1:1000]];
+c.h.symbol <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% c.h, 'Symbol'];
+# clinical data
+clinical.data.hnsc <- read.delim(
+    file = 'TCGA.HNSC.sampleMap_HNSC_clinicalMatrix'
+    );
+# Match the patients between fpkm.data vs clinical.data
+clinical.data.hnsc$sampleID <- gsub('-', '.', clinical.data.hnsc$sampleID);
+patinet.id <- substr(colnames(fpkm.tumor.symbol.filter[,patient.part]), 1, 15);
+clinical.data.match <- clinical.data.hnsc[clinical.data.hnsc$sampleID %in% patinet.id,];
+duplicate.sample <- clinical.data.match[duplicated(clinical.data.match$sampleID),]$sampleID;
+clinical.data.match.dup <- clinical.data.match[!(clinical.data.match$sampleID %in% duplicate.sample),];
+clinical.outcome <- clinical.data.match.dup[match(patinet.id, clinical.data.match.dup$sampleID),];
+
+hpv.hnsc <- clinical.outcome[clinical.outcome$hpv_status_by_ish_testing == 'Positive' | clinical.outcome$hpv_status_by_p16_testing == 'Positive',]
+
+ fpkm <- fpkm.tumor.symbol.filter[rownames(fpkm.tumor.symbol.filter) %in% c.h,];
+    fpkm.log <- log10((fpkm[ , 1:(length(fpkm)-1)])+1);
+ colnames(fpkm.log)[patient.part] <- substr(colnames(fpkm.tumor.symbol.filter[,patient.part]), 1, 15)
+    max.fpkm.log <- apply(fpkm.log, 1, max);
+fpkm.log.order <- data.frame(fpkm.log[, c(hpv.hnsc$sampleID, colnames(fpkm.log)[!(colnames(fpkm.log) %in% hpv.hnsc$sampleID)])], fpkm$Symbol)
+    fpkm.heat <- BoutrosLab.plotting.general:::create.heatmap(
+        x = fpkm.log.order[,patient.part],
+        clustering.method = 'none',
+        cluster.dimensions = 'none',
+        yaxis.lab = NA,
+        yaxis.cex = 0.3,
+        xaxis.lab = fpkm$Symbol,
+        xaxis.cex = 0.2,
+        main = paste('FPKM value of top 1000 ranked genes in log10 space'),
+        main.cex = 1.3,
+        grid.col = FALSE,
+        print.colour.key = TRUE,
+        colour.alpha = 0.4,
+        yaxis.tck = 0.1,
+        xaxis.tck = 0.1,
+        ylab.label = 'Patients',
+        ylab.cex = 1,
+        xlab.label = 'Genes',
+        xlab.cex = 1,
+        colour.scheme = c('white', 'dodgerblue4'),
+        at = seq(0,1,0.001),
+        colourkey.cex = 1,
+        resolution = 300,
+        rows.distance.method = 'none',
+        cols.distance.method = 'none'
+        );
+    fpkm.heat;
+
+    
+    
+    colnames(median.zscore)[patient.part] <- substr(colnames(median.zscore[,patient.part]), 1, 15)
+    median.zscore.hpv <- median.zscore[rownames(median.zscore)%in% c.h, c(hpv.hnsc$sampleID, colnames(fpkm.log)[!(colnames(fpkm.log) %in% hpv.hnsc$sampleID)])]
+    fpkm.heat <- BoutrosLab.plotting.general:::create.heatmap(
+            x = median.zscore.hpv,
+            clustering.method = 'ward.D2',
+            cluster.dimensions = 'col',
+            yaxis.lab = NA,
+            yaxis.cex = 0.3,
+            xaxis.lab = fpkm$Symbol,
+            xaxis.cex = 0.2,
+            main = paste('The modified z-score of top 1000 ranked outliers by trimmed mean'),
+            main.cex = 1.3,
+            grid.col = FALSE,
+            print.colour.key = FALSE,
+            ylab.label = 'Patients',
+            ylab.cex = 1,
+            xlab.label = 'Genes',
+            xlab.cex = 1,
+            yaxis.tck = 0.1,
+            xaxis.tck = 0.1,
+            colour.scheme = c('red4', 'white', 'dodgerblue4'),
+            colour.centering.value = 0,
+            at = seq(-5,30,0.001),
+            # covariate.legend = legend.col,
+            # legend.title.just = 'left',
+            colourkey.cex = 1,
+            resolution = 300,
+            rows.distance.method = 'euclidean',
+            # cols.distance.method = 'euclidean'
+            );  
+    fpkm.heat
+    
+        colnames(mean.zscore)[patient.part] <- substr(colnames(mean.zscore[,patient.part]), 1, 15)
+    mean.zscore.hpv <- mean.zscore[rownames(mean.zscore)%in% c.h, c(hpv.hnsc$sampleID, colnames(fpkm.log)[!(colnames(fpkm.log) %in% hpv.hnsc$sampleID)])]
+    fpkm.heat <- BoutrosLab.plotting.general:::create.heatmap(
+            x = mean.zscore.hpv,
+            clustering.method = 'ward.D2',
+            cluster.dimensions = 'col',
+            yaxis.lab = NA,
+            yaxis.cex = 0.3,
+            xaxis.lab = fpkm$Symbol,
+            xaxis.cex = 0.2,
+            main = paste('The modified z-score of top 1000 ranked outliers by trimmed mean'),
+            main.cex = 1.3,
+            grid.col = FALSE,
+            print.colour.key = FALSE,
+            ylab.label = 'Patients',
+            ylab.cex = 1,
+            xlab.label = 'Genes',
+            xlab.cex = 1,
+            yaxis.tck = 0.1,
+            xaxis.tck = 0.1,
+            colour.scheme = c('red4', 'white', 'dodgerblue4'),
+            colour.centering.value = 0,
+            at = seq(-5,5,0.001),
+            # covariate.legend = legend.col,
+            # legend.title.just = 'left',
+            colourkey.cex = 1,
+            resolution = 300,
+            rows.distance.method = 'euclidean',
+            # cols.distance.method = 'euclidean'
+            );  
+    fpkm.heat
+    
+```
+
+
+### Principle Component Analysis
+```{r fig.width=9, fig.height=9}
+
+# # Compare all rank product data across cancer types
+# cancer.rank.pc <- prcomp(data.frame(t(na.omit(cancer.rank.product.symbol.order[,1:33]))), scale = TRUE);
+# # PC1 vs PC2
+# factoextra:::fviz_eig(cancer.rank.pc);
+# factoextra:::fviz_pca_ind(cancer.rank.pc,
+#                           col.ind = "cos2", # Color by the quality of representation
+#                           gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#                           repel = TRUE, # Avoid text overlapping
+#                           axes = c(1, 2),
+#                           title = 'PCA analysis of all rank product data across cancer types - PC1 vs PC2'
+#                           );
+# # PC2 vs PC3
+# factoextra:::fviz_pca_ind(cancer.rank.pc,
+#                           col.ind = "cos2", # Color by the quality of representation
+#                           gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#                           repel = TRUE, # Avoid text overlapping
+#                           axes = c(2, 3),
+#                           title = 'PCA analysis of all rank product data across cancer types - PC2 vs PC3'
+#                           );
+# 
+# 
+# 
+# # Compare the rank product data of top 500 genes across cancer types
+# cancer.rank.pc.500 <- prcomp(data.frame(t(na.omit(cancer.rank.product.symbol.order[1:500,1:33]))), scale = TRUE);
+# # PC1 vs PC2
+# factoextra:::fviz_eig(cancer.rank.pc.500);
+# factoextra:::fviz_pca_ind(cancer.rank.pc.500,
+#                           col.ind = "cos2", # Color by the quality of representation
+#                           gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#                           repel = TRUE,
+#                           axes = c(1, 2),
+#                           title = 'PCA analysis of top 500 genes of rank product data across cancer types - PC1 vs PC2'    
+#                           );
+# 
+# 
+# 
+# # Compare the rank product data of top 1000 genes across cancer types
+# cancer.rank.pc.1000 <- prcomp(data.frame(t(na.omit(cancer.rank.product.symbol.order[1:1000,1:33]))), scale = TRUE);
+# # PC1 vs PC2
+# factoextra:::fviz_eig(cancer.rank.pc.1000);
+# factoextra:::fviz_pca_ind(cancer.rank.pc.1000,
+#                           col.ind = "cos2", # Color by the quality of representation
+#                           gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#                           repel = TRUE,
+#                           axes = c(1, 2),
+#                           title = 'PCA analysis of top 1000 genes of rank product data across cancer types - PC1 vs PC2'    
+#                           );
+# 
+# 
+# 
+# # Compare the rank product data of top 2000 genes across cancer types
+# cancer.rank.pc.2000 <- prcomp(data.frame(t(na.omit(cancer.rank.product.symbol.order[1:2000,1:33]))), scale = TRUE);
+# # PC1 vs PC2
+# factoextra:::fviz_eig(cancer.rank.pc.2000);
+# factoextra:::fviz_pca_ind(cancer.rank.pc.2000,
+#                           col.ind = "cos2", # Color by the quality of representation
+#                           gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#                           repel = TRUE,
+#                           axes = c(1, 2),
+#                           title = 'PCA analysis of top 2000 genes of rank product data across cancer types - PC1 vs PC2'    
+#                           );
+
+
+
+```
+
+
+
+### Save files
+```{r}
+
+# setwd("~/Documents/1.Project/TCGA/TCGA")
+# # Save final rank data
+# save(
+#     sample.cluster.500.ratio,
+#     sample.cluster.1000.ratio,
+#     sample.cluster.2000.ratio,
+#     sample.cluster,
+#     gene.cluster,
+#     sample.cluster.1000,
+#     gene.cluster.1000,
+#     sample.cluster.2000,
+#     gene.cluster.2000,
+#     sample.cluster.500.rank,
+#     gene.cluster.500.rank,
+#     sample.cluster.1000.rank,
+#     gene.cluster.1000.rank,
+#     sample.cluster.2000.rank,
+#     gene.cluster.2000.rank,
+#     sample.spearman.cluster,
+#     sample.spearman.top1000.cluster,
+#     sample.spearman.top2000.cluster,
+#     cancer.rank,
+#     cancer.rank.symbol,
+#     cancer.rank.product.symbol.order,
+#     cancer.rank.gene,
+#     file = generate.filename('TCGA', 'outlier_allcancer', 'rda', file.date = Sys.Date())
+#     );
+
+
+```
+
