@@ -1,0 +1,1275 @@
+---
+title: "Identifying the distribution of each transcript using KS test and Euclidean distance"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r, fig.width=5, fig.height=5}
+setwd("~/Documents/1.Project/TCGA/TCGA/01.Benchmarking");
+load('2021-11-07_simulated_Data.RData');
+library(fitdistrplus);
+library(extraDistr);
+```
+
+
+
+### 1. Use KS test
+```{r}
+
+### 2) Compare with Continuous distribution
+# - 1. Normal distribution
+# - 2. Lognormal distribution
+# - 3. Exponential distribution
+# - 4. Gamma distribution
+
+ks.test.distribution.4 <- NULL;
+
+for (j in 1:nrow(fpkm.tumor.symbol.filter)) {
+    sample.fpkm.qq <- as.numeric(fpkm.tumor.symbol.filter[j,patient.part]);
+    sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    
+    # 1. Normal distribution
+    norm.mean <- mean(sample.fpkm.qq.nozero);
+    norm.sd <- sd(sample.fpkm.qq.nozero);
+    norm.ks.test <- ks.test(sample.fpkm.qq.nozero, 'pnorm', mean = norm.mean, sd = norm.sd);
+    norm.ks.test.p <- norm.ks.test$p.value;
+
+
+    # 2. Log-normal distribution
+    mean.log <- mean(sample.fpkm.qq.nozero);
+    sd.log <- sd(sample.fpkm.qq.nozero);
+    m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
+    sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
+    lnorm.ks.test <- ks.test(sample.fpkm.qq.nozero, 'plnorm', mean = m2, sd = sd2);
+    lnorm.ks.test.p <- lnorm.ks.test$p.value;
+    
+
+    # 3. Exponential distribution
+    exp.rate <- 1 / mean(sample.fpkm.qq.nozero);
+    exp.ks.test <- ks.test(sample.fpkm.qq.nozero, 'pexp', rate = exp.rate);
+    exp.ks.test.p <- exp.ks.test$p.value;
+
+    
+    ### 4 gamma distribution
+    mean.gamma <- mean(sample.fpkm.qq.nozero);
+    sd.gamma <- sd(sample.fpkm.qq.nozero);
+    gamma.shape <- (mean.gamma/sd.gamma)^2;
+    gamma.rate <- mean.gamma/(sd.gamma^2);
+    gamma.ks.test <- ks.test(sample.fpkm.qq.nozero, 'pgamma', shape = gamma.shape, rate = gamma.rate)
+    gamma.ks.test.p <- gamma.ks.test$p.value;
+
+    
+    # matrix of sum of p-values
+    p.value.all <- c(norm.ks.test.p,
+                     lnorm.ks.test.p, 
+                     exp.ks.test.p, 
+                     gamma.ks.test.p);
+    ks.test.distribution.4 <- rbind(ks.test.distribution.4, p.value.all);
+    }
+
+
+# Find the best fitted distribution
+rownames(ks.test.distribution.4) <- rownames(fpkm.tumor.symbol.filter);
+ks.test.distribution.4.p.value <- apply(ks.test.distribution.4, 1, max);
+ks.test.distribution.4.fit <- apply(ks.test.distribution.4, 1, which.max);
+# bar plot of distributions
+ks.test.distribution.4.fit.table <- table(ks.test.distribution.4.fit);
+names(ks.test.distribution.4.fit.table) <- c('Normal', 'Lognormal', 'Exponential', 'Gamma');
+ks.test.distribution.4.fit.table <- data.frame(ks.test.distribution.4.fit.table);
+BoutrosLab.plotting.general:::create.barplot(
+    formula = Freq ~ Var1,
+    data = ks.test.distribution.4.fit.table,
+    ylab.cex = 1.2,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    ylab.label = 'Count',
+    xlab.label = 'Distribution',
+    xlab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    main.cex = 1.3,
+    main = 'Best-fitted distribution of each gene from the KS test');
+
+
+ks.test.distribution.4.fit.adjust <- ks.test.distribution.4.fit;
+for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    if (0 == ks.test.distribution.4.p.value[i]) {
+        ks.test.distribution.4.fit.adjust[i] <- euclidean.sum.quantile.patient.number.minimum[i];
+        }
+    else {
+        ks.test.distribution.4.fit.adjust[i] <- ks.test.distribution.4.fit.adjust[i];
+        }
+    }
+# bar plot of distributions
+ks.test.distribution.4.fit.adjust.table <- table(ks.test.distribution.4.fit.adjust);
+names(ks.test.distribution.4.fit.adjust.table) <- c('Normal', 'Lognormal', 'Exponential', 'Gamma');
+ks.test.distribution.4.fit.adjust.table <- data.frame(ks.test.distribution.4.fit.adjust.table);
+BoutrosLab.plotting.general:::create.barplot(
+    formula = Freq ~ Var1,
+    data = ks.test.distribution.4.fit.adjust.table,
+    ylab.cex = 1.2,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    ylab.label = 'Count',
+    xlab.label = 'Distribution',
+    xlab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    main.cex = 1.3,
+    main = 'Best-fitted distribution of each gene from the KS test');
+
+```
+
+
+
+### 2. Use Euclidean distance
+# Use the patient number of data point
+```{r}
+
+
+### Use the quantile to find the best fitted distribution
+# - euclidean.sum.quantile: the sum of euclidean distances from line to point
+euclidean.sum.quantile.patient.number <- NULL;
+# Sum of distances from line to point
+euclidean.sum <- function(x, y) {
+    sample.y <- sort(x);
+    sample.x <- sort(y);
+    sample.mid <- (sample.y + sample.x) / 2;
+    mid.distance <- ((sample.y-sample.mid)^2 + (sample.x-sample.mid)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+
+
+for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
+    sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    sample.fpkm.qq.nozero.1m <- round((sample.fpkm.qq + 1/1000000) * 1000000, digits = 0);
+    sample.fpkm.qq.nozero.0.01 <- (sample.fpkm.qq + 1/1000000) / 100;
+    
+    # Quantile
+    # p <- seq(0.001, 0.patient.number, 0.001);
+    p <- ppoints(sample.fpkm.qq.nozero);
+    
+    # 1. Normal distribution
+    norm.mean <- mean(sample.fpkm.qq.nozero);
+    norm.sd <- sd(sample.fpkm.qq.nozero);
+    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.norm <- euclidean.sum(norm.quantiles, obs.quantile.norm);
+
+
+    # 2. Log-normal distribution
+
+    mean.log <- mean(sample.fpkm.qq.nozero);
+    sd.log <- sd(sample.fpkm.qq.nozero);
+    m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
+    sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
+    lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
+    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.lnorm <- euclidean.sum(lnorm.quantile, obs.quantile.lnorm);
+
+    
+    # 3. Exponential distribution
+    exp.rate <- 1 / mean(sample.fpkm.qq.nozero);
+    exp.quantile <- qexp(p, rate = exp.rate);
+    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.exp <- euclidean.sum(exp.quantile, obs.quantile.exp);
+
+    
+    ### 4 gamma distribution
+    mean.gamma <- mean(sample.fpkm.qq.nozero);
+    sd.gamma <- sd(sample.fpkm.qq.nozero);
+    gamma.shape <- (mean.gamma/sd.gamma)^2;
+    gamma.rate <- mean.gamma/(sd.gamma^2);
+    gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+    obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.gamma <- euclidean.sum(gamma.quantile, obs.quantile.gamma);
+
+    # matrix of sum of distances
+    euclidean.sum.all <- c(euclidean.sum.norm,
+                           # euclidean.sum.binorm, 
+                           euclidean.sum.lnorm, 
+                           euclidean.sum.exp, 
+                           euclidean.sum.gamma);
+    euclidean.sum.quantile.patient.number <- rbind(euclidean.sum.quantile.patient.number, euclidean.sum.all)
+    }
+
+
+# Find the best fitted distribution
+rownames(euclidean.sum.quantile.patient.number) <- rownames(fpkm.tumor.symbol.filter);
+euclidean.sum.quantile.patient.number.minimum.distance <- apply(euclidean.sum.quantile.patient.number, 1, min);
+euclidean.sum.quantile.patient.number.minimum <- apply(euclidean.sum.quantile.patient.number, 1, which.min);
+# bar plot of distributions
+# euclidean.sum.quantile.patient.number.minimum.nonb <- euclidean.sum.quantile.patient.number.minimum;
+# euclidean.sum.quantile.patient.number.minimum.nonb[euclidean.sum.quantile.patient.number.minimum.nonb == 2] <- 5;
+euclidean.sum.quantile.patient.number.minimum.table <- table(euclidean.sum.quantile.patient.number.minimum);
+names(euclidean.sum.quantile.patient.number.minimum.table) <- c('Normal', 'Lognormal', 'Exponential', 'Gamma');
+euclidean.sum.quantile.patient.number.minimum.table <- data.frame(euclidean.sum.quantile.patient.number.minimum.table);
+BoutrosLab.plotting.general:::create.barplot(
+    formula = Freq ~ Var1,
+    data = euclidean.sum.quantile.patient.number.minimum.table,
+    ylab.cex = 1.2,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    ylab.label = 'Count',
+    xlab.label = 'Distribution',
+    xlab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    main.cex = 1.3,
+    main = 'Best-fitted distribution of each gene from the Euclidean method');
+
+
+
+
+```
+
+
+### Use more data point 
+# 1. Scaled all the data - make all the value (1,1)
+```{r}
+
+
+### Use the quantile to find the best fitted distribution
+# - euclidean.sum.quantile: the sum of euclidean distances from line to point
+euclidean.sum.quantile.999.scale <- NULL;
+euclidean.sum.quantile.999.scale.last.value <- NULL;
+euclidean.sum.quantile.999.scale.last.value.1.percent <- NULL;
+# Sum of distances from line to point
+euclidean.sum <- function(x, y) {
+    sample.y <- sort(x);
+    sample.x <- sort(y);
+    sample.mid <- (sample.y + sample.x) / 2;
+    mid.distance <- ((sample.y-sample.mid)^2 + (sample.x-sample.mid)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+euclidean.sum.scale <- function(x, y) {
+    sample.y <- sort(y);
+    sample.x <- sort(x);
+    sample.mid <- (sample.y + sample.x) / 2;
+    sample.y.scale <- sample.y/sample.mid;
+    sample.x.scale <- sample.x/sample.mid;
+    sample.mid.scale <- sample.mid/sample.mid;
+    mid.distance <- ((sample.y.scale-sample.mid.scale)^2 + (sample.x.scale-sample.mid.scale)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+
+# Get the distance of the last value
+euclidean.sum.scale.last.value <- function(x, y) {
+    sample.y <- sort(y);
+    sample.x <- sort(x);
+    sample.mid <- (sample.y + sample.x) / 2;
+    sample.y.scale <- sample.y/sample.mid;
+    sample.x.scale <- sample.x/sample.mid;
+    sample.mid.scale <- sample.mid/sample.mid;
+    mid.distance <- ((sample.y.scale-sample.mid.scale)^2 + (sample.x.scale-sample.mid.scale)^2)^(1/2);
+    mid.distance[length(patient.part)];
+    }
+
+for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
+    sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    sample.fpkm.qq.nozero.1m <- round((sample.fpkm.qq + 1/1000000) * 1000000, digits = 0);
+    sample.fpkm.qq.nozero.0.01 <- (sample.fpkm.qq + 1/1000000) / 100;
+
+    
+    # Quantile
+    # p <- seq(0.001, 0.999, 0.001);
+    p <- ppoints(sample.fpkm.qq.nozero);
+    
+    # 1. Normal distribution
+    norm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'norm');
+    norm.mean <- norm.fitdist$estimate[1];
+    norm.sd <- norm.fitdist$estimate[2];
+    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.norm <- euclidean.sum.scale(norm.quantiles, obs.quantile.norm);
+    last.norm <- euclidean.sum.scale.last.value(norm.quantiles, obs.quantile.norm);
+
+    
+    # # 2. Negative binomial distribution
+    # binorm.fitdist <- fitdist(sample.fpkm.qq.nozero.1m, 'nbinom');
+    # binorm.size <- binorm.fitdist$estimate[1];
+    # binorm.mu <- binorm.fitdist$estimate[2];
+    # binom.quantile <- qnbinom(p, size = binorm.size, mu = binorm.mu);
+    # obs.quantile.binom <- quantile(sample.fpkm.qq.nozero.1m, prob = p);
+    # euclidean.sum.binorm <- euclidean.sum(binom.quantile, obs.quantile.binom)/1000000;
+
+    
+    # 3. Log-normal distribution
+    lnorm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'lnorm');
+    lnorm.meanlog <- lnorm.fitdist$estimate[1];
+    lnorm.sdlog <- lnorm.fitdist$estimate[2];
+    lnorm.quantile <- qlnorm(p, meanlog = lnorm.meanlog, sdlog = lnorm.sdlog);
+    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.lnorm <- euclidean.sum.scale(lnorm.quantile, obs.quantile.lnorm);
+    last.lnorm <- euclidean.sum.scale.last.value(lnorm.quantile, obs.quantile.lnorm);
+
+    
+    # 4. Exponential distribution
+    exp.fitdist <- fitdist(sample.fpkm.qq.nozero.0.01, 'exp');
+    exp.rate <- exp.fitdist$estimate[1];
+    exp.quantile <- qexp(p, rate = exp.rate);
+    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero.0.01, prob = p);
+    euclidean.sum.exp <- euclidean.sum.scale(exp.quantile, obs.quantile.exp);
+    last.exp <- euclidean.sum.scale.last.value(exp.quantile, obs.quantile.exp);
+
+    
+    ### 5) gamma distribution
+    if (100 < mean(sample.fpkm.qq.nozero)){
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero/10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero/10, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale(gamma.quantile, obs.quantile.gamma);
+        last.gamma <- euclidean.sum.scale.last.value(gamma.quantile, obs.quantile.gamma);
+        } 
+    else if (10 < mean(sample.fpkm.qq.nozero) & 100 >= mean(sample.fpkm.qq.nozero)) {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale(gamma.quantile, obs.quantile.gamma);
+        last.gamma <- euclidean.sum.scale.last.value(gamma.quantile, obs.quantile.gamma);
+        }
+    else {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero*10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero*10, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale(gamma.quantile, obs.quantile.gamma);
+        last.gamma <- euclidean.sum.scale.last.value(gamma.quantile, obs.quantile.gamma);
+        }
+
+    # matrix of sum of distances
+    euclidean.sum.all <- c(euclidean.sum.norm, 
+                           euclidean.sum.lnorm, 
+                           euclidean.sum.exp, 
+                           euclidean.sum.gamma);
+    euclidean.sum.all.last <- c(last.norm, 
+                           last.lnorm, 
+                           last.exp, 
+                           last.gamma);
+    euclidean.sum.quantile.999.scale <- rbind(euclidean.sum.quantile.999.scale, euclidean.sum.all);
+    euclidean.sum.quantile.999.scale.last.value <- rbind(euclidean.sum.quantile.999.scale.last.value, euclidean.sum.all.last)
+    }
+
+# Find the best fitted distribution
+euclidean.sum.quantile.999.scale <- data.frame(euclidean.sum.quantile.999.scale);
+rownames(euclidean.sum.quantile.999.scale) <- rownames(fpkm.tumor.symbol.filter);
+euclidean.sum.quantile.999.scale.minimum.distance <- apply(euclidean.sum.quantile.999.scale, 1, min);
+euclidean.sum.quantile.999.scale.minimum <- apply(euclidean.sum.quantile.999.scale, 1, which.min);
+BoutrosLab.plotting.general:::create.histogram(
+    log10(euclidean.sum.quantile.999.scale.minimum.distance),
+    breaks = 100,
+    ylab.label = 'Percent',
+    xlab.label = expression('log'[10]*'(Sum of the scaled Euclidean distances)'),
+    ylab.cex = 1.3,
+    yaxis.tck = c(0.5,0),
+    xaxis.tck = c(0.5,0),
+    xlab.cex = 1.3,
+    xaxis.cex = 1, 
+    yaxis.cex = 1,
+    main.cex = 2,
+    lwd = 1.5,
+    type = 'percent',
+    main = 'Sum of the scaled Euclidean distances');
+# bar plot of distributions
+euclidean.sum.quantile.999.scale.minimum.nonb <- euclidean.sum.quantile.999.scale.minimum;
+euclidean.sum.quantile.999.scale.minimum.nonb.table <- table(euclidean.sum.quantile.999.scale.minimum.nonb);
+names(euclidean.sum.quantile.999.scale.minimum.nonb.table) <- c('Normal', 'Lognormal', 'Exponential', 'Gamma');
+euclidean.sum.quantile.999.scale.minimum.nonb.table <- data.frame(euclidean.sum.quantile.999.scale.minimum.nonb.table);
+BoutrosLab.plotting.general:::create.barplot(
+    formula = Freq ~ Var1,
+    data = euclidean.sum.quantile.999.scale.minimum.nonb.table,
+    ylab.cex = 1.2,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    ylab.label = 'Count',
+    xlab.label = 'Distribution',
+    xlab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    main.cex = 1.3,
+    main = 'Best-fitted distribution of each gene from the Euclidean method');
+
+# Pick the last value of Euclidean distance matched with the best fitted distribution
+euclidean.sum.quantile.999.scale.last.value.fit <- NULL;
+for ( i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    distribution.fit <- euclidean.sum.quantile.patient.number.minimum[i];
+    last.value.fit <- euclidean.sum.quantile.999.scale.last.value[i,distribution.fit];
+    euclidean.sum.quantile.999.scale.last.value.fit <- c(euclidean.sum.quantile.999.scale.last.value.fit, last.value.fit);
+    }
+names(euclidean.sum.quantile.999.scale.last.value.fit) <- rownames(euclidean.sum.quantile.999.scale);
+cor(euclidean.sum.quantile.999.scale.last.value.fit, mle.dist.con.all.p.value.4, method = 'spearman')
+euclidean.last.value.ks <- data.frame(cbind(euclidean.sum.quantile.999.scale.last.value.fit, mle.dist.con.all.p.value.4));
+rownames(euclidean.last.value.ks) <- rownames(euclidean.sum.quantile.999.scale.minimum.distance)
+colnames(euclidean.last.value.ks) <- c('euclidean.last', 'ks')
+
+BoutrosLab.plotting.general:::create.scatterplot(
+    formula = log10(euclidean.last) ~ log10(ks),
+    data = euclidean.last.value.ks,
+    main = 'Correlation between two methods', 
+    main.cex = 1.5,
+    xlab.label = expression('log'[10]*'(P-value from the KS test)'), 
+    ylab.label = expression('log'[10]*'(Sum of the scaled Euclidean distance)'), 
+    # ylab.label = 'Euclidean distance', 
+    # xlab.label = 'Ks test', 
+    xaxis.tck = c(0.5,0),
+    yaxis.tck = c(0.5,0),
+    xlab.cex = 1.2,
+    ylab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    #xlimits = c(0, 35),
+    #ylimits = c(0, 35),
+    #xat = seq(0, 16, 4),
+    #yat = seq(0, 16, 4),
+    type = c('p', 'r', 'g'),
+    # draw y = x line
+    add.xyline = TRUE,
+    xyline.col = "red",
+    cex = 0.3,
+    lwd = 1.5,
+    # key = list(
+    #             text = list(
+    #                 lab = paste('Spearman =',
+    #                             round(cor(euclidean.sum.quantile.999.ks$euclidean, euclidean.sum.quantile.999.ks$ks, method = 'spearman'), 3)),
+    #                 cex = 1,
+    #                 col = 'black'
+    #                 ),
+    #             x = 0.03,
+    #             y = 0.95
+    #             ),
+    resolution = 300);
+
+
+
+# compare with the outlier score
+euclidean.sum.quantile.999.scale.minimum.distance <- data.frame(euclidean.sum.quantile.999.scale.minimum.distance);
+euclidean.sum.quantile.999.scale.minimum.distance.order <- euclidean.sum.quantile.999.scale.minimum.distance[match(rownames(gene.rank.order.4), rownames(euclidean.sum.quantile.999.scale.minimum.distance)),,drop = FALSE];
+gene.rank.order.4.euclidean.sum.quantile.999.scale <- cbind(gene.rank.order.4, euclidean.sum.quantile.999.scale.minimum.distance.order$euclidean.sum.quantile.999.scale.minimum.distance);
+colnames(gene.rank.order.4.euclidean.sum.quantile.999.scale) <- c(colnames(gene.rank.order.4), 'euclidan.scale');
+
+cor(euclidean.sum.quantile.999.scale.minimum.distance$euclidean.sum.quantile.999.scale.minimum.distance, mle.dist.con.all.p.value.4, method = 'spearman')
+euclidean.sum.quantile.999.ks <- data.frame(cbind(euclidean.sum.quantile.999.scale.minimum.distance$euclidean.sum.quantile.999.scale.minimum.distance, mle.dist.con.all.p.value.4));
+rownames(euclidean.sum.quantile.999.ks) <- rownames(euclidean.sum.quantile.999.scale.minimum.distance)
+colnames(euclidean.sum.quantile.999.ks) <- c('euclidean', 'ks')
+
+BoutrosLab.plotting.general:::create.scatterplot(
+    formula = log10(euclidean) ~ log10(ks),
+    data = euclidean.sum.quantile.999.ks,
+    main = 'Correlation between two methods', 
+    main.cex = 1.5,
+    xlab.label = expression('log'[10]*'(P-value from the KS test)'), 
+    ylab.label = expression('log'[10]*'(Sum of the scaled Euclidean distance)'), 
+    # ylab.label = 'Euclidean distance', 
+    # xlab.label = 'Ks test', 
+    xaxis.tck = c(0.5,0),
+    yaxis.tck = c(0.5,0),
+    xlab.cex = 1.2,
+    ylab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    #xlimits = c(0, 35),
+    #ylimits = c(0, 35),
+    #xat = seq(0, 16, 4),
+    #yat = seq(0, 16, 4),
+    type = c('p', 'r', 'g'),
+    # draw y = x line
+    add.xyline = TRUE,
+    xyline.col = "red",
+    cex = 0.3,
+    lwd = 1.5,
+    key = list(
+                text = list(
+                    lab = paste('Spearman =',
+                                round(cor(euclidean.sum.quantile.999.ks$euclidean, euclidean.sum.quantile.999.ks$ks, method = 'spearman'), 3)),
+                    cex = 1,
+                    col = 'black'
+                    ),
+                x = 0.03,
+                y = 0.95
+                ),
+    resolution = 300);
+
+
+
+
+
+
+
+
+# Get the distance of the last 1% value
+euclidean.sum.scale.last.value.percent <- function(x, y, value.portion) {
+    num.patient <- round((length(patient.part)/100 * value.portion), digits = 0);
+    sample.y <- sort(y);
+    sample.x <- sort(x);
+    sample.mid <- (sample.y + sample.x) / 2;
+    sample.y.scale <- sample.y/sample.mid;
+    sample.x.scale <- sample.x/sample.mid;
+    sample.mid.scale <- sample.mid/sample.mid;
+    mid.distance <- ((sample.y.scale-sample.mid.scale)^2 + (sample.x.scale-sample.mid.scale)^2)^(1/2);
+    sum(mid.distance[(length(patient.part)-num.patient + 1):length(patient.part)]);
+    }
+
+for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
+    sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    sample.fpkm.qq.nozero.1m <- round((sample.fpkm.qq + 1/1000000) * 1000000, digits = 0);
+    sample.fpkm.qq.nozero.0.01 <- (sample.fpkm.qq + 1/1000000) / 100;
+
+    
+    # Quantile
+    # p <- seq(0.001, 0.999, 0.001);
+    p <- ppoints(sample.fpkm.qq.nozero);
+    
+    # 1. Normal distribution
+    norm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'norm');
+    norm.mean <- norm.fitdist$estimate[1];
+    norm.sd <- norm.fitdist$estimate[2];
+    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.norm <- euclidean.sum.scale(norm.quantiles, obs.quantile.norm);
+    last.norm <- euclidean.sum.scale.last.value.percent(norm.quantiles, obs.quantile.norm, value.portion = 1);
+
+    
+    # # 2. Negative binomial distribution
+    # binorm.fitdist <- fitdist(sample.fpkm.qq.nozero.1m, 'nbinom');
+    # binorm.size <- binorm.fitdist$estimate[1];
+    # binorm.mu <- binorm.fitdist$estimate[2];
+    # binom.quantile <- qnbinom(p, size = binorm.size, mu = binorm.mu);
+    # obs.quantile.binom <- quantile(sample.fpkm.qq.nozero.1m, prob = p);
+    # euclidean.sum.binorm <- euclidean.sum(binom.quantile, obs.quantile.binom)/1000000;
+
+    
+    # 3. Log-normal distribution
+    lnorm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'lnorm');
+    lnorm.meanlog <- lnorm.fitdist$estimate[1];
+    lnorm.sdlog <- lnorm.fitdist$estimate[2];
+    lnorm.quantile <- qlnorm(p, meanlog = lnorm.meanlog, sdlog = lnorm.sdlog);
+    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.lnorm <- euclidean.sum.scale(lnorm.quantile, obs.quantile.lnorm);
+    last.lnorm <- euclidean.sum.scale.last.value.percent(lnorm.quantile, obs.quantile.lnorm, value.portion = 1);
+
+    
+    # 4. Exponential distribution
+    exp.fitdist <- fitdist(sample.fpkm.qq.nozero.0.01, 'exp');
+    exp.rate <- exp.fitdist$estimate[1];
+    exp.quantile <- qexp(p, rate = exp.rate);
+    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero.0.01, prob = p);
+    euclidean.sum.exp <- euclidean.sum.scale(exp.quantile, obs.quantile.exp);
+    last.exp <- euclidean.sum.scale.last.value.percent(exp.quantile, obs.quantile.exp, value.portion = 1);
+
+    
+    ### 5) gamma distribution
+    if (100 < mean(sample.fpkm.qq.nozero)){
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero/10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero/10, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale(gamma.quantile, obs.quantile.gamma);
+        last.gamma <- euclidean.sum.scale.last.value.percent(gamma.quantile, obs.quantile.gamma, value.portion = 1);
+        } 
+    else if (10 < mean(sample.fpkm.qq.nozero) & 100 >= mean(sample.fpkm.qq.nozero)) {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale(gamma.quantile, obs.quantile.gamma);
+        last.gamma <- euclidean.sum.scale.last.value.percent(gamma.quantile, obs.quantile.gamma, value.portion = 1);
+        }
+    else {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero*10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero*10, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale(gamma.quantile, obs.quantile.gamma);
+        last.gamma <- euclidean.sum.scale.last.value.percent(gamma.quantile, obs.quantile.gamma, value.portion = 1);
+        }
+
+    # matrix of sum of distances
+    euclidean.sum.all <- c(euclidean.sum.norm, 
+                           euclidean.sum.lnorm, 
+                           euclidean.sum.exp, 
+                           euclidean.sum.gamma);
+    euclidean.sum.all.last <- c(last.norm, 
+                           last.lnorm, 
+                           last.exp, 
+                           last.gamma);
+    euclidean.sum.quantile.999.scale <- rbind(euclidean.sum.quantile.999.scale, euclidean.sum.all);
+    euclidean.sum.quantile.999.scale.last.value.1.percent <- rbind(euclidean.sum.quantile.999.scale.last.value.1.percent, euclidean.sum.all.last)
+    }
+
+
+# Pick the last value of Euclidean distance matched with the best fitted distribution
+euclidean.sum.quantile.999.scale.last.value.1.percent.fit <- NULL;
+for ( i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    distribution.fit <- euclidean.sum.quantile.patient.number.minimum[i];
+    last.value.fit <- euclidean.sum.quantile.999.scale.last.value.1.percent[i,distribution.fit];
+    euclidean.sum.quantile.999.scale.last.value.1.percent.fit <- c(euclidean.sum.quantile.999.scale.last.value.1.percent.fit, last.value.fit);
+    }
+names(euclidean.sum.quantile.999.scale.last.value.1.percent.fit) <- rownames(fpkm.tumor.symbol.filter);
+cor(euclidean.sum.quantile.999.scale.last.value.1.percent.fit, mle.dist.con.all.p.value.4, method = 'spearman')
+euclidean.last.value.1.percent.ks <- data.frame(cbind(euclidean.sum.quantile.999.scale.last.value.1.percent.fit, mle.dist.con.all.p.value.4));
+rownames(euclidean.last.value.1.percent.ks) <- rownames(euclidean.sum.quantile.999.scale.minimum.distance)
+colnames(euclidean.last.value.1.percent.ks) <- c('euclidean.last', 'ks')
+
+BoutrosLab.plotting.general:::create.scatterplot(
+    formula = log10(euclidean.last) ~ log10(ks),
+    data = euclidean.last.value.1.percent.ks,
+    main = 'Correlation between two methods', 
+    main.cex = 1.5,
+    xlab.label = expression('log'[10]*'(P-value from the KS test)'), 
+    ylab.label = expression('log'[10]*'(Sum of the scaled Euclidean distance)'), 
+    # ylab.label = 'Euclidean distance', 
+    # xlab.label = 'Ks test', 
+    xaxis.tck = c(0.5,0),
+    yaxis.tck = c(0.5,0),
+    xlab.cex = 1.2,
+    ylab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    #xlimits = c(0, 35),
+    #ylimits = c(0, 35),
+    #xat = seq(0, 16, 4),
+    #yat = seq(0, 16, 4),
+    type = c('p', 'r', 'g'),
+    # draw y = x line
+    add.xyline = TRUE,
+    xyline.col = "red",
+    cex = 0.3,
+    lwd = 1.5,
+    # key = list(
+    #             text = list(
+    #                 lab = paste('Spearman =',
+    #                             round(cor(euclidean.sum.quantile.999.ks$euclidean, euclidean.sum.quantile.999.ks$ks, method = 'spearman'), 3)),
+    #                 cex = 1,
+    #                 col = 'black'
+    #                 ),
+    #             x = 0.03,
+    #             y = 0.95
+    #             ),
+    resolution = 300);
+
+
+```
+
+
+### Use more data point 
+# 2. Scaled all the data -scale 0 to 1 (devide by maximum value of FPKM)
+```{r}
+
+
+### Use the quantile to find the best fitted distribution
+# - euclidean.sum.quantile: the sum of euclidean distances from line to point
+euclidean.sum.quantile.999.scale.0.1 <- NULL;
+# Sum of distances from line to point
+euclidean.sum <- function(x, y) {
+    sample.y <- sort(x);
+    sample.x <- sort(y);
+    sample.mid <- (sample.y + sample.x) / 2;
+    mid.distance <- ((sample.y-sample.mid)^2 + (sample.x-sample.mid)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+euclidean.sum.scale.0.1 <- function(x, y) {
+    sample.y <- sort(x) / max.fpkm;
+    sample.x <- sort(y) / max.fpkm;
+    sample.mid <- (sample.y + sample.x) / 2;
+    mid.distance <- ((sample.y-sample.mid)^2 + (sample.x-sample.mid)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
+    sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    sample.fpkm.qq.nozero.1m <- round((sample.fpkm.qq + 1/1000000) * 1000000, digits = 0);
+    sample.fpkm.qq.nozero.0.01 <- (sample.fpkm.qq + 1/1000000) / 100;
+
+    
+    # Quantile
+    # p <- seq(0.001, 0.999, 0.001);
+    p <- ppoints(sample.fpkm.qq.nozero);
+    
+    # 1. Normal distribution
+    norm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'norm');
+    norm.mean <- norm.fitdist$estimate[1];
+    norm.sd <- norm.fitdist$estimate[2];
+    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    max.fpkm <- max(sample.fpkm.qq.nozero);
+    euclidean.sum.norm <- euclidean.sum.scale.0.1(norm.quantiles, obs.quantile.norm);
+
+    
+    # # 2. Negative binomial distribution
+    # binorm.fitdist <- fitdist(sample.fpkm.qq.nozero.1m, 'nbinom');
+    # binorm.size <- binorm.fitdist$estimate[1];
+    # binorm.mu <- binorm.fitdist$estimate[2];
+    # binom.quantile <- qnbinom(p, size = binorm.size, mu = binorm.mu);
+    # obs.quantile.binom <- quantile(sample.fpkm.qq.nozero.1m, prob = p);
+    # euclidean.sum.binorm <- euclidean.sum(binom.quantile, obs.quantile.binom)/1000000;
+
+    
+    # 3. Log-normal distribution
+    lnorm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'lnorm');
+    lnorm.meanlog <- lnorm.fitdist$estimate[1];
+    lnorm.sdlog <- lnorm.fitdist$estimate[2];
+    lnorm.quantile <- qlnorm(p, meanlog = lnorm.meanlog, sdlog = lnorm.sdlog);
+    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    max.fpkm <- max(sample.fpkm.qq.nozero);
+    euclidean.sum.lnorm <- euclidean.sum.scale.0.1(lnorm.quantile, obs.quantile.lnorm);
+
+    
+    # 4. Exponential distribution
+    exp.fitdist <- fitdist(sample.fpkm.qq.nozero.0.01, 'exp');
+    exp.rate <- exp.fitdist$estimate[1];
+    exp.quantile <- qexp(p, rate = exp.rate);
+    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero.0.01, prob = p);
+    max.fpkm <- max(sample.fpkm.qq.nozero.0.01);
+    euclidean.sum.exp <- euclidean.sum.scale.0.1(exp.quantile, obs.quantile.exp);
+
+    
+    ### 5) gamma distribution
+    if (100 < mean(sample.fpkm.qq.nozero)){
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero/10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        max.fpkm <- max(sample.fpkm.qq.nozero/10);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero/10, prob = p);
+        euclidean.sum.gamma <- euclidean.sum.scale.0.1(gamma.quantile, obs.quantile.gamma);
+        } 
+    else if (10 < mean(sample.fpkm.qq.nozero) & 100 >= mean(sample.fpkm.qq.nozero)) {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+        max.fpkm <- max(sample.fpkm.qq.nozero);
+        euclidean.sum.gamma <- euclidean.sum.scale.0.1(gamma.quantile, obs.quantile.gamma);
+        }
+    else {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero*10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero*10, prob = p);
+        max.fpkm <- max(sample.fpkm.qq.nozero*10);
+        euclidean.sum.gamma <- euclidean.sum.scale.0.1(gamma.quantile, obs.quantile.gamma);
+        }
+
+    # matrix of sum of distances
+    euclidean.sum.all <- c(euclidean.sum.norm, 
+                           euclidean.sum.lnorm, 
+                           euclidean.sum.exp, 
+                           euclidean.sum.gamma);
+    euclidean.sum.quantile.999.scale.0.1 <- rbind(euclidean.sum.quantile.999.scale.0.1, euclidean.sum.all)
+    }
+
+# Find the best fitted distribution
+euclidean.sum.quantile.999.scale.0.1 <- data.frame(euclidean.sum.quantile.999.scale.0.1);
+rownames(euclidean.sum.quantile.999.scale.0.1) <- rownames(fpkm.tumor.symbol.filter);
+euclidean.sum.quantile.999.scale.0.1.minimum.distance <- apply(euclidean.sum.quantile.999.scale.0.1, 1, min);
+euclidean.sum.quantile.999.scale.0.1.minimum <- apply(euclidean.sum.quantile.999.scale.0.1, 1, which.min);
+BoutrosLab.plotting.general:::create.histogram(
+    log10(euclidean.sum.quantile.999.scale.0.1.minimum.distance),
+    breaks = 100,
+    ylab.label = 'Percent',
+    xlab.label = expression('log'[10]*'(Sum of the scaled Euclidean distances)'),
+    ylab.cex = 1.3,
+    yaxis.tck = c(0.5,0),
+    xaxis.tck = c(0.5,0),
+    xlab.cex = 1.3,
+    xaxis.cex = 1, 
+    yaxis.cex = 1,
+    main.cex = 2,
+    lwd = 1.5,
+    type = 'percent',
+    main = 'Sum of the scaled Euclidean distances');
+# bar plot of distributions
+euclidean.sum.quantile.999.scale.0.1.minimum.nonb <- euclidean.sum.quantile.999.scale.0.1.minimum;
+euclidean.sum.quantile.999.scale.0.1.minimum.nonb.table <- table(euclidean.sum.quantile.999.scale.0.1.minimum.nonb);
+names(euclidean.sum.quantile.999.scale.0.1.minimum.nonb.table) <- c('Normal', 'Lognormal', 'Exponential', 'Gamma');
+euclidean.sum.quantile.999.scale.0.1.minimum.nonb.table <- data.frame(euclidean.sum.quantile.999.scale.0.1.minimum.nonb.table);
+BoutrosLab.plotting.general:::create.barplot(
+    formula = Freq ~ Var1,
+    data = euclidean.sum.quantile.999.scale.0.1.minimum.nonb.table,
+    ylab.cex = 1.2,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    ylab.label = 'Count',
+    xlab.label = 'Distribution',
+    xlab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    main.cex = 1.3,
+    main = 'Best-fitted distribution of each gene from the Euclidean method');
+
+
+# compare with the outlier score
+euclidean.sum.quantile.999.scale.0.1.minimum.distance <- data.frame(euclidean.sum.quantile.999.scale.0.1.minimum.distance);
+euclidean.sum.quantile.999.scale.0.1.minimum.distance.order <- euclidean.sum.quantile.999.scale.0.1.minimum.distance[match(rownames(gene.rank.order.4), rownames(euclidean.sum.quantile.999.scale.0.1.minimum.distance)),,drop = FALSE];
+gene.rank.order.4.euclidean.sum.quantile.999.scale.0.1 <- cbind(gene.rank.order.4, euclidean.sum.quantile.999.scale.0.1.minimum.distance.order$euclidean.sum.quantile.999.scale.0.1.minimum.distance);
+colnames(gene.rank.order.4.euclidean.sum.quantile.999.scale.0.1) <- c(colnames(gene.rank.order.4), 'euclidan.scale');
+
+cor(euclidean.sum.quantile.999.scale.0.1.minimum.distance, mle.dist.con.all.p.value.4, method = 'spearman')
+euclidean.sum.quantile.999.ks <- data.frame(cbind(euclidean.sum.quantile.999.scale.0.1.minimum.distance, mle.dist.con.all.p.value.4));
+rownames(euclidean.sum.quantile.999.ks) <- rownames(euclidean.sum.quantile.999.scale.0.1.minimum.distance)
+colnames(euclidean.sum.quantile.999.ks) <- c('euclidean', 'ks')
+
+BoutrosLab.plotting.general:::create.scatterplot(
+    formula = log10(euclidean) ~ log10(ks),
+    data = euclidean.sum.quantile.999.ks,
+    main = 'Correlation between two methods', 
+    main.cex = 1.5,
+    xlab.label = expression('log'[10]*'(P-value from the KS test)'), 
+    ylab.label = expression('log'[10]*'(Sum of the scaled Euclidean distance)'), 
+    # ylab.label = 'Euclidean distance', 
+    # xlab.label = 'Ks test', 
+    xaxis.tck = c(0.5,0),
+    yaxis.tck = c(0.5,0),
+    xlab.cex = 1.2,
+    ylab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    #xlimits = c(0, 35),
+    #ylimits = c(0, 35),
+    #xat = seq(0, 16, 4),
+    #yat = seq(0, 16, 4),
+    type = c('p', 'r', 'g'),
+    # draw y = x line
+    add.xyline = TRUE,
+    xyline.col = "red",
+    cex = 0.3,
+    lwd = 1.5,
+    key = list(
+                text = list(
+                    lab = paste('Spearman =',
+                                round(cor(euclidean.sum.quantile.999.ks$euclidean, euclidean.sum.quantile.999.ks$ks, method = 'spearman'), 3)),
+                    cex = 1,
+                    col = 'black'
+                    ),
+                x = 0.03,
+                y = 0.95
+                ),
+    resolution = 300);
+
+
+```
+
+
+
+### Use more data point 
+# 3. Scaled all the data -scale 0 to 1 (devide by maximum value of observed quantile)
+```{r}
+
+
+### Use the quantile to find the best fitted distribution
+# - euclidean.sum.quantile: the sum of euclidean distances from line to point
+euclidean.sum.quantile.999.scale.0.1.quantile <- NULL;
+# Sum of distances from line to point
+euclidean.sum <- function(x, y) {
+    sample.y <- sort(x);
+    sample.x <- sort(y);
+    sample.mid <- (sample.y + sample.x) / 2;
+    mid.distance <- ((sample.y-sample.mid)^2 + (sample.x-sample.mid)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+euclidean.sum.scale.0.1.quantile <- function(x, y) {
+    sample.y <- sort(x) / max.quantile;
+    sample.x <- sort(y) / max.quantile;
+    sample.mid <- (sample.y + sample.x) / 2;
+    mid.distance <- ((sample.y-sample.mid)^2 + (sample.x-sample.mid)^2)^(1/2);
+    sum(mid.distance);
+    }
+
+for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
+    sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    sample.fpkm.qq.nozero.1m <- round((sample.fpkm.qq + 1/1000000) * 1000000, digits = 0);
+    sample.fpkm.qq.nozero.0.01 <- (sample.fpkm.qq + 1/1000000) / 100;
+
+    
+    # Quantile
+    # p <- seq(0.001, 0.999, 0.001);
+    p <- ppoints(sample.fpkm.qq.nozero);
+    
+    # 1. Normal distribution
+    norm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'norm');
+    norm.mean <- norm.fitdist$estimate[1];
+    norm.sd <- norm.fitdist$estimate[2];
+    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    max.quantile <- max(obs.quantile.norm);
+    euclidean.sum.norm <- euclidean.sum.scale.0.1.quantile(norm.quantiles, obs.quantile.norm);
+
+    
+    # # 2. Negative binomial distribution
+    # binorm.fitdist <- fitdist(sample.fpkm.qq.nozero.1m, 'nbinom');
+    # binorm.size <- binorm.fitdist$estimate[1];
+    # binorm.mu <- binorm.fitdist$estimate[2];
+    # binom.quantile <- qnbinom(p, size = binorm.size, mu = binorm.mu);
+    # obs.quantile.binom <- quantile(sample.fpkm.qq.nozero.1m, prob = p);
+    # euclidean.sum.binorm <- euclidean.sum(binom.quantile, obs.quantile.binom)/1000000;
+
+    
+    # 3. Log-normal distribution
+    lnorm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'lnorm');
+    lnorm.meanlog <- lnorm.fitdist$estimate[1];
+    lnorm.sdlog <- lnorm.fitdist$estimate[2];
+    lnorm.quantile <- qlnorm(p, meanlog = lnorm.meanlog, sdlog = lnorm.sdlog);
+    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    max.quantile <- max(obs.quantile.lnorm);
+    euclidean.sum.lnorm <- euclidean.sum.scale.0.1.quantile(lnorm.quantile, obs.quantile.lnorm);
+
+    
+    # 4. Exponential distribution
+    exp.fitdist <- fitdist(sample.fpkm.qq.nozero.0.01, 'exp');
+    exp.rate <- exp.fitdist$estimate[1];
+    exp.quantile <- qexp(p, rate = exp.rate);
+    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero.0.01, prob = p);
+    max.quantile <- max(obs.quantile.exp);
+    euclidean.sum.exp <- euclidean.sum.scale.0.1.quantile(exp.quantile, obs.quantile.exp);
+
+    
+    ### 5) gamma distribution
+    if (100 < mean(sample.fpkm.qq.nozero)){
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero/10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero/10, prob = p);
+        max.quantile <- max(obs.quantile.gamma);
+        euclidean.sum.gamma <- euclidean.sum.scale.0.1.quantile(gamma.quantile, obs.quantile.gamma);
+        } 
+    else if (10 < mean(sample.fpkm.qq.nozero) & 100 >= mean(sample.fpkm.qq.nozero)) {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+        max.quantile <- max(obs.quantile.gamma);
+        euclidean.sum.gamma <- euclidean.sum.scale.0.1.quantile(gamma.quantile, obs.quantile.gamma);
+        }
+    else {
+        gamma.fit <- fitdist(sample.fpkm.qq.nozero*10, "gamma");
+        gamma.shape <- gamma.fit$estimate[1];
+        gamma.rate <- gamma.fit$estimate[2]
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero*10, prob = p);
+        max.quantile <- max(obs.quantile.gamma);
+        euclidean.sum.gamma <- euclidean.sum.scale.0.1.quantile(gamma.quantile, obs.quantile.gamma);
+        }
+
+    # matrix of sum of distances
+    euclidean.sum.all <- c(euclidean.sum.norm, 
+                           euclidean.sum.lnorm, 
+                           euclidean.sum.exp, 
+                           euclidean.sum.gamma);
+    euclidean.sum.quantile.999.scale.0.1.quantile <- rbind(euclidean.sum.quantile.999.scale.0.1.quantile, euclidean.sum.all)
+    }
+
+# Find the best fitted distribution
+euclidean.sum.quantile.999.scale.0.1.quantile <- data.frame(euclidean.sum.quantile.999.scale.0.1.quantile);
+rownames(euclidean.sum.quantile.999.scale.0.1.quantile) <- rownames(fpkm.tumor.symbol.filter);
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance <- apply(euclidean.sum.quantile.999.scale.0.1.quantile, 1, min);
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum <- apply(euclidean.sum.quantile.999.scale.0.1.quantile, 1, which.min);
+BoutrosLab.plotting.general:::create.histogram(
+    log10(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance),
+    breaks = 100,
+    ylab.label = 'Percent',
+    xlab.label = expression('log'[10]*'(Sum of the scaled Euclidean distances)'),
+    ylab.cex = 1.3,
+    yaxis.tck = c(0.5,0),
+    xaxis.tck = c(0.5,0),
+    xlab.cex = 1.3,
+    xaxis.cex = 1, 
+    yaxis.cex = 1,
+    main.cex = 2,
+    lwd = 1.5,
+    type = 'percent',
+    main = 'Sum of the scaled Euclidean distances');
+# bar plot of distributions
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb <- euclidean.sum.quantile.999.scale.0.1.quantile.minimum;
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb.table <- table(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb);
+names(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb.table) <- c('Normal', 'Lognormal', 'Exponential', 'Gamma');
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb.table <- data.frame(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb.table);
+BoutrosLab.plotting.general:::create.barplot(
+    formula = Freq ~ Var1,
+    data = euclidean.sum.quantile.999.scale.0.1.quantile.minimum.nonb.table,
+    ylab.cex = 1.2,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    ylab.label = 'Count',
+    xlab.label = 'Distribution',
+    xlab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    main.cex = 1.3,
+    main = 'Best-fitted distribution of each gene from the Euclidean method');
+
+
+# compare with the outlier score
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance <- data.frame(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance);
+euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance.order <- euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance[match(rownames(gene.rank.order.4), rownames(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance)),,drop = FALSE];
+gene.rank.order.4.euclidean.sum.quantile.999.scale.0.1.quantile <- cbind(gene.rank.order.4, euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance.order$euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance);
+colnames(gene.rank.order.4.euclidean.sum.quantile.999.scale.0.1.quantile) <- c(colnames(gene.rank.order.4), 'euclidan.scale');
+
+cor(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance, mle.dist.con.all.p.value.4, method = 'spearman')
+euclidean.sum.quantile.999.ks <- data.frame(cbind(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance, mle.dist.con.all.p.value.4));
+rownames(euclidean.sum.quantile.999.ks) <- rownames(euclidean.sum.quantile.999.scale.0.1.quantile.minimum.distance)
+colnames(euclidean.sum.quantile.999.ks) <- c('euclidean', 'ks')
+
+BoutrosLab.plotting.general:::create.scatterplot(
+    formula = log10(euclidean) ~ log10(ks),
+    data = euclidean.sum.quantile.999.ks,
+    main = 'Correlation between two methods', 
+    main.cex = 1.5,
+    xlab.label = expression('log'[10]*'(P-value from the KS test)'), 
+    ylab.label = expression('log'[10]*'(Sum of the scaled Euclidean distance)'), 
+    # ylab.label = 'Euclidean distance', 
+    # xlab.label = 'Ks test', 
+    xaxis.tck = c(0.5,0),
+    yaxis.tck = c(0.5,0),
+    xlab.cex = 1.2,
+    ylab.cex = 1.2,
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    #xlimits = c(0, 35),
+    #ylimits = c(0, 35),
+    #xat = seq(0, 16, 4),
+    #yat = seq(0, 16, 4),
+    type = c('p', 'r', 'g'),
+    # draw y = x line
+    add.xyline = TRUE,
+    xyline.col = "red",
+    cex = 0.3,
+    lwd = 1.5,
+    key = list(
+                text = list(
+                    lab = paste('Spearman =',
+                                round(cor(euclidean.sum.quantile.999.ks$euclidean, euclidean.sum.quantile.999.ks$ks, method = 'spearman'), 3)),
+                    cex = 1,
+                    col = 'black'
+                    ),
+                x = 0.03,
+                y = 0.95
+                ),
+    resolution = 300);
+
+
+```
+
+
+# Make CDF
+```{r}
+
+
+
+# Making plots of each transcript
+s <- 'ENSG00000096093.13'
+sample.fpkm.qq <- as.numeric(fpkm.tumor.symbol.filter[s,patient.part])
+sample.fpkm.qq.nozero <- sample.fpkm.qq + 1/1000000;
+    sample.fpkm.qq.nozero.1m <- round((sample.fpkm.qq + 1/1000000) * 1000000, digits = 0);
+    sample.fpkm.qq.nozero.0.01 <- (sample.fpkm.qq + 1/1000000) / 100;
+ BoutrosLab.plotting.general:::create.histogram(
+    sample.fpkm.qq.nozero,
+    breaks = 100,
+    ylab.label = 'Percent',
+    xlab.label = 'FPKM',
+    ylab.cex = 1.5,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    xlab.cex = 1.5,
+    xaxis.cex = 1.2, 
+    yaxis.cex = 1.2,
+    main.cex = 2,
+    type = 'percent',
+    main = fpkm.tumor.symbol.filter[s,]$Symbol);
+    
+    # Quantile
+    # p <- seq(0.001, 0.patient.number, 0.001);
+    p <- ppoints(sample.fpkm.qq.nozero);
+    
+    # 1. Normal distribution
+    norm.mean <- mean(sample.fpkm.qq.nozero);
+    norm.sd <- sd(sample.fpkm.qq.nozero);
+    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.norm <- euclidean.sum(norm.quantiles, obs.quantile.norm);
+
+
+    # 2. Log-normal distribution
+
+    mean.log <- mean(sample.fpkm.qq.nozero);
+    sd.log <- sd(sample.fpkm.qq.nozero);
+    m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
+    sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
+    lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
+    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.lnorm <- euclidean.sum(lnorm.quantile, obs.quantile.lnorm);
+
+    
+    # 3. Exponential distribution
+    exp.rate <- 1 / mean(sample.fpkm.qq.nozero);
+    exp.quantile <- qexp(p, rate = exp.rate);
+    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.exp <- euclidean.sum(exp.quantile, obs.quantile.exp);
+
+    
+    ### 4 gamma distribution
+    mean.gamma <- mean(sample.fpkm.qq.nozero);
+    sd.gamma <- sd(sample.fpkm.qq.nozero);
+    gamma.shape <- (mean.gamma/sd.gamma)^2;
+    gamma.rate <- mean.gamma/(sd.gamma^2);
+    gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+    obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+    euclidean.sum.gamma <- euclidean.sum(gamma.quantile, obs.quantile.gamma);
+
+
+
+### 1) Normal distribution
+BoutrosLab.plotting.general:::create.qqplot.comparison(
+    x = list(norm.quantiles, obs.quantile.norm),
+    main = 'Normal distribution',
+    # Adding axes labels
+    xlab.label = 'Theoretical Quantiles (Normal distribution)',
+    ylab.label = 'Observed FPKM',
+    ylab.cex = 1.5,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    xlab.cex = 1.5,
+    xaxis.cex = 1.2, 
+    yaxis.cex = 1.2,
+    main.cex = 2
+    );
+
+
+### 3) log-normal distribution
+BoutrosLab.plotting.general:::create.qqplot.comparison(
+    x = list(lnorm.quantile, obs.quantile.lnorm),
+    main = 'Lognormal distribution',
+    # Adding axes labels
+    xlab.label = 'Theoretical Quantiles (Lognormal distribution)',
+    ylab.label = 'Observed FPKM',
+    ylab.cex = 1.5,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    xlab.cex = 1.5,
+    xaxis.cex = 1.2, 
+    yaxis.cex = 1.2,
+    main.cex = 2
+    );
+
+### 4) exponential distribution
+BoutrosLab.plotting.general:::create.qqplot.comparison(
+    x = list(exp.quantile, obs.quantile.exp),
+    main = 'Exponential distribution',
+    # Adding axes labels
+    xlab.label = 'Theoretical Quantiles (Exponential distribution)',
+    ylab.label = 'Observed FPKM',
+    ylab.cex = 1.5,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    xlab.cex = 1.5,
+    xaxis.cex = 1.2, 
+    yaxis.cex = 1.2,
+    main.cex = 2
+    );
+
+### 5) gamma distribution
+BoutrosLab.plotting.general:::create.qqplot.comparison(
+    x = list(gamma.quantile, obs.quantile.gamma),
+    main = 'Gamma distribution',
+    # Adding axes labels
+    xlab.label = 'Theoretical Quantiles (Gamma distribution)',
+    ylab.label = 'Observed FPKM',
+    ylab.cex = 1.5,
+    yaxis.tck = 0.2,
+    xaxis.tck = 0.2,
+    xlab.cex = 1.5,
+    xaxis.cex = 1.2, 
+    yaxis.cex = 1.2,
+    main.cex = 2
+    );
+
+
+
+
+# Make CDF
+norm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'norm');
+cdfcomp(norm.fitdist);
+
+
+lnorm.fitdist <- fitdist(sample.fpkm.qq.nozero, 'lnorm');
+cdfcomp(lnorm.fitdist);
+
+exp.fitdist <- fitdist(sample.fpkm.qq.nozero, 'exp');
+cdfcomp(exp.fitdist);
+
+gamma.fitdist <- fitdist(sample.fpkm.qq.nozero/10, 'gamma');
+cdfcomp(gamma.fitdist);
+
+
+
+# Make the contingency table
+table(data.frame(ks.test.distribution.4.fit.adjust, euclidean.sum.quantile.patient.number.minimum));
+
+
+```
+
+
+
+
+```{r}
+
+setwd("~/Documents/1.Project/TCGA/TCGA/01.Benchmarking");
+save(
+    patient.part,
+    fpkm.tumor.symbol.filter,
+    mle.dist.con.all.fit.4,
+    mle.dist.con.all.p.value.4,
+    distribution.distance.sum.frequent,
+    euclidean.sum.quantile.minimum.nonb,
+    distribution.sum.all.average.fit,
+    euclidean.sum.quantile,
+    euclidean.sum.quantile.minimum,
+    euclidean.sum.quantile.minimum.distance,
+    euclidean.random.quantile,
+    euclidean.quantile.ks,
+    euclidean.sum.quantile.999,
+    euclidean.sum.quantile.999.minimum,
+    euclidean.sum.quantile.999.minimum.distance,
+    euclidean.sum.quantile.999.scale,
+    euclidean.sum.quantile.999.scale.minimum.distance,
+    euclidean.sum.quantile.999.scale.minimum,
+    euclidean.sum.quantile.patient.number,
+    euclidean.sum.quantile.patient.number.minimum.distance,
+    euclidean.sum.quantile.patient.number.minimum,
+    file = '2021-09-28_distribution_quantile.rda'
+    );
+
+
+```
+
