@@ -1,34 +1,77 @@
 + Outlier Gene Expression in Cancer
 
-	1. Starting with prostate cancer, understand really weird gene expression outliers (Use CPC-GENE RNA-seq data : normalized by FPKM)
-	▪ Define "really weird" genes with three methods for each transcript
-		○ Use mean and SD
-		○ Use median and MAD
-		○ Use trimmed-mean and trimmed-SD
-		○ Use median and MAD excluding zero FPKM value
-	▪ Calculate the z-score and filter the genes by the range of z-score (max Z – min Z for that gene, across patients)
-		○ Make heatmap for each methods
-		○ Make waterfall plot with z-score and FPKM value with showing the fraction of patients in which a gene is detected
-		○ Do a direct comparison amongst four methods and make correlation plot (use Spearman correlation)
-			§ Show high correlation
-	▪ Make consensus clustering with top 200 outliers by the union of three methods
-			§ Consensus clustering doesn't look promising
-	▪ Sort genes by their chromosome position
-		○ Make heatmap for each chromosome with z-score
-		○ See if that reveals any trends such as CNAs or enhancer changes
-	▪ Add TCGA Prostate cancer data: normalized by FPKM, 496 patients
-		○ Check the reproducibility: check the correlation of z-score range between CPC-gene and TCGA-PC data set
-			§ Show high reproducibility
-	▪ Create an R package of functions for outlier detection
-	▪ Check for enrichment in specific pathways (g:Profiler)
-	▪ Check to see what the best hits with very low (i.e. negative) z-scores
-	
+	1. Starting with prostate cancer, understand really weird gene expression outliers
 
-	2. Quantify different mechanisms by which this can happen
-	▪ enhancer hijacking
-	▪ copy-neutral SVs (translocations, inversions)
-	▪ non-coding SNVs & indels
-	▪ extrachromosomal DNA
-	▪ synonymous SNVs for protein abundance?
-	▪ associations with high miRNA, circRNA, m6A features
+		○ Data set
+
+			▪ CPC-GENE RNA-seq data : normalized by FPKM
+			▪ TCGA Prostate Cancer RNA-seq data : normalized by FPKM
+			▪ SU2C RNA-seq data : normalized by FPKM
+
+		○ Develop new outlier detection strategy
+
+			### 1. Function for making z-score matrix using each method (8 methods)
+			# - Generate function for calculating z-score and Kmean cluster using each method
+			#   1. Use mean and SD
+			#   2. Use mean and SD excluding zero values
+			#   3. Use trimmed mean and trimmed SD
+			#   4. Use trimmed mean and trimmed SD excluding zero values
+			#   5. Use median and MAD
+			#   6. Use median and MAD excluding zero values
+			#   7. Use K mean cluster
+			#   8. Use K mean cluster excluding zero values
+
+			### 2. Function for outlier detection (calculating z-score range and kmean fraction)
+			# - Generate function for calculating z-score range and kmean fraction
+			#   1. Calculate a range of z-score
+			#   2. Calculate a fraction of Kmean with smaller fraction
+			# - Generate gene-wise matrix
+
+			### 3. Function for checking whether the outliers are highly abundant or lowly abundant
+			# - Generate the direction matrix
+
+			### 4. Function for making patient-wise outlier matrix
+			# 1. P-value < 0.05
+			# 2. Bonferroni  correction < 0.05
+			# 3. Adjusted p-value < 0.05
+			# - Generate function for marking the patients over/under threshold
+			# - Generate function for calculating the number of outliers per patient
+
+			### 5. File check - match the name of patients
+			# - Match the name of patients between FPKM file and z-score file
+
+			### 6. Function for making heatmap of z-score and FPKM
+			# - Generate function for making heatmap in z-score and fpkm space
+
+			### 7. Function for making Waterfall plot
+			# - Generate function for making waterfall plot with z-score and FPKM with showing the fraction of patients
+
+			### 8. Function for checking out the technical problem
+			# - Generate heatmap for the fraction of genes enriched on each chromosome
+			# - Check if there is any chromosome of which genes are enriched less than 20%
+
+			### 9. Function for making heatmap of each chromosome position
+			# - Generate function for making heatmap for each chromosomal position
+
+			### 10. Function for ranking outliers
+			# - Generate the ranking of outliers using rank product method
+			# - Generate heatmap for top 1000 ranked outliers in FPKM space
+			# - Generate heatmap for top 1000 ranked outliers in z-score
+			# - Count the number of outliers per patient
+			# - Generate heatmap for top 1000 ranked outliers ordered by the number of outliers per patient
+
+			### 11. Function for making multi-waterfall plot with clinical data
+			# 1. ISUP
+			# 2. PSA
+			# 3. Age
+			# 4. Tumor grade
+			# - Merge clinical data in waterfall plot
+
+			### 12. Function for making bar plot of gene rank on each chromosome position
+			# - Generate bar plot for each chromosome with rank of genes
+
+			### 13. File check - Check the correlation between FPKM and z-score
+			# - Generate an error if the correlation is low
+
+			### 14. Save session 
 
