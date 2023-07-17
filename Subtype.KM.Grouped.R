@@ -112,5 +112,5 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
     resolution = 300,
     key.stats.cex = 1,
     key.stats.corner = c(1, -15),
-    filename = "/Users/amaanjsattar/Desktop/simple.survival.plot.six.groups.tiff"
+    filename = '/Users/amaanjsattar/Desktop/simple.survival.plot.six.groups.tiff'
 );
