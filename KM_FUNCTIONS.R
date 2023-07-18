@@ -86,7 +86,8 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
     key.groups.title.cex = 1,
     resolution = 300,
     key.stats.cex = 1,
-    key.stats.corner = c(1, -15),
+    key.stats.corner = c(1, -15), 
+    statistical.method = 'logrank',
     filename = '/Users/amaanjsattar/Desktop/tcga.km.grouped.tiff'
 );
 
