@@ -1,14 +1,13 @@
 ### Exploring TCGA-BRCA ###########################################################################
 
-###
-###
-###
+### Preamble ######################################################################################
 library(BoutrosLab.utilities);
 library(BoutrosLab.statistics.general);
 library(BoutrosLab.prognosticsignature.general);
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.plotting.survival);
 library(BoutrosLab.statistics.survival);
+
 #loading TCGA_BRCA
 load(
     file = '2023-07-07_TCGA_BRCA_Outlier.rda',
@@ -17,6 +16,7 @@ load(
 load(
     file = '2023-07-07_Metabric_Outlier.rda',
     );
+
 ### kruskal.continous funtion #####################################################################
 #Description:
     #calculating the correlation between number of outliers and continuous variable
@@ -26,7 +26,8 @@ load(
     #subgroups:
         #name of column that contains the subgroup classifications
     #data:
-        #the name of the data frame that contains your clinical data
+        #the name of the data frame that contains your clinical data and groups '0','1','2','3+' 
+        #for outliers merge clinical data with a data frame with ID and outlier groups 
     #posthoc
         #for use with only one continuous variable to display the differences between groups
 #Output Variables
@@ -79,14 +80,15 @@ kruskal.continous <- function(continous.var,subgroups,data,posthoc = FALSE) {
     #subgroups
         #name of column with subgroup classification
     #data
-        #dataframe with clinical data
+        #dataframe with clinical data and groups '0','1','2','3+' for outliers
+        #merge clinical data with a data frame with ID and outlier groups 
     #kruskal
-        #variable name that contains the results from kruskal.continous function
+        #variable name that contains the results from kruskal.continous function without posthoc
     #file.name
         #desired file name
 #Output Variables
     #plot
-        #bar plot 
+        #box plot 
 outlier.create.boxplot <- function(continous.var,subgroups,data,kruskal,ylimits=c(0,100),file.name,text.x,text.y) {
     #easy variable name fix
     x.variable.name <- gsub( 
@@ -153,6 +155,7 @@ outlier.totals$Patient.ID <- gsub(
     replacement = '-',
     x = outlier.totals$Patient.ID
     );
+#creating the group identifiers ###NOT NECESSARY###
 outlier.classification <- outlier.totals$Outlier.totals
 outlier.classification <- replace(
     x = outlier.classification,
@@ -165,6 +168,7 @@ outlier.classification <- replace(
     values = 'No.Outlier'
     );
 
+#creating group identifiers '0','1','2',and '3+' ###REQUIRED###
 outlier.subgroups <- outlier.totals$Outlier.totals;
 outlier.subgroups <- replace(
     x = outlier.subgroups,
@@ -183,8 +187,9 @@ outlier.brca.clinic <- merge(
     y = outlier.totals.subgroups,
     by = 'Patient.ID'
     );
-
+#a concatenation of all possible continuous variables
 continous <- c('Aneuploidy.Score','Buffa.Hypoxia.Score','Last.Communication.Contact.from.Initial.Pathologic.Diagnosis.Date','Birth.from.Initial.Pathologic.Diagnosis.Date','Disease.Free..Months.','Months.of.disease.specific.survival','Fraction.Genome.Altered','MSIsensor.Score','Mutation.Count','Overall.Survival..Months.','Progress.Free.Survival..Months.','Ragnum.Hypoxia.Score');
+
 ###### PLOTTING ###################################################################################
 
 ### Aneuploidy Score
