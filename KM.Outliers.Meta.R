@@ -8,6 +8,9 @@ library(BoutrosLab.prognosticsignature.general);
 library(BoutrosLab.statistics.survival);
 library(BoutrosLab.plotting.survival);
 
+# Load necessary functions
+source('~/Desktop/BIGSUMMER.PROJ/KM_FUNCTIONS.R')
+
 # Load the RDA file
 load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
 
@@ -37,24 +40,46 @@ outlier.counts <- colSums(outlier.patient.tag.01);
 outlier.counts.df <- as.data.frame(outlier.counts);
 
 # name the column with outlier counts 'Outliers'
-colnames(outlier.counts.df) <- 'Outliers'
+colnames(outlier.counts.df) <- 'Outliers';
 
 # replace values >= 3 with '3+'
-outlier.counts.df$Outliers[outlier.counts.df$Outliers >= 3] <- "3+"
+outlier.counts.df$Outliers[outlier.counts.df$Outliers >= 3] <- "3+";
 
 # Convert row names in 'outlier.counts.df' to use dashes instead of periods
-rownames(outlier.counts.df) <- gsub("\\.", "-", rownames(outlier.counts.df))
-
-head(rownames(meta.clinic.patient.rm))
-head(rownames(outlier.counts.df))
+rownames(outlier.counts.df) <- gsub(
+    "\\.",
+    "-",
+    rownames(outlier.counts.df)
+    );
 
 # Get the common patient IDs between the two dataframes
-merged_data <- merge(meta.clinic.patient.rm, outlier.counts.df, by = 0)
+merged_data <- merge(
+    meta.clinic.patient.rm,
+    outlier.counts.df,
+    by = 0
+    );
 
 
 # Set the patient IDs as row names of the merged dataframe
-rownames(merged_data) <- merged_data$Row.names
+rownames(merged_data) <- merged_data$Row.names;
 
 # Remove the redundant column containing patient IDs
-merged_data$Row.names <- NULL
+merged_data$Row.names <- NULL;
 
+merged.data.surv <- merged_data[, c('Overall.Survival..Months.',
+                                    'Overall.Survival.Status',
+                                    'Pam50...Claudin.low.subtype',
+                                    'Outliers')
+                                ];
+colnames(merged.data.surv)[3] <- 'Subtype'
+
+
+
+merged.data.surv <- subtype.cleaning(merged.data.surv, c('Basal',
+                                                         'claudin-low',
+                                                        'Her2',
+                                                        'LumA',
+                                                        'LumB',
+                                                        'Normal')
+                                     );
+                                  
