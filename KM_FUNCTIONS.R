@@ -151,11 +151,21 @@ tcga.subtypes <- create.subtype.groups(brca.clinic.subtypes,
 
 ### FUNCTION: subtype.km.grouped ###################################################################
 
-# Description:
+# Description: Produces a grouped Kaplan-Meier plot from a survival object, specified groups, and 
+    # a title. The plot is saved to a file of the user's choice. 
 
 # Input variables:
+# (1) surv.obj <-[survival object] the survival object upon which the plot is based
+# (2) subtype.groups <- [factor] a factor with levels corresponding to each specified group 
+    # [corresponds to 'patient.groups' in the BL create.km.plot function]
+# (3) title <- [string] title of the plot [corresponds to 'main' in the BL create.km.plot function]
+# (4) file.path <- [string] a file path and name for the plot 
+    # [corresponds to 'filename' in the BL create.km.plot function]
 
 # Output variables:
+# (1) grouped.plot <- [saved as filename to specified path] the resulting Kaplan-Meier plot, with 
+    # parameters specified as inputs to the wrapper function and 
+    # as defaults specified in the function
 
 # ***NOTE*** Formatting (e.g. label sizing, resolution, dimensions, etc.) included in function body.
 # To modify formatting, add arguments to the function or modify existing attached argument values
