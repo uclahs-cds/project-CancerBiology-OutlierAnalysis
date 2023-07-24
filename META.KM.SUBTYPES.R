@@ -6,7 +6,7 @@
 ### Preamble #######################################################################################
 
 # Read in the data 
-# load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
+load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
 
 # Install dependencies (devtools, deldir).
 library(devtools);
@@ -116,7 +116,7 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
     key.stats.cex = 1,
     key.stats.corner = c(1, -15),
     statistical.method = 'logrank',
-    filename = '/Users/amaanjsattar/Desktop/simple.survival.plot.six.groups.tiff'
+    filename = '/Users/amaanjsattar/Desktop/META.KM.SUBTYPES.tiff'
 );
 
 
