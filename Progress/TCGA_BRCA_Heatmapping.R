@@ -101,195 +101,6 @@ colnames(fpkm.nonnorm) <- gsub(
     x = colnames(fpkm.nonnorm)
     );
 
-#testing purposes
-#sub.fpkm <- fpkm.nonnorm[1:5,]
-
-
-age.color <- replace(
-    as.numeric(c(t(brca.clinic['Diagnosis.Age']))),
-    (50 >= brca.clinic['Diagnosis.Age']),
-    'white'
-    );
-age.color <- replace(
-    age.color,
-    (59 >= brca.clinic['Diagnosis.Age'] & 50 <= brca.clinic['Diagnosis.Age']),
-    'lightpink1'
-    );
-age.color <- replace(
-    age.color,
-    (69 >= brca.clinic['Diagnosis.Age'] & 60 <= brca.clinic['Diagnosis.Age']),
-    'palevioletred2'
-);
-age.color <- replace(
-    age.color,
-    (79 >= brca.clinic['Diagnosis.Age'] & 70 <= brca.clinic['Diagnosis.Age']),
-    'hotpink2'
-);
-age.color <- replace(
-    age.color,
-    (80 <= brca.clinic['Diagnosis.Age']),
-    'violetred'
-);
-brca.clinic.color <- cbind(brca.clinic,age.color)
-create.heatmap(
-    x = subset(brca.clinic.color,select = c('age.color')),
-    input.colours = TRUE,
-    clustering.method = 'none',
-    same.as.matrix = TRUE,
-    force.grid.col = FALSE,
-    col.colour = 'black',
-    xaxis.tck = 0,
-    xlab.label = ' ',
-    xaxis.lab = rep('',nrow(brca.clinic.color)),
-    xaxis.cex = 0,
-    yaxis.tck = 0,
-    ylab.label = ' ',
-    yaxis.lab = rep('',nrow(brca.clinic.color)),
-    legend.cex = 0,
-    print.colour.key = FALSE,
-    );
-
-subtype.color <- replace(
-    as.numeric(c(t(brca.clinic['Subtype']))),
-    ('BRCA_Basal' == brca.clinic['Subtype']),
-    'powderblue'
-    );
-subtype.color <- replace(
-    subtype.color,
-    ('BRCA_Her2' == brca.clinic['Subtype']),
-    'lightskyblue'
-    );
-subtype.color <- replace(
-    subtype.color,
-    ('BRCA_LumA' == brca.clinic['Subtype']),
-    'mediumpurple1'
-    );
-subtype.color <- replace(
-    subtype.color,
-    ('BRCA_LumB' == brca.clinic['Subtype']),
-    'palevioletred2'
-    );
-subtype.color <- replace(
-    subtype.color,
-    ('BRCA_Normal' == brca.clinic['Subtype']),
-    'yellow3'
-    );
-brca.clinic.color <- cbind(brca.clinic,subtype.color)
-create.heatmap(
-    x = subset(brca.clinic.color,select = c('subtype.color')),
-    input.colours = TRUE,
-    clustering.method = 'none',
-    same.as.matrix = TRUE,
-    force.grid.col = FALSE,
-    col.colour = 'black',
-    xaxis.tck = 0,
-    xlab.label = ' ',
-    xaxis.lab = rep('',nrow(brca.clinic.color)),
-    xaxis.cex = 0,
-    yaxis.tck = 0,
-    ylab.label = ' ',
-    yaxis.lab = rep('',nrow(brca.clinic.color)),
-    legend.cex = 0,
-    print.colour.key = FALSE,
-);
-
-
-PFS.color <- replace(
-    as.numeric(c(t(brca.clinic['Progress.Free.Survival..Months.']))),
-    (60 <= brca.clinic['Progress.Free.Survival..Months.']),
-    'white'
-);
-PFS.color <- replace(
-    PFS.color,
-    (60 > brca.clinic['Progress.Free.Survival..Months.'] & 24 < brca.clinic['Progress.Free.Survival..Months.']),
-    'darkorchid1'
-);
-PFS.color <- replace(
-    PFS.color,
-    (24 >= brca.clinic['Progress.Free.Survival..Months.'] & 12 < brca.clinic['Progress.Free.Survival..Months.']),
-    'mediumorchid4'
-);
-PFS.color <- replace(
-    PFS.color,
-    (12 >= brca.clinic['Progress.Free.Survival..Months.']),
-    'purple4'
-);
-
-brca.clinic.color <- cbind(brca.clinic,PFS.color)
-create.heatmap(
-    x = subset(brca.clinic.color,select = c('PFS.color')),
-    input.colours = TRUE,
-    clustering.method = 'none',
-    same.as.matrix = TRUE,
-    force.grid.col = FALSE,
-    col.colour = 'black',
-    xaxis.tck = 0,
-    xlab.label = ' ',
-    xaxis.lab = rep('',nrow(brca.clinic.color)),
-    xaxis.cex = 0,
-    yaxis.tck = 0,
-    ylab.label = ' ',
-    yaxis.lab = rep('',nrow(brca.clinic.color)),
-    legend.cex = 0,
-    print.colour.key = FALSE,
-);
-
-stage.color <- substring(text = c(t(brca.clinic['American.Joint.Committee.on.Cancer.Tumor.Stage.Code'])),first = 1,last = 2)
-stage.color <- replace(
-    stage.color,
-    ('T1' == brca.clinic['American.Joint.Committee.on.Cancer.Tumor.Stage.Code']),
-    'white'
-);
-stage.color <- replace(
-    stage.color,
-    ('T2' == brca.clinic['American.Joint.Committee.on.Cancer.Tumor.Stage.Code']),
-    'darkseagreen'
-);
-stage.color <- replace(
-    stage.color,
-    ('T3' == brca.clinic['American.Joint.Committee.on.Cancer.Tumor.Stage.Code']),
-    'darkolivegreen'
-);
-stage.color <- replace(
-    stage.color,
-    ('T4' == brca.clinic['American.Joint.Committee.on.Cancer.Tumor.Stage.Code']),
-    'darkgreen'
-);
-
-brca.clinic.color <- cbind(brca.clinic,stage.color)
-create.heatmap(
-    x = subset(brca.clinic.color,select = c('stage.color')),
-    input.colours = TRUE,
-    clustering.method = 'none',
-    same.as.matrix = TRUE,
-    force.grid.col = FALSE,
-    col.colour = 'black',
-    xaxis.tck = 0,
-    xlab.label = ' ',
-    xaxis.lab = rep('',nrow(brca.clinic.color)),
-    xaxis.cex = 0,
-    yaxis.tck = 0,
-    ylab.label = ' ',
-    yaxis.lab = rep('',nrow(brca.clinic.color)),
-    legend.cex = 0,
-    print.colour.key = FALSE,
-);
-
-
-create.heatmap(
-    x = fpkm.norm,
-    clustering.method = 'none',
-    filename = generate.filename(
-        project.stem = 'Cancer5',
-        file.core = 'Heat',
-        extension = 'tiff'
-        ),
-    resolution = 300,
-    height = 48,
-    width = 48,
-    colour.scheme = force.colour.scheme(scheme = ''),
-)
-
 
 ### TCGA-BRCA Heatmapping #########################################################################
 
@@ -606,16 +417,18 @@ zscore.map <- create.heatmap(
     height = 48,
     width = 48
     );
+
 ### Bar plot with total number of outlier genes per patient
 patient.outlier <- create.barplot(
     formula = Outlier.totals ~ Patient.ID,
     data = outlier.brca.clinic,
-    filename = generate.filename(
-        project.stem = 'Cancer',
-        file.core = 'TOPHIST2',
-        extension = 'tiff'
-    ),
+    #filename = generate.filename(
+     #   project.stem = 'Cancer',
+      #  file.core = 'TOPHIST2',
+       # extension = 'tiff'
+        #),
     xlab.label = '',
+    xat = '',
     xaxis.tck = 0,
     ylab.label = '# Outliers',
     yaxis.tck = 0,
@@ -653,16 +466,32 @@ create.multipanelplot(
     plot.objects = list(age.map,subtype.map,PFS.map,Tumor.stage.map)
 )
 create.multipanelplot(
-    layout.height = 3,
+    filename = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Multiplot',
+        extension = 'tiff'
+        ),
+    layout.height = 6,
     layout.width = 2,
-    plot.objects.heights = C(2,10,2),
+    plot.objects.heights = C(2,10,1,1,1,1),
     plot.objects.widths = c(10,2),
-    plot.objects = list(patient.outlier,zscore.map,covariates,gene.outlier),
-    layout.skip = c(FALSE,FALSE,FALSE,TRUE,FALSE,TRUE)
-)
+    plot.objects = list(zscore.map)
+    );
 create.multipanelplot(
-    plot.objects = list(patient.outlier,zscore.map,gene.outlier)
-    )
+    filename = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Multiplot3',
+        extension = 'tiff'
+    ),
+    layout.width = 2,
+    layout.height = 6,
+    plot.objects = list(patient.outlier,zscore.map,gene.outlier,age.map,Tumor.stage.map,PFS.map,subtype.map),
+    plot.objects.heights = c(2,10,1,1,1,1),
+    layout.skip = c(FALSE,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE)
+);
+create.multipanelplot(
+    plot.objects = list(patient.outlier,gene.outlier)
+    );
 ##### Working mutlipanelplot for covariates
 covariates <- create.multipanelplot(
     plot.objects = list(age.map,Tumor.stage.map,PFS.map,subtype.map),y.spacing = -2.3
