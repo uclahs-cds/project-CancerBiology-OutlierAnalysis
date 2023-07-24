@@ -22,7 +22,7 @@ library(BoutrosLab.statistics.survival);
 library(BoutrosLab.plotting.survival);
 
 # Load the RDA file
-load("/Users/amaanjsattar/Desktop/2023-07-07_TCGA_BRCA_Outlier.rda");
+# load("/Users/amaanjsattar/Desktop/2023-07-07_TCGA_BRCA_Outlier.rda");
 
 ### Data Cleaning ##################################################################################
 
