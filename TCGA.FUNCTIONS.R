@@ -46,6 +46,9 @@ load("/Users/amaanjsattar/Desktop/2023-07-07_TCGA_BRCA_Outlier.rda");
 
 subtype.cleaning <- function(brca.data, subtype.labels) {
     subtypes.only <- brca.data[brca.data$Subtype %in% subtype.labels, ]
+    # Remove rows with NA values in "column_name" using na.omit()
+    subtypes.only <- subtypes.only[!is.na(subtypes.only[, 'Overall.Survival..Months.']), ]
+    
     return(subtypes.only)
     };
 
@@ -207,3 +210,4 @@ subtype.km.grouped(tcga.surv,
                    'TCGA Breast Cancer Subtype-Specific Patient Survival',
                    '/Users/amaanjsattar/Desktop/TCGA.KM.SUBTYPES.tiff'
                    );
+
