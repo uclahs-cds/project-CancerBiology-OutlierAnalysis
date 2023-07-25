@@ -67,7 +67,12 @@ rownames(merged.data) <- merged.data$Row.names;
 # Remove the redundant column containing patient IDs
 merged.data$Row.names <- NULL;
 
-# Create a column with binary Survival Status in merged_data
+
+
+####################################################################################################
+### KM Plot Setup Part 1: Overall Survival #########################################################
+####################################################################################################
+# Create a column with binary OverallSurvival Status in merged_data
 merged.data <- binary.survival(
     merged.data, 
     'Overall.Survival.Status',
@@ -96,3 +101,7 @@ km.outliers.meta <- subtype.km.grouped(merged.data.surv,
                                        'Kaplan-Meier Plot Grouped by Subtype',
                                        '/Users/amaanjsattar/Desktop/META.KM.OUTLIERS.tiff')
 
+
+####################################################################################################
+### KM Plot Setup Part 2: Disease-Specific Survival ####################################################
+####################################################################################################
