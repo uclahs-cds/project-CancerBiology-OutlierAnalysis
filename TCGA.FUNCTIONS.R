@@ -215,10 +215,36 @@ subtype.km.grouped <- function(
 
 # Suggested TCGA Application (replace last argument, filename):
 
-subtype.km.grouped(tcga.surv,
-                   tcga.subtypes,
-                   'Subtype-Specific Kaplan-Meier Survival Estimates: TCGA Patients',
-                   '/Users/amaanjsattar/Desktop/TCGA.KM.SUBTYPES.tiff'
-                   );
+# subtype.km.grouped(tcga.surv,
+                   # tcga.subtypes,
+                   # 'Subtype-Specific Kaplan-Meier Survival Estimates: TCGA Patients',
+                  #  '/Users/amaanjsattar/Desktop/TCGA.KM.SUBTYPES.tiff'
+                   # );
 
+### TCGA Overall Survival by Subtype ###############################################################
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.KM.SUBTYPES.pdf',
+    survival.object = tcga.surv,
+    patient.groups = tcga.subtypes,
+    statistical.method = 'logrank',
+    main = 'Overall Survival by PAM50 Subtype: TCGA Patients',
+    main.cex = 2,
+    xaxis.cex = 1,
+    xlab.cex = 1.7,
+    yaxis.cex = 1,
+    ylab.cex = 1.7,
+    xlab.label = 'Overall Survival Time (Months)',
+    ylab.label = 'Overall Survival Probability',
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1,
+    top.padding = 1,
+    left.padding = 20,
+    resolution = 300,
+    key.stats.cex = 1,
+    key.stats.corner = c(1, -50)
+)
 

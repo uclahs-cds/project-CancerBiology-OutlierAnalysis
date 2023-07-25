@@ -69,6 +69,12 @@ merged.data$Row.names <- NULL;
 
 
 
+order_levels <- c("3+", "2", "1", "0")
+
+# Reorder the dataframe based on the "Outliers" column
+merged.data$Outliers <- factor(merged.data$Outliers, levels = order_levels)
+merged.data <- merged.data[order(merged.data$Outliers), ]
+
 ####################################################################################################
 ### KM Plot Setup Part 1: Overall Survival #########################################################
 ####################################################################################################
@@ -79,11 +85,8 @@ merged.data <- binary.survival(
     'Overall.Survival.Binary'
     );
 
-# Subset the dataframe to only contain necessary columns
-merged.data <- merged.data[, c('Overall.Survival..Months.',
-                                    'Overall.Survival.Binary',
-                                    'Outliers')
-                                ];
+
+                               
 
 # Create Survival Object
 merged.data.surv <- create.surv(
@@ -94,14 +97,64 @@ merged.data.surv <- create.surv(
 
 # Create a factor for the outlier groupings, making sure the levels correspond correctly
 outlier.groups <- factor(merged.data$Outliers,
-                         levels = unique(merged.data$Outliers));
+                         levels = unique(merged.data$Outliers)
+                         );
 
 km.outliers.meta <- subtype.km.grouped(merged.data.surv,
                                        outlier.groups,
                                        'Kaplan-Meier Plot Grouped by Subtype',
-                                       '/Users/amaanjsattar/Desktop/META.KM.OUTLIERS.tiff')
+                                       '/Users/amaanjsattar/Desktop/META.KM.OUTLIERS.tiff'
+                                       );
 
 
 ####################################################################################################
-### KM Plot Setup Part 2: Disease-Specific Survival ####################################################
+### KM Plot Setup Part 2: Disease-Specific Survival ################################################
 ####################################################################################################
+merged.data <- binary.survival(
+    merged.data, 
+    'Relapse.Free.Status', 
+    'Relapse.Free.Binary'
+    );
+
+outlier.relapse.surv <- create.surv(
+    merged.data, 
+    'Relapse.Free.Status..Months.',
+    'Relapse.Free.Binary'
+    );
+
+# subtype.km.grouped(outlier.relapse.surv,
+                   # outlier.groups,
+                   # 'Relapse-Free Survival Status by Outlier Gene Count: METABRIC Patients',
+                   # '/Users/amaanjsattar/Desktop/META.KM.RFS.OUTLIERS.tiff'
+                   # );
+
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/META.KM.RFS.OUTLIERS.pdf',
+    survival.object = outlier.relapse.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Relapse-Free Survival by Outlier Gene Count: METABRIC Patients',
+    ylab.label = 'Relapse-Free Survival Probability',
+    xlab.label = 'Relapse-Free Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.7,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.7,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.4, -0.2),
+    ylab.axis.padding = 0,
+    left.padding = 10,
+    top.padding = 5,
+    risk.label.pos = -40,
+    resolution = 400,
+    key.stats.cex = 1.2,
+    key.stats.corner = c(1, -45)
+    );
+
+

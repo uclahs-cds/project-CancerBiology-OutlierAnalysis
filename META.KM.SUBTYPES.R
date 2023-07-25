@@ -96,6 +96,10 @@ kmplot.cols <- subset(
                'Survival.Status.Binary')
     );
 
+# Order the rows based on the alphabetical order of the Subtype column
+kmplot.cols <- kmplot.cols[order(kmplot.cols$Pam50...Claudin.low.subtype), ]
+
+
 # Make Overall.Survival..Months. numeric-type
 kmplot.cols$Overall.Survival..Months. <- as.numeric(kmplot.cols$Overall.Survival..Months.);
 
@@ -110,8 +114,8 @@ meta.surv.obj <- Surv(
 
 # Make subtype a factor variable with levels corresponding to each subtype label
 subtype.groups <- factor(kmplot.cols$Pam50...Claudin.low.subtype,
-                         levels = c('Claudin-low', 'Luminal A', 'Luminal B',
-                                    'Normal', 'Her2', 'Basal')
+                         levels = c('Basal', 'Claudin-low', 'Her2', 'Luminal A', 
+                                    'Luminal B', 'Normal')
                         );
 
 ### Plot Creation ##################################################################################
@@ -121,23 +125,28 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
         kmplot.cols$Overall.Survival..Months.,
         kmplot.cols$Survival.Status.Binary),
     patient.groups = subtype.groups,
-    main = 'METABRIC Breast Cancer Subtype-Specific Patient Survival',
-    main.cex = 1.5,
+    main = 'Overall Survival by PAM50 Subtype: METABRIC Patients',
+    main.cex = 2,
     height = 12,
     width = 12,
     xat = c(0, 50, 100, 150, 200, 250, 300, 350, 400),
     xaxis.cex = 1,
     yaxis.cex = 1,
-    ylab.cex = 1.7,
-    xlab.cex = 1.7,
+    ylab.cex = 1.5,
+    xlab.cex = 1.5,
+    xlab.label = 'Overall Survival Time (Months)',
+    ylab.label = 'Overall Survival Probability',
     key.groups.cex = 1,
-    key.groups.title = 'Subtype',
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.corner = c(-0.2, 0),
     key.groups.title.cex = 1,
     resolution = 300,
+    top.padding = 5,
+    left.padding = 15,
     key.stats.cex = 1,
-    key.stats.corner = c(1, -15),
+    key.stats.corner = c(1, -35),
     statistical.method = 'logrank',
-    filename = '/Users/amaanjsattar/Desktop/META.KM.SUBTYPES.OS.tiff'
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/META.KM.OS.SUBTYPES.pdf'
 );
 
 ####################################################################################################
@@ -198,7 +207,7 @@ BoutrosLab.plotting.survival::create.km.plot(
 subtype.km.grouped(tcga.surv,
                    tcga.subtypes,
                    'Subtype-Specific Kaplan-Meier Survival Estimates: TCGA Patients',
-                   '/Users/amaanjsattar/Desktop/TCGA.KM.SUBTYPES.tiff'
+                   '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.KM.SUBTYPES.pdf'
 );
 
 ####################################################################################################
@@ -238,7 +247,7 @@ dss.surv <- create.surv(
 BoutrosLab.plotting.survival::create.km.plot(
     height = 12,
     width = 12,
-    filename = '/Users/amaanjsattar/Desktop/META.KM.DSS.SUBTYPES.tiff',
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/META.KM.DSS.SUBTYPES.pdf',
     survival.object = dss.surv,
     patient.groups = subtype.groups,
     statistical.method = 'logrank',
@@ -246,9 +255,9 @@ BoutrosLab.plotting.survival::create.km.plot(
     ylab.label = 'Disease-Specific Survival Probability',
     xlab.label = 'Disease-Specific Survival Time (Months)',
     main.cex = 2,
-    xaxis.cex = 1,
+    xaxis.cex = 1.2,
     xlab.cex = 1.5,
-    yaxis.cex = 1,
+    yaxis.cex = 1.2,
     ylab.cex = 1.5,
     key.groups.title = 'PAM50 Subtype',
     key.groups.title.cex = 1.1,
@@ -262,3 +271,4 @@ BoutrosLab.plotting.survival::create.km.plot(
     key.stats.cex = 1.5,
     key.stats.corner = c(1, -25)
 )
+
