@@ -9,7 +9,7 @@ library(BoutrosLab.statistics.survival);
 library(BoutrosLab.plotting.survival);
 
 # Load necessary functions
-source('~/Desktop/BIGSUMMER.PROJ/KM_FUNCTIONS.R')
+source('/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.FUNCTIONS.R')
 
 # Load the RDA file
 load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
@@ -95,3 +95,4 @@ km.outliers.meta <- subtype.km.grouped(merged.data.surv,
                                        outlier.groups,
                                        'Kaplan-Meier Plot Grouped by Subtype',
                                        '/Users/amaanjsattar/Desktop/META.KM.OUTLIERS.tiff')
+

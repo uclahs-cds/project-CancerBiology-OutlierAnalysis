@@ -76,13 +76,23 @@ brca.clinic.subtypes <- subtype.cleaning(brca.clinic, c('BRCA_Basal',
 # Output variables:
 # (1) brca.data <- [dataframe] returns the augmented dataframe, which should have n + 1 columns, 
 
-binary.survival <- function(brca.data, str.survival.col.name, binary.survival.col.name) {
-    brca.data[binary.survival.col.name] <- ifelse(
-        brca.data[[str.survival.col.name]] == '0:LIVING', 
-        0, 1
-    )
+
+# Function to convert the column with values in the format '0:somestring' and '1:somestring' to a binary column
+binary.survival <- function(brca.data, old.col.name, new.col.name) {
+    brca.data[[new.col.name]] <- ifelse(
+        grepl('^1:', brca.data[[old.col.name]]), 1, 0)
     return(brca.data)
     };
+
+
+# OLD IMPLEMENTATION:
+# binary.survival <- function(brca.data, str.survival.col.name, binary.survival.col.name) {
+    # brca.data[binary.survival.col.name] <- ifelse(
+        # brca.data[[str.survival.col.name]] == '0:LIVING', 
+        # 0, 1
+    # )
+    # return(brca.data)
+    # };
 
 # Suggested TCGA Application: 
 brca.clinic.subtypes <- binary.survival(brca.clinic.subtypes, 

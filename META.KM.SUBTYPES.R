@@ -7,7 +7,7 @@
 
 # Read in the data 
 load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
-
+source('/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.FUNCTIONS.R');
 # Install dependencies (devtools, deldir).
 library(devtools);
 
@@ -62,7 +62,9 @@ meta.clinic.subtypes$Survival.Status.Binary <- ifelse(
     0, 1
     );
 
-### Setup for Kaplan-Meier Plot Inputs #############################################################
+####################################################################################################
+### KM Plot Setup Part 1: Overall Survival #########################################################
+####################################################################################################
 
 # Subset the dataframe, extracting columns corresponding to:
 # 1) SUBTYPE LABEL,
@@ -116,7 +118,35 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
     key.stats.cex = 1,
     key.stats.corner = c(1, -15),
     statistical.method = 'logrank',
-    filename = '/Users/amaanjsattar/Desktop/META.KM.SUBTYPES.tiff'
+    filename = '/Users/amaanjsattar/Desktop/META.KM.SUBTYPES.OS.tiff'
 );
 
+####################################################################################################
+### KM Plot Setup Part 2: Disease-Free Survival ####################################################
+####################################################################################################
 
+# Variables: Disease Free Status, Disease Free Months, Subtypes
+    # 
+# Variables: Progression Free Status, Progression Free Months, Subtypes
+# Variables: Disease Specific Status, Disease Specific Months, Subtypes
+
+# Subtype Data: meta.clinic.subtypes
+
+meta.clinic.subtypes <- binary.survival(
+    meta.clinic.subtypes, 
+    'Relapse.Free.Status', 
+    'Relapse.Free.Binary'
+    );
+
+relapse.surv <- create.surv(
+    meta.clinic.subtypes, 
+    'Relapse.Free.Status..Months.',
+    'Relapse.Free.Binary'
+    );
+
+# subtype.groups already made
+subtype.km.grouped(relapse.surv,
+                   subtype.groups,
+                   'TCGA Breast Cancer Subtype-Specific Relapse-Free Survival',
+                   '/Users/amaanjsattar/Desktop/META.KM.RELAPSE.SUBTYPES.tiff'
+    );
