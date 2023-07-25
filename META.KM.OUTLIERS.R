@@ -107,6 +107,34 @@ km.outliers.meta <- subtype.km.grouped(merged.data.surv,
                                        );
 
 
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/Plots/META.KM.OS.OUTLIERS.pdf',
+    survival.object = merged.data.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Overall Survival by Outlier Gene Count: METABRIC Patients',
+    ylab.label = 'Overall Survival Probability',
+    xlab.label = 'Overall Survival Time: Months',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.7,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.7,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.4, -0.2),
+    ylab.axis.padding = 0,
+    left.padding = 10,
+    top.padding = 5,
+    risk.label.pos = -40,
+    resolution = 400,
+    key.stats.cex = 1.2,
+    key.stats.corner = c(1, -45)
+);
+
 ####################################################################################################
 ### KM Plot Setup Part 2: Disease-Specific Survival ################################################
 ####################################################################################################

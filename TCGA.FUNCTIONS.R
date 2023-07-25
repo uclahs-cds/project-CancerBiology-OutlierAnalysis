@@ -226,7 +226,7 @@ subtype.km.grouped <- function(
 BoutrosLab.plotting.survival::create.km.plot(
     height = 12,
     width = 12,
-    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.KM.SUBTYPES.pdf',
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.KM.OS.SUBTYPES.pdf',
     survival.object = tcga.surv,
     patient.groups = tcga.subtypes,
     statistical.method = 'logrank',
