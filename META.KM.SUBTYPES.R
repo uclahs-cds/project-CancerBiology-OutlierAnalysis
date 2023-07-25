@@ -56,6 +56,24 @@ subtype.labels <- c('LumA', 'LumB', 'claudin-low', 'Her2', 'Basal', 'Normal');
 meta.clinic.subtypes <- meta.clinic.patient.rm[
     meta.clinic.patient.rm$Pam50...Claudin.low.subtype %in% subtype.labels, ];
 
+# Change subtype labels to official names
+meta.clinic.subtypes$Pam50...Claudin.low.subtype <- gsub(
+    'claudin-low',
+    'Claudin-low', 
+    meta.clinic.subtypes$Pam50...Claudin.low.subtype
+    );
+
+meta.clinic.subtypes$Pam50...Claudin.low.subtype <- gsub(
+    'LumA',
+    'Luminal A', 
+    meta.clinic.subtypes$Pam50...Claudin.low.subtype
+    );
+
+meta.clinic.subtypes$Pam50...Claudin.low.subtype <- gsub(
+    'LumB',
+    'Luminal B', 
+    meta.clinic.subtypes$Pam50...Claudin.low.subtype
+    );
 # Create a new column to represent survival status as a binary variable.
 meta.clinic.subtypes$Survival.Status.Binary <- ifelse(
     meta.clinic.subtypes$Overall.Survival.Status == "0:LIVING", 
@@ -92,7 +110,8 @@ meta.surv.obj <- Surv(
 
 # Make subtype a factor variable with levels corresponding to each subtype label
 subtype.groups <- factor(kmplot.cols$Pam50...Claudin.low.subtype,
-                         levels = unique(kmplot.cols$Pam50...Claudin.low.subtype)
+                         levels = c('Claudin-low', 'Luminal A', 'Luminal B',
+                                    'Normal', 'Her2', 'Basal')
                         );
 
 ### Plot Creation ##################################################################################
@@ -122,7 +141,7 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
 );
 
 ####################################################################################################
-### KM Plot Setup Part 2: Disease-Free Survival ####################################################
+### KM Plot Setup Part 2: Relapse-Free Survival ####################################################
 ####################################################################################################
 
 # Variables: Disease Free Status, Disease Free Months, Subtypes
@@ -145,8 +164,101 @@ relapse.surv <- create.surv(
     );
 
 # subtype.groups already made
-subtype.km.grouped(relapse.surv,
-                   subtype.groups,
-                   'TCGA Breast Cancer Subtype-Specific Relapse-Free Survival',
-                   '/Users/amaanjsattar/Desktop/META.KM.RELAPSE.SUBTYPES.tiff'
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/META.KM.RELAPSE.SUBTYPES.tiff',
+    survival.object = relapse.surv,
+    patient.groups = subtype.groups,
+    statistical.method = 'logrank',
+    main = 'Relapse-Free Survival by PAM50 Subtype: METABRIC Patients',
+    ylab.label = 'Relapse-Free Survival Probability',
+    xlab.label = 'Relapse-Free Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1,
+    xlab.cex = 1.5,
+    yaxis.cex = 1,
+    ylab.cex = 1.5,
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.title.cex = 1.1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.2, -0.1),
+    ylab.axis.padding = 2,
+    left.padding = 17,
+    top.padding = 1,
+    bottom.padding = 10,
+    resolution = 300,
+    key.stats.cex = 1.5,
+    key.stats.corner = c(1, -25)
+)
+
+
+# Suggested TCGA Application (replace last argument, filename):
+
+subtype.km.grouped(tcga.surv,
+                   tcga.subtypes,
+                   'Subtype-Specific Kaplan-Meier Survival Estimates: TCGA Patients',
+                   '/Users/amaanjsattar/Desktop/TCGA.KM.SUBTYPES.tiff'
+);
+
+####################################################################################################
+### KM Plot Setup Part 3: Disease-Specific Survival ####################################################
+####################################################################################################
+
+# Data Cleaning: Identify unique values of Patient Vital Status
+# table(meta.clinic.subtypes$Patient.s.Vital.Status)
+# Noticing there is 1 empty string value, find the row in which it is contained
+# rows_with_empty_strings <- which(meta.clinic.subtypes$Patient.s.Vital.Status == "")
+# meta.clinic.subtypes[rows_with_empty_strings, ]
+# We see that its Survival.Status.Binary = 1, which means this patient died. 
+# As we are not sure how this patient died, we will censor this value.
+# Populate the column with a 0 when we convert vital status to binary
+
+# Change the empty string to 'living'
+meta.clinic.subtypes$Patient.s.Vital.Status <- ifelse(
+    meta.clinic.subtypes$Patient.s.Vital.Status == "",
+    "Living", 
+    meta.clinic.subtypes$Patient.s.Vital.Status
     );
+
+# Convert to binary and make new column
+meta.clinic.subtypes$DSS.Binary <- ifelse(
+    meta.clinic.subtypes$Patient.s.Vital.Status == "Died of Disease",
+    1, 0
+    );
+
+# Create DSS Survival Object
+dss.surv <- create.surv(
+    meta.clinic.subtypes,
+    'Overall.Survival..Months.',
+    'DSS.Binary'
+    );
+
+# Create KM Plot
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/META.KM.DSS.SUBTYPES.tiff',
+    survival.object = dss.surv,
+    patient.groups = subtype.groups,
+    statistical.method = 'logrank',
+    main = 'Disease-Specific Survival by PAM50 Subtype: METABRIC Patients',
+    ylab.label = 'Disease-Specific Survival Probability',
+    xlab.label = 'Disease-Specific Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1,
+    xlab.cex = 1.5,
+    yaxis.cex = 1,
+    ylab.cex = 1.5,
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.title.cex = 1.1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.2, -0.1),
+    ylab.axis.padding = 2,
+    left.padding = 17,
+    top.padding = 1,
+    bottom.padding = 10,
+    resolution = 300,
+    key.stats.cex = 1.5,
+    key.stats.corner = c(1, -25)
+)

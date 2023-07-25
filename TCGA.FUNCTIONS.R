@@ -217,7 +217,8 @@ subtype.km.grouped <- function(
 
 subtype.km.grouped(tcga.surv,
                    tcga.subtypes,
-                   'TCGA Breast Cancer Subtype-Specific Patient Survival',
+                   'Subtype-Specific Kaplan-Meier Survival Estimates: TCGA Patients',
                    '/Users/amaanjsattar/Desktop/TCGA.KM.SUBTYPES.tiff'
                    );
+
 
