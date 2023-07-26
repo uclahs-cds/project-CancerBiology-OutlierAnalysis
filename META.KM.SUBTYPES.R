@@ -81,7 +81,7 @@ meta.clinic.subtypes$Survival.Status.Binary <- ifelse(
     );
 
 ####################################################################################################
-### KM Plot Setup Part 1: Overall Survival #########################################################
+### KM Subtype Plot Setup Part 1: Overall Survival #################################################
 ####################################################################################################
 
 # Subset the dataframe, extracting columns corresponding to:
@@ -150,7 +150,7 @@ Subtype.KM.Grouped <- BoutrosLab.plotting.survival::create.km.plot(
 );
 
 ####################################################################################################
-### KM Plot Setup Part 2: Relapse-Free Survival ####################################################
+### KM Subtype Plot Setup Part 2: Relapse-Free Survival ############################################
 ####################################################################################################
 
 # Variables: Disease Free Status, Disease Free Months, Subtypes
@@ -211,7 +211,7 @@ subtype.km.grouped(tcga.surv,
 );
 
 ####################################################################################################
-### KM Plot Setup Part 3: Disease-Specific Survival ####################################################
+### KM Subtype Plot Setup Part 3: Disease-Specific Survival ########################################
 ####################################################################################################
 
 # Data Cleaning: Identify unique values of Patient Vital Status

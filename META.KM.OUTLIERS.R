@@ -136,7 +136,7 @@ BoutrosLab.plotting.survival::create.km.plot(
 );
 
 ####################################################################################################
-### KM Plot Setup Part 2: Disease-Specific Survival ################################################
+### KM OutlierPlot Setup Part 2: Relapse-Free Survival #############################################
 ####################################################################################################
 merged.data <- binary.survival(
     merged.data, 
@@ -149,13 +149,6 @@ outlier.relapse.surv <- create.surv(
     'Relapse.Free.Status..Months.',
     'Relapse.Free.Binary'
     );
-
-# subtype.km.grouped(outlier.relapse.surv,
-                   # outlier.groups,
-                   # 'Relapse-Free Survival Status by Outlier Gene Count: METABRIC Patients',
-                   # '/Users/amaanjsattar/Desktop/META.KM.RFS.OUTLIERS.tiff'
-                   # );
-
 
 BoutrosLab.plotting.survival::create.km.plot(
     height = 12,
@@ -185,4 +178,44 @@ BoutrosLab.plotting.survival::create.km.plot(
     key.stats.corner = c(1, -45)
     );
 
+####################################################################################################
+### KM OutlierPlot Setup Part 2: Disease-Specific Survival #########################################
+####################################################################################################
 
+merged.data$DSS.Binary <- ifelse(
+    merged.data$Patient.s.Vital.Status == "Died of Disease",
+    1, 0
+    );
+
+dss.outlier.surv <- create.surv(merged.data, 
+                                'Overall.Survival..Months.',
+                                'DSS.Binary'
+                                );
+# Create KM Plot
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/Plots/META.KM.DSS.OUTLIERS.pdf',
+    survival.object = dss.outlier.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Disease-Specific Survival by Outlier Gene Count: METABRIC Patients',
+    ylab.label = 'Disease-Specific Survival Probability',
+    xlab.label = 'Disease-Specific Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.5,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.5,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1.1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.5, -0.1),
+    ylab.axis.padding = 2,
+    left.padding = 17,
+    top.padding = 1,
+    bottom.padding = 10,
+    resolution = 300,
+    key.stats.cex = 1.5,
+    key.stats.corner = c(1, -38)
+    );
