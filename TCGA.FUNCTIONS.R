@@ -365,6 +365,47 @@ BoutrosLab.plotting.survival::create.km.plot(
     key.groups.corner = c(-0.2, 0)
 );
 
+
+### TCGA Disease-Free Survival by Subtype ######################################################
+brca.clinic.subtypes <- binary.survival(
+    brca.clinic.subtypes,
+    'Disease.Free.Status',
+    'DFS.Binary'
+)
+
+tcga.dfs.surv <- create.surv(
+    brca.clinic.subtypes,
+    'Disease.Free..Months.',
+    'DFS.Binary'
+)
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/TCGA.KM.DFS.SUBTYPES.pdf',
+    survival.object = tcga.dfs.surv,
+    patient.groups = tcga.subtypes,
+    statistical.method = 'logrank',
+    main = 'Disease-Free Survival by PAM50 Subtype: TCGA Patients',
+    main.cex = 2,
+    xaxis.cex = 1,
+    xlab.cex = 1.7,
+    yaxis.cex = 1,
+    ylab.cex = 1.7,
+    xlab.label = 'Disease-Free Survival Time (Months)',
+    ylab.label = 'Disease-Free Survival Probability',
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1,
+    top.padding = 1,
+    left.padding = 20,
+    resolution = 300,
+    key.stats.cex = 1,
+    key.stats.corner = c(1, -50),
+    key.groups.corner = c(-0.2, 0)
+);
+
+
 ### KM PLOTS BY OUTLIER GENE COUNT #################################################################
 
 
@@ -424,7 +465,186 @@ rownames(tcga.merged) <- tcga.merged$Sample.ID;
 
 tcga.merged$Sample.ID <- NULL;
 
+order.levels <- c('3+', '2', '1', '0')
 
 
+# Reorder the dataframe based on the "Outliers" column
+tcga.merged$Outliers <- factor(tcga.merged$Outliers, levels = order.levels);
+
+tcga.merged <- tcga.merged[order(tcga.merged$Outliers), ];
+
+####################################################################################################
+### KM Plot Setup Part 1: Overall Survival #########################################################
+####################################################################################################
+
+tcga.merged <- binary.survival(
+    tcga.merged,
+    'Overall.Survival.Status',
+    'OSS.Binary'
+);
+
+tcga.outlier.os.surv <- create.surv(
+    tcga.merged, 
+    'Overall.Survival..Months.', 
+    'OSS.Binary'
+);
+
+outlier.groups <- factor(tcga.merged$Outliers,
+                         levels = order.levels)
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/Plots/TCGA.KM.OS.OUTLIERS.pdf',
+    survival.object = tcga.outlier.os.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Overall Survival by Outlier Gene Count: TCGA Patients',
+    ylab.label = 'Overall Survival Probability',
+    xlab.label = 'Overall Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.7,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.7,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.4, -0.2),
+    ylab.axis.padding = 0,
+    left.padding = 10,
+    top.padding = 5,
+    risk.label.pos = -40,
+    resolution = 400,
+    key.stats.cex = 1.2,
+    key.stats.corner = c(1, -45)
+    );
+    
+####################################################################################################
+### KM Plot Setup Part 2: Disease-Specific Survival #########################################################
+####################################################################################################
+
+tcga.merged <- binary.survival(tcga.merged,
+                               'Disease.specific.Survival.status',
+                                 'DSS.Binary')
+
+tcga.outlier.dss.surv <- create.surv(tcga.merged,
+                                     'Months.of.disease.specific.survival',
+                                     'DSS.Binary')
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/Plots/TCGA.KM.DSS.OUTLIERS.pdf',
+    survival.object = tcga.outlier.dss.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Disease-Specific Survival by Outlier Gene Count: TCGA Patients',
+    ylab.label = 'Disease-Specific Survival Probability',
+    xlab.label = 'Disease-Specific Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.7,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.7,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.4, -0.2),
+    ylab.axis.padding = 0,
+    left.padding = 10,
+    top.padding = 5,
+    risk.label.pos = -40,
+    resolution = 400,
+    key.stats.cex = 1.2,
+    key.stats.corner = c(1, -45)
+    );
+
+####################################################################################################
+### KM Plot Setup Part 3: Progression-Free Survival #########################################################
+####################################################################################################
+
+tcga.merged <- binary.survival(
+    tcga.merged,
+    'Progression.Free.Status',
+    'PFS.Binary'
+);
+
+tcga.outlier.pfs.surv <- create.surv(
+    tcga.merged,
+    'Progress.Free.Survival..Months.',
+    'PFS.Binary'
+);
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/Plots/TCGA.KM.PFS.OUTLIERS.pdf',
+    survival.object = tcga.outlier.pfs.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Progression-Free Survival by Outlier Gene Count: TCGA Patients',
+    ylab.label = 'Progression-Free Survival Probability',
+    xlab.label = 'Progression-Free Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.7,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.7,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.4, -0.2),
+    ylab.axis.padding = 0,
+    left.padding = 10,
+    top.padding = 5,
+    risk.label.pos = -40,
+    resolution = 400,
+    key.stats.cex = 1.2,
+    key.stats.corner = c(1, -45)
+);
+
+####################################################################################################
+### KM Plot Setup Part 3: Disease-Free Survival #########################################################
+####################################################################################################
+
+tcga.merged <- binary.survival(
+    tcga.merged,
+    'Disease.Free.Status',
+    'DFS.Binary'
+    );
+
+tcga.outlier.dfs.surv <- create.surv(
+    tcga.merged,
+    'Disease.Free..Months.',
+    'DFS.Binary'
+    );
 
 
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/Plots/TCGA.KM.DFS.OUTLIERS.pdf',
+    survival.object = tcga.outlier.dfs.surv,
+    patient.groups = outlier.groups,
+    statistical.method = 'logrank',
+    main = 'Disease-Free Survival by Outlier Gene Count: TCGA Patients',
+    ylab.label = 'Disease-Free Survival Probability',
+    xlab.label = 'Disease-Free Survival Time (Months)',
+    main.cex = 2,
+    xaxis.cex = 1.2,
+    xlab.cex = 1.7,
+    yaxis.cex = 1.2,
+    ylab.cex = 1.7,
+    key.groups.title = '# Outlier Genes',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1.4,
+    key.groups.corner = c(-0.4, -0.2),
+    ylab.axis.padding = 0,
+    left.padding = 10,
+    top.padding = 5,
+    risk.label.pos = -40,
+    resolution = 400,
+    key.stats.cex = 1.2,
+    key.stats.corner = c(1, -45)
+);

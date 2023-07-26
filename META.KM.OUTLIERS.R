@@ -78,7 +78,7 @@ merged.data <- merged.data[order(merged.data$Outliers), ]
 ####################################################################################################
 ### KM Plot Setup Part 1: Overall Survival #########################################################
 ####################################################################################################
-# Create a column with binary OverallSurvival Status in merged_data
+# Create a column with binary Overall.Survival.Status in merged_data
 merged.data <- binary.survival(
     merged.data, 
     'Overall.Survival.Status',
