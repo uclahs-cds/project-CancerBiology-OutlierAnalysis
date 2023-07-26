@@ -18,54 +18,24 @@ load(
     );
 
 ### Data Analysis #################################################################################
-meta.data.patient <- meta.clinic.patient[5:2513,1:23]
-meta.data.sample <- meta.clinic.sample[5:2513,1:12]
+outlier.meta.patient <- modified.clinic(
+    data = meta.clinic.patient,
+    outlier.data = outlier.patient.tag.01,
+    TCGA = FALSE,
+    META = TRUE,
+    sample = FALSE)
 
-#adding or adjusting ID for merging and analysing 
-meta.data.patient <- data.frame(Patient.ID = row.names(meta.data.patient),meta.data.patient)
-colnames(meta.data.sample)[1] <- 'Patient.ID'
-
-#totaling number of outlier genes per patient
-outlier.totals <- data.frame(
-    Patient.ID = colnames(outlier.patient.tag.01),
-    Outlier.totals = apply(
-        X = outlier.patient.tag.01,
-        MARGIN = 2,
-        FUN = sum
-        )
-    );
-
-#creating group identifiers '0','1','2',and '3+' ##REQUIRED###
-outlier.totals$Outlier.totals <- replace(
-    x = outlier.totals$Outlier.totals,
-    list = (3 <= outlier.totals$Outlier.totals),
-    values = '3+'
-    );
-#fixing names for merge
-outlier.totals$Patient.ID <- gsub(
-    pattern = '\\.',
-    replacement = '-',
-    x = outlier.totals$Patient.ID
-    );
-
-meta.patient.2 <- meta.data.patient
-outlier.meta.patient <- merge(
-    x = meta.patient.2,
-    y = outlier.totals,
-    by = 'Patient.ID'
-    );
-
-meta.sample.2 <- meta.data.sample
-outlier.meta.sample <- merge(
-    x = meta.sample.2,
-    y = outlier.totals,
-    by = 'Patient.ID'
-    );
+outlier.meta.sample <- modified.clinic(
+    data = meta.clinic.sample,
+    outlier.data = outlier.patient.tag.01,
+    TCGA = FALSE,
+    META = TRUE,
+    sample = TRUE)
 
 ### Lymph Nodes ###
 lymph.nodes <- kruskal.continous(
     continous.var = 'Lymph.nodes.examined.positive',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient
     );
 
@@ -76,7 +46,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Lymph.nodes.examined.positive',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient,
     kruskal = lymph.nodes,
     ylimits = c(-1,40),
@@ -87,7 +57,7 @@ outlier.create.boxplot(
 ### Nottingham ###
 nottingham <- kruskal.continous(
     continous.var = 'Nottingham.prognostic.index',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient
     );
 
@@ -98,7 +68,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Nottingham.prognostic.index',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient,
     kruskal = nottingham,
     ylimits = c(-1,10),
@@ -109,7 +79,7 @@ outlier.create.boxplot(
 ### Age ###
 age <- kruskal.continous(
     continous.var = 'Age.at.Diagnosis',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient
     );
 
@@ -120,7 +90,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Age.at.Diagnosis',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient,
     kruskal = age,
     ylimits = c(-1,110),
@@ -131,18 +101,18 @@ outlier.create.boxplot(
 ### Survival ###
 survival <- kruskal.continous(
     continous.var = 'Overall.Survival..Months.',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient
     );
 
 outlier.create.boxplot(
     file.name = generate.filename(
         project.stem = 'CancerBiology-OutlierAnalysis',
-        file.core = 'Survival-Correlation',
+        file.core = 'Survival-Correlation2',
         extension = 'tiff'
         ),
     continous.var = 'Overall.Survival..Months.',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient,
     kruskal = survival,
     ylimits = c(-20,400),
@@ -153,7 +123,7 @@ outlier.create.boxplot(
 ### Relapse.free ###
 relapse <- kruskal.continous(
     continous.var = 'Relapse.Free.Status..Months.',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient
     );
 
@@ -164,7 +134,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Relapse.Free.Status..Months.',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.patient,
     kruskal = relapse,
     ylimits = c(-20,400),
@@ -175,7 +145,7 @@ outlier.create.boxplot(
 ### Tumor.Size ###
 size <- kruskal.continous(
     continous.var = 'Tumor.Size',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.sample
     );
 
@@ -186,7 +156,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Tumor.Size',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.sample,
     kruskal = size,
     ylimits = c(-20,200),
@@ -197,7 +167,7 @@ outlier.create.boxplot(
 ### TMB..nonsynonymous. ###
 TMB <- kruskal.continous(
     continous.var = 'TMB..nonsynonymous.',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.sample
     );
 
@@ -208,7 +178,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'TMB..nonsynonymous.',
-    subgroups = 'Outlier.totals',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.meta.sample,
     kruskal = TMB,
     ylimits = c(-5,50),

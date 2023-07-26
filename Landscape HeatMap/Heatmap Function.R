@@ -16,7 +16,40 @@ load(
     file = '2023-07-07_Metabric_Outlier.rda',
     );
 
-landscape.heatmap <- function(age,stage,progress.free,subtype,patient.ID,data,normalized.fpkm,patient.total,outlier.totals.patients,gene.ID,gene.totals,outlier.totals.per.gene) { 
+### create.landscape.heatmap ######################################################################
+#Description
+    #
+#Input Variables
+    # (1) age
+    #column name in data that contains ages
+    # (2) stage
+    #column name in data that contains stages
+    # (3) progress.free
+    #column name in data that contains progress free survival in months
+    # (4) subtype
+    #column name in data that contains subtypes
+    # (5) patient.ID
+    #column name in data that contains patients ID number
+    # (6) data
+    #data frame of clinical data
+    # (7) normalized.fpkm
+    #data frame of normalized fpkm values produced by fpkm.normalization or fpkm.robust.zscore
+    # (8) patient.total
+    #column name in outlier.totals.patient that contains number of outliers
+    # (9) outlier.totals.patient
+    #data frame with Patient.ID and outlier totals
+    # (10) gene.ID
+    #column in outlier.totals.per.gene with gene id
+    # (11) gene.totals
+    #column in outlier.totals.per.gene with number of outliers per gene
+    # (12) outlier.totals.per.gene
+    #data frame with gene id and outlier totals per gene
+    # (13) file.name
+    #name for plot that will be produced
+#Output
+    # (1) file output in wd
+    # mutipanel heatmap produced in working directory
+create.landscape.heatmap <- function(age,stage,progress.free,subtype,patient.ID,data,normalized.fpkm,patient.total,outlier.totals.patients,gene.ID,gene.totals,outlier.totals.per.gene,file.name) { 
     zscore.map <- create.heatmap(
         x = normalized.fpkm,
         clustering.method = 'none',
@@ -105,27 +138,27 @@ landscape.heatmap <- function(age,stage,progress.free,subtype,patient.ID,data,no
     
     subtype.color <- replace(
         as.numeric(c(t(data[subtype]))),
-        ('BRCA_Basal' == data[subtype]),
+        ('BRCA_Basal' == data[subtype] | 'Basal' == data[subtype]),
         'powderblue'
     );
     subtype.color <- replace(
         subtype.color,
-        ('BRCA_Her2' == data[subtype]),
+        ('BRCA_Her2' == data[subtype] | 'Her2' == data[subtype]),
         'lightskyblue'
     );
     subtype.color <- replace(
         subtype.color,
-        ('BRCA_LumA' == data[subtype]),
+        ('BRCA_LumA' == data[subtype] | 'LumA' == data[subtype]),
         'mediumpurple1'
     );
     subtype.color <- replace(
         subtype.color,
-        ('BRCA_LumB' == data[subtype]),
+        ('BRCA_LumB' == data[subtype] | 'LumB' == data[subtype]),
         'palevioletred2'
     );
     subtype.color <- replace(
         subtype.color,
-        ('BRCA_Normal' == data[subtype]),
+        ('BRCA_Normal' == data[subtype] | 'Normal' == data[subtype]),
         'yellow3'
     );
     data.color <- cbind(data,subtype.color)
@@ -211,13 +244,53 @@ landscape.heatmap <- function(age,stage,progress.free,subtype,patient.ID,data,no
         height = 4,
         width = 24
     );
+    #stage.color.key <- data.frame(
+     #   stage = unique(c(t(data[stage]))),
+      #  colour = unique(stage.colours)
+    #   )
+    main.legend <- legend.grob(
+        list(
+            legend = list(
+                title = expression(underline('Z-score')),
+                colours = c('red3','white','blue'),
+                labels = c(-5,5),
+                size = 1.5,
+                border = 'black',
+                continuous = TRUE
+                ),
+            legend = list(
+                title = expression(underline('Subtype')),
+                colours = c('powderblue','lightskyblue','mediumpurple1','palevioletred2','yellow3'),
+                labels = c('Basal', 'Her2','LumA','LumB','Normal'),
+                size = 1.5,
+                border = 'black'
+                ),
+            legend = list(
+                title = expression(underline('Progression Free Survival')),
+                colours = c('white','darkorchid1','mediumorchid4','purple4'),
+                labels = c('> 60', '24-60','12-24','< 12'),
+                size = 1.5,
+                border = 'black'
+                ),
+            legend = list(
+                title = expression(underline('Tumor Stage')),
+                colours = c('green'),
+                labels = c('BAd'),
+                size = 1.5,
+                border = 'black'
+                ),
+            legend = list(
+                title = expression(underline('Age')),
+                colours = c('gray100','gray75','gray50','gray25','gray0'),
+                labels = c('<40','40-50', '50-65','65-70','>70'),
+                size = 1.5,
+                border = 'black'
+                )
+            )
+        )
     
     create.multipanelplot(
-        filename = generate.filename(
-            project.stem = 'CancerBiology-OutlierAnalysis',
-            file.core = 'Multiplot_function_2',
-            extension = 'tiff'
-        ),
+        filename = file.name,
         layout.width = 2,
         layout.height = 6,
         height = 20,
@@ -228,14 +301,14 @@ landscape.heatmap <- function(age,stage,progress.free,subtype,patient.ID,data,no
         plot.objects.widths = c(10,1),
         layout.skip = c(FALSE,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE),
         x.spacing = -1,
-        y.spacing = c(-3,-2,-5,-5,-5,-5)
-    );
-    
-    
+        y.spacing = c(-3,-2,-5,-5,-5,-5),
+        legend = list(
+            right = list(
+                fun = main.legend #for heat maps
+                )
+            )
+        );
     }
-
-
-
 
 ### DATA Analysis #################################################################################
 #prep for stage 
@@ -264,7 +337,7 @@ Outlier.genes <- merge(
     by = 'Gene.ID'
 )
 
-landscape.heatmap(
+create.landscape.heatmap(
     age = 'Diagnosis.Age',
     stage = 'Neoplasm.Disease.Stage.American.Joint.Committee.on.Cancer.Code',
     progress.free = 'Progress.Free.Survival..Months.',
@@ -276,5 +349,17 @@ landscape.heatmap(
     outlier.totals.patients = outlier.totals ,
     gene.ID = 'Gene.ID',
     gene.totals = 'Outlier.totals',
-    outlier.totals.per.gene = outlier.totals.by.gene
+    outlier.totals.per.gene = outlier.totals.by.gene,
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Multiplot_function_3',
+        extension = 'tiff'
+        )
+    );
+
+
+save.session.profile(filename = generate.filename(
+    project.stem = 'CancerBiology-OutlierAnalysis',
+    file.core = 'TCGA-BRCA-Heatmap-Function',
+    extension = 'txt')
     );

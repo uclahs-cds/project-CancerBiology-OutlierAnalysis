@@ -1,4 +1,4 @@
-### Exploring TCGA-BRCA ###########################################################################
+### TCGA_BRCA_Correlation #########################################################################
 
 ### Preamble ######################################################################################
 library(BoutrosLab.utilities);
@@ -16,186 +16,41 @@ load(
 load(
     file = '2023-07-07_Metabric_Outlier.rda',
     );
-
-### kruskal.continous funtion #####################################################################
-#Description:
-    #calculating the correlation between number of outliers and continuous variable
-#Input Variables
-    #continous.var:
-        # NAME OF column that contains the continuous variable of interest
-    #subgroups:
-        #name of column that contains the subgroup classifications
-    #data:
-        #the name of the data frame that contains your clinical data and groups '0','1','2','3+' 
-        #for outliers merge clinical data with a data frame with ID and outlier groups 
-    #posthoc
-        #for use with only one continuous variable to display the differences between groups
-#Output Variables
-    # results:
-        #contains the Kruskal wallis test result and pair wise Wilcox test
-
-kruskal.continous <- function(continous.var,subgroups,data,posthoc = FALSE) {
-    number.variables = length(continous.var)
-    number.subgroups = length(subgroups)
-    number.datasets = length(data)
-    x.variable.names <- gsub( 
-        pattern = '\\.',
-        replacement = ' ',
-        x = continous.var
-        );
-    result <- array(
-        dim = c(number.variables,1,2),
-        dimnames = c(list(continous.var,subgroups,c('p.value','effect.size'))))
-    for (i in 1:number.variables) {
-        correlation <- kruskal.test(
-            x = as.vector(data[,continous.var[i]]),
-            g = as.vector(c(t(data[subgroups]))),
-            );
-        result[i,1,1] <- correlation$p.value;
-        result[i,1,2] <- correlation$statistic;
-        if (TRUE == posthoc) {
-            single.comparison <- pairwise.wilcox.test(
-                x = as.numeric(c(t(data[,continous.var[i]]))),
-                g = as.vector(c(t(data[subgroups]))),
-                p.adjust.method = 'bonf'
-                );
-            results <- list(
-                Kruskal.Wall.Test = result,
-                Paired.wise.Wilcox = single.comparison
-                );
-            }
-    }
-    if (FALSE == posthoc) {
-        results <- list(Kruskal.Wall.Test = result);
-        }
-    return(results)
-    }
-
-### outlier.create.boxplot function ###############################################################
-#Description
-    #produces graphical representations for continuous variables and number of outlier groups
-#Input Variables
-    #continuous.var
-        #name of column with continuous variable
-    #subgroups
-        #name of column with subgroup classification
-    #data
-        #dataframe with clinical data and groups '0','1','2','3+' for outliers
-        #merge clinical data with a data frame with ID and outlier groups 
-    #kruskal
-        #variable name that contains the results from kruskal.continous function without posthoc
-    #file.name
-        #desired file name
-#Output Variables
-    #plot
-        #box plot 
-outlier.create.boxplot <- function(continous.var,subgroups,data,kruskal,ylimits=c(0,100),file.name,text.x,text.y) {
-    #easy variable name fix
-    x.variable.name <- gsub( 
-        pattern = '\\.',
-        replacement = ' ',
-        x = continous.var
-    );
-    #creating a subset of data to remove NA's
-    subdata <- data.frame(target.var = as.numeric(c(t(data[continous.var]))),data[subgroups])
-    subdata <- na.omit(subdata)
-    text.pval <- paste('p-value:',format(kruskal$Kruskal.Wall.Test[1],digits = 4))
-    #plotting
-    plot <- create.boxplot(
-        filename = file.name, #fix when plots are good
-        formula = as.formula(
-            paste0(
-                paste(
-                    'target.var', 
-                    ' ~ ',
-                    sep = ''
-                    ),
-                paste(
-                    subgroups,
-                    sep = ''
-                    )
-                )
-            ),
-        data = subdata,
-        ylimits = ylimits,
-        ylab.label = x.variable.name,
-        add.stripplot = TRUE,
-        #strip.col = 'black',
-        points.col = 'slategrey',
-        xlab.label = 'Number of Outliers per Patient',
-        resolution = 300,
-        add.text = TRUE,
-        text.labels = text.pval,
-        text.x = text.x,
-        text.y = text.y,
-        );
-    return(plot);
-    }
+#####GET THE FUNCTIONS FORM Continous_Variable_Clinical_Association_Function.R
 
 ### Data Analysis #################################################################################
-#totaling number of outlier genes per patient
-outlier.totals <- data.frame(
-    Patient.ID = colnames(outlier.patient.tag.01.t.p.order),
-    Outlier.totals = apply(
-        X = outlier.patient.tag.01.t.p.order,
-        MARGIN = 2,
-        FUN = sum
-        )
-    );
-##fixing the names of patients to match across the outlier data to the clinical data
-#removing trailing characters and '.'
-outlier.totals$Patient.ID <- substr(
-    x = outlier.totals$Patient.ID,
+outlier.brca.clinic <- modified.clinic(
+    data = brca.clinic,
+    outlier.data = outlier.patient.tag.01.t.p.order,
+    TCGA = TRUE,
+    META = FALSE,
+    sample = FALSE);
+
+### Adjusting Purity Data
+Purity.scores <- read.csv('41467_2015_BFncomms9971_MOESM1236_ESM.csv')
+colnames(Purity.scores) <- Purity.scores[3,1:ncol(Purity.scores)]
+Purity.scores <- Purity.scores[4:nrow(Purity.scores),]
+Purity.scores$`Sample ID` <- substr(
+    x = Purity.scores$`Sample ID`,
     start = 1,
-    stop = nchar(outlier.totals$Patient.ID)-4
-    );
-#replacing '.' with '-'
-outlier.totals$Patient.ID <- gsub(
-    pattern = '\\.',
-    replacement = '-',
-    x = outlier.totals$Patient.ID
-    );
-#creating the group identifiers ###NOT NECESSARY###
-outlier.classification <- outlier.totals$Outlier.totals
-outlier.classification <- replace(
-    x = outlier.classification,
-    list = (0 != outlier.classification),
-    values = 'Outlier'
-    );
-outlier.classification <- replace(
-    x = outlier.classification,
-    list = (0 == outlier.classification),
-    values = 'No.Outlier'
-    );
-
-#creating group identifiers '0','1','2',and '3+' ###REQUIRED###
-outlier.subgroups <- outlier.totals$Outlier.totals;
-outlier.subgroups <- replace(
-    x = outlier.subgroups,
-    list = (3 <= outlier.subgroups),
-    values = '3+'
-    );
-
-outlier.totals.subgroups <- data.frame(
-    Class = outlier.classification,
-    outlier.totals,
-    Subgroups = outlier.subgroups
-    );
-brca.clinic.2 <- brca.clinic
+    stop = nchar(Purity.scores$`Sample ID`)-1
+    )
+colnames(Purity.scores)[1] <- 'Sample.ID'
+### merging with clinical data
 outlier.brca.clinic <- merge(
-    x = brca.clinic.2,
-    y = outlier.totals.subgroups,
-    by = 'Patient.ID'
-    );
+    x = outlier.brca.clinic,
+    y = Purity.scores,
+    by = 'Sample.ID'
+    )
 #a concatenation of all possible continuous variables
-continous <- c('Aneuploidy.Score','Buffa.Hypoxia.Score','Last.Communication.Contact.from.Initial.Pathologic.Diagnosis.Date','Birth.from.Initial.Pathologic.Diagnosis.Date','Disease.Free..Months.','Months.of.disease.specific.survival','Fraction.Genome.Altered','MSIsensor.Score','Mutation.Count','Overall.Survival..Months.','Progress.Free.Survival..Months.','Ragnum.Hypoxia.Score');
+#continous <- c('Aneuploidy.Score','Buffa.Hypoxia.Score','Last.Communication.Contact.from.Initial.Pathologic.Diagnosis.Date','Birth.from.Initial.Pathologic.Diagnosis.Date','Disease.Free..Months.','Months.of.disease.specific.survival','Fraction.Genome.Altered','MSIsensor.Score','Mutation.Count','Overall.Survival..Months.','Progress.Free.Survival..Months.','Ragnum.Hypoxia.Score');
 
 ###### PLOTTING ###################################################################################
 
 ### Aneuploidy Score
 aneuploidy <- kruskal.continous(
     continous.var = 'Aneuploidy.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -206,7 +61,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Aneuploidy.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     kruskal = aneuploidy,
     ylimits = c(-1,40),
@@ -217,7 +72,7 @@ outlier.create.boxplot(
 ### Buffa Hypoxia Score
 buffa <- kruskal.continous(
     continous.var = 'Buffa.Hypoxia.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -228,7 +83,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Buffa.Hypoxia.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-50,60),
     kruskal = buffa,
@@ -239,7 +94,7 @@ outlier.create.boxplot(
 ### Last Communication 
 last.comm <- kruskal.continous(
     continous.var = 'Last.Communication.Contact.from.Initial.Pathologic.Diagnosis.Date',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -250,18 +105,19 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Last.Communication.Contact.from.Initial.Pathologic.Diagnosis.Date',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-100,5000),
     kruskal = last.comm,
     text.x = 3.8,
-    text.y = 4800
+    text.y = 4800,
+    ylab.cex = 1
     );
 
 ### 'Birth.from.Intitial.Pathological.Diagnosis.Date'
 birth <- kruskal.continous(
     continous.var = 'Birth.from.Initial.Pathologic.Diagnosis.Date',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -272,7 +128,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var ='Birth.from.Initial.Pathologic.Diagnosis.Date',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-1,4000),
     kruskal = birth,
@@ -283,7 +139,7 @@ outlier.create.boxplot(
 ### Disease.Free..Months.
 Disease.free <- kruskal.continous(
     continous.var = 'Disease.Free..Months.',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -294,7 +150,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Disease.Free..Months.',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-5,200),
     kruskal = Disease.free,
@@ -305,7 +161,7 @@ outlier.create.boxplot(
 ### Months of disease 
 Disease <- kruskal.continous(
     continous.var = 'Months.of.disease.specific.survival',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -316,7 +172,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Months.of.disease.specific.survival',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-5,200),
     kruskal = Disease,
@@ -327,7 +183,7 @@ outlier.create.boxplot(
 ### Fractrion of genome altered
 altered.genome <- kruskal.continous(
     continous.var = 'Fraction.Genome.Altered',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -338,7 +194,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Fraction.Genome.Altered',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-0.1,1.3),
     kruskal = altered.genome,
@@ -349,7 +205,7 @@ outlier.create.boxplot(
 ### MSIsensor.Score
 sensor <- kruskal.continous(
     continous.var = 'MSIsensor.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     );
 
@@ -360,7 +216,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'MSIsensor.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-0.9,6),
     kruskal = sensor,
@@ -371,9 +227,9 @@ outlier.create.boxplot(
 ### MSI.MANTIS.Score
 mantis <- kruskal.continous(
     continous.var = 'MSI.MANTIS.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
-);
+    );
 
 outlier.create.boxplot(
     file.name = generate.filename(
@@ -382,7 +238,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'MSI.MANTIS.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(0,1),
     kruskal = mantis,
@@ -393,7 +249,7 @@ outlier.create.boxplot(
 ### 'Mutation.Count'
 mutation <- kruskal.continous(
     continous.var = 'Mutation.Count',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -404,7 +260,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Mutation.Count',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-5,260),
     kruskal = mutation,
@@ -415,7 +271,7 @@ outlier.create.boxplot(
 ###'Overall.Survival..Months.'
 survival <- kruskal.continous(
     continous.var = 'Overall.Survival..Months.',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -426,7 +282,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Overall.Survival..Months.',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-5,200),
     kruskal = survival,
@@ -437,7 +293,7 @@ outlier.create.boxplot(
 ### 'Progress.Free.Survival..Months.'
 progress.free <- kruskal.continous(
     continous.var = 'Progress.Free.Survival..Months.',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -448,7 +304,7 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Progress.Free.Survival..Months.',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-5,200),
     kruskal = progress.free,
@@ -459,7 +315,7 @@ outlier.create.boxplot(
 ### 'Ragnum.Hypoxia.Score'
 ragnum <- kruskal.continous(
     continous.var = 'Ragnum.Hypoxia.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic
     );
 
@@ -470,12 +326,148 @@ outlier.create.boxplot(
         extension = 'tiff'
         ),
     continous.var = 'Ragnum.Hypoxia.Score',
-    subgroups = 'Subgroups',
+    subgroups = 'Outlier.Subgroups',
     data = outlier.brca.clinic,
     ylimits = c(-30,40),
     kruskal = ragnum,
     text.x = 3.8,
     text.y = 37
+    );
+
+### 'Winter.Hypoxia.Score'
+winter <- kruskal.continous(
+    continous.var = 'Winter.Hypoxia.Score',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic
+    );
+
+outlier.create.boxplot(
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Winter.Hypoxia-Correlation',
+        extension = 'tiff'
+    ),
+    continous.var = 'Winter.Hypoxia.Score',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic,
+    ylimits = c(-90,90),
+    kruskal = winter,
+    text.x = 3.8,
+    text.y = 86
+    );
+####              ####
+#### TUMOR PURITY ####
+####              ####
+
+### 'Estimate'
+estimate <- kruskal.continous(
+    continous.var = 'ESTIMATE',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic
+    );
+
+outlier.create.boxplot(
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Estimate-Correlation',
+        extension = 'tiff'
+        ),
+    continous.var = 'ESTIMATE',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic,
+    ylimits = c(0,1.5),
+    kruskal = estimate,
+    text.x = 3.8,
+    text.y = 1.45
+    );
+
+### 'Absolute'
+absolute <- kruskal.continous(
+    continous.var = 'ABSOLUTE',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic
+    );
+
+outlier.create.boxplot(
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Absolute-Correlation',
+        extension = 'tiff'
+        ),
+    continous.var = 'ABSOLUTE',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic,
+    ylimits = c(0,1.5),
+    kruskal = absolute,
+    text.x = 3.8,
+    text.y = 1.45
+    );
+
+### 'Lump'
+lump <- kruskal.continous(
+    continous.var = 'LUMP',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic
+    );
+
+outlier.create.boxplot(
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'Lump-Correlation',
+        extension = 'tiff'
+        ),
+    continous.var = 'LUMP',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic,
+    ylimits = c(0,1.5),
+    kruskal = lump,
+    text.x = 3.8,
+    text.y = 1.45
+    );
+
+### 'IHC'
+ihc <- kruskal.continous(
+    continous.var = 'IHC',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic
+    );
+
+outlier.create.boxplot(
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'IHC-Correlation',
+        extension = 'tiff'
+        ),
+    continous.var = 'IHC',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic,
+    ylimits = c(0,1.5),
+    kruskal = ihc,
+    text.x = 3.8,
+    text.y = 1.45
+    );
+
+### 'CPE'
+cpe <- kruskal.continous(
+    continous.var = 'CPE',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic
+    );
+
+outlier.create.boxplot(
+    file.name = generate.filename(
+        project.stem = 'CancerBiology-OutlierAnalysis',
+        file.core = 'CPE-Correlation',
+        extension = 'tiff'
+        ),
+    continous.var = 'CPE',
+    subgroups = 'Outlier.Subgroups',
+    data = outlier.brca.clinic,
+    ylimits = c(0,1.5),
+    kruskal = cpe,
+    text.x = 3.8,
+    text.y = 1.45,
+    y.lab.label = 'CPE Purity'
     );
 
 save.session.profile(filename = generate.filename(

@@ -21,10 +21,10 @@ load(
 #Description
     #normalizing the fpkm values for use in heatmaps
 #Input Variables
-    #data
+    # (1) data
     # the name of the data frame that contains non-normalized fpkm values
 #Output Variables
-    #norm.fpkm
+    # (1) norm.fpkm
     #data frame with normalized fpkm values
 fpkm.normalization.zscore <- function(data) {
     number.rows <- nrow(data);
@@ -54,10 +54,10 @@ fpkm.normalization.zscore <- function(data) {
 #Description
     #normalizing the fpkm values with median and MAD
 #Input Variables
-    #data:
+    # (1) data:
     #the name of the data frame that contains non-normalized fpkm values
 #Output Variables
-    #median.norm.fpkm
+    # (2) median.norm.fpkm
     #data frame with normalized fpkm values utilizing the median and IQR
 
 fpkm.robust.zscore <- function(data) {
