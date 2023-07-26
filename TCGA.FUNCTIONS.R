@@ -60,6 +60,42 @@ brca.clinic.subtypes <- subtype.cleaning(brca.clinic, c('BRCA_Basal',
                                                         'BRCA_Normal')
                                          );
 
+### RENAME SUBTYPES 
+# Data Cleaning: Rename Subtypes
+brca.clinic.subtypes$Subtype <- gsub(
+    'BRCA_Basal',
+    'Basal', 
+    brca.clinic.subtypes$Subtype
+);
+
+# Data Cleaning: Rename Subtypes
+brca.clinic.subtypes$Subtype <- gsub(
+    'BRCA_Her2',
+    'Her2', 
+    brca.clinic.subtypes$Subtype
+);
+
+# Data Cleaning: Rename Subtypes
+brca.clinic.subtypes$Subtype <- gsub(
+    'BRCA_LumA',
+    'Luminal A', 
+    brca.clinic.subtypes$Subtype
+);
+
+# Data Cleaning: Rename Subtypes
+brca.clinic.subtypes$Subtype <- gsub(
+    'BRCA_LumB',
+    'Luminal B', 
+    brca.clinic.subtypes$Subtype
+);
+
+# Data Cleaning: Rename Subtypes
+brca.clinic.subtypes$Subtype <- gsub(
+    'BRCA_Normal',
+    'Normal', 
+    brca.clinic.subtypes$Subtype
+);
+
 ### Creating a Binary Variable for Overall Survival Status #########################################
 
 ### FUNCTION: binary.survival ######################################################################
@@ -155,12 +191,9 @@ create.subtype.groups <- function(brca.data, subtype.col, subtype.levels) {
 # Suggested TCGA Application: 
 tcga.subtypes <- create.subtype.groups(brca.clinic.subtypes, 
                                        'Subtype', 
-                                       c('BRCA_Basal',
-                                         'BRCA_Her2',
-                                         'BRCA_LumA',
-                                         'BRCA_LumB',
-                                         'BRCA_Normal')
+                                       unique(brca.clinic.subtypes$Subtype)
                                        );
+
 
 ### FUNCTION: subtype.km.grouped ###################################################################
 
@@ -226,7 +259,7 @@ subtype.km.grouped <- function(
 BoutrosLab.plotting.survival::create.km.plot(
     height = 12,
     width = 12,
-    filename = '/Users/amaanjsattar/Desktop/BIGSUMMER.PROJ/TCGA.KM.OS.SUBTYPES.pdf',
+    filename = '/Users/amaanjsattar/Desktop/TCGA.KM.OS.SUBTYPES.pdf',
     survival.object = tcga.surv,
     patient.groups = tcga.subtypes,
     statistical.method = 'logrank',
@@ -245,6 +278,93 @@ BoutrosLab.plotting.survival::create.km.plot(
     left.padding = 20,
     resolution = 300,
     key.stats.cex = 1,
-    key.stats.corner = c(1, -50)
+    key.stats.corner = c(1, -50),
+    key.groups.corner = c(-0.2, 0)
 )
+
+### TCGA Progression-Free Survival by Subtype ######################################################
+
+
+
+# Create a new column to represent progression-free survival status as a binary variable.
+brca.clinic.subtypes <- binary.survival(
+    brca.clinic.subtypes,
+    'Progression.Free.Status',
+    'PFS.Binary'
+    );
+
+tcga.pfs.surv <- create.surv(
+    brca.clinic.subtypes,
+    'Progress.Free.Survival..Months.',
+    'PFS.Binary'
+    );
+
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/TCGA.KM.PFS.SUBTYPES.pdf',
+    survival.object = tcga.pfs.surv,
+    patient.groups = tcga.subtypes,
+    statistical.method = 'logrank',
+    main = 'Progression-Free Survival by PAM50 Subtype: TCGA Patients',
+    main.cex = 2,
+    xaxis.cex = 1,
+    xlab.cex = 1.7,
+    yaxis.cex = 1,
+    ylab.cex = 1.7,
+    xlab.label = 'Progression-Free Survival Time (Months)',
+    ylab.label = 'Progression-Free Survival Probability',
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1,
+    top.padding = 1,
+    left.padding = 20,
+    resolution = 300,
+    key.stats.cex = 1,
+    key.stats.corner = c(1, -50),
+    key.groups.corner = c(-0.2, 0)
+    );
+
+### TCGA Disease-Specific Survival by Subtype ######################################################
+brca.clinic.subtypes <- binary.survival(
+    brca.clinic.subtypes,
+    'Disease.specific.Survival.status',
+    'DSS.Binary'
+    );
+
+tcga.dss.surv <- create.surv(
+    brca.clinic.subtypes,
+    'Months.of.disease.specific.survival',
+    'DSS.Binary'
+    );
+
+BoutrosLab.plotting.survival::create.km.plot(
+    height = 12,
+    width = 12,
+    filename = '/Users/amaanjsattar/Desktop/TCGA.KM.DSS.SUBTYPES.pdf',
+    survival.object = tcga.dss.surv,
+    patient.groups = tcga.subtypes,
+    statistical.method = 'logrank',
+    main = 'Disease-Specific Survival by PAM50 Subtype: TCGA Patients',
+    main.cex = 2,
+    xaxis.cex = 1,
+    xlab.cex = 1.7,
+    yaxis.cex = 1,
+    ylab.cex = 1.7,
+    xlab.label = 'Disease-Specific Survival Time (Months)',
+    ylab.label = 'Disease-Specific Survival Probability',
+    key.groups.title = 'PAM50 Subtype',
+    key.groups.title.cex = 1,
+    key.groups.cex = 1,
+    top.padding = 1,
+    left.padding = 20,
+    resolution = 300,
+    key.stats.cex = 1,
+    key.stats.corner = c(1, -50),
+    key.groups.corner = c(-0.2, 0)
+);
+
+
+
 
