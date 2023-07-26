@@ -365,6 +365,66 @@ BoutrosLab.plotting.survival::create.km.plot(
     key.groups.corner = c(-0.2, 0)
 );
 
+### KM PLOTS BY OUTLIER GENE COUNT #################################################################
+
+
+### DATA CLEANING ##################################################################################
+tcga.outlier.counts <- as.data.frame(
+    colSums(outlier.patient.tag.01.t.p.order)
+);
+
+colnames(tcga.outlier.counts) <- 'Outliers';
+
+tcga.outlier.counts$Outliers[tcga.outlier.counts$Outliers >= 3] <- "3+";
+
+tcga.merged <- merge(
+    brca.clinic.subtypes,
+    tcga.outlier.counts,
+    by = 0
+);
+
+# Convert row names in 'outlier.counts.df' to use dashes instead of periods
+rownames(tcga.outlier.counts) <- gsub(
+    "\\.",
+    "-",
+    rownames(tcga.outlier.counts)
+);
+
+tcga.merged <- merge(
+    transform(
+        tcga.outlier.counts, 
+        ModifiedSampleID = substr(rownames(tcga.outlier.counts), 
+                                  1, 
+                                  nchar(rownames(tcga.outlier.counts)) - 1)),
+                     transform(
+                         brca.clinic.subtypes, 
+                         ModifiedSampleID = substr(Sample.ID, 
+                                                   1, 
+                                                   nchar(Sample.ID) - 1)),
+                     by = "ModifiedSampleID",
+                     all.x = TRUE
+    );
+
+tcga.outlier.counts$Sample.ID <- rownames(tcga.outlier.counts)
+
+# Function to extract the modified 'Sample.ID' (excluding the last character)
+getModifiedSampleID <- function(x) substr(x, 1, nchar(x) - 1)
+
+# Extract modified 'Sample.ID' tcga.outlier.counts (Match with brca.clinic.subtypes)
+tcga.outlier.counts$ModifiedSampleID <- getModifiedSampleID(tcga.outlier.counts$Sample.ID)
+
+# Verify matches
+matches <- tcga.outlier.counts$ModifiedSampleID %in% brca.clinic.subtypes$Sample.ID
+
+tcga.merged <- merge(tcga.outlier.counts[matches, ], brca.clinic.subtypes,
+                     by.x = "ModifiedSampleID", by.y = "Sample.ID", all.x = TRUE)
+
+
+rownames(tcga.merged) <- tcga.merged$Sample.ID;
+
+tcga.merged$Sample.ID <- NULL;
+
+
 
 
 
