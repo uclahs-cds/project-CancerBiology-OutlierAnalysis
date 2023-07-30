@@ -1,13 +1,13 @@
 ### UNIVARIATE COX PROPORTIONAL HAZARDS MODELING FOR OUTLIER GENES AND OVERALL SURVIVAL ############
-output_dir <- "cox_modeling_output"
-dir.create(output_dir, showWarnings = FALSE)
+output_dir <- "cox_modeling_output";
+dir.create(output_dir, showWarnings = FALSE);
 
-library(BoutrosLab.plotting.survival)
-library(BoutrosLab.plotting.general)
-library(BoutrosLab.statistics.general)
-library(BoutrosLab.statistics.survival)
-library(survival)
-load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda")
+library(BoutrosLab.plotting.survival);
+library(BoutrosLab.plotting.general);
+library(BoutrosLab.statistics.general);
+library(BoutrosLab.statistics.survival);
+library(survival);
+load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
 
 
 # Remove metadata
@@ -117,4 +117,19 @@ p_values_data_sorted <- p_values_data[order(p_values_data$PValue), ]
 
 # View the sorted dataframe
 View(p_values_data_sorted)
-summary(p_values_data_sorted$PValue)
+
+
+# Number of tests (genes)
+total_tests <- nrow(p_values_data_sorted)
+
+# Bonferroni-corrected significance level (alpha)
+alpha_bonferroni <- 0.05 / total_tests
+
+# Filter genes with Bonferroni-corrected p-values below the significance cutoff
+significant_genes <- subset(p_values_data_sorted, PValue <= alpha_bonferroni)
+
+# Display the names of significant genes
+significant_gene_names <- significant_genes$GeneName
+# 186 identified
+
+
