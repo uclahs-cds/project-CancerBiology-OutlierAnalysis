@@ -87,29 +87,51 @@ fpkm.robust.zscore <- function(data) {
     }
 
 ### Data Analysis #################################################################################
-#replicate data set for analysis
-fpkm.nonnorm <- fpkm.tumor.symbol.filter;
+sub.fpkm.TCGA <- fpkm.tumor.symbol.filter[rownames(outlier.patient.tag.01.t.p.order),];
+sub.fpkm.TCGA <-sub.fpkm.TCGA[,colnames(outlier.patient.tag.01.t.p.order)];
 
 ### Fixing Column names in fpkm data to match clinical id
-colnames(fpkm.nonnorm) <- substr(
-    x = colnames(fpkm.nonnorm),
+colnames(sub.fpkm.TCGA) <- substr(
+    x = colnames(sub.fpkm.TCGA),
     start = 1,
-    stop = nchar(colnames(fpkm.nonnorm))-4
+    stop = nchar(colnames(sub.fpkm.TCGA))-4
     );
 #replacing '.' with '-'
-colnames(fpkm.nonnorm) <- gsub(
+colnames(sub.fpkm.TCGA) <- gsub(
     pattern = '\\.',
     replacement = '-',
-    x = colnames(fpkm.nonnorm)
+    x = colnames(sub.fpkm.TCGA)
     );
 
-#mean
-mean.zscore <- fpkm.normalization.zscore(fpkm.nonnorm);
-#saveRDS(fpkm.norm,file = 'Z.score.RDS')
+sub.fpkm.META <- fpkm.tumor.symbol.filter.symbol[rownames(outlier.patient.tag.01),];
+sub.fpkm.META <- sub.fpkm.META[,colnames(outlier.patient.tag.01)];
 
-#median
-median.robust.zscore <- fpkm.robust.zscore(fpkm.nonnorm);
-#saveRDS(median.normalized.fpkm,file = "Robust-Median-Zscore.RDS")
+#mean TCGA
+mean.sub.TCGA.zscore.fpkm <- fpkm.normalization.zscore(data = sub.fpkm.TCGA);
+saveRDS(mean.sub.TCGA.fpkm,file = 'TCGAZscore.RDS')
+#mean.sub.TCGA.zscore.fpkm <- readRDS(
+    #"C:/Users/jre83/OneDrive/UCLA B.I.G. Summer/Paul_Lab/Survival_Analysis_TCGA-BRCA/TCGAZscore.RDS")
+
+#median TCGA
+median.sub.TCGA.robust.zscore.fpkm <- fpkm.robust.zscore(data = sub.fpkm.TCGA);
+saveRDS(median.META.robust,file = 'TCGArobustzscore.RDS')
+#median.sub.TCGA.robust.zscore.fpkm <- readRDS(
+    #"C:/Users/jre83/OneDrive/UCLA B.I.G. Summer/Paul_Lab/Survival_Analysis_TCGA-BRCA/TCGArobustzscore.RDS")
+
+#mean META
+mean.sub.META.zscore.fpkm <- fpkm.normalization.zscore(data = sub.fpkm.META)
+saveRDS(median.META.robust,file = 'METAzscore.RDS')
+#mean.sub.META.zscore.fpkm <- readRDS(
+    #"C:/Users/jre83/OneDrive/UCLA B.I.G. Summer/Paul_Lab/Survival_Analysis_TCGA-BRCA/METAzscore.RDS")
+
+#median META
+median.sub.META.robust.zscore.fpkm <- fpkm.robust.zscore(data = sub.fpkm.META)
+saveRDS(median.META.robust,file = 'METArobustzscore.RDS')
+#median.sub.META.robust.zscore.fpkm <- readRDS(
+    #"C:/Users/jre83/OneDrive/UCLA B.I.G. Summer/Paul_Lab/Survival_Analysis_TCGA-BRCA/METArobustzscore.RDS")
+
+
+
 
 save.session.profile(filename = generate.filename(
     project.stem = 'CancerBiology-OutlierAnalysis',
