@@ -14,10 +14,10 @@ library(BoutrosLab.statistics.survival);
 
 ### Analysis ######################################################################################
 # - order the patients
-distance.z.score.abundance.patient <- dist(t(mean.sub.TCGA.zscore.fpkm), method = "euclidean")
+distance.z.score.abundance.patient <- dist(t(median.sub.TCGA.robust.zscore.fpkm), method = "euclidean")
 cluster.distance.z.score.abundance.patient <- hclust(distance.z.score.abundance.patient, method = "ward.D2")
 col_order <- cluster.distance.z.score.abundance.patient$order
-z.score.abundance.patient.order <- mean.sub.TCGA.zscore.fpkm[, col_order]
+z.score.abundance.patient.order <- median.sub.TCGA.robust.zscore.fpkm[, col_order]
 outlier.by.patient <- outlier.patient.tag.01.t.p.order[,col_order]
 #totaling number of outlier genes per patient
 outlier.totals.by.patient <- data.frame(
@@ -30,10 +30,10 @@ outlier.totals.by.patient <- data.frame(
     );
 
 # - order the genes
-distance.z.score.abundance.gene <- dist(mean.sub.TCGA.zscore.fpkm, method = "euclidean")
+distance.z.score.abundance.gene <- dist(median.sub.TCGA.robust.zscore.fpkm, method = "euclidean")
 cluster.distance.z.score.abundance.gene <- hclust(distance.z.score.abundance.gene, method = "ward.D2")
 row_order <- cluster.distance.z.score.abundance.gene$order
-z.score.abundance.patient.gene.order <- mean.sub.TCGA.zscore.fpkm[row_order, ]
+z.score.abundance.patient.gene.order <- median.sub.TCGA.robust.zscore.fpkm[row_order, ]
 outlier.by.gene <- outlier.patient.tag.01.t.p.order[row_order,]
 #prep for bar plot of number of outliers per gene
 outlier.totals.by.gene <- data.frame(
@@ -69,16 +69,16 @@ brca.clinic.order.data.num <- data.frame(as.numeric(brca.clinic.order.data$brca.
 rownames(brca.clinic.order.data.num) <- colnames(outlier.patient.tag.01.t.p.order);
 
 # 2
-brca.clinic.order.data.pfs <- data.frame(brca.clinic.order$Progress.Free.Survival..Months.);
-brca.clinic.order.data.pfs[is.na(brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.),] <- 6;
-brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. <= 12,] <- 10;
-brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.> 12 &
-                               brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. <= 24,] <- 9;
-brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.> 24 &
-                               brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. <= 60,] <- 8;
-brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. > 60,] <- 7;
-brca.clinic.order.data.pfs.num <- data.frame(as.numeric(brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.));
-rownames(brca.clinic.order.data.pfs.num) <- colnames(outlier.patient.tag.01.t.p.order);
+# brca.clinic.order.data.pfs <- data.frame(brca.clinic.order$Progress.Free.Survival..Months.);
+# brca.clinic.order.data.pfs[is.na(brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.),] <- 6;
+# brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. <= 12,] <- 10;
+# brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.> 12 &
+#                                brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. <= 24,] <- 9;
+# brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.> 24 &
+#                                brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. <= 60,] <- 8;
+# brca.clinic.order.data.pfs[brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months. > 60,] <- 7;
+# brca.clinic.order.data.pfs.num <- data.frame(as.numeric(brca.clinic.order.data.pfs$brca.clinic.order.Progress.Free.Survival..Months.));
+# rownames(brca.clinic.order.data.pfs.num) <- colnames(outlier.patient.tag.01.t.p.order);
 
 # 3 
 # T2 / T3 / T4
@@ -142,17 +142,14 @@ cnv.col <- c('dodgerblue4', 'white', 'darkred');
 
 age.ColourFunction <- colorRamp(c('white', 'deeppink3'), space = 'Lab');
 age.col <- rgb(age.ColourFunction(seq(0, 1, length.out = 5)), maxColorValue = 255);
-pnf.ColourFunction <- colorRamp(c('white', 'purple4'), space = 'Lab');
-pnf.col <- rgb(pnf.ColourFunction(seq(0, 1, length.out = 4)), maxColorValue = 255);
 stage.ColourFunction <- colorRamp(c('white', 'darkgreen'), space = 'Lab');
 stage.col <- rgb(stage.ColourFunction(seq(0, 1, length.out = 4)), maxColorValue = 255);
 #rt.color <- c('lightsalmon3', 'darkolivegreen3');
-all.col <- c(sub.col, pnf.col, stage.col, age.col);
+all.col <- c(sub.col, stage.col, age.col);
 
 # Covariate heatmap
 all.clinical.order <- cbind(
     brca.clinic.order.data.num,
-    brca.clinic.order.data.pfs.num,
     grade.sub.stage,
     age.stage
     );
@@ -160,7 +157,7 @@ subtype.heat <-  BoutrosLab.plotting.general:::create.heatmap(
     x = all.clinical.order,
     clustering.method = 'none',
     colour.scheme = all.col, 
-    total.colours = 21,
+    total.colours = 16,
     row.colour = 'black',
     col.colour = 'black',
     grid.row = TRUE, 
@@ -224,36 +221,18 @@ legend.clinic <- BoutrosLab.plotting.general:::legend.grob(
     list(
         legend = list(
             colours = cnv.col,
-            title = expression(underline('Outlier status')), 
+            title = expression(underline('Robust Z-Score')), 
             labels = c('-5','5'),
             size = 2,
             label.cex = 1, 
             continuous = TRUE,
             height = 3
         ),
-        legend = list(
-            colours = 'darkred', 
-            labels = c(expression('\u2265 '*'5')),
-            size = 2,
-            label.cex = 1, 
-            continuous = TRUE,
-            height = 1
-        ),
         # create legend for subtype
         legend = list(
             colours = sub.col[1:5],
             title = expression(underline('Subtype')), 
             labels = c('Basal', 'Her2', 'LumA', 'LumB', 'Normal'),
-            size = 2,
-            title.cex = 0.5,
-            label.cex = 0.5, 
-            border = 'black'
-        ),
-        # create legend for pfs
-        legend = list(
-            colours = pnf.col,
-            title = expression(underline('Progression free survival')), 
-            labels = c(expression('\u2265 '*'60'), '24 - 60', '12 - 24', expression('\u2264 '*'12')),
             size = 2,
             title.cex = 0.5,
             label.cex = 0.5, 
@@ -288,7 +267,7 @@ legend.clinic <- BoutrosLab.plotting.general:::legend.grob(
 # Main heatmap
 #   - show the outlier patient status
 patient.heat <- BoutrosLab.plotting.general:::create.heatmap(
-    x = t(mean.sub.TCGA.zscore.fpkm),
+    x = t(median.sub.TCGA.robust.zscore.fpkm),
     clustering.method = 'ward.D2',
     #clustering.method = 'none',
     cluster.dimensions = 'both',
@@ -365,7 +344,7 @@ patient.heat <- BoutrosLab.plotting.general:::create.heatmap(
 create.multipanelplot(
     filename = generate.filename(
         project.stem = 'CancerBiology.OutlierAnalysis',
-        file.core = 'TCGA Landscape2',
+        file.core = 'TCGA LandscapeMap',
         extension = 'tiff'
         ),
     xlab.label = 'Patient',

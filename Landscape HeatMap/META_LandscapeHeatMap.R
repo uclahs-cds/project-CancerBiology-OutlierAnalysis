@@ -9,32 +9,34 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.plotting.survival);
 library(BoutrosLab.statistics.survival);
 
-#mean.sub.META.zscore.fpkm <- readRDS(
-#"C:/Users/jre83/OneDrive/UCLA B.I.G. Summer/Paul_Lab/Survival_Analysis_TCGA-BRCA/METAzscore.RDS")
+median.sub.META.zscore.fpkm <- readRDS(
+    file = "C:/Users/jre83/OneDrive/UCLA B.I.G. Summer/Paul_Lab/Survival_Analysis_TCGA-BRCA/METArobustzscore.RDS")
+meta.clinic.patient <- meta.clinic.patient[5:nrow(meta.clinic.patient),]
+rownames(meta.clinic.patient)<- gsub("-", ".", rownames(meta.clinic.patient), fixed = TRUE);
+meta.clinic.patient <- data.frame(Patient.ID = row.names(meta.clinic.patient),meta.clinic.patient)
 
 ### Analysis ######################################################################################
-
 # - order the patients
-meta.distance.z.score.abundance.patient <- dist(t(mean.sub.META.zscore.fpkm), method = "euclidean")
+meta.distance.z.score.abundance.patient <- dist(t(median.sub.META.robust.zscore.fpkm), method = "euclidean")
 meta.cluster.distance.z.score.abundance.patient <- hclust(meta.distance.z.score.abundance.patient, method = "ward.D2")
 meta_col_order <- meta.cluster.distance.z.score.abundance.patient$order
-z.score.abundance.patient.order <- mean.sub.META.zscore.fpkm[, meta_col_order]
-outlier.by.patient <- outlier.patient.tag.01[,meta_col_order]
+z.score.abundance.patient.order <- median.sub.META.robust.zscore.fpkm[, meta_col_order]
+meta.outlier.by.patient <- outlier.patient.tag.01[,meta_col_order]
 #totaling number of outlier genes per patient
 meta.outlier.totals.by.patient <- data.frame(
-    Patient.ID = seq(1,ncol(outlier.by.patient)),
+    Patient.ID = seq(1,ncol(meta.outlier.by.patient)),
     Outlier.totals = apply(
-        X = outlier.by.patient,
+        X = meta.outlier.by.patient,
         MARGIN = 2,
         FUN = sum
-    )
+        )
     );
 
 # - order the genes
-distance.z.score.abundance.gene <- dist(mean.sub.META.zscore.fpkm, method = "euclidean")
+distance.z.score.abundance.gene <- dist(median.sub.META.robust.zscore.fpkm, method = "euclidean")
 cluster.distance.z.score.abundance.gene <- hclust(distance.z.score.abundance.gene, method = "ward.D2")
 row_order <- cluster.distance.z.score.abundance.gene$order
-z.score.abundance.patient.gene.order <- mean.sub.TCGA.zscore.fpkm[row_order, ]
+z.score.abundance.patient.gene.order <- median.sub.META.robust.zscore.fpkm[row_order, ]
 meta.outlier.by.gene <- outlier.patient.tag.01[row_order,]
 #prep for bar plot of number of outliers per gene
 meta.outlier.totals.by.gene <- data.frame(
@@ -43,17 +45,12 @@ meta.outlier.totals.by.gene <- data.frame(
         X = meta.outlier.by.gene,
         MARGIN = 1,
         FUN = sum
-    )
+        )
     );
 
-
-
 # Order clinical data
-meta.sample.clinic <- gsub("-", ".", outlier.meta.patient$Patient.ID, fixed = TRUE);
-rownames(outlier.meta.clinic) <- meta.sample.clinic;
-meta.clinic.sort <- meta.clinic[order(meta.clinic$Subtype),];
-meta.clinic.order <- meta.clinic.sort[substr(colnames(outlier.patient.tag.01), 1, 12),]
-
+meta.clinic.sort <- meta.clinic.patient[order(meta.clinic.patient$Pam50...Claudin.low.subtype),];
+meta.clinic.order <-  meta.clinic.sort[colnames(meta.outlier.by.patient),]
 
 # other clinical status
 #   1. subtype
@@ -62,14 +59,14 @@ meta.clinic.order <- meta.clinic.sort[substr(colnames(outlier.patient.tag.01), 1
 #   4. sgage
 
 # 1
-meta.clinic.order.data <- data.frame(meta.clinic.patient$Pam50...Claudin.low.subtype);
-meta.clinic.order.data[is.na(meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype),] <- 6;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype == 'Basal',] <- 1;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype == 'Her2',] <- 2;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype == 'LumA',] <- 3;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype == 'LumB',] <- 4;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype == 'Normal',] <- 5;
-meta.clinic.order.data.num <- data.frame(as.numeric(meta.clinic.order.data$meta.clinic.patient.Pam50...Claudin.low.subtype));
+meta.clinic.order.data <- data.frame(meta.clinic.order$Pam50...Claudin.low.subtype);
+meta.clinic.order.data[is.na(meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype),] <- 6;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Basal',] <- 1;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Her2',] <- 2;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'LumA',] <- 3;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'LumB',] <- 4;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Normal',] <- 5;
+meta.clinic.order.data.num <- data.frame(as.numeric(meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype));
 rownames(meta.clinic.order.data.num) <- colnames(outlier.patient.tag.01);
 
 # 2
@@ -111,7 +108,7 @@ rownames(meta.clinic.order.data.num) <- colnames(outlier.patient.tag.01);
 
 # 4
 # 40~49 / 50~59 / 60~69 / 70<
-meta.clinic.order.data.age <- meta.clinic.patient$Age.at.Diagnosis;
+meta.clinic.order.data.age <- meta.clinic.order$Age.at.Diagnosis;
 age.stage <- data.frame();
 for (i in 1:length(meta.clinic.order.data.age)) {
     if (is.na(meta.clinic.order.data.age[i])) {
@@ -146,12 +143,11 @@ chr.colours <- BoutrosLab.plotting.general:::force.colour.scheme(bio, scheme = '
 sub.col <- c(chr.colours, 'grey90');
 cnv.col <- c('dodgerblue4', 'white', 'darkred');
 
+
 age.ColourFunction <- colorRamp(c('white', 'deeppink3'), space = 'Lab');
 age.col <- rgb(age.ColourFunction(seq(0, 1, length.out = 5)), maxColorValue = 255);
-pnf.ColourFunction <- colorRamp(c('white', 'purple4'), space = 'Lab');
-pnf.col <- rgb(pnf.ColourFunction(seq(0, 1, length.out = 4)), maxColorValue = 255);
-stage.ColourFunction <- colorRamp(c('white', 'darkgreen'), space = 'Lab');
-stage.col <- rgb(stage.ColourFunction(seq(0, 1, length.out = 4)), maxColorValue = 255);
+#stage.ColourFunction <- colorRamp(c('white', 'darkgreen'), space = 'Lab');
+#stage.col <- rgb(stage.ColourFunction(seq(0, 1, length.out = 4)), maxColorValue = 255);
 # rt.color <- c('lightsalmon3', 'darkolivegreen3');
 #all.col <- c(sub.col, pnf.col, stage.col, age.col);
 
@@ -169,7 +165,7 @@ meta.subtype.heat <-  BoutrosLab.plotting.general:::create.heatmap(
     x = all.clinical.order,
     clustering.method = 'none',
     colour.scheme = all.col, 
-    total.colours = 10,
+    total.colours = 13,
     row.colour = 'black',
     col.colour = 'black',
     grid.row = TRUE, 
@@ -215,7 +211,7 @@ meta.gene.outlier <- create.barplot(
     #)
     height = 30,
     ylab.label = '',
-    yaxis.lab = rep('',nrow(outlier.totals.by.gene)),
+    yaxis.lab = rep('',nrow(meta.outlier.totals.by.gene)),
     yat = 0,
     xat = c(0,5,10,15),
     xaxis.cex = 1,
@@ -240,14 +236,6 @@ meta.legend.clinic <- BoutrosLab.plotting.general:::legend.grob(
             label.cex = 1, 
             continuous = TRUE,
             height = 3
-            ),
-        legend = list(
-            colours = 'darkred', 
-            labels = c(expression('\u2265 '*'5')),
-            size = 2,
-            label.cex = 1, 
-            continuous = TRUE,
-            height = 1
             ),
         # create legend for subtype
         legend = list(
@@ -299,7 +287,7 @@ meta.legend.clinic <- BoutrosLab.plotting.general:::legend.grob(
 # Main heatmap
 #   - show the outlier patient status
 meta.patient.heat <- BoutrosLab.plotting.general:::create.heatmap(
-    x = t(mean.sub.META.zscore.fpkm),
+    x = t(median.sub.META.robust.zscore.fpkm),
     clustering.method = 'ward.D2',
     #clustering.method = 'none',
     cluster.dimensions = 'both',
@@ -372,7 +360,7 @@ meta.patient.heat <- BoutrosLab.plotting.general:::create.heatmap(
 create.multipanelplot(
     filename = generate.filename(
         project.stem = 'CancerBiology-OutlierAnalysis',
-        file.core = 'META Landscape',
+        file.core = 'META LandscapeMAP',
         extension = 'tiff'
         ),
     xlab.label = 'Patient',
@@ -404,3 +392,4 @@ save.session.profile(filename = generate.filename(
     file.core = 'META Landscape',
     extension = 'txt')
     );
+
