@@ -60,12 +60,13 @@ meta.clinic.order <-  meta.clinic.sort[colnames(meta.outlier.by.patient),]
 
 # 1
 meta.clinic.order.data <- data.frame(meta.clinic.order$Pam50...Claudin.low.subtype);
-meta.clinic.order.data[is.na(meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype),] <- 6;
+meta.clinic.order.data[is.na(meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype),] <- 7;
 meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Basal',] <- 1;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Her2',] <- 2;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'LumA',] <- 3;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'LumB',] <- 4;
-meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Normal',] <- 5;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'claudin-low',] <- 2;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Her2',] <- 3;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'LumA',] <- 4;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'LumB',] <- 5;
+meta.clinic.order.data[meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype == 'Normal',] <- 6;
 meta.clinic.order.data.num <- data.frame(as.numeric(meta.clinic.order.data$meta.clinic.order.Pam50...Claudin.low.subtype));
 rownames(meta.clinic.order.data.num) <- colnames(outlier.patient.tag.01);
 
@@ -138,7 +139,7 @@ rownames(age.stage) <- colnames(outlier.patient.tag.01);
 chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 
               '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', 
               '21', '22', 'MT', 'X', 'Y')
-bio <- c("DNA", "RNA", "Protein", "Carbohydrate", "Lipid");
+bio <- c("DNA", '',"RNA", "Protein", "Carbohydrate", "Lipid");
 chr.colours <- BoutrosLab.plotting.general:::force.colour.scheme(bio, scheme = 'biomolecule');
 sub.col <- c(chr.colours, 'grey90');
 cnv.col <- c('dodgerblue4', 'white', 'darkred');
@@ -165,7 +166,7 @@ meta.subtype.heat <-  BoutrosLab.plotting.general:::create.heatmap(
     x = all.clinical.order,
     clustering.method = 'none',
     colour.scheme = all.col, 
-    total.colours = 13,
+    total.colours = 14,
     row.colour = 'black',
     col.colour = 'black',
     grid.row = TRUE, 
@@ -224,13 +225,12 @@ meta.gene.outlier <- create.barplot(
     plot.horizontal = T
     );
 
-
 #Make legend
 meta.legend.clinic <- BoutrosLab.plotting.general:::legend.grob(
     list(
         legend = list(
             colours = cnv.col,
-            title = expression(underline('Outlier status')), 
+            title = expression(underline('Robust Z-Score')), 
             labels = c('-5','5'),
             size = 2,
             label.cex = 1, 
@@ -239,9 +239,9 @@ meta.legend.clinic <- BoutrosLab.plotting.general:::legend.grob(
             ),
         # create legend for subtype
         legend = list(
-            colours = sub.col[1:5],
+            colours = sub.col[1:6],
             title = expression(underline('Subtype')), 
-            labels = c('Basal', 'Her2', 'LumA', 'LumB', 'Normal'),
+            labels = c('Basal', 'Claudin-low','Her2', 'LumA', 'LumB', 'Normal'),
             size = 2,
             title.cex = 0.5,
             label.cex = 0.5, 
@@ -360,7 +360,7 @@ meta.patient.heat <- BoutrosLab.plotting.general:::create.heatmap(
 create.multipanelplot(
     filename = generate.filename(
         project.stem = 'CancerBiology-OutlierAnalysis',
-        file.core = 'META LandscapeMAP',
+        file.core = 'META LandscapeMAP3',
         extension = 'tiff'
         ),
     xlab.label = 'Patient',
