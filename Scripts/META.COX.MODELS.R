@@ -10,6 +10,8 @@ library(survival);
 load("/Users/amaanjsattar/Desktop/2023-07-07_Metabric_Outlier.rda");
 
 
+
+
 # Remove metadata
 meta.clinic.patient <- meta.clinic.patient[-c(1:4), ];
 
@@ -78,7 +80,7 @@ gene.names <- colnames(meta.outlier.fpkm)
 # Loop through each gene and fit univariate Cox models
 for (gene in gene.names) {
     # Extract the FPKM values for the current gene (as a vector)
-    fpkm.values <- log2(as.numeric(meta.outlier.fpkm[, gene]) + 0.1)
+    fpkm.values <- log2(as.numeric(meta.outlier.fpkm[, gene]) + 1)
     
     # Fit the Cox proportional hazards model using the 'coxph' function from the 'survival' package
     cox.model <- coxph(meta.surv.cox ~ fpkm.values)
@@ -113,23 +115,100 @@ print(p_values_data)
 # Assuming p_values_data is a dataframe with columns "Gene" and "P_Value"
 
 # Sort the dataframe in ascending order of p-values
-p_values_data_sorted <- p_values_data[order(p_values_data$PValue), ]
+meta_p_values <- p_values_data[order(p_values_data$PValue), ]
 
 # View the sorted dataframe
-View(p_values_data_sorted)
+View(meta_p_values)
 
 
-# Number of tests (genes)
-total_tests <- nrow(p_values_data_sorted)
+meta_fdr_corrected_p_values <- p.adjust(meta_p_values$PValue, method = 'BH')
 
-# Bonferroni-corrected significance level (alpha)
-alpha_bonferroni <- 0.05 / total_tests
+meta_p_values$FDR.Corrected <- meta_fdr_corrected_p_values
 
-# Filter genes with Bonferroni-corrected p-values below the significance cutoff
-significant_genes <- subset(p_values_data_sorted, PValue <= alpha_bonferroni)
-
-# Display the names of significant genes
-significant_gene_names <- significant_genes$GeneName
-# 186 identified
+meta_significant_genes <- subset(meta_p_values, FDR.Corrected <= 0.1)
 
 
+rownames(meta_significant_genes) <- meta_significant_genes$GeneName
+# Replace "https://dsea.tigem.it/data/genes.txt" with the actual URL
+url <- "https://dsea.tigem.it/data/genes.txt"
+destfile <- "genes.txt"
+
+# Download the .txt file
+download.file(url, destfile)
+
+# Read the .txt file into a data frame
+data <- read.csv(destfile, header = FALSE, stringsAsFactors = FALSE, sep = ",")
+
+# Rename the columns to "ProbeID" and "GeneName"
+colnames(data) <- c("ProbeID", "GeneName")
+
+# Print the first few rows of the data to verify
+head(data)
+
+
+# Assuming you have already downloaded and processed the data data frame from the .txt file
+# data <- read.csv(destfile, header = FALSE, stringsAsFactors = FALSE, sep = ",")
+# colnames(data) <- c("ProbeID", "GeneName")
+
+# Find the common gene IDs between meta_significant_genes and data$GeneName
+common_gene_IDs <- intersect(rownames(meta_significant_genes), data$ProbeID)
+# There are 914
+
+data <- data[data$ProbeID %in% rownames(meta_significant_genes), ]
+
+# 443 Remaining Rows to Match
+remaining_rownames <- rownames(meta_significant_genes)[!(rownames(meta_significant_genes) %in% data$ProbeID)]
+
+
+
+# Replace "/Users/amaanjsattar/Downloads/pone.0025584.s010.txt" with the actual file path
+file_path <- "/Users/amaanjsattar/Downloads/pone.0025584.s010.txt"
+
+# Read the file into a data frame
+data_another_file <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE, sep = "\t")
+# Assuming you have already read the data from the file into the data_another_file data frame
+
+# Remove columns 'entrez.gene.ID' and 'gene.name'
+data_another_file <- data_another_file[, !(names(data_another_file) %in% c("entrez.gene.ID", "gene.name"))]
+
+# Rename the column 'probeset.ID' to 'Probe_ID' and 'gene.symbol' to 'GeneName'
+colnames(data_another_file) <- c('ProbeID', 'GeneName')
+
+# Subset data_another_file for the non-matching gene IDs from meta_significant_genes
+data_another_file <- data_another_file[data_another_file$ProbeID %in% remaining_rownames, ]
+
+data <- rbind(data, data_another_file)
+
+remaining_rownames <- rownames(meta_significant_genes)[!(rownames(meta_significant_genes) %in% data$ProbeID)]
+
+# Load the readxl package
+library(readxl)
+
+# Replace "path_to_excel_file.xlsx" with the actual file path to your Excel workbook
+path_to_excel_file <- "/Users/amaanjsattar/Downloads/1755-8794-5-27-S1.xlsx"
+
+# Read the "report-RAW.txt" sheet into R
+report_raw_data <- read_excel(path_to_excel_file, sheet = "report-RAW.txt")
+
+report_raw_data <- report_raw_data[, c("Probe ID", "Symbol")]
+colnames(report_raw_data) <- c('ProbeID', 'GeneName')
+report_raw_data <- report_raw_data[report_raw_data$ProbeID %in% remaining_rownames, ]
+data <- rbind(data, report_raw_data)
+
+remaining_rownames <- rownames(meta_significant_genes)[!(rownames(meta_significant_genes) %in% data$ProbeID)]
+
+
+excel_path2 <- "/Users/amaanjsattar/Downloads/Microarrayanalysis-final.xlsx"
+data3 <- read_excel(excel_path2, sheet = "all groups")
+data3 <- data3[, c("...1", "...3")]
+colnames(data3) <- c('ProbeID', 'GeneName')
+data3 <- data3[data3$ProbeID %in% remaining_rownames, ]
+data <- rbind(data, data3)
+
+remaining_rownames <- rownames(meta_significant_genes)[!(rownames(meta_significant_genes) %in% data$ProbeID)]
+
+
+data5 <- read.delim('/Users/amaanjsattar/Downloads/MG_U74Cv2.chip')
+data5 <- data5[, c('Probe.Set.ID', 'Gene.Symbol')]
+colnames(data5) <- c('ProbeID', 'GeneName')
+data5 <- data5[data5$ProbeID %in% remaining_rownames, ]
