@@ -212,3 +212,11 @@ data5 <- read.delim('/Users/amaanjsattar/Downloads/MG_U74Cv2.chip')
 data5 <- data5[, c('Probe.Set.ID', 'Gene.Symbol')]
 colnames(data5) <- c('ProbeID', 'GeneName')
 data5 <- data5[data5$ProbeID %in% remaining_rownames, ]
+data <- rbind(data, data5)
+
+remaining_rownames <- rownames(meta_significant_genes)[!(rownames(meta_significant_genes) %in% data$ProbeID)]
+
+
+save(meta_significant_genes, cox.model.results, file = 'meta.cox.RData')
+
+

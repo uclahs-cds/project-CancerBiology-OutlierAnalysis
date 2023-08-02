@@ -135,5 +135,22 @@ fdr_corrected_p_values <- p.adjust(tcga_p_values$PValue, method = 'BH')
 
 tcga_p_values$FDR.Corrected <- fdr_corrected_p_values
 tcga_significant_genes_unadjusted <- subset(tcga_p_values, PValue <= 0.05)
-tcga_significant_genes <- subset(tcga_p_values, FDR.Corrected <= 0.05)
+tcga_significant_genes <- subset(tcga_p_values, FDR.Corrected <= 0.1)
+
+tcga_significant_genes$Ensembl <- sub("\\.\\d+$", "", tcga_significant_genes$GeneName)
+
+
+# Load the biomaRt library
+library(biomaRt)
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("org.Hs.eg.db")
+library(org.Hs.eg.db)
+
+# Assuming your TCGA gene names are in the column 'GeneName' of the dataframe tcga_significant_genes
+tcga_significant_genes$Official_Name <- mapIds(org.Hs.eg.db, keys = tcga_significant_genes$Ensembl, column = "SYMBOL", keytype = "ENSEMBL")
+
+
 
