@@ -87,7 +87,31 @@ write.table(
 	sep = '\t'
 	)
 
-# check if breakpoint is in enhancer region
-# or close to enhancer region (+ 500bp?)
+# check if breakpoint is in enhancer region - included 573 promoters & 30026 promoter/enhancer
+elements.filtered <- elements[match(rownames(overlap.matrix), elements$GHid),]
 
-# read up on enhancer hijacking methods
+# each GHid has more than one score, since one enhancer can promoter more than one gene
+# median = 5; mean = 6.1, min = 1, max = 119
+scores <- read.delim(
+	file = '/hot/ref/database/GeneHancer-v5.18/original/GRCh38/GeneHancer_AnnotSV_gene_association_scores_v5.18.txt',
+	as.is = TRUE
+	)
+scores.expanded <- scores[scores$GHid %in% rownames(overlap.matrix),]
+
+# n = 242,701
+scores.elite <- scores.expanded[which(scores.expanded$is_elite == 1),]
+scores.filtered <- scores.elite[order(scores.elite$GHid),]
+
+# Let's look at TMPRSS2
+tmprss2.ids <- scores.filtered$GHid[which(scores.filtered$symbol == 'TMPRSS2')]
+tmprss2.matrix <- overlap.matrix[match(tmprss2.ids, rownames(overlap.matrix)), ]
+
+clinical <- read.delim(
+	file = '/hot/project/disease/ProstateTumor/PRAD-000050-666PG/data/clinical/2021-05-14_666pg_All_updated_AUS_clinical.txt',
+	as.is = TRUE
+	)
+clinical.gh <- clinical[match(colnames(overlap.matrix), clinical$sample_id), ]
+table(clinical.gh$ets_consensus == tmprss2.matrix[1,])
+# 60% of samples agree, all disagreement is ets_consensus == TRUE but missed by gh overlap
+
+# or close to enhancer region (+ 500kb)
