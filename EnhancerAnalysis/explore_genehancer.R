@@ -123,45 +123,36 @@ create.heatmap(
 	resolution = 200
 	)
 
-genes.all <- as.numeric(
+ids.per.genes.all <- data.frame(
 	table(scores$symbol)
 	)
-genes.elite <- as.numeric(
+ids.per.genes.elite <- data.frame(
 	table(scores.elite$symbol)
 	)
 
-unique.ids <- unique(scores$GHid)
-genes.per.id.elite <- genes.per.id <- matrix(
-	data = NA,
-	nrow = length(unique.ids),
-	ncol = 1
+genes.per.id <- data.frame(
+	table(scores$GHid)
 	)
-for (i in 1:length(unique.ids)) {
-	if (i %% 1000 == 0) {
-		print(i)
-		}
-	# number of genes associated with that id - is it the same as genes.all
-	temp <- scores[which(scores$GHid == unique.ids[i]),]
-	genes.per.id[i] <- nrow(temp)
-	genes.per.id.elite[i] <- length(which(temp$is_elite == 1))
-	}
-rownames(genes.per.id.elite) <- rownames(genes.per.id) <- unique.ids
+genes.per.id.elite <- data.frame(
+	table(scores.elite$GHid)
+	)
 
 density.data <- list(
-	all = genes.all,
-	elite = genes.elite
+	all = ids.per.genes.all$Freq,
+	elite = ids.per.genes.elite$Freq
 	)
 
-create.densityplot(
+per.gene <- create.densityplot(
 	x = density.data,
-	filename = generate.filename('outlier', 'number_genes_per_', 'png'),
+	# filename = generate.filename('outlier', 'GHid_per_gene_densityplot', 'png'),
 	col = c('tomato1', 'royalblue'),
 	lty = c('solid', 'dashed'),
 	yaxis.cex = 1,
 	xaxis.cex = 1,
 	ylab.cex = 1,
 	xlab.cex = 1,
-	xlimit = c(0,20),
+	xlab.label = 'GHids per gene',
+	xlimit = c(0, 20),
 	legend = list(
 		inside = list(
 			fun = draw.key,
@@ -174,13 +165,13 @@ create.densityplot(
 						fill = c('tomato1', 'royalblue')
 						),
 					text = list(
-						lab = c("All (n = 264,047)", "Elite only (n = 179,794)")
+						lab = c("All genes (n = 264,047)", "Elite only (n = 179,794)")
 						),
 					padding.text = 1,
 					cex = 1
 					)
 				),
-			x = 0.60,
+			x = 0.50,
 			y = 0.95,
 			draw = FALSE
 			)
@@ -188,3 +179,73 @@ create.densityplot(
 	resolution = 200
 	)
 
+genes.per.id <- data.frame(
+	table(scores$GHid)
+	)
+genes.per.id.elite <- data.frame(
+	table(scores.elite$GHid)
+	)
+
+id.density.data <- list(
+	all = genes.per.id$Freq,
+	elite = genes.per.id.elite$Freq
+	)
+
+per.id <- create.densityplot(
+	x = id.density.data,
+	# filename = generate.filename('outlier', 'genes_per_GHid_densityplot', 'png'),
+	col = c('tomato1', 'royalblue'),
+	lty = c('solid', 'dashed'),
+	yaxis.cex = 1,
+	xaxis.cex = 1,
+	ylab.cex = 1,
+	xlab.cex = 1,
+	xlab.label = 'Genes per GHid',
+	xlimit = c(0, 20),
+	legend = list(
+		inside = list(
+			fun = draw.key,
+			args = list(
+				key = list(
+					points = list(
+						col = c('tomato1', 'royalblue'),
+						pch = 21,
+						cex = 1,
+						fill = c('tomato1', 'royalblue')
+						),
+					text = list(
+						lab = c("All GHids (n = 409,271)", "Elite only (n = 241,676)")
+						),
+					padding.text = 1,
+					cex = 1
+					)
+				),
+			x = 0.50,
+			y = 0.95,
+			draw = FALSE
+			)
+		),
+	resolution = 200
+	)
+
+create.multipanelplot(
+	plot.objects = list(per.gene, per.id),
+	filename = generate.filename('outlier', 'GeneHancer_densityplots', 'png'),
+	resolution = 200,
+	layout.width = 1,
+	layout.height = 2
+	)
+
+ids <- unique(tissue$GHid)
+ghid.source <- ghid.source.len <- matrix(
+        data = NA,
+        nrow = length(ids),
+        ncol = 1
+        )
+for (i in 1:length(ids)) {
+        if (i %% 1000 == 0) {
+                print(i)
+                }
+        ghid.source[i] <- paste(unique(tissue$source[which(tissue$GHid == ids[i])]), collapse = ';')
+        ghid.source.len[i] <- length(unique(tissue$source[which(tissue$GHid == ids[i])]))
+        }
