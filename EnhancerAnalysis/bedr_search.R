@@ -5,8 +5,10 @@
 
 ### HISTORY ###################################################################
 # Version	Date		Developer	Comments
-# 0.01		2023-01-02	jlivingstone	initial code
+# 0.01		2023-11-02	jlivingstone	initial code
+# 0.02		2023-11-07	jlivingstone	add ICGC BRCA-EU segments
 
+# bedtools has to be installed on node (conda activate r_env)
 ### PREAMBLE ##################################################################
 library(bedr)
 library(BoutrosLab.utilities)
@@ -31,19 +33,31 @@ gh.ordered <- gh.elite[(order(sub('chr', '', gh.elite$chr), gh.elite$start, gh.e
 # remove elements that are too short < 20bp?
 gh.filtered <- gh.ordered[(gh.ordered$end - gh.ordered$start > 20),]
 
-# read in sample specific CNAs
-segment <- read.delim(
-	file = '/hot/users/jlivingstone/2016-02-11_CPCG_segments_200pg.txt',
-	header = FALSE,
-	as.is = TRUE
-	)
-colnames(segment) <- c('sample', 'chr', 'start', 'end', 'logr')
-segment$status <- NA
-segment$status[which(segment$logr >= 0.20)] <- 1
-segment$status[which(segment$logr <= -0.20)] <- -1
+if (dataset == 'cpcgene') {
+	# read in sample specific CNAs
+	segment <- read.delim(
+		file = '/hot/users/jlivingstone/2016-02-11_CPCG_segments_200pg.txt',
+		header = FALSE,
+		as.is = TRUE
+		)
+	colnames(segment) <- c('sample', 'chr', 'start', 'end', 'logr')
+	segment$status <- NA
+	segment$status[which(segment$logr >= 0.20)] <- 1
+	segment$status[which(segment$logr <= -0.20)] <- -1
 
-# remove segments that shoulnt be there - is stil NA
-cna <- segment[!is.na(segment$status),]
+	# remove segments that shoulnt be there - is stil NA
+	cna <- segment[!is.na(segment$status),]
+	}
+
+if (dataset == 'icgc') {
+	segment <- read.delim(
+		file = '/hot/users/jlivingstone/outlier/2023-11-06_ICGC_BRCA_EU_segments.txt',
+		as.is = TRUE
+		)
+	colnames(segment) <- c('sample', 'chr', 'start', 'end', 'status')
+	# so format is the same as with cpcg
+	cna <- data.frame(segment, logr = NA)
+	}
 
 samples <- unique(cna$sample)
 cn.list <- list()
@@ -80,9 +94,17 @@ colnames(overlap.matrix) <- samples
 rownames(overlap.matrix) <- gh.filtered$ghid
 
 setwd('/hot/users/jlivingstone/outlier/')
+
+if (dataset == 'cpcgene') {
+	filename = generate.filename('outlier', 'GeneHancer_CPCG_OS_overlap', 'txt')
+	}
+if (dataset == 'icgc') {
+	filename = generate.filename('outlier', 'GeneHancer_ICGC_segment_overlap', 'txt')
+	}
+
 write.table(
 	x = overlap.matrix,
-	file = generate.filename('outlier', 'GeneHancer_CPCG_OS_overlap', 'txt'),
+	file = filename,
 	quote = FALSE,
 	sep = '\t'
 	)
