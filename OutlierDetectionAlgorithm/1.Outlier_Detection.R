@@ -1,36 +1,50 @@
-### 1.Outlier_Detection_5method.R ####################################################
-# This is the outlier detection method using 5 different statistical approaches
+### 1.Outlier_Detection.R ####################################################
 
 # Set the working directory
-# setwd('RNA-seq/');
+setwd('RNA-seq/CCLE/four_zero/');
+
+# Set the name of the dataset
+dataset.name <- 'CCLE';
 
 # Required R packages
-# install.packages('extraDistr', repo = 'http://cran.us.r-project.org');
-# install.packages('truncnorm', repo = 'http://cran.us.r-project.org');
-# install.packages('SnowballC', repo = 'http://cran.us.r-project.org');
-# install.packages('lsa', repo = 'http://cran.us.r-project.org');
-# install.packages('gamlss', repo = 'http://cran.us.r-project.org');
-# install.packages('parallel', repo = 'http://cran.us.r-project.org');
-# install.packages('foreach', repo = 'http://cran.us.r-project.org');
-# install.packages('doParallel', repo = 'http://cran.us.r-project.org');
-library(extraDistr);
-library(truncnorm);
-library(SnowballC);
-library(lsa);
+# Install and load the 'gamlss' package
+install.packages('gamlss', repo = 'http://cran.us.r-project.org');
 library(gamlss);
-library(parallel);
-library(foreach);
+# Install and load the 'doParallel' package
+install.packages('doParallel', repo = 'http://cran.us.r-project.org');
 library(doParallel);
+# Install and load the 'foreach' package
+install.packages('foreach', repo = 'http://cran.us.r-project.org');
+library(foreach);
+# Install and load the 'parallel' package
+install.packages('parallel', repo = 'http://cran.us.r-project.org');
+library(parallel);
+# Install and load the 'extraDistr' package
+install.packages('extraDistr', repo = 'http://cran.us.r-project.org');
+library(extraDistr);
+# Install and load the 'truncnorm' package
+install.packages('truncnorm', repo = 'http://cran.us.r-project.org');
+library(truncnorm);
+# Install and load the 'lsa' package
+install.packages('lsa', repo = 'http://cran.us.r-project.org');
+library(lsa);
+# Install and load the 'SnowballC' package
+install.packages('SnowballC', repo = 'http://cran.us.r-project.org');
+library(SnowballC);
 
 
-# Normalized RNA-seq data
+
+
+# Load the RNA abundance file
 #   - any input data is available
 # fpkm.tumor.symbol: gene x sample matrix
-# fpkm.tumor.symbol <- read.csv(file = 'METADOR/GSE167977_20210223_matadorCounts.csv', check.names = FALSE, stringsAsFactors = F, sep = ',', row.names = 1);
+# example:
+#   fpkm.tumor.symbol <- read.csv(file = 'METADOR/GSE167977_20210223_matadorCounts.csv', check.names = FALSE, stringsAsFactors = F, sep = ',', row.names = 1);
 
-# Set the name of dataset
-# dataset.name <- 'Matador';
 
+# The original value is log2(FPKM+1)
+#   - make it non log format
+fpkm.tumor.symbol <- 2^fpkm.tumor.symbol-1;
 
 # Number of samples
 #    - if the last column has symbol, it should be 1:(ncol(fpkm.tumor.symbol))-1)
@@ -43,7 +57,6 @@ sample.number <- 1:ncol(fpkm.tumor.symbol);
 zero.portion <- apply(fpkm.tumor.symbol[,patient.part], 1, function(x) {length(x[0 == x]) / length(patient.part)});
 fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% names(zero.portion[0.01 > zero.portion]),];
 molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
-
 
 
 
@@ -135,7 +148,8 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
 
 
 # Parallel running
-cl <- makeCluster(detectCores()-1);
+# cl <- makeCluster(detectCores()-1);
+cl <- 2;
 # register the cluster with the parallel package
 registerDoParallel(cl);
 
@@ -149,7 +163,7 @@ data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
 data.median <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'median');
-ddata.median <- data.frame(data.median);
+data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
 data.kmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
@@ -324,10 +338,21 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     }
 
 
+# Trimming function
+trim.sample <- function(x, trim.portion = 5) {
+    if (length(x) <= 10) {
+        patient.trim.value <- 2:(length(x)-1);
+    } else {
+        trim.sample.number <- length(x) * (trim.portion/100);
+        trim.sample.number.integer <- round(trim.sample.number, digits = 0);
+        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+        }
+    patient.trim.value;
+    }
 
 # Determine the distribution
 # Find the best fitted distribution
-cl <- makeCluster(detectCores()-1);
+cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
 clusterExport(cl, "trim.sample");
@@ -378,7 +403,7 @@ bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution = bic.trim.distribution.fit);
 
 # run it parallel
-cl <- makeCluster(detectCores()-1);
+cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
 clusterExport(cl, "outlier.detection.cosine");

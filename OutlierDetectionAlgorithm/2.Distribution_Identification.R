@@ -3,13 +3,14 @@
 
 
 # Set the working directory
-# setwd('RNA-seq/');
+setwd('RNA-seq/CCLE/four_zero/');
 
 # Set the name of dataset
-# dataset.name <- 'Matador';
+dataset.name <- 'CCLE';
 
 # load the R environment file saved from 1.Outlier_detection_5method.R
-# load(file = 'METADOR/2023-01-24_parallel_metador_final_outlier_rank_bic.long.rda')
+# load(file = '2023-09-05_CCLE_final_outlier_rank_bic.long.rda')
+load(file = '2023-09-18_CCLE_four_zero_final_outlier_rank_bic.long.rda')
 
 # Required R packages
 install.packages('gamlss', repo = 'http://cran.us.r-project.org');
@@ -33,7 +34,7 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
     })    
 add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
     
-# function: Trim 5% of samples from each side
+    # function: Trim 5% of samples from each side
 trim.sample <- function(x, trim.portion = 5) {
     trim.sample.number <- length(x) * (trim.portion/100);
     trim.sample.number.integer <- round(trim.sample.number, digits = 0);
@@ -176,7 +177,8 @@ save(
     gene.rank.order.5method.cosine.last.point.bic,
     obs.residue.quantile.trim,
     noise.min.off.bic.distribution.fit,
-    file = generate.filename(dataset.name, 'final_outlier_rank_bic_distribution.short', 'rda')
+    # file = '2023-09-06_CCLE_final_outlier_rank_bic_distribution.short.rda'
+    file = paste('2.Distribution_Identification.', dataset.name, '.short.rda', sep = '')
     );
 
 #   - long version
@@ -194,7 +196,8 @@ save(
     gene.rank.order.5method.cosine.last.point.bic,
     obs.residue.quantile.trim,
     noise.min.off.bic.distribution.fit,
-    file = generate.filename(dataset.name, 'final_outlier_rank_bic_distribution.long', 'rda')
+    #file = '2023-09-06_CCLE_final_outlier_rank_bic_distribution.long.rda'
+    file = paste('2.Distribution_Identification.', dataset.name, '.long.rda', sep = '')
     );
 
 
