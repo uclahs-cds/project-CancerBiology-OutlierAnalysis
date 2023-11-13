@@ -10,6 +10,8 @@
 library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities)
 
+dataset <- 'icgc'
+
 if (dataset == 'icgc') {
 	overlap.matrix <- read.delim(
 		file = '/hot/user/jlivingstone/outlier/2023-11-07_outlier_GeneHancer_ICGC_segment_overlap.txt',
@@ -35,29 +37,37 @@ if (dataset == 'cpcgene') {
 		)
 	filename <- generate.filename('outlier', 'CPCG_overlap_recurrcent_histogram', 'png')
 
-	gh.ylimit <- c(0, 100000)
-	gh.yat <- seq(0, 100000, 10000)
+	patient.ylimit <- c(0, 60)
+	patient.yat <- seq(0, 60, 10)
+	patient.xlimit <- c(0, 38000)
+	patient.xat <- seq(0, 38000, 5000)
+
+	gh.ylimit <- c(0, 40000)
+	gh.yat <- seq(0, 40000, 5000)
 	gh.xlimit <- c(0, 150)
-	gh.xat <- seq(0, 150, 50)
-	gh.breaks <- 150
+	gh.xat <- seq(0, 150, 25)
+	gh.breaks <- 50
 	}
 
 patient <- data.frame(
 	number = colSums(overlap.matrix)
 	)
+
+# remove lines that don't overlap in any patients
 ghid <- data.frame(
 	number = rowSums(overlap.matrix, na.rm = TRUE)
 	)
+ghid <- ghid[-which(ghid$number == 0),,drop = FALSE]
 
 # number of enhancers that overlap with deletions
 patient.plot <- create.histogram(
 	x = patient$number,
-	filename = generate.filename('outlier', 'overlap_patient_recurrence', 'png'),
+	#filename = generate.filename('outlier', 'overlap_patient_recurrence', 'png'),
 	xaxis.cex = 1,
 	yaxis.cex = 1,
 	xlab.cex = 1,
 	ylab.cex = 1,
-	xlab.label = 'Enhancers that overlap deletions',
+	xlab.label = 'Number of enhancers that overlap deletions\n(per patient)',
 	ylab.label = 'Count',
 	ylimit = patient.ylimit,
 	yat = patient.yat,
@@ -71,12 +81,12 @@ patient.plot <- create.histogram(
 
 ghid.plot <- create.histogram(
 	x = ghid$number,
-	filename = generate.filename('outlier', 'overlap_ghid_recurrence', 'png'),
+	#filename = generate.filename('outlier', 'overlap_ghid_recurrence', 'png'),
 	xaxis.cex = 1,
 	yaxis.cex = 1,
 	xlab.cex = 1,
 	ylab.cex = 1,
-	xlab.label = 'Per enhancer number of patients with deletion',
+	xlab.label = 'Number of patients with deletion overlap',
 	ylab.label = 'Count',
 	ylimit = gh.ylimit,
 	yat = gh.yat,

@@ -249,3 +249,9 @@ for (i in 1:length(ids)) {
         ghid.source[i] <- paste(unique(tissue$source[which(tissue$GHid == ids[i])]), collapse = ';')
         ghid.source.len[i] <- length(unique(tissue$source[which(tissue$GHid == ids[i])]))
         }
+tissue.parsed <- data.frame(
+	ghid = ids,
+	source = ghid.source,
+	number_evidence_sources = ghid.source.len,
+	stringsAsFactors = FALSE
+	)
