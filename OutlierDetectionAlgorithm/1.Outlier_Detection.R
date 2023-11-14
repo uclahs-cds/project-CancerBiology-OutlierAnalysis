@@ -75,7 +75,7 @@ trim.sample <- function(x, trim = 0.05) {
 ### Outlier detection function
 # Default : methods = 'mean', trim = 0
 # 1. MEAN and SD : methods = 'mean', trim = 0
-# 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 5
+# 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 0.05
 # 3. MEDIAN and MAD : methods = 'median'
 # 4. KMEAN : methods = 'kmean'
 quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
@@ -138,17 +138,21 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
     else {
         gene.order <- x.na[order(x.na, decreasing = TRUE)];
         if (exclude.zero) { 
-            gene.order.nonzero <- gene.order[0 != gene.order]; 
-            top.patient <- round(length(gene.order.nonzero) * (trim / 100), digit = 0);
-            low.patient <- round(length(gene.order.nonzero) * (1 - (trim / 100)), digit = 0);
-            data.mean <- mean(gene.order.nonzero, trim = (trim / 100));
-            data.sd <- sd(gene.order.nonzero[(top.patient+1):(low.patient)]);
+            gene.order.nonzero <- gene.order[0 != gene.order];
+            gene.order.nonzero.trimmed <- trim.sample(
+                x = gene.order.nonzero,
+                trim = trim
+                );
+            data.mean <- mean(gene.order.nonzero.trimmed);
+            data.sd <- sd(gene.order.nonzero.trimmed);
             } 
         else {
-            top.patient <- round(length(x.na) * (trim / 100), digit = 0);
-            low.patient <- round(length(x.na) * (1 - (trim / 100)), digit = 0);
-            data.mean <- mean(gene.order, trim = (trim / 100));
-            data.sd <- sd(gene.order[(top.patient+1):(low.patient)]);
+            gene.order.trimmed <- trim.sample(
+                x = gene.order,
+                trim = trim
+                );
+            data.mean <- mean(gene.order.trimmed);
+            data.sd <- sd(gene.order.trimmed);
             }
         result.na <- (x.na - data.mean) / data.sd;
         x[which(!is.na(x))] <- result.na;
@@ -169,7 +173,7 @@ data.mean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% 
 data.mean <- data.frame(data.mean);
 
 # 2. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5
-data.trimmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
+data.trimmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 0.05);
 data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
