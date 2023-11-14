@@ -80,7 +80,7 @@ trim.sample <- function(x, trim = 0.05) {
 # 4. KMEAN : methods = 'kmean'
 quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
-    if (methods == 'median') {
+    if ('median' == methods) {
         if (exclude.zero) { 
             x.nonzero <- x.na[0 != x.na]; 
             data.median <- median(x.nonzero);
@@ -94,9 +94,9 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
         x[which(!is.na(x))] <- result.na;
         x;
         }
-    else if (methods == 'kmean') {
+    else if ('kmean' == methods) {
         if (exclude.zero) {
-            if (length(unique(x.na)) == 1) {
+            if (1 == length(unique(x.na))) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);
                 } 
@@ -105,14 +105,14 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                 non.zero <- data.order[data.order > 0];
                 if (length(unique(non.zero)) <= 2) {
                     na.matrix <- rep(NA, length(non.zero));
-                    cluster.zero <- c(na.matrix, rep(0, length(x.na[x.na == 0])));
+                    cluster.zero <- c(na.matrix, rep(0, length(x.na[0 == x.na])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
                     names(kmean.matrix) <- names(x.na);  
                     } 
                 else {
                     kmean <- kmeans(non.zero, 2, nstart = 1000);
                     cluster <- kmean$cluster;
-                    cluster.zero <- c(cluster, rep(0, length(x[x == 0])));
+                    cluster.zero <- c(cluster, rep(0, length(x[0 == x])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
                     names(kmean.matrix) <- names(x.na);   
                     }
@@ -120,7 +120,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
             } 
     
         else {
-            if (length(unique(x.na)) == 1) {
+            if (1 == length(unique(x.na))) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);  
                 } 
@@ -213,12 +213,12 @@ data.zrange.median.t <- data.frame(t(data.zrange.median));
 ### Calculate the kmean fraction #####
 # Function
 outlier.detection.kmean <- function(x) {
-    if (1== length(unique(as.numeric(x)))) {
+    if (1 == length(unique(as.numeric(x)))) {
         fraction <- NA;
         }
     else {
-        cluster.one <- length(x[x == 1]);
-        cluster.two <- length(x[x == 2]);
+        cluster.one <- length(x[1 == x]);
+        cluster.two <- length(x[2 == x]);
         cluster.sum <- cluster.one + cluster.two;
         smaller.value <- min(cluster.one, cluster.two);
         fraction <- round(smaller.value/cluster.sum, digit = 4);
