@@ -284,7 +284,7 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     
 
     # Trimmed samples -Trim 5% of each side
-    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 5);
+    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 0.05);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
@@ -361,7 +361,7 @@ bic.trim.distribution <- NULL;
 # Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
 bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
     sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
-    sample.trim.number <- trim.sample(sample.number, 5);
+    sample.trim.number <- trim.sample(sample.number, 0.05);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
     
