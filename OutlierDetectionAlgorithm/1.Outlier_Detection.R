@@ -59,6 +59,17 @@ fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% n
 molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 
 
+### Trim sample
+trim.sample <- function(x, trim = 0.05) {
+    if (length(x) <= 10) {
+        patient.trim.value <- 2:(length(x)-1);
+        } else {
+        trim.sample.number <- length(x) * trim;
+        trim.sample.number.integer <- round(trim.sample.number);
+        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+        }
+    patient.trim.value;
+    }
 
 
 ### Outlier detection function
@@ -238,18 +249,6 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
         })    
     add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
 
-
-    trim.sample <- function(x, trim.portion = 5) {
-        if (length(x) <= 10) {
-            patient.trim.value <- 2:(length(x)-1);
-        } else {
-            trim.sample.number <- length(x) * (trim.portion/100);
-            trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-            patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
-            }
-        patient.trim.value;
-        }
-
     # function: Compute the cosine similarity of the largest data point
     cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
 
@@ -337,18 +336,6 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     cosine.sum.distribution.fit;
     }
 
-
-# Trimming function
-trim.sample <- function(x, trim.portion = 5) {
-    if (length(x) <= 10) {
-        patient.trim.value <- 2:(length(x)-1);
-    } else {
-        trim.sample.number <- length(x) * (trim.portion/100);
-        trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
-        }
-    patient.trim.value;
-    }
 
 # Determine the distribution
 # Find the best fitted distribution
