@@ -23,7 +23,7 @@ paper.samples <- paper$sample_name
 
 # submitted_sample_id + submitted_sample_id
 eu <- read.delim(
-	file = '/hot/users/jlivingstone/outlier/ICGC_BRCA_EU/sample.BRCA-EU.tsv.gz',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/original/sample.BRCA-EU.tsv.gz',
 	as.is = TRUE
 	)
 length(intersect(paper.samples, unique(substr(eu$submitted_sample_id, 1, 6))))
@@ -31,7 +31,7 @@ length(intersect(paper.samples, unique(substr(eu$submitted_sample_id, 1, 6))))
 eu.samples <- intersect(paper.samples, unique(substr(eu$submitted_sample_id, 1, 6)))
 
 uk <- read.delim(
-	file = '/hot/users/jlivingstone/outlier/ICGC_BRCA_UK/sample.BRCA-UK.tsv.gz',
+	file = '/hot/ref/cohort/ICGC/BRCA/UK/original/sample.BRCA-UK.tsv.gz',
 	as.is = TRUE
 	)
 length(intersect(paper.samples, unique(substr(uk$submitted_sample_id, 1, 6))))
@@ -44,7 +44,7 @@ uk.samples <- intersect(paper.samples, unique(substr(uk$submitted_sample_id, 1, 
 
 # specimen_type + submitted_donor_id
 eu.specimen <- read.delim(
-	file = '/hot/users/jlivingstone/outlier/ICGC_BRCA_EU/specimen.BRCA-EU.tsv.gz',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/original/specimen.BRCA-EU.tsv.gz',
 	as.is = TRUE
 	)
 
@@ -56,7 +56,7 @@ eu.primary <- eu.merged[-grep('Normal', eu.merged$specimen_type),]
 
 # clinical + submitted_donor_id
 eu.donor <- read.delim(
-	file = '/hot/users/jlivingstone/outlier/ICGC_BRCA_EU/donor.BRCA-EU.tsv.gz',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/original/donor.BRCA-EU.tsv.gz',
 	as.is = TRUE
 	
 # now merge eu.primary and eu.donor to have both clinical and PD id
@@ -115,4 +115,4 @@ table(grade.check$paper.grade == grade.check$icgc.grade)
 # TRUE 
 # 264 
 
-## Conclusion, it is the same samples ##
+## Conclusion, they are the same samples ##

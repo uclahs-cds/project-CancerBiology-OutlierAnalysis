@@ -9,7 +9,7 @@
 ### PREAMBLE ##################################################################
 
 gain <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/ICGC_BRCA_EU/gain_somatic_mutation.BRCA-EU.tsv',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/processed/gain_somatic_mutation.BRCA-EU.tsv',
 	as.is = TRUE
 	)
 
@@ -39,7 +39,7 @@ write.table(
 	)
 
 loss <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/ICGC_BRCA_EU/loss_somatic_mutation.BRCA-EU.tsv',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/processed/loss_somatic_mutation.BRCA-EU.tsv',
 	as.is = TRUE
 	)
 
@@ -63,7 +63,7 @@ loss.filtered$gene_affected <- loss.genes.affected
 
 write.table(
 	x = loss.filtered,
-	file = '/hot/users/jlivingstone/outlier/ICGC_BRCA_EU/loss_unique_somatic_mutation.BRCA-EU.tsv',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/processed/loss_unique_somatic_mutation.BRCA-EU.tsv',
 	quote = FALSE,
 	row.names = FALSE
 	)
