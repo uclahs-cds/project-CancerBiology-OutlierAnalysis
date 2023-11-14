@@ -96,14 +96,14 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
         }
     else if (methods == 'kmean') {
         if (exclude.zero) {
-            if (length(unique(as.numeric(x.na))) == 1) {
+            if (length(unique(x.na)) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);
                 } 
             else {
                 data.order <- sort(x.na, decreasing = TRUE);
                 non.zero <- data.order[data.order > 0];
-                if (length(unique(as.numeric(non.zero))) <= 2) {
+                if (length(unique(non.zero)) <= 2) {
                     na.matrix <- rep(NA, length(non.zero));
                     cluster.zero <- c(na.matrix, rep(0, length(x.na[x.na == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
@@ -120,7 +120,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
             } 
     
         else {
-            if (length(unique(as.numeric(x.na))) == 1) {
+            if (length(unique(x.na)) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);  
                 } 
