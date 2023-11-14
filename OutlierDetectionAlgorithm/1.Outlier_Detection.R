@@ -68,7 +68,7 @@ trim.sample <- function(x, trim = 0.05) {
         trim.sample.number.integer <- round(trim.sample.number);
         patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
         }
-    patient.trim.value;
+    x[patient.trim.value];
     }
 
 
