@@ -77,8 +77,8 @@ trim.sample <- function(x, trim = 0.05) {
 # 1. MEAN and SD : methods = 'mean', trim = 0
 # 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 0.05
 # 3. MEDIAN and MAD : methods = 'median'
-# 4. KMEAN : methods = 'kmean'
-quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
+# 4. KMEAN : methods = 'kmean', nstart = 1000
+quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 1, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
     if ('median' == methods) {
         if (exclude.zero) { 
@@ -110,7 +110,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     names(kmean.matrix) <- names(x.na);  
                     } 
                 else {
-                    kmean <- kmeans(non.zero, 2, nstart = 1000);
+                    kmean <- kmeans(non.zero, 2, nstart = nstart);
                     cluster <- kmean$cluster;
                     cluster.zero <- c(cluster, rep(0, length(x[0 == x])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
@@ -125,7 +125,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                 names(kmean.matrix) <- names(x.na);  
                 } 
             else {
-                kmean <- kmeans(x.na, 2, nstart = 1000);
+                kmean <- kmeans(x.na, 2, nstart = nstart);
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
                 names(kmean.matrix) <- names(x.na);  
@@ -177,7 +177,7 @@ data.median <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar
 data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
-data.kmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
+data.kmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean', nstart = 1000)
 data.kmean <- data.frame(data.kmean);
 
 stopCluster(cl)
