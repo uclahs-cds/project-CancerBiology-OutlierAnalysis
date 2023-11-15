@@ -1,65 +1,90 @@
+### Usage ####
+# Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method --data.matrix.file /hot/users/jlivingstone/outlier/NikZainal_2016/processed/2023-11-14_BRCA_EU_transcriptomics_342.tsv
+
 ### 1.Outlier_Detection.R ####################################################
+# this should utlimately be handled in the R package setup but for now 
+needed.packages <- c('gamlss', 'foreach', 'extraDistr', 'truncnorm', 'lsa', 'SnowballC', 'getopt')
+packages <- rownames(installed.packages())
 
-# Set the working directory
-setwd('RNA-seq/CCLE/four_zero/');
+to.install <- needed.packages[which(!needed.packages %in% packages)]
+install.packages(to.install, repo = 'http://cran.us.r-project.org')
 
-# Set the name of the dataset
-dataset.name <- 'CCLE';
-
+# or something like this
 # Required R packages
 # Install and load the 'gamlss' package
-install.packages('gamlss', repo = 'http://cran.us.r-project.org');
-library(gamlss);
-# Install and load the 'doParallel' package
-install.packages('doParallel', repo = 'http://cran.us.r-project.org');
-library(doParallel);
-# Install and load the 'foreach' package
-install.packages('foreach', repo = 'http://cran.us.r-project.org');
-library(foreach);
-# Install and load the 'parallel' package
-install.packages('parallel', repo = 'http://cran.us.r-project.org');
-library(parallel);
-# Install and load the 'extraDistr' package
-install.packages('extraDistr', repo = 'http://cran.us.r-project.org');
-library(extraDistr);
-# Install and load the 'truncnorm' package
-install.packages('truncnorm', repo = 'http://cran.us.r-project.org');
-library(truncnorm);
-# Install and load the 'lsa' package
-install.packages('lsa', repo = 'http://cran.us.r-project.org');
-library(lsa);
-# Install and load the 'SnowballC' package
-install.packages('SnowballC', repo = 'http://cran.us.r-project.org');
-library(SnowballC);
+#if (!require('gamlss')) {
+#	install.packages('gamlss', repo = 'http://cran.us.r-project.org')
+#	}
+library(gamlss)
+library(doParallel)
+library(extraDistr)
+library(truncnorm)
+library(lsa)
+library(getopt)
 
+# or can read from a config file
+#library(yaml)
+#cfg <- read.config.file();
+#cfg$dataset.name
 
+params <- matrix(
+        data = c(
+                'dataset.name', 'd', '0', 'character',
+                'working.directory', 'w', '0', 'character',
+                'data.matrix.file', 'f', '0', 'character'
+                ),
+        ncol = 4,
+        byrow = TRUE
+        );
 
+opt <- getopt(params);
+dataset.name <- opt$dataset.name
+working.directory <- opt$working.directory
+data.matrix.file <- opt$data.matrix.file
+
+# Set the working directory
+setwd('/hot/users/jlivingstone/outlier/run_method');
+# Set the name of the dataset
+dataset.name <- 'BRCA-EU';
+data.matrix.file <- '/hot/users/jlivingstone/outlier/NikZainal_2016/processed/2023-11-14_BRCA_EU_transcriptomics_342.tsv'
+working.directory <- '/hot/user/jlivingstone/outlier/run_method'
+
+setwd(working.directory)
 
 # Load the RNA abundance file
 #   - any input data is available
 # fpkm.tumor.symbol: gene x sample matrix
 # example:
-#   fpkm.tumor.symbol <- read.csv(file = 'METADOR/GSE167977_20210223_matadorCounts.csv', check.names = FALSE, stringsAsFactors = F, sep = ',', row.names = 1);
+fpkm.tumor.log <- read.csv(
+	file = data.matrix.file,
+	check.names = FALSE,
+	stringsAsFactors = FALSE,
+	sep = '\t',
+	row.names = 1
+	)
 
-
-# The original value is log2(FPKM+1)
+# The original value is log2(FPKM + 1)
 #   - make it non log format
-fpkm.tumor.symbol <- 2^fpkm.tumor.symbol-1;
+fpkm.tumor.symbol <- 2 ^ fpkm.tumor.log - 1;
 
 # Number of samples
 #    - if the last column has symbol, it should be 1:(ncol(fpkm.tumor.symbol))-1)
 patient.part <- 1:ncol(fpkm.tumor.symbol);
 sample.number <- 1:ncol(fpkm.tumor.symbol);
 
-
 # Get the genes with less than 1% of zero values
 #   - excludes genes which have zero values more than 99%
-zero.portion <- apply(fpkm.tumor.symbol[,patient.part], 1, function(x) {length(x[0 == x]) / length(patient.part)});
-fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% names(zero.portion[0.01 > zero.portion]),];
+zero.portion <- apply(
+	X = fpkm.tumor.symbol[, patient.part],
+	MARGIN = 1,
+	FUN = function(x) {
+		length(x[0 == x]) / length(patient.part)
+		}
+	);
+fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% names(zero.portion[0.01 > zero.portion]), ];
 molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 
-
-
+# Would this be faster if they were separate functions instead of if statements ?
 
 ### Outlier detection function
 # Default : methods = 'mean', trim = 0
@@ -67,14 +92,16 @@ molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 # 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 5
 # 3. MEDIAN and MAD : methods = 'median'
 # 4. KMEAN : methods = 'kmean'
+
 quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
+    # a better name might be x.complete, x.na makes me thingk it includes NAs
     x.na <- na.omit(as.numeric(x));
     if (methods == 'median') {
-        if (exclude.zero) { 
-            x.nonzero <- x.na[0 != x.na]; 
+        if (exclude.zero) {
+            x.nonzero <- x.na[0 != x.na];
             data.median <- median(x.nonzero);
             data.mad <- mad(x.nonzero);
-            } 
+            }
         else {
             data.median <- median(x.na);
             data.mad <- mad(x.na);
@@ -107,7 +134,6 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     }
                 }
             } 
-    
         else {
             if (length(unique(as.numeric(x.na))) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
@@ -145,45 +171,49 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
         }
     }
 
-
-
-# Parallel running
-# cl <- makeCluster(detectCores()-1);
-cl <- 2;
+# Parallel running (on F16)
+cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
 
 # 1. MEAN and SD : method = 'mean', trim = 0
-data.mean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,]);
+print(Sys.time())
+print('Calculating using MEAN and SD')
+data.mean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i, ]);
 data.mean <- data.frame(data.mean);
 
 # 2. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5
-data.trimmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
+print('Calculating using TRIMMED MEAN and TRIMMED SD')
+print(Sys.time())
+data.trimmean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
 data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
-data.median <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'median');
+print('Calculating using MEDIAN and MAD')
+print(Sys.time())
+data.median <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'median');
 data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
-data.kmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
+print('Calculating using KMEANS')
+print(Sys.time())
+data.kmean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
 data.kmean <- data.frame(data.kmean);
 
-stopCluster(cl)
-
-
-
+stopCluster(cl = cl)
 
 ### Calculate the range of z-score #####
 # Function
 outlier.detection.zrange <- function(x) {
-  x.na <- na.omit(x)
-  zrange <- max(x.na) - min(x.na);
-  zrange.matrix <- c(x, zrange);
-  names(zrange.matrix) <- c(names(x), 'zrange');
-  zrange.matrix;
+    x.na <- na.omit(x)
+    zrange <- max(x.na) - min(x.na);
+    zrange.matrix <- c(x, zrange);
+    names(zrange.matrix) <- c(names(x), 'zrange');
+    zrange.matrix;
     }
 
+print('Outlier detection')
+print(Sys.time())
 # 1. MEAN and SD
 data.zrange.mean <- apply(data.mean, 1, outlier.detection.zrange);
 data.zrange.mean.t <- data.frame(t(data.zrange.mean));
@@ -195,8 +225,6 @@ data.zrange.trimmean.t <- data.frame(t(data.zrange.trimmean));
 # 3. MEDIAN and MAD
 data.zrange.median <- apply(data.median, 1, outlier.detection.zrange);
 data.zrange.median.t <- data.frame(t(data.zrange.median));
-
-
 
 
 ### Calculate the kmean fraction #####
@@ -217,12 +245,10 @@ outlier.detection.kmean <- function(x) {
     fraction.matrix;
     }
 
+print('Outlier detection kmeans')
 # 4. KMEAN fraction
 data.fraction.kmean <- apply(data.kmean, 1, outlier.detection.kmean);
 data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
-
-
-
 
 
 # 5. Cosine similarity
@@ -350,13 +376,20 @@ trim.sample <- function(x, trim.portion = 5) {
     patient.trim.value;
     }
 
+print('Determine the distribution')
 # Determine the distribution
 # Find the best fitted distribution
-cl <- makeCluster(2);
+cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, "trim.sample");
-clusterEvalQ(cl, library(gamlss));
+clusterExport(
+	cl = cl,
+	varlist = 'trim.sample'
+	)
+clusterEvalQ(
+	cl = cl,
+	expr = library(gamlss)
+	)
 
 # Define a minimum value
 random.col <- sample(patient.part, 1)
@@ -365,8 +398,8 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
         nchar(as.character(y)) - nchar(as.integer(y)) - 1
         })
     return(decimal.numbers)
-    })    
-add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
+    })
+add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
 
 bic.trim.distribution <- NULL;
@@ -379,10 +412,10 @@ bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine 
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
     
     
-    glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=NO);
-    glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=LNO);
-    glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family=GA);
-    glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family=EXP);
+    glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family = NO);
+    glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family = LNO);
+    glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family = GA);
+    glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family = EXP);
 
     glm.bic <- c(glm.norm$sbc,
                  glm.lnorm$sbc,
@@ -391,7 +424,7 @@ bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine 
     glm.bic;
     }
 
-stopImplicitCluster();
+stopCluster(cl = cl);
 
 
 # Find the best fitted distribution
@@ -403,43 +436,48 @@ bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution = bic.trim.distribution.fit);
 
 # run it parallel
-cl <- makeCluster(2);
+cl <- makeCluster(spec = dectectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, "outlier.detection.cosine");
-clusterEvalQ(cl, c(library(lsa), library(SnowballC)));
+clusterExport(
+	cl = cl,
+	varlist = 'outlier.detection.cosine'
+	);
+clusterEvalQ(
+	cl = cl,
+	expr = c(library(lsa), library(SnowballC))
+	);
 
-data.cosine.bic <- apply(fpkm.tumor.symbol.filter.bic.fit, 
-                         1, 
-                         outlier.detection.cosine, 
-                         value.portion = 0);
+print('Calculate Cosine')
+data.cosine.bic <- apply(
+	X = fpkm.tumor.symbol.filter.bic.fit,
+	MARGIN = 1,
+	FUN = outlier.detection.cosine,
+	value.portion = 0
+	);
 
-stopImplicitCluster();
+stopCluster(cl = cl);
 
 data.cosine.bic.t <- data.frame(t(data.cosine.bic));
 colnames(data.cosine.bic.t) <- c('cosine', 'distribution');
 
 
-
-
-
-
-
 ### Final gene-wise matrix #####
-gene.zrange.fraction.cosine.last.point.bic <- data.frame(cbind(data.zrange.mean.t$zrange,
-                     data.zrange.median.t$zrange,
-                     data.zrange.trimmean.t$zrange,
-                     data.fraction.kmean.t$fraction,
-                     data.cosine.bic.t$cosine,
-                     data.cosine.bic.t$distribution));
+gene.zrange.fraction.cosine.last.point.bic <- data.frame(
+    cbind(
+        data.zrange.mean.t$zrange,
+        data.zrange.median.t$zrange,
+        data.zrange.trimmean.t$zrange,
+        data.fraction.kmean.t$fraction,
+        data.cosine.bic.t$cosine,
+        data.cosine.bic.t$distribution
+        )
+    )
 rownames(gene.zrange.fraction.cosine.last.point.bic) <- rownames(fpkm.tumor.symbol.filter);
 colnames(gene.zrange.fraction.cosine.last.point.bic) <- c('zrange.mean', 'zrange.median', 'zrange.trimmean', 'fraction.kmean', 'cosine', 'distribution');
 
 
-
-
-
-
+print('Rank each method')
 ### Rank each methods #####
 # Function
 outlier.rank <- function(x) {
@@ -478,17 +516,19 @@ outlier.rank.product <- function(x, NA.number = 0) {
     }
 
 
-
+print('Compute rank product')
 # Compute the rank product
 data.rank.bic <- outlier.rank(gene.zrange.fraction.cosine.last.point.bic);
 
 rank.product.bic <- apply(data.rank.bic, 1, outlier.rank.product, NA.number = 3);
-gene.rank.poduct.bic <- cbind(data.rank.bic, 
-                              rank.product.bic,
-                              distribution = gene.zrange.fraction.cosine.last.point.bic$distribution);
+gene.rank.poduct.bic <- cbind(
+	data.rank.bic,
+	rank.product.bic,
+	distribution = gene.zrange.fraction.cosine.last.point.bic$distribution
+	);
 gene.rank.order.5method.cosine.last.point.bic <- gene.rank.poduct.bic[order(gene.rank.poduct.bic$rank.product, decreasing = FALSE),];
 
-
+print('Saving results')
 # save the R environment
 #   - short version
 save(
@@ -516,5 +556,3 @@ save(
     gene.rank.order.5method.cosine.last.point.bic,
     file = generate.filename(dataset.name, 'final_outlier_rank_bic.long', 'rda')
     );
-
-
