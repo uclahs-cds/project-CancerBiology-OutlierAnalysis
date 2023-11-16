@@ -1,5 +1,5 @@
 ### Usage ####
-# Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method --data.matrix.file /hot/users/jlivingstone/outlier/NikZainal_2016/processed/2023-11-14_BRCA_EU_transcriptomics_342.tsv
+# Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method --data.matrix.file /hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt
 
 ### 1.Outlier_Detection.R ####################################################
 # this should utlimately be handled in the R package setup but for now 
@@ -46,7 +46,7 @@ data.matrix.file <- opt$data.matrix.file
 setwd('/hot/users/jlivingstone/outlier/run_method');
 # Set the name of the dataset
 dataset.name <- 'BRCA-EU';
-data.matrix.file <- '/hot/users/jlivingstone/outlier/NikZainal_2016/processed/2023-11-14_BRCA_EU_transcriptomics_342.tsv'
+data.matrix.file <- '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
 working.directory <- '/hot/user/jlivingstone/outlier/run_method'
 
 setwd(working.directory)
@@ -63,9 +63,15 @@ fpkm.tumor.log <- read.csv(
 	row.names = 1
 	)
 
-# The original value is log2(FPKM + 1)
+cols.to.remove <- c('Ensembl', 'Source', 'Name', 'loc')
+annot <- fpkm.tumor.log[, match(cols.to.remove, colnames(fpkm.tumor.log))]
+fpkm.tumor.symbol.log <- fpkm.tumor.log[, -match(cols.to.remove, colnames(fpkm.tumor.log))]
+
 #   - make it non log format
-fpkm.tumor.symbol <- 2 ^ fpkm.tumor.log - 1;
+fpkm.tumor.symbol <- 2 ^ fpkm.tumor.symbol.log;
+
+# change NAs to 0
+fpkm.tumor.symbol[is.na(fpkm.tumor.symbol)] <- 0
 
 # Number of samples
 #    - if the last column has symbol, it should be 1:(ncol(fpkm.tumor.symbol))-1)
@@ -81,7 +87,9 @@ zero.portion <- apply(
 		length(x[0 == x]) / length(patient.part)
 		}
 	);
-fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% names(zero.portion[0.01 > zero.portion]), ];
+fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[which(0.01 > zero.portion), ];
+annot.filter <- annot[which(0.01 > zero.portion), ]
+
 molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 
 # Would this be faster if they were separate functions instead of if statements ?
@@ -177,8 +185,8 @@ cl <- makeCluster(spec = detectCores() - 2);
 registerDoParallel(cl);
 
 # 1. MEAN and SD : method = 'mean', trim = 0
-print(Sys.time())
 print('Calculating using MEAN and SD')
+print(Sys.time())
 data.mean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i, ]);
 data.mean <- data.frame(data.mean);
 
@@ -532,6 +540,7 @@ print('Saving results')
 # save the R environment
 #   - short version
 save(
+    annot.filter,
     fpkm.tumor.symbol.filter,
     patient.part,
     sample.number,
@@ -543,6 +552,7 @@ save(
 
 #   - long version
 save(
+    annot.filter,
     fpkm.tumor.symbol.filter,
     patient.part,
     sample.number,
