@@ -61,6 +61,7 @@ molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 
 ### Trim sample
 trim.sample <- function(x, trim = 0.05) {
+    x <- sort(x);
     if (length(x) <= 10) {
         patient.trim.value <- 2:(length(x)-1);
         } else {
