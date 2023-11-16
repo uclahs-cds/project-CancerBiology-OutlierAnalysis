@@ -362,15 +362,14 @@ bic.trim.distribution <- NULL;
 # Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
 bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
     sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
-    sample.trim.number <- trim.sample(sample.number, 0.05);
-    sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
-    sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
+    sample.fpkm.qq.trimmed <- trim.sample(sample.fpkm.qq, 0.05)
+    sample.fpkm.qq.trimmed.nozero <- sample.fpkm.qq.trimmed + add.minimum.value;
     
     
-    glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=NO);
-    glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=LNO);
-    glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family=GA);
-    glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family=EXP);
+    glm.norm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=NO);
+    glm.lnorm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=LNO);
+    glm.gamma <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=GA);
+    glm.exp <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=EXP);
 
     glm.bic <- c(glm.norm$sbc,
                  glm.lnorm$sbc,
