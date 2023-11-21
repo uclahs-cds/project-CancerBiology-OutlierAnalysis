@@ -1,5 +1,5 @@
 ### Usage ####
-# Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method --data.matrix.file /hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt
+# Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method --data.matrix.file /hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt
 
 ### 1.Outlier_Detection.R ####################################################
 # this should utlimately be handled in the R package setup but for now 
@@ -15,12 +15,13 @@ install.packages(to.install, repo = 'http://cran.us.r-project.org')
 #if (!require('gamlss')) {
 #	install.packages('gamlss', repo = 'http://cran.us.r-project.org')
 #	}
-library(gamlss)
+library(BoutrosLab.utilities)
 library(doParallel)
 library(extraDistr)
-library(truncnorm)
-library(lsa)
+library(gamlss)
 library(getopt)
+library(lsa)
+library(truncnorm)
 
 # or can read from a config file
 #library(yaml)
@@ -134,7 +135,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     names(kmean.matrix) <- names(x.na);  
                     } 
                 else {
-                    kmean <- kmeans(non.zero, 2, nstart = 1000);
+                    kmean <- kmeans(non.zero, 2, nstart = 100);
                     cluster <- kmean$cluster;
                     cluster.zero <- c(cluster, rep(0, length(x[x == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
@@ -148,7 +149,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                 names(kmean.matrix) <- names(x.na);  
                 } 
             else {
-                kmean <- kmeans(x.na, 2, nstart = 1000);
+                kmean <- kmeans(x.na, 2, nstart = 100);
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
                 names(kmean.matrix) <- names(x.na);  
@@ -444,7 +445,7 @@ bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution = bic.trim.distribution.fit);
 
 # run it parallel
-cl <- makeCluster(spec = dectectCores() - 2);
+cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
 clusterExport(
@@ -507,7 +508,6 @@ outlier.rank <- function(x) {
     rank.matrix <- data.frame(rank.matrix);
     }
 
-
 ### Rank product to determine Top ranked genes #####
 # Function
 # x: ranked matrix
@@ -530,6 +530,7 @@ data.rank.bic <- outlier.rank(gene.zrange.fraction.cosine.last.point.bic);
 
 rank.product.bic <- apply(data.rank.bic, 1, outlier.rank.product, NA.number = 3);
 gene.rank.poduct.bic <- cbind(
+	annot.filter,
 	data.rank.bic,
 	rank.product.bic,
 	distribution = gene.zrange.fraction.cosine.last.point.bic$distribution
