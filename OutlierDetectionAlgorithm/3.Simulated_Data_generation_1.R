@@ -3,13 +3,14 @@
 ### 3.Simulated_Data_generation_1.R ####################################################
 # Generate the simulated data: part1
 
-# Rscript 3.Simulated_Data_generation_1.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method --outlier.rank.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_BRCA-EU_final_outlier_rank_bic.long.rda
+# Rscript 3.Simulated_Data_generation_1.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method --outlier.rank.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_BRCA-EU_final_outlier_rank_bic.long.rda --ntimes 10
 
 # Required R packages
 library(BoutrosLab.utilities)
 library(doParallel);
 library(extraDistr);
 library(foreach);
+library(getopt)
 library(lsa);
 library(truncnorm);
 library(parallel);
@@ -19,7 +20,8 @@ params <- matrix(
         data = c(
                 'dataset.name', 'd', '0', 'character',
                 'working.directory', 'w', '0', 'character',
-                'outlier.rank.file', 'f', '0', 'character'
+                'outlier.rank.file', 'f', '0', 'character',
+		'ntimes', 'n', '0', 'character'
                 ),
         ncol = 4,
         byrow = TRUE
@@ -29,10 +31,12 @@ opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 outlier.rank.file <- opt$outlier.rank.file
+ntimes <- opt$ntimes
 
 working.directory <- '/hot/users/jlivingstone/outlier/run_method'
 dataset.name <- 'BRCA_EU'
 outlier.rank.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-20_BRCA-EU_final_outlier_rank_bic.long.rda'
+ntimes = 10
 
 # Set the working directory
 setwd(working.directory);
@@ -43,9 +47,9 @@ load(
 	)
 
 # Run parallel: 10 chucnks
-args <- commandArgs(
-	trailingOnly = TRUE
-	)
+#args <- commandArgs(
+#	trailingOnly = TRUE
+#	)
 
 # sample size
 patient.part <- 1:ncol(fpkm.tumor.symbol.filter);
@@ -142,22 +146,29 @@ simulated.generation.negative <- function(x = fpkm.tumor.symbol.filter.distribut
     simulated.negative;
     }
 
-print('run negative random number')
-negative.random.number.bic <- simulated.generation.negative(
-	x = fpkm.tumor.symbol.filter.bic, 
-        distribution = bic.trim.distribution.fit, 
-        num.negative = 100000,
-        sample.size = sample.number
-	)
+seeds <- round(runif(n = ntimes, min = 1, max = 10000))
+
+for (i in 1:ntimes) {
+	seed <- seeds[i]
+	set.seed(seed)
+	print(paste0('run negative random number:', i))
+	negative.random.number.bic <- simulated.generation.negative(
+		x = fpkm.tumor.symbol.filter.bic,
+	        distribution = bic.trim.distribution.fit,
+	        num.negative = 100000,
+	        sample.size = sample.number
+		)
+
+	# save the R environment
+	save(
+	    seed,
+	    fpkm.tumor.symbol.filter,
+	    patient.part,
+	    sample.number,
+	    bic.trim.distribution.fit,
+	    negative.random.number.bic,
+	    file = generate.filename('Simulated_data_generation_1', paste(dataset.name, i, sep = '.'), 'rda')
+    	    )
+	}
 
 stopCluster(cl = cl)
-
-# save the R environment
-save(
-    fpkm.tumor.symbol.filter,
-    patient.part,
-    sample.number,
-    bic.trim.distribution.fit,
-    negative.random.number.bic,
-    file = generate.filename('Simulated_data_generation_1', dataset.name, 'rda')
-    )

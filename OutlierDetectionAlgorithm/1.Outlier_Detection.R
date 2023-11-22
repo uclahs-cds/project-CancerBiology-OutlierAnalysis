@@ -264,7 +264,7 @@ data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
 # function: Compute the cosine similarity of the largest data point
 outlier.detection.cosine <- function (x, value.portion = 1) {
 
-        # Define a minimum value
+    # Define a minimum value
     decimal.number.max <- lapply(na.omit(x), function(x) {
         decimal.numbers <- sapply(x, function(y) {
             nchar(as.character(y)) - nchar(as.integer(y)) - 1
@@ -273,14 +273,13 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
         })    
     add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
 
-
     trim.sample <- function(x, trim.portion = 5) {
         if (length(x) <= 10) {
             patient.trim.value <- 2:(length(x)-1);
         } else {
             trim.sample.number <- length(x) * (trim.portion/100);
             trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-            patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+            patient.trim.value <- (trim.sample.number.integer + 1):(length(x) - trim.sample.number.integer);
             }
         patient.trim.value;
         }
@@ -301,7 +300,7 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
             }
         
         # subset the largest values
-        patient.larger.value <- (length(x)-large.value.number.integer + 1):length(x);
+        patient.larger.value <- (length(x) - large.value.number.integer + 1):length(x);
         observed.value <- sort(y);
         theoretical.value <- sort(x);
         mid.value <- c(1, 1);
@@ -318,13 +317,11 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     sample.fpkm.qq <- na.omit(as.numeric(x[sample.number]))
     sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
     
-
     # Trimmed samples -Trim 5% of each side
     sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 5);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
-    
     # Quantile
     p <- ppoints(sample.fpkm.qq.nozero);
     
@@ -376,11 +373,11 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
 # Trimming function
 trim.sample <- function(x, trim.portion = 5) {
     if (length(x) <= 10) {
-        patient.trim.value <- 2:(length(x)-1);
+        patient.trim.value <- 2:(length(x) - 1);
     } else {
-        trim.sample.number <- length(x) * (trim.portion/100);
+        trim.sample.number <- length(x) * (trim.portion / 100);
         trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+        patient.trim.value <- (trim.sample.number.integer + 1):(length(x) - trim.sample.number.integer);
         }
     patient.trim.value;
     }
@@ -410,7 +407,6 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
     })
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
-
 bic.trim.distribution <- NULL;
 
 # Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
@@ -419,8 +415,7 @@ bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine 
     sample.trim.number <- trim.sample(sample.number, 5);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
-    
-    
+
     glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family = NO);
     glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family = LNO);
     glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family = GA);
@@ -447,7 +442,7 @@ fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution
 # run it parallel
 cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
-registerDoParallel(cl);
+registerDoParallel(cl = cl);
 clusterExport(
 	cl = cl,
 	varlist = 'outlier.detection.cosine'
@@ -469,7 +464,6 @@ stopCluster(cl = cl);
 
 data.cosine.bic.t <- data.frame(t(data.cosine.bic));
 colnames(data.cosine.bic.t) <- c('cosine', 'distribution');
-
 
 ### Final gene-wise matrix #####
 gene.zrange.fraction.cosine.last.point.bic <- data.frame(
@@ -498,6 +492,7 @@ outlier.rank <- function(x) {
         rank.methods <- rank(-x[,methods.column], ties.method = 'max', na.last = 'keep');
         rank.matrix <- cbind(rank.matrix, rank.methods);
         }
+    # need to seperate because ascending order is important for fraction.kmean & cosine
     for (i in 4:5) {
         methods.column <- methods[i];
         rank.methods <- rank(x[,methods.column], ties.method = 'max', na.last = 'keep');
@@ -519,7 +514,7 @@ outlier.rank.product <- function(x, NA.number = 0) {
         NA;
         }
     else {
-        prod(rank, na.rm = TRUE)^(1/num);
+        prod(rank, na.rm = TRUE) ^ (1 / num);
         }
     }
 
