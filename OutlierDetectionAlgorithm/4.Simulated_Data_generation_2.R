@@ -1,7 +1,10 @@
 ### 4.Simulated_Data_generation_2.R ####################################################
 # Generate the simulated data: part2
 
-# Rscript 4.Simulated_Data_generation_2.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method --outlier.rank.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_Distribution_Identification_short_BRCA_EU.rda --simulated.data.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_Simulated_data_generation_1_BRCA_EU.1.rda
+# Rscript 4.Simulated_Data_generation_2.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method \
+# --distribution.identification.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_Distribution_Identification_short_BRCA_EU.rda \
+# --simulated.data.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_Simulated_data_generation_1_BRCA_EU.1.rda
+
 # Required R package
 library(BoutrosLab.utilities)
 library(doParallel);
@@ -15,7 +18,7 @@ params <- matrix(
         data = c(
                 'dataset.name', 'd', '0', 'character',
                 'working.directory', 'w', '0', 'character',
-                'outlier.rank.file', 'o', '0', 'character',
+                'distribution.identification.file', 'o', '0', 'character',
 		'simulated.data.file', 's', '0', 'character'
                 ),
         ncol = 4,
@@ -25,13 +28,13 @@ params <- matrix(
 opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
-outlier.rank.file <- opt$outlier.rank.file
+distribution.identification.file <- opt$distribution.identification.file
 simulated.data.file <- opt$simulated.data.file
 
-working.directory <- '/hot/users/jlivingstone/outlier/run_method'
-dataset.name <- 'BRCA_EU'
-outlier.rank.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-20_Distribution_Identification_short_BRCA_EU.rda'
-simulated.data.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-21_Simulated_data_generation_1_BRCA_EU.1.rda'
+#working.directory <- '/hot/users/jlivingstone/outlier/run_method'
+#dataset.name <- 'BRCA_EU'
+#distribution.identification.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-20_Distribution_Identification_short_BRCA_EU.rda'
+#simulated.data.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-21_Simulated_data_generation_1_BRCA_EU.1.rda'
 
 # replicate number is parsed from the input file
 pattern <- "\\d+"
@@ -44,7 +47,7 @@ setwd(working.directory);
 
 # load the R environment file saved from 2.Distribution_Identification.R and 3.Simulated_Data_generation_1.R
 load(
-	file = outlier.rank.file
+	file = distribution.identification.file
 	)
 
 load(
