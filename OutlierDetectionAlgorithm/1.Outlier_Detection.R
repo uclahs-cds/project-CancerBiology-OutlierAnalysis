@@ -59,17 +59,29 @@ fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[rownames(fpkm.tumor.symbol) %in% n
 molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 
 
+### Trim sample
+trim.sample <- function(x, trim = 0.05) {
+    x <- sort(x);
+    if (length(x) <= 10) {
+        patient.trim.value <- 2:(length(x)-1);
+        } else {
+        trim.sample.number <- length(x) * trim;
+        trim.sample.number.integer <- round(trim.sample.number);
+        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+        }
+    x[patient.trim.value];
+    }
 
 
 ### Outlier detection function
 # Default : methods = 'mean', trim = 0
 # 1. MEAN and SD : methods = 'mean', trim = 0
-# 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 5
+# 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 0.05
 # 3. MEDIAN and MAD : methods = 'median'
-# 4. KMEAN : methods = 'kmean'
-quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
+# 4. KMEAN : methods = 'kmean', nstart = 1000
+quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 1, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
-    if (methods == 'median') {
+    if ('median' == methods) {
         if (exclude.zero) { 
             x.nonzero <- x.na[0 != x.na]; 
             data.median <- median(x.nonzero);
@@ -83,25 +95,25 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
         x[which(!is.na(x))] <- result.na;
         x;
         }
-    else if (methods == 'kmean') {
+    else if ('kmean' == methods) {
         if (exclude.zero) {
-            if (length(unique(as.numeric(x.na))) == 1) {
+            if (1 == length(unique(x.na))) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);
                 } 
             else {
                 data.order <- sort(x.na, decreasing = TRUE);
                 non.zero <- data.order[data.order > 0];
-                if (length(unique(as.numeric(non.zero))) <= 2) {
+                if (length(unique(non.zero)) <= 2) {
                     na.matrix <- rep(NA, length(non.zero));
-                    cluster.zero <- c(na.matrix, rep(0, length(x.na[x.na == 0])));
+                    cluster.zero <- c(na.matrix, rep(0, length(x.na[0 == x.na])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
                     names(kmean.matrix) <- names(x.na);  
                     } 
                 else {
-                    kmean <- kmeans(non.zero, 2, nstart = 1000);
+                    kmean <- kmeans(non.zero, 2, nstart = nstart);
                     cluster <- kmean$cluster;
-                    cluster.zero <- c(cluster, rep(0, length(x[x == 0])));
+                    cluster.zero <- c(cluster, rep(0, length(x[0 == x])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
                     names(kmean.matrix) <- names(x.na);   
                     }
@@ -109,12 +121,12 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
             } 
     
         else {
-            if (length(unique(as.numeric(x.na))) == 1) {
+            if (1 == length(unique(x.na))) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);  
                 } 
             else {
-                kmean <- kmeans(x.na, 2, nstart = 1000);
+                kmean <- kmeans(x.na, 2, nstart = nstart);
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
                 names(kmean.matrix) <- names(x.na);  
@@ -127,16 +139,16 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
     else {
         gene.order <- x.na[order(x.na, decreasing = TRUE)];
         if (exclude.zero) { 
-            gene.order.nonzero <- gene.order[0 != gene.order]; 
-            top.patient <- round(length(gene.order.nonzero) * (trim / 100), digit = 0);
-            low.patient <- round(length(gene.order.nonzero) * (1 - (trim / 100)), digit = 0);
-            data.mean <- mean(gene.order.nonzero, trim = (trim / 100));
+            gene.order.nonzero <- gene.order[0 != gene.order];
+            top.patient <- round(length(gene.order.nonzero) * trim, digit = 0);
+            low.patient <- round(length(gene.order.nonzero) * (1 - trim), digit = 0);
+            data.mean <- mean(gene.order.nonzero, trim = trim);
             data.sd <- sd(gene.order.nonzero[(top.patient+1):(low.patient)]);
             } 
         else {
-            top.patient <- round(length(x.na) * (trim / 100), digit = 0);
-            low.patient <- round(length(x.na) * (1 - (trim / 100)), digit = 0);
-            data.mean <- mean(gene.order, trim = (trim / 100));
+            top.patient <- round(length(x.na) * trim, digit = 0);
+            low.patient <- round(length(x.na) * (1 - trim), digit = 0);
+            data.mean <- mean(gene.order, trim = trim);
             data.sd <- sd(gene.order[(top.patient+1):(low.patient)]);
             }
         result.na <- (x.na - data.mean) / data.sd;
@@ -158,7 +170,7 @@ data.mean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% 
 data.mean <- data.frame(data.mean);
 
 # 2. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5
-data.trimmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
+data.trimmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 0.05);
 data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
@@ -166,7 +178,7 @@ data.median <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar
 data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
-data.kmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
+data.kmean <- foreach(i=1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean', nstart = 1000)
 data.kmean <- data.frame(data.kmean);
 
 stopCluster(cl)
@@ -202,12 +214,12 @@ data.zrange.median.t <- data.frame(t(data.zrange.median));
 ### Calculate the kmean fraction #####
 # Function
 outlier.detection.kmean <- function(x) {
-    if (1== length(unique(as.numeric(x)))) {
+    if (1 == length(unique(as.numeric(x)))) {
         fraction <- NA;
         }
     else {
-        cluster.one <- length(x[x == 1]);
-        cluster.two <- length(x[x == 2]);
+        cluster.one <- length(x[1 == x]);
+        cluster.two <- length(x[2 == x]);
         cluster.sum <- cluster.one + cluster.two;
         smaller.value <- min(cluster.one, cluster.two);
         fraction <- round(smaller.value/cluster.sum, digit = 4);
@@ -237,18 +249,6 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
         return(decimal.numbers)
         })    
     add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
-
-
-    trim.sample <- function(x, trim.portion = 5) {
-        if (length(x) <= 10) {
-            patient.trim.value <- 2:(length(x)-1);
-        } else {
-            trim.sample.number <- length(x) * (trim.portion/100);
-            trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-            patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
-            }
-        patient.trim.value;
-        }
 
     # function: Compute the cosine similarity of the largest data point
     cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
@@ -285,7 +285,7 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     
 
     # Trimmed samples -Trim 5% of each side
-    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 5);
+    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 0.05);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
@@ -338,18 +338,6 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     }
 
 
-# Trimming function
-trim.sample <- function(x, trim.portion = 5) {
-    if (length(x) <= 10) {
-        patient.trim.value <- 2:(length(x)-1);
-    } else {
-        trim.sample.number <- length(x) * (trim.portion/100);
-        trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
-        }
-    patient.trim.value;
-    }
-
 # Determine the distribution
 # Find the best fitted distribution
 cl <- makeCluster(2);
@@ -374,15 +362,14 @@ bic.trim.distribution <- NULL;
 # Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
 bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
     sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
-    sample.trim.number <- trim.sample(sample.number, 5);
-    sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
-    sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
+    sample.fpkm.qq.trimmed <- trim.sample(sample.fpkm.qq, 0.05)
+    sample.fpkm.qq.trimmed.nozero <- sample.fpkm.qq.trimmed + add.minimum.value;
     
     
-    glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=NO);
-    glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=LNO);
-    glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family=GA);
-    glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family=EXP);
+    glm.norm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=NO);
+    glm.lnorm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=LNO);
+    glm.gamma <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=GA);
+    glm.exp <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=EXP);
 
     glm.bic <- c(glm.norm$sbc,
                  glm.lnorm$sbc,
