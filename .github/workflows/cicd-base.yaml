@@ -1,0 +1,33 @@
+---
+name: CICD-base
+
+on:
+  push:
+    branches:
+      - master
+      - jlivingstone-run-method
+  pull_request:
+    branches:
+      - master
+      - jlivingstone-run-method
+
+jobs:
+  CICD-base:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
+    steps:
+      # Checkout codebase
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Run cicd-base
+      - name: CICD-base
+        uses: docker://ghcr.io/uclahs-cds/cicd-base:latest
+        env:
+          VALIDATE_PYTHON: false
+          VALIDATE_YAML: false
+          VALIDATE_SHELL: false
+          VALIDATE_PERL: false
+          VALIDATE_DOCKERFILE: false

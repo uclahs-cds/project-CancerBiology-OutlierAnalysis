@@ -41,19 +41,19 @@ simulated.data.file <- opt$simulated.data.file
 # Set the working directory
 setwd(working.directory);
 
-pattern <- "\\d+"
+pattern <- '\\d+'
 parsed.file <- substr(simulated.data.file, nchar(simulated.data.file) - 5, nchar(simulated.data.file))
 index <- gregexpr(pattern = pattern, text = parsed.file)
 replicate <- regmatches(parsed.file, index)[[1]]
 
 # load the R environment file saved from 4.Simulated_Data_generation_2.R and 2.Distribution_Identfication.R
 load(
-	file = simulated.data.file
-	)
+    file = simulated.data.file
+    )
 
 load(
-	file = distribution.identification.file
-	)
+    file = distribution.identification.file
+    )
 
 # sample size
 patient.part <- 1:ncol(fpkm.tumor.symbol.filter);
@@ -68,7 +68,7 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
         nchar(as.character(y)) - nchar(as.integer(y)) - 1
         })
     return(decimal.numbers)
-    })    
+    })
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
 
@@ -83,10 +83,10 @@ cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
         large.value.number.integer <- 1;
         }
     else {
-        large.value.number <- length(x) * (large.value.percent/100);
+        large.value.number <- length(x) * (large.value.percent / 100);
         large.value.number.integer <- roundToInteger(large.value.number);
         }
-    
+
     # subset the largest values
     patient.larger.value <- (length(x) - large.value.number.integer + 1):length(x);
     observed.value <- sort(y);
@@ -110,12 +110,12 @@ trim.sample <- function(x, trim.portion = 5) {
     } else {
         trim.sample.number <- length(x) * (trim.portion / 100);
         trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+        patient.trim.value <- (trim.sample.number.integer + 1):(length(x) - trim.sample.number.integer);
         }
     patient.trim.value;
     }
 
-outlier.detection.cosine <- function (x, value.portion = 1) {
+outlier.detection.cosine <- function(x, value.portion = 1) {
 
     # Define a minimum value
     decimal.number.max <- lapply(na.omit(x), function(x) {
@@ -123,7 +123,7 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
             nchar(as.character(y)) - nchar(as.integer(y)) - 1
             })
         return(decimal.numbers)
-        })    
+        })
     add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
     sample.fpkm.qq <- na.omit(as.numeric(x[sample.number]))
@@ -133,14 +133,14 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 5);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
-    
+
     # Quantile
     p <- ppoints(sample.fpkm.qq.nozero);
-    
+
     # Distribution
     distribution.fit <- as.numeric(x[length(x)]);
-    
-    if (1 == distribution.fit){
+
+    if (1 == distribution.fit) {
         # 1. Normal distribution
         norm.mean <- mean(sample.fpkm.qq.nozero.trim);
         norm.sd <- sd(sample.fpkm.qq.nozero.trim);
@@ -189,13 +189,13 @@ cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl = cl);
 clusterExport(
-	cl = cl,
-	varlist = 'trim.sample'
-	)
+    cl = cl,
+    varlist = 'trim.sample'
+    )
 clusterEvalQ(
-	cl = cl,
-	expr = library(gamlss)
-	)
+    cl = cl,
+    expr = library(gamlss)
+    )
 
 # Define a minimum value
 random.col <- sample(patient.part, 1)
@@ -204,18 +204,17 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
         nchar(as.character(y)) - nchar(as.integer(y)) - 1
         })
     return(decimal.numbers)
-    })    
+    })
 
 bic.trim.distribution <- NULL;
 
 # Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
-bic.trim.distribution <- foreach (j = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% {
-    sample.fpkm.qq <- round(as.numeric(negative.simulated.sum[j,sample.number]), digits = 6);
+bic.trim.distribution <- foreach(j = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% {
+    sample.fpkm.qq <- round(as.numeric(negative.simulated.sum[j, sample.number]), digits = 6);
     sample.trim.number <- trim.sample(sample.number, 5);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
-    
-    
+
     glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family = NO);
     glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family = LNO);
     glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family = GA);
@@ -242,20 +241,20 @@ cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl = cl);
 clusterExport(
-	cl = cl,
-	varlist = 'outlier.detection.cosine'
-	);
+    cl = cl,
+    varlist = 'outlier.detection.cosine'
+    );
 clusterEvalQ(
-	cl = cl,
-	expr = c(library(lsa), library(SnowballC))
-	)
+    cl = cl,
+    expr = c(library(lsa), library(SnowballC))
+    )
 
 data.cosine.negative <- apply(
-	X = negative.simulated.sum.fit,
+    X = negative.simulated.sum.fit,
         MARGIN = 1,
         FUN = outlier.detection.cosine,
         value.portion = 0
-	)
+    )
 
 stopCluster(cl = cl);
 
@@ -265,15 +264,15 @@ data.cosine.negative.t <- data.frame(data.cosine.negative.t);
 colnames(data.cosine.negative.t) <- c('cosine', 'distribution');
 
 
-# 1,2,3,4 
+# 1,2,3,4
 quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
     if (methods == 'median') {
-        if (exclude.zero) { 
-            x.nonzero <- x.na[0 != x.na]; 
+        if (exclude.zero) {
+            x.nonzero <- x.na[0 != x.na];
             data.median <- median(x.nonzero);
             data.mad <- mad(x.nonzero);
-            } 
+            }
         else {
             data.median <- median(x.na);
             data.mad <- mad(x.na);
@@ -287,7 +286,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
             if (length(unique(as.numeric(x.na))) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);
-                } 
+                }
             else {
                 data.order <- sort(x.na, decreasing = TRUE);
                 non.zero <- data.order[data.order > 0];
@@ -295,28 +294,28 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     na.matrix <- rep(NA, length(non.zero));
                     cluster.zero <- c(na.matrix, rep(0, length(x.na[x.na == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
-                    names(kmean.matrix) <- names(x.na);  
-                    } 
+                    names(kmean.matrix) <- names(x.na);
+                    }
                 else {
                     kmean <- kmeans(non.zero, 2, nstart = 1000);
                     cluster <- kmean$cluster;
                     cluster.zero <- c(cluster, rep(0, length(x[x == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
-                    names(kmean.matrix) <- names(x.na);   
+                    names(kmean.matrix) <- names(x.na);
                     }
                 }
-            } 
-    
+            }
+
         else {
             if (length(unique(as.numeric(x.na))) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
-                names(kmean.matrix) <- names(x.na);  
-                } 
+                names(kmean.matrix) <- names(x.na);
+                }
             else {
                 kmean <- kmeans(x.na, 2, nstart = 1000);
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
-                names(kmean.matrix) <- names(x.na);  
+                names(kmean.matrix) <- names(x.na);
                 }
             }
         result.na <- kmean.matrix;
@@ -325,13 +324,13 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
         }
     else {
         gene.order <- x.na[order(x.na, decreasing = TRUE)];
-        if (exclude.zero) { 
-            gene.order.nonzero <- gene.order[0 != gene.order]; 
+        if (exclude.zero) {
+            gene.order.nonzero <- gene.order[0 != gene.order];
             top.patient <- round(length(gene.order.nonzero) * (trim / 100), digit = 0);
             low.patient <- round(length(gene.order.nonzero) * (1 - (trim / 100)), digit = 0);
             data.mean <- mean(gene.order.nonzero, trim = (trim / 100));
-            data.sd <- sd(gene.order.nonzero[(top.patient+1):(low.patient)]);
-            } 
+            data.sd <- sd(gene.order.nonzero[(top.patient + 1):(low.patient)]);
+            }
         else {
             top.patient <- round(length(x.na) * (trim / 100), digit = 0);
             low.patient <- round(length(x.na) * (1 - (trim / 100)), digit = 0);
@@ -350,19 +349,19 @@ cl <- makeCluster(detectCores() - 2);
 registerDoParallel(cl = cl);
 
 # 1. MEAN and SD : method = 'mean', trim = 0
-data.mean <- foreach (i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,]);
+data.mean <- foreach(i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,]);
 data.mean <- data.frame(data.mean);
 
 # 2. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5
-data.trimmean <- foreach (i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,], trim = 5);
+data.trimmean <- foreach(i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,], trim = 5);
 data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
-data.median <- foreach (i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,], methods = 'median');
+data.median <- foreach(i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,], methods = 'median');
 data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
-data.kmean <- foreach (i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,], methods = 'kmean')
+data.kmean <- foreach(i = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% quantify.outliers(negative.simulated.sum[i,], methods = 'kmean')
 data.kmean <- data.frame(data.kmean);
 
 stopCluster(cl = cl)
@@ -411,21 +410,20 @@ kmean.simulated.negative.1M <- data.frame(t(data.fraction.kmean));
 
 ### Final gene-wise matrix #####
 gene.zrange.fraction.negative.simulated.sum.1M <- cbind(
-	mean.simulated.negative.1M$zrange,
+    mean.simulated.negative.1M$zrange,
         median.simulated.negative.1M$zrange,
         trimmean.simulated.negative.1M$zrange,
         kmean.simulated.negative.1M$fraction
-	)
+    )
 rownames(gene.zrange.fraction.negative.simulated.sum.1M) <- rownames(negative.simulated.sum);
 colnames(gene.zrange.fraction.negative.simulated.sum.1M) <- c('zrange.mean', 'zrange.median', 'zrange.trimmean', 'fraction.kmean');
 
-
 # Final statistic matrix
 gene.zrange.fraction.negative.simulated.sum.bic.5method.1M <- cbind(
-	gene.zrange.fraction.negative.simulated.sum.1M[,c(1, 2, 3, 4)],
-	data.cosine.negative.t$cosine,
-	data.cosine.negative.t$distribution
-	)
+    gene.zrange.fraction.negative.simulated.sum.1M[,c(1, 2, 3, 4)],
+    data.cosine.negative.t$cosine,
+    data.cosine.negative.t$distribution
+    )
 colnames(gene.zrange.fraction.negative.simulated.sum.bic.5method.1M) <- c('zrange.mean', 'zrange.median', 'zrange.trimmean', 'fraction.kmean', 'cosine', 'distribution');
 
 save(

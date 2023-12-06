@@ -19,7 +19,7 @@ params <- matrix(
                 'dataset.name', 'd', '0', 'character',
                 'working.directory', 'w', '0', 'character',
                 'distribution.identification.file', 'o', '0', 'character',
-		'simulated.data.file', 's', '0', 'character'
+                'simulated.data.file', 's', '0', 'character'
                 ),
         ncol = 4,
         byrow = TRUE
@@ -37,7 +37,7 @@ simulated.data.file <- opt$simulated.data.file
 #simulated.data.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-21_Simulated_data_generation_1_BRCA_EU.1.rda'
 
 # replicate number is parsed from the input file
-pattern <- "\\d+"
+pattern <- '\\d+'
 parsed.file <- substr(simulated.data.file, nchar(simulated.data.file) - 5, nchar(simulated.data.file))
 index <- gregexpr(pattern = pattern, text = parsed.file)
 replicate <- regmatches(parsed.file, index)[[1]]
@@ -47,12 +47,12 @@ setwd(working.directory);
 
 # load the R environment file saved from 2.Distribution_Identification.R and 3.Simulated_Data_generation_1.R
 load(
-	file = distribution.identification.file
-	)
+    file = distribution.identification.file
+    )
 
 load(
-	file = simulated.data.file
-	)
+    file = simulated.data.file
+    )
 
 # sample size
 patient.part <- 1:ncol(fpkm.tumor.symbol.filter);
@@ -67,7 +67,7 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
         nchar(as.character(y)) - nchar(as.integer(y)) - 1
         })
     return(decimal.numbers)
-    })    
+    })
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
 # 2. residual
@@ -80,13 +80,13 @@ cl <- makeCluster(spec = detectCores() - 2)
 # register the cluster with the parallel package
 registerDoParallel(cl = cl);
 clusterExport(
-	cl = cl,
-	varlist = 'add.minimum.value'
-	)
+    cl = cl,
+    varlist = 'add.minimum.value'
+    )
 clusterEvalQ(
-	cl = cl,
-	expr = library(extraDistr)
-	)
+    cl = cl,
+    expr = library(extraDistr)
+    )
 
 random.col <- sample(patient.part, 1)
 decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
@@ -94,10 +94,10 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
         nchar(as.character(y)) - nchar(as.integer(y)) - 1
         })
     return(decimal.numbers)
-    })    
+    })
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
-negative.random.number.noise.bic <- foreach (i = 1:nrow(residue.negative.random.number.bic), .combine = 'rbind') %dopar% {
+negative.random.number.noise.bic <- foreach(i = 1:nrow(residue.negative.random.number.bic), .combine = 'rbind') %dopar% {
 
     sample.fpkm.qq <- as.numeric(residue.negative.random.number.bic[i,]);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq);
@@ -106,45 +106,45 @@ negative.random.number.noise.bic <- foreach (i = 1:nrow(residue.negative.random.
         }
     else {
         sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
-        }    
+        }
 
-    if (1 == noise.min.off.bic.distribution.residue[i]){
+    if (1 == noise.min.off.bic.distribution.residue[i]) {
             ### 1) Normal distribution
             norm.mean <- mean(sample.fpkm.qq.nozero);
             norm.sd <- sd(sample.fpkm.qq.nozero);
             simulated.sample <- rtnorm(length(sample.number), mean = norm.mean, sd = norm.sd, a = 0);
             }
-    else if (2 == noise.min.off.bic.distribution.residue[i]){
+    else if (2 == noise.min.off.bic.distribution.residue[i]) {
             mean.log <- mean(sample.fpkm.qq.nozero);
             sd.log <- sd(sample.fpkm.qq.nozero);
             m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
             sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
-            simulated.sample <- rlnorm(n=length(sample.number), m2, sd2);
+            simulated.sample <- rlnorm(n = length(sample.number), m2, sd2);
             }
-    else if (3 == noise.min.off.bic.distribution.residue[i]){
+    else if (3 == noise.min.off.bic.distribution.residue[i]) {
             ### 4) exponential distribution
             exp.rate <- 1 / mean(sample.fpkm.qq.nozero);
-            simulated.sample <- rexp(n=length(sample.number), rate = exp.rate);
+            simulated.sample <- rexp(n = length(sample.number), rate = exp.rate);
             }
-    else if (4 == noise.min.off.bic.distribution.residue[i]){
+    else if (4 == noise.min.off.bic.distribution.residue[i]) {
             ### 5) gamma distribution
            mean.gamma <- mean(sample.fpkm.qq.nozero);
            sd.gamma <- sd(sample.fpkm.qq.nozero);
-           gamma.shape <- (mean.gamma/sd.gamma)^2;
-           gamma.rate <- mean.gamma/(sd.gamma^2);
-           simulated.sample <- rgamma(n=length(sample.number), gamma.shape, gamma.rate);
+           gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
+           gamma.rate <- mean.gamma / (sd.gamma ^ 2)
+           simulated.sample <- rgamma(n = length(sample.number), gamma.shape, gamma.rate);
         }
-        
+
     if (min(sample.fpkm.qq.sort) < 0) {
             simulated.sample.min <- simulated.sample + min(sample.fpkm.qq.sort) - add.minimum.value;
         }
     else {
-            simulated.sample.min <- simulated.sample - add.minimum.value; 
+            simulated.sample.min <- simulated.sample - add.minimum.value;
         }
         simulated.sample.min;
     }
 
-rownames(negative.random.number.noise.bic) <- rownames(residue.negative.random.number.bic);    
+rownames(negative.random.number.noise.bic) <- rownames(residue.negative.random.number.bic);
 
 stopCluster(cl = cl)
 

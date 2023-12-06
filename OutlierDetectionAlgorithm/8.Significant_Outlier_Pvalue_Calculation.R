@@ -5,15 +5,15 @@
 # --method.iteration 0
 
 ### 8.Significant_Outlier_Pvalue_Calculation.R ####################################################
-# Compute p-values 
+# Combine p-values across chunks
 library(BoutrosLab.utilities)
 library(getopt)
 
 params <- matrix(
     data = c(
-	'dataset.name', 'd', '0', 'character',
+        'dataset.name', 'd', '0', 'character',
         'working.directory', 'w', '0', 'character',
-	'method.iteration', 'i', '0', 'character'
+        'method.iteration', 'i', '0', 'character'
         ),
     ncol = 4,
     byrow = TRUE
@@ -28,28 +28,28 @@ method.iteration <- opt$method.iteration
 setwd(working.directory)
 
 files <- list.files(
-	pattern = 'Significant_Outlier_Detection'
-	)
+    pattern = 'Significant_Outlier_Detection'
+    )
 
 p.value.all <- NULL
 for (i in 1:length(files)) {
     load(
-	file = files[i]
-	)
+        file = files[i]
+    )
     assign(
-	x = 'variable.name',
-	value = paste('gene.rank.p.value.one.gene', method.iteration, sep = '.')
-	)
+        x = 'variable.name',
+        value = paste('gene.rank.p.value.one.gene', method.iteration, sep = '.')
+    )
     p.value.all <- rbind(
-	p.value.all,
-	get(x = variable.name)
-	)
+        p.value.all,
+        get(x = variable.name)
+        )
     }
-p.value.all <- p.value.all[order(p.value.all$i),]
+p.value.all <- p.value.all[order(p.value.all$i), ]
 p.value.all$q.value <- p.adjust(
-	p = p.value.all$obs.p.value,
-	method = 'fdr'
-	)
+    p = p.value.all$obs.p.value,
+    method = 'fdr'
+    )
 
 # assign back to original variable name
 assign(x = variable.name, value = p.value.all)

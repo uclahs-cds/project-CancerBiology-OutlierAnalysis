@@ -1,0 +1,7 @@
+---
+Description: ''
+Maintainers: ['']
+Contributors: ''
+Languages: ['R']
+Dependencies: ['doParallel', 'foreach', 'getopt', 'parallel']
+References: ''

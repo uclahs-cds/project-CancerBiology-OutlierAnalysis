@@ -6,7 +6,7 @@
 # --row.chunks 1000 --matrix.chunk 1 --method.iteration 0
 
 ### 7.Significant_Outlier_Detection.R ####################################################
-# Compute p-values 
+# Compute p-values
 
 # Required R package
 library(BoutrosLab.utilities)
@@ -22,8 +22,8 @@ params <- matrix(
         'rank.file.', 'f', '0', 'character',
         'combined.file', 'c', '0', 'character',
         'row.chunks', 'r', '0', 'character',
-	'matrix.chunk', 'm', '0', 'character',
-	'method.iteration', 'i', '0', 'character'
+        'matrix.chunk', 'm', '0', 'character',
+        'method.iteration', 'i', '0', 'character'
         ),
     ncol = 4,
     byrow = TRUE
@@ -128,7 +128,7 @@ clusterExport(
     )
 
 gene.rank.p.value.one.gene <- NULL;
-gene.rank.p.value.one.gene <- foreach (i = gene.number.start.end.matrix[matrix.chunk,'start']:gene.number.start.end.matrix[matrix.chunk,'end'], .combine = rbind) %dopar% {
+gene.rank.p.value.one.gene <- foreach(i = gene.number.start.end.matrix[matrix.chunk,'start']:gene.number.start.end.matrix[matrix.chunk,'end'], .combine = rbind) %dopar% {
     methods <- c('zrange.mean', 'zrange.median', 'zrange.trimmean', 'fraction.kmean', 'cosine')
     observed.gene <- gene.zrange.fraction.cosine.last.point.bic[i, methods];
     combine.matrix <- rbind(

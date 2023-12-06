@@ -2,7 +2,7 @@
 # Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method --data.matrix.file /hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt
 
 ### 1.Outlier_Detection.R ####################################################
-# this should utlimately be handled in the R package setup but for now 
+# this should utlimately be handled in the R package setup but for now
 needed.packages <- c('gamlss', 'foreach', 'extraDistr', 'truncnorm', 'lsa', 'SnowballC', 'getopt')
 packages <- rownames(installed.packages())
 
@@ -13,8 +13,8 @@ install.packages(to.install, repo = 'http://cran.us.r-project.org')
 # Required R packages
 # Install and load the 'gamlss' package
 #if (!require('gamlss')) {
-#	install.packages('gamlss', repo = 'http://cran.us.r-project.org')
-#	}
+#    install.packages('gamlss', repo = 'http://cran.us.r-project.org')
+#    }
 library(BoutrosLab.utilities)
 library(doParallel)
 library(extraDistr)
@@ -57,37 +57,37 @@ setwd(working.directory)
 # fpkm.tumor.symbol: gene x sample matrix
 # example:
 fpkm.tumor.log <- read.csv(
-	file = data.matrix.file,
-	check.names = FALSE,
-	stringsAsFactors = FALSE,
-	sep = '\t',
-	row.names = 1
-	)
+    file = data.matrix.file,
+    check.names = FALSE,
+    stringsAsFactors = FALSE,
+    sep = '\t',
+    row.names = 1
+    )
 
 cols.to.remove <- c('Ensembl', 'Source', 'Name', 'loc')
 annot <- fpkm.tumor.log[, match(cols.to.remove, colnames(fpkm.tumor.log))]
 fpkm.tumor.symbol.log <- fpkm.tumor.log[, -match(cols.to.remove, colnames(fpkm.tumor.log))]
 
-#   - make it non log format
+#  - make it non log format
 fpkm.tumor.symbol <- 2 ^ fpkm.tumor.symbol.log;
 
 # change NAs to 0
 fpkm.tumor.symbol[is.na(fpkm.tumor.symbol)] <- 0
 
 # Number of samples
-#    - if the last column has symbol, it should be 1:(ncol(fpkm.tumor.symbol))-1)
+# - if the last column has symbol, it should be 1:(ncol(fpkm.tumor.symbol))-1)
 patient.part <- 1:ncol(fpkm.tumor.symbol);
 sample.number <- 1:ncol(fpkm.tumor.symbol);
 
 # Get the genes with less than 1% of zero values
 #   - excludes genes which have zero values more than 99%
 zero.portion <- apply(
-	X = fpkm.tumor.symbol[, patient.part],
-	MARGIN = 1,
-	FUN = function(x) {
-		length(x[0 == x]) / length(patient.part)
-		}
-	);
+    X = fpkm.tumor.symbol[, patient.part],
+    MARGIN = 1,
+    FUN = function(x) {
+        length(x[0 == x]) / length(patient.part)
+        }
+    );
 fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[which(0.01 > zero.portion), ];
 annot.filter <- annot[which(0.01 > zero.portion), ]
 
@@ -124,7 +124,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
             if (length(unique(as.numeric(x.na))) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);
-                } 
+            }
             else {
                 data.order <- sort(x.na, decreasing = TRUE);
                 non.zero <- data.order[data.order > 0];
@@ -132,27 +132,27 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     na.matrix <- rep(NA, length(non.zero));
                     cluster.zero <- c(na.matrix, rep(0, length(x.na[x.na == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
-                    names(kmean.matrix) <- names(x.na);  
-                    } 
+                    names(kmean.matrix) <- names(x.na);
+                    }
                 else {
                     kmean <- kmeans(non.zero, 2, nstart = 100);
                     cluster <- kmean$cluster;
                     cluster.zero <- c(cluster, rep(0, length(x[x == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
-                    names(kmean.matrix) <- names(x.na);   
+                    names(kmean.matrix) <- names(x.na);
                     }
                 }
-            } 
+            }
         else {
             if (length(unique(as.numeric(x.na))) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
-                names(kmean.matrix) <- names(x.na);  
-                } 
+                names(kmean.matrix) <- names(x.na);
+                }
             else {
                 kmean <- kmeans(x.na, 2, nstart = 100);
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
-                names(kmean.matrix) <- names(x.na);  
+                names(kmean.matrix) <- names(x.na);
                 }
             }
         result.na <- kmean.matrix;
@@ -161,18 +161,18 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
         }
     else {
         gene.order <- x.na[order(x.na, decreasing = TRUE)];
-        if (exclude.zero) { 
-            gene.order.nonzero <- gene.order[0 != gene.order]; 
+        if (exclude.zero) {
+            gene.order.nonzero <- gene.order[0 != gene.order];
             top.patient <- round(length(gene.order.nonzero) * (trim / 100), digit = 0);
             low.patient <- round(length(gene.order.nonzero) * (1 - (trim / 100)), digit = 0);
             data.mean <- mean(gene.order.nonzero, trim = (trim / 100));
-            data.sd <- sd(gene.order.nonzero[(top.patient+1):(low.patient)]);
-            } 
+            data.sd <- sd(gene.order.nonzero[(top.patient + 1):(low.patient)]);
+            }
         else {
             top.patient <- round(length(x.na) * (trim / 100), digit = 0);
             low.patient <- round(length(x.na) * (1 - (trim / 100)), digit = 0);
             data.mean <- mean(gene.order, trim = (trim / 100));
-            data.sd <- sd(gene.order[(top.patient+1):(low.patient)]);
+            data.sd <- sd(gene.order[(top.patient + 1):(low.patient)]);
             }
         result.na <- (x.na - data.mean) / data.sd;
         x[which(!is.na(x))] <- result.na;
@@ -188,25 +188,25 @@ registerDoParallel(cl);
 # 1. MEAN and SD : method = 'mean', trim = 0
 print('Calculating using MEAN and SD')
 print(Sys.time())
-data.mean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i, ]);
+data.mean <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i, ]);
 data.mean <- data.frame(data.mean);
 
 # 2. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5
 print('Calculating using TRIMMED MEAN and TRIMMED SD')
 print(Sys.time())
-data.trimmean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
+data.trimmean <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
 data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
 print('Calculating using MEDIAN and MAD')
 print(Sys.time())
-data.median <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'median');
+data.median <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'median');
 data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
 print('Calculating using KMEANS')
 print(Sys.time())
-data.kmean <- foreach (i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
+data.kmean <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean')
 data.kmean <- data.frame(data.kmean);
 
 stopCluster(cl = cl)
@@ -239,7 +239,7 @@ data.zrange.median.t <- data.frame(t(data.zrange.median));
 ### Calculate the kmean fraction #####
 # Function
 outlier.detection.kmean <- function(x) {
-    if (1== length(unique(as.numeric(x)))) {
+    if (1 == length(unique(as.numeric(x)))) {
         fraction <- NA;
         }
     else {
@@ -247,7 +247,7 @@ outlier.detection.kmean <- function(x) {
         cluster.two <- length(x[x == 2]);
         cluster.sum <- cluster.one + cluster.two;
         smaller.value <- min(cluster.one, cluster.two);
-        fraction <- round(smaller.value/cluster.sum, digit = 4);
+        fraction <- round(smaller.value / cluster.sum, digit = 4);
         }
     fraction.matrix <- c(x, fraction);
     names(fraction.matrix) <- c(names(x), 'fraction');
@@ -262,7 +262,7 @@ data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
 
 # 5. Cosine similarity
 # function: Compute the cosine similarity of the largest data point
-outlier.detection.cosine <- function (x, value.portion = 1) {
+outlier.detection.cosine <- function(x, value.portion = 1) {
 
     # Define a minimum value
     decimal.number.max <- lapply(na.omit(x), function(x) {
@@ -270,14 +270,14 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
             nchar(as.character(y)) - nchar(as.integer(y)) - 1
             })
         return(decimal.numbers)
-        })    
+        })
     add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
 
     trim.sample <- function(x, trim.portion = 5) {
         if (length(x) <= 10) {
-            patient.trim.value <- 2:(length(x)-1);
+            patient.trim.value <- 2:(length(x) - 1);
         } else {
-            trim.sample.number <- length(x) * (trim.portion/100);
+            trim.sample.number <- length(x) * (trim.portion / 100);
             trim.sample.number.integer <- round(trim.sample.number, digits = 0);
             patient.trim.value <- (trim.sample.number.integer + 1):(length(x) - trim.sample.number.integer);
             }
@@ -295,10 +295,10 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
             large.value.number.integer <- 1;
             }
         else {
-            large.value.number <- length(x) * (large.value.percent/100);
+            large.value.number <- length(x) * (large.value.percent / 100);
             large.value.number.integer <- roundToInteger(large.value.number);
             }
-        
+
         # subset the largest values
         patient.larger.value <- (length(x) - large.value.number.integer + 1):length(x);
         observed.value <- sort(y);
@@ -316,7 +316,7 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
 
     sample.fpkm.qq <- na.omit(as.numeric(x[sample.number]))
     sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
-    
+
     # Trimmed samples -Trim 5% of each side
     sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 5);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
@@ -324,16 +324,16 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
 
     # Quantile
     p <- ppoints(sample.fpkm.qq.nozero);
-    
+
     # Distribution
     distribution.fit <- as.numeric(x[length(x)]);
-    
-    if (1 == distribution.fit){
+
+    if (1 == distribution.fit) {
         # 1. Normal distribution
         norm.mean <- mean(sample.fpkm.qq.nozero.trim);
         norm.sd <- sd(sample.fpkm.qq.nozero.trim);
         # Use truncated norm
-        norm.quantiles <- qtruncnorm(p, a=0, b=Inf, mean = norm.mean, sd = norm.sd);
+        norm.quantiles <- qtruncnorm(p, a = 0, b = Inf, mean = norm.mean, sd = norm.sd);
         obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(norm.quantiles, obs.quantile.norm, large.value.percent = value.portion);
         }
@@ -341,8 +341,8 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
         # 2. Log-normal distribution
         mean.log <- mean(sample.fpkm.qq.nozero.trim);
         sd.log <- sd(sample.fpkm.qq.nozero.trim);
-        m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
-        sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
+        m2 <- log(mean.log ^ 2 / sqrt(sd.log ^ 2 + mean.log^2));
+        sd2 <- sqrt(log(1 + (sd.log ^ 2 / mean.log ^ 2)));
         lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
         obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(lnorm.quantile, obs.quantile.lnorm, large.value.percent = value.portion);
@@ -358,8 +358,8 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
         ### 4 gamma distribution
         mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
         sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
-        gamma.shape <- (mean.gamma/sd.gamma)^2;
-        gamma.rate <- mean.gamma/(sd.gamma^2);
+        gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
+        gamma.rate <- mean.gamma / (sd.gamma ^ 2);
         gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
         obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(gamma.quantile, obs.quantile.gamma, large.value.percent = value.portion);
@@ -368,7 +368,6 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     cosine.sum.distribution.fit <- c(last.cos, distribution.fit);
     cosine.sum.distribution.fit;
     }
-
 
 # Trimming function
 trim.sample <- function(x, trim.portion = 5) {
@@ -389,13 +388,13 @@ cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
 clusterExport(
-	cl = cl,
-	varlist = 'trim.sample'
-	)
+    cl = cl,
+    varlist = 'trim.sample'
+    )
 clusterEvalQ(
-	cl = cl,
-	expr = library(gamlss)
-	)
+    cl = cl,
+    expr = library(gamlss)
+    )
 
 # Define a minimum value
 random.col <- sample(patient.part, 1)
@@ -430,7 +429,6 @@ bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine 
 
 stopCluster(cl = cl);
 
-
 # Find the best fitted distribution
 # - BIC
 rownames(bic.trim.distribution) <- rownames(fpkm.tumor.symbol.filter);
@@ -444,21 +442,21 @@ cl <- makeCluster(spec = detectCores() - 2);
 # register the cluster with the parallel package
 registerDoParallel(cl = cl);
 clusterExport(
-	cl = cl,
-	varlist = 'outlier.detection.cosine'
-	);
+    cl = cl,
+    varlist = 'outlier.detection.cosine'
+    );
 clusterEvalQ(
-	cl = cl,
-	expr = c(library(lsa), library(SnowballC))
-	);
+    cl = cl,
+    expr = c(library(lsa), library(SnowballC))
+    );
 
 print('Calculate Cosine')
 data.cosine.bic <- apply(
-	X = fpkm.tumor.symbol.filter.bic.fit,
-	MARGIN = 1,
-	FUN = outlier.detection.cosine,
-	value.portion = 0
-	);
+    X = fpkm.tumor.symbol.filter.bic.fit,
+    MARGIN = 1,
+    FUN = outlier.detection.cosine,
+    value.portion = 0
+    );
 
 stopCluster(cl = cl);
 
@@ -498,7 +496,7 @@ outlier.rank <- function(x) {
         rank.methods <- rank(x[,methods.column], ties.method = 'max', na.last = 'keep');
         rank.matrix <- cbind(rank.matrix, rank.methods);
         }
-    rownames(rank.matrix) <-rownames(x);
+    rownames(rank.matrix) <- rownames(x);
     colnames(rank.matrix) <- methods;
     rank.matrix <- data.frame(rank.matrix);
     }
@@ -525,11 +523,11 @@ data.rank.bic <- outlier.rank(gene.zrange.fraction.cosine.last.point.bic);
 
 rank.product.bic <- apply(data.rank.bic, 1, outlier.rank.product, NA.number = 3);
 gene.rank.poduct.bic <- cbind(
-	annot.filter,
-	data.rank.bic,
-	rank.product.bic,
-	distribution = gene.zrange.fraction.cosine.last.point.bic$distribution
-	);
+    annot.filter,
+    data.rank.bic,
+    rank.product.bic,
+    distribution = gene.zrange.fraction.cosine.last.point.bic$distribution
+    );
 gene.rank.order.5method.cosine.last.point.bic <- gene.rank.poduct.bic[order(gene.rank.poduct.bic$rank.product, decreasing = FALSE),];
 
 print('Saving results')
