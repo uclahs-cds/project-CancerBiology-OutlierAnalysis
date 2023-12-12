@@ -379,14 +379,12 @@ bic.trim.distribution.fit <- apply(
 
 stopImplicitCluster();
 
-# Check the cosine similarity
-fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution = bic.trim.distribution.fit);
 
 # run it parallel
 cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, c('cosine.similarity.large.value.percent', 'outlier.detection.cosine');
+clusterExport(cl, c('cosine.similarity.large.value.percent', 'outlier.detection.cosine'));
 clusterEvalQ(cl, c(library(lsa), library(SnowballC)));
 
 data.cosine.bic.t <- lapply(
@@ -402,9 +400,9 @@ data.cosine.bic.t <- do.call(
     what = rbind,
     args = data.cosine.bic.t
     );
+data.cosine.bic.t <- as.data.frame(data.cosine.bic.t);
 rownames(data.cosine.bic.t) <- rownames(fpkm.tumor.symbol.filter);
 colnames(data.cosine.bic.t) <- c('cosine', 'distribution');
-
 
 stopImplicitCluster();
 
