@@ -238,6 +238,37 @@ data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
 
 
 # 5. Cosine similarity
+
+identify.bic.optimal.distribution <- function(x) {
+    # Define a minimum value
+    decimal.number.max <- sapply(
+        X = na.omit(x),
+        FUN = function(y) {
+            decimal.numbers <- sapply(
+                X = y,
+                FUN = function(z) {
+                    nchar(as.character(z)) - nchar(as.integer(z)) - 1
+                    }
+                );
+            decimal.numbers;
+            }
+        );
+    add.minimum.value <- 1 / 10^as.numeric(max(decimal.number.max));
+    x.trimmed <- trim.sample(x, 0.05)
+    x.trimmed.nozero <- x.trimmed + add.minimum.value;
+
+    # Fit a model of each candidate distribution to the data.
+    glm.norm <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=NO, control = gamlss.control(trace = FALSE)));
+    glm.lnorm <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=LNO, control = gamlss.control(trace = FALSE)));
+    glm.gamma <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=GA, control = gamlss.control(trace = FALSE)));
+    glm.exp <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=EXP, control = gamlss.control(trace = FALSE)));
+
+    # Return the index of the distribution with the smallest BIC,
+    # which `outlier.detection.cosine` can use to choose the optimal
+    # distribution for computing cosine similarity.
+    which.min(c(glm.norm$sbc, glm.lnorm$sbc, glm.exp$sbc, glm.gamma$sbc));
+    }
+
 # function: Compute the cosine similarity of the largest data point
 outlier.detection.cosine <- function (x, value.portion = 1) {
 
@@ -337,53 +368,22 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     }
 
 
-# Determine the distribution
+
 # Find the best fitted distribution
+# - BIC
 cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
 clusterExport(cl, "trim.sample");
 clusterEvalQ(cl, library(gamlss));
 
-# Define a minimum value
-random.col <- sample(patient.part, 1)
-decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
-    decimal.numbers <- sapply(x, function(y) {
-        nchar(as.character(y)) - nchar(as.integer(y)) - 1
-        })
-    return(decimal.numbers)
-    })    
-add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
-
-
-bic.trim.distribution <- NULL;
-
-# Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
-bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
-    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
-    sample.fpkm.qq.trimmed <- trim.sample(sample.fpkm.qq, 0.05)
-    sample.fpkm.qq.trimmed.nozero <- sample.fpkm.qq.trimmed + add.minimum.value;
-    
-    
-    glm.norm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=NO);
-    glm.lnorm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=LNO);
-    glm.gamma <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=GA);
-    glm.exp <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=EXP);
-
-    glm.bic <- c(glm.norm$sbc,
-                 glm.lnorm$sbc,
-                 glm.exp$sbc,
-                 glm.gamma$sbc);
-    glm.bic;
-    }
+bic.trim.distribution.fit <- apply(
+    X = fpkm.tumor.symbol.filter,
+    MARGIN = 1,
+    FUN = identify.bic.optimal.distribution
+    );
 
 stopImplicitCluster();
-
-
-# Find the best fitted distribution
-# - BIC
-rownames(bic.trim.distribution) <- rownames(fpkm.tumor.symbol.filter);
-bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 
 # Check the cosine similarity
 fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution = bic.trim.distribution.fit);
