@@ -285,8 +285,7 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
     
 
     # Trimmed samples -Trim 5% of each side
-    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 0.05);
-    sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
+    sample.fpkm.qq.trim <- trim.sample(sample.fpkm.qq.nozero, 0.05);
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
     
