@@ -269,6 +269,36 @@ identify.bic.optimal.distribution <- function(x) {
     which.min(c(glm.norm$sbc, glm.lnorm$sbc, glm.exp$sbc, glm.gamma$sbc));
     }
 
+
+# function: Compute the cosine similarity of the largest data point
+cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
+    # check if large value percent is zero
+    if (0 == large.value.percent) {
+        large.value.number.integer <- 1;
+        } else {
+        large.value.number <- length(x) * (large.value.percent/100);
+        large.value.number.integer <- round(large.value.number);
+        }
+
+    # subset the largest values
+    patient.larger.value <- (length(x)-large.value.number.integer + 1):length(x);
+    observed.value <- sort(y);
+    theoretical.value <- sort(x);
+    mid.value <- c(1, 1);
+    value.x.y <- data.frame(theoretical.value, observed.value);
+
+    # calculate cosine similarity
+    cosine.large.value <- NULL;
+    cosine.large.value <- sapply(
+        X = patient.larger.value,
+        FUN = function(i) {
+            cosine(as.numeric(value.x.y[i,]), mid.value);
+            }
+        );
+    cosine.large.value;
+    }
+
+
 # function: Compute the cosine similarity of the largest data point
 outlier.detection.cosine <- function (x, value.portion = 1) {
 
@@ -280,36 +310,6 @@ outlier.detection.cosine <- function (x, value.portion = 1) {
         return(decimal.numbers)
         })    
     add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
-
-    # function: Compute the cosine similarity of the largest data point
-    cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
-
-        # rounding function
-        roundToInteger <- function(z) round(z, digits = 0)
-
-        # check if large value percent is zero
-        if (0 == large.value.percent) {
-            large.value.number.integer <- 1;
-            }
-        else {
-            large.value.number <- length(x) * (large.value.percent/100);
-            large.value.number.integer <- roundToInteger(large.value.number);
-            }
-        
-        # subset the largest values
-        patient.larger.value <- (length(x)-large.value.number.integer + 1):length(x);
-        observed.value <- sort(y);
-        theoretical.value <- sort(x);
-        mid.value <- c(1, 1);
-        value.x.y <- data.frame(theoretical.value, observed.value);
-
-        # calculate cosine similarity
-        cosine.large.value <- NULL;
-        cosine.large.value <- sapply(patient.larger.value, function(i) {
-            cosine(as.numeric(value.x.y[i,]), c(1, 1))
-            })
-        cosine.large.value;
-        }
 
     sample.fpkm.qq <- na.omit(as.numeric(x[sample.number]))
     sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
