@@ -368,7 +368,7 @@ outlier.detection.cosine <- function (x, distr, value.portion = 1) {
 cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, "trim.sample");
+clusterExport(cl, c('trim.sample', 'identify.bic.optimal.distribution'));
 clusterEvalQ(cl, library(gamlss));
 
 bic.trim.distribution.fit <- apply(
@@ -386,23 +386,27 @@ fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution
 cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, "outlier.detection.cosine");
+clusterExport(cl, c('cosine.similarity.large.value.percent', 'outlier.detection.cosine');
 clusterEvalQ(cl, c(library(lsa), library(SnowballC)));
 
-data.cosine.bic <- apply(fpkm.tumor.symbol.filter.bic.fit, 
-                         1, 
-                         outlier.detection.cosine, 
-                         value.portion = 0);
-
-stopImplicitCluster();
-
-data.cosine.bic.t <- data.frame(t(data.cosine.bic));
+data.cosine.bic.t <- lapply(
+    X = seq_len(nrow(fpkm.tumor.symbol.filter)),
+    FUN = function(i) {
+        outlier.detection.cosine(
+            x = fpkm.tumor.symbol.filter[i, ],
+            distr = bic.trim.distribution.fit[i]
+            );
+        }
+    );
+data.cosine.bic.t <- do.call(
+    what = rbind,
+    args = data.cosine.bic.t
+    );
+rownames(data.cosine.bic.t) <- rownames(fpkm.tumor.symbol.filter);
 colnames(data.cosine.bic.t) <- c('cosine', 'distribution');
 
 
-
-
-
+stopImplicitCluster();
 
 
 ### Final gene-wise matrix #####
