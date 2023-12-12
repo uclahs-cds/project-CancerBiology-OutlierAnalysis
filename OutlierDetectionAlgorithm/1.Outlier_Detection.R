@@ -300,73 +300,67 @@ cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
 
 
 # function: Compute the cosine similarity of the largest data point
-outlier.detection.cosine <- function (x, value.portion = 1) {
+outlier.detection.cosine <- function (x, distr, value.portion = 1) {
+    # Define a minimum value
+    decimal.number.max <- sapply(
+        X = na.omit(x),
+        FUN = function(y) {
+            decimal.numbers <- sapply(
+                X = y,
+                FUN = function(z) {
+                    nchar(as.character(z)) - nchar(as.integer(z)) - 1
+                    }
+                );
+            decimal.numbers;
+            }
+        );
+    add.minimum.value <- 1 / 10^as.numeric(max(decimal.number.max));
 
-        # Define a minimum value
-    decimal.number.max <- lapply(na.omit(x), function(x) {
-        decimal.numbers <- sapply(x, function(y) {
-            nchar(as.character(y)) - nchar(as.integer(y)) - 1
-            })
-        return(decimal.numbers)
-        })    
-    add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
-
-    sample.fpkm.qq <- na.omit(as.numeric(x[sample.number]))
-    sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
-    
-
+    x.nozero <- x + add.minimum.value;
     # Trimmed samples -Trim 5% of each side
-    sample.fpkm.qq.trim <- trim.sample(sample.fpkm.qq.nozero, 0.05);
-    sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
-
+    x.trim <- trim.sample(x, 0.05);
+    x.nozero.trim <- x.trim + add.minimum.value;
     
     # Quantile
-    p <- ppoints(sample.fpkm.qq.nozero);
+    p <- ppoints(x.nozero);
     
-    # Distribution
-    distribution.fit <- as.numeric(x[length(x)]);
-    
-    if (1 == distribution.fit){
+    if (1 == distr) {
         # 1. Normal distribution
-        norm.mean <- mean(sample.fpkm.qq.nozero.trim);
-        norm.sd <- sd(sample.fpkm.qq.nozero.trim);
+        norm.mean <- mean(x.nozero.trim);
+        norm.sd <- sd(x.nozero.trim);
         # Use truncated norm
         norm.quantiles <- qtruncnorm(p, a=0, b=Inf, mean = norm.mean, sd = norm.sd);
-        obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.norm <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(norm.quantiles, obs.quantile.norm, large.value.percent = value.portion);
-        }
-    else if (2 == distribution.fit) {
+        } else if (2 == distr) {
         # 2. Log-normal distribution
-        mean.log <- mean(sample.fpkm.qq.nozero.trim);
-        sd.log <- sd(sample.fpkm.qq.nozero.trim);
+        mean.log <- mean(x.nozero.trim);
+        sd.log <- sd(x.nozero.trim);
         m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
         sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
         lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
-        obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.lnorm <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(lnorm.quantile, obs.quantile.lnorm, large.value.percent = value.portion);
-        }
-    else if (3 == distribution.fit) {
+        } else if (3 == distr) {
         # 3. Exponential distribution
-        exp.rate <- 1 / mean(sample.fpkm.qq.nozero.trim);
+        exp.rate <- 1 / mean(x.nozero.trim);
         exp.quantile <- qexp(p, rate = exp.rate);
-        obs.quantile.exp <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.exp <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(exp.quantile, obs.quantile.exp, large.value.percent = value.portion);
-        }
-    else if (4 == distribution.fit) {
+        } else if (4 == distr) {
         ### 4 gamma distribution
-        mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
-        sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
+        mean.gamma <- mean(x.nozero.trim);
+        sd.gamma <- sd(x.nozero.trim);
         gamma.shape <- (mean.gamma/sd.gamma)^2;
         gamma.rate <- mean.gamma/(sd.gamma^2);
         gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
-        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.gamma <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(gamma.quantile, obs.quantile.gamma, large.value.percent = value.portion);
         }
 
-    cosine.sum.distribution.fit <- c(last.cos, distribution.fit);
+    cosine.sum.distribution.fit <- c(last.cos, distr);
     cosine.sum.distribution.fit;
     }
-
 
 
 # Find the best fitted distribution
