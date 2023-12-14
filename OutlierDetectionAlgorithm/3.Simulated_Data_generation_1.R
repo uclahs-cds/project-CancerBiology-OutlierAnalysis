@@ -73,7 +73,7 @@ clusterEvalQ(
     expr = library(extraDistr)
     )
     
-simulated.generation.negative <- function(x = fpkm.tumor.symbol.filter.distribution.fit, distribution = bic.trim.distribution.fit, num.negative = 10000, sample.size = sample.number) {
+simulated.generation.negative <- function(x = fpkm.tumor.symbol.filter.bic, distribution = bic.trim.distribution.fit, num.negative = 10000, sample.size = sample.number) {
     # Define a minimum value
     random.col <- sample(sample.size, 1)
     decimal.number.max <- lapply(na.omit(x[,random.col]), function(x) {
@@ -98,7 +98,8 @@ simulated.generation.negative <- function(x = fpkm.tumor.symbol.filter.distribut
     if (!is.numeric(num.negative)) stop('num.negative should be numeric.')
     if (!is.numeric(sample.size)) stop('sample.size should be numeric.')
 
-    random.number.negative <- sample(length(distribution), num.negative, replace = TRUE);
+    # shuffle values and labels to create simulated data
+    random.number.negative <- sample(x = length(distribution), size = num.negative, replace = TRUE);
     names(random.number.negative) <- names(distribution)[random.number.negative]
 
     # use the foreach function to parallelize the sapply loop
@@ -114,12 +115,13 @@ simulated.generation.negative <- function(x = fpkm.tumor.symbol.filter.distribut
         sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
         if (1 == distribution[i]) {
-            ### 1) Normal distribution
+            # 1. Normal distribution
             norm.mean <- mean(sample.fpkm.qq.nozero.trim);
             norm.sd <- sd(sample.fpkm.qq.nozero.trim);
             rtnorm(length(sample.size), mean = norm.mean, sd = norm.sd, a = 0);
             }
         else if (2 == distribution[i]) {
+            # 2. Log-normal distribution
             mean.log <- mean(sample.fpkm.qq.nozero.trim);
             sd.log <- sd(sample.fpkm.qq.nozero.trim);
             m2 <-  log(mean.log ^ 2 / sqrt(sd.log ^ 2 + mean.log ^ 2));
@@ -127,12 +129,12 @@ simulated.generation.negative <- function(x = fpkm.tumor.symbol.filter.distribut
             rlnorm(n = length(sample.size), m2, sd2);
             }
         else if (3 == distribution[i]) {
-            ### 4) exponential distribution
+            # 3. Exponential distribution
             exp.rate <- 1 / mean(sample.fpkm.qq.nozero.trim);
             rexp(n = length(sample.size), rate = exp.rate);
             }
         else if (4 == distribution[i]) {
-            ### 5) gamma distribution
+            # 4. Gamma distribution
             mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
             sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
             gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
@@ -150,7 +152,7 @@ seeds <- round(runif(n = ntimes, min = 1, max = 10000))
 for (i in 1:ntimes) {
     seed <- seeds[i]
     set.seed(seed)
-    print(paste0('run negative random number:', i))
+
     negative.random.number.bic <- simulated.generation.negative(
         x = fpkm.tumor.symbol.filter.bic,
         distribution = bic.trim.distribution.fit,

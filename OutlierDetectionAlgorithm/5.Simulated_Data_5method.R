@@ -21,7 +21,8 @@ params <- matrix(
                 'dataset.name', 'd', '0', 'character',
                 'working.directory', 'w', '0', 'character',
                 'distribution.identification.file', 'o', '0', 'character',
-                'simulated.data.file', 's', '0', 'character'
+                'simulated.data.file', 's', '0', 'character',
+                'patient.to.remove', 'p', '0', 'numeric'
                 ),
         ncol = 4,
         byrow = TRUE
@@ -32,11 +33,13 @@ dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 distribution.identification.file <- opt$distribution.identification.file
 simulated.data.file <- opt$simulated.data.file
+patient.to.remove <- opt$patient.to.remove
 
 #working.directory <- '/hot/users/jlivingstone/outlier/run_method'
 #dataset.name <- 'BRCA_EU'
 #distribution.identification.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-20_Distribution_Identification_short_BRCA_EU.rda'
 #simulated.data.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-21_Simulated_data_generation_2_BRCA_EU.1.rda'
+#patient.to.remove <- 0
 
 # Set the working directory
 setwd(working.directory);
@@ -58,10 +61,18 @@ load(
 # sample size
 patient.part <- 1:ncol(fpkm.tumor.symbol.filter);
 sample.number <- 1:ncol(fpkm.tumor.symbol.filter);
-molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 bic.trim.distribution.fit.obs <- bic.trim.distribution.fit;
 
+# remove the number of patients stated for method iteration to identify outlier patients
+if (patient.to.remove > 0) {
+    patient.part <- patient.part[1:(length(patient.part) - patient.to.remove)];
+    sample.number <- patient.part
+    negative.simulated.sum <- negative.simulated.sum[, patient.part]
+    fpkm.tumor.symbol.filter <- fpkm.tumor.symbol.filter[,patient.part] 
+   }
+
 # Define a minimum value
+set.seed(42)
 random.col <- sample(patient.part, 1)
 decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
     decimal.numbers <- sapply(x, function(y) {
@@ -70,7 +81,6 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
     return(decimal.numbers)
     })
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
-
 
 # function: Compute the cosine similarity of the largest data point
 cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
@@ -102,7 +112,6 @@ cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
     cosine.large.value;
     }
 
-
 # function: Trim 5% of samples from each side
 trim.sample <- function(x, trim.portion = 5) {
     if (length(x) <= 10) {
@@ -130,7 +139,7 @@ outlier.detection.cosine <- function(x, value.portion = 1) {
     sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
 
     # Trimmed samples -Trim 5% of each side
-    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 5);
+    sample.trim.number <- trim.sample(x = seq(length(sample.fpkm.qq.nozero)), trim.portion = 5);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
@@ -167,7 +176,7 @@ outlier.detection.cosine <- function(x, value.portion = 1) {
         last.cos <- cosine.similarity.large.value.percent(exp.quantile, obs.quantile.exp, large.value.percent = value.portion);
         }
     else if (4 == distribution.fit) {
-        ### 4 gamma distribution
+        # 4. gamma distribution
         mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
         sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
         gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
@@ -199,19 +208,25 @@ clusterEvalQ(
 
 # Define a minimum value
 random.col <- sample(patient.part, 1)
-decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
-    decimal.numbers <- sapply(x, function(y) {
-        nchar(as.character(y)) - nchar(as.integer(y)) - 1
-        })
-    return(decimal.numbers)
-    })
+decimal.number.max <- lapply(
+    X = na.omit(fpkm.tumor.symbol.filter[,random.col]),
+    FUN = function(x) {
+        decimal.numbers <- sapply(
+            X = x,
+            FUN = function(y) {
+                nchar(as.character(y)) - nchar(as.integer(y)) - 1
+                }
+            )
+        return(decimal.numbers)
+        }
+    )
 
 bic.trim.distribution <- NULL;
 
 # Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
 bic.trim.distribution <- foreach(j = 1:nrow(negative.simulated.sum), .combine = rbind) %dopar% {
     sample.fpkm.qq <- round(as.numeric(negative.simulated.sum[j, sample.number]), digits = 6);
-    sample.trim.number <- trim.sample(sample.number, 5);
+    sample.trim.number <- trim.sample(x = sample.number, trim.portion = 5);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
 
@@ -220,15 +235,16 @@ bic.trim.distribution <- foreach(j = 1:nrow(negative.simulated.sum), .combine = 
     glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family = GA);
     glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family = EXP);
 
-    glm.bic <- c(glm.norm$sbc,
-                 glm.lnorm$sbc,
-                 glm.exp$sbc,
-                 glm.gamma$sbc);
+    glm.bic <- c(
+        glm.norm$sbc,
+        glm.lnorm$sbc,
+        glm.exp$sbc,
+        glm.gamma$sbc
+        );
     glm.bic;
     }
 
 stopCluster(cl = cl);
-
 
 # check the distribution again
 rownames(bic.trim.distribution) <- rownames(negative.simulated.sum);
@@ -236,8 +252,10 @@ bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 
 # Check the cosine similarity
 negative.simulated.sum.fit <- cbind(negative.simulated.sum, distribution = bic.trim.distribution.fit);
+
 # run it parallel
 cl <- makeCluster(spec = detectCores() - 2);
+
 # register the cluster with the parallel package
 registerDoParallel(cl = cl);
 clusterExport(
@@ -251,20 +269,19 @@ clusterEvalQ(
 
 data.cosine.negative <- apply(
     X = negative.simulated.sum.fit,
-        MARGIN = 1,
-        FUN = outlier.detection.cosine,
-        value.portion = 0
+    MARGIN = 1,
+    FUN = outlier.detection.cosine,
+    value.portion = 0
     )
 
 stopCluster(cl = cl);
-
 
 data.cosine.negative.t <- t(data.cosine.negative);
 data.cosine.negative.t <- data.frame(data.cosine.negative.t);
 colnames(data.cosine.negative.t) <- c('cosine', 'distribution');
 
 
-# 1,2,3,4
+# 1, 2, 3, 4
 quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
     if (methods == 'median') {
@@ -305,7 +322,6 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     }
                 }
             }
-
         else {
             if (length(unique(as.numeric(x.na))) == 1) {
                 kmean.matrix <- rep(NA, length(x.na));
@@ -435,7 +451,7 @@ save(
     gene.zrange.fraction.negative.simulated.sum.1M,
     data.cosine.negative.t,
     gene.zrange.fraction.negative.simulated.sum.bic.5method.1M,
-    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, 'short', sep = '.'), 'rda')
+    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, patient.to.remove, 'short', sep = '.'), 'rda')
     );
 
 save(
@@ -456,5 +472,5 @@ save(
     gene.zrange.fraction.negative.simulated.sum.1M,
     data.cosine.negative.t,
     gene.zrange.fraction.negative.simulated.sum.bic.5method.1M,
-    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, 'long', sep = '.'), 'rda')
+    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, patient.to.remove, 'long', sep = '.'), 'rda')
     )

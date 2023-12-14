@@ -70,7 +70,7 @@ decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), fun
     })
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
-# 2. residual
+# 2. residual ** using magic numbers
 residue.negative.random.number.bic <- obs.residue.quantile.trim[match(substr(rownames(negative.random.number.bic), 1, 15), substr(rownames(obs.residue.quantile.trim), 1, 15)),];
 
 noise.min.off.bic.distribution.residue <- noise.min.off.bic.distribution.fit[match(substr(rownames(negative.random.number.bic), 1, 15), substr(names(noise.min.off.bic.distribution.fit), 1, 15))];
@@ -109,12 +109,13 @@ negative.random.number.noise.bic <- foreach(i = 1:nrow(residue.negative.random.n
         }
 
     if (1 == noise.min.off.bic.distribution.residue[i]) {
-            ### 1) Normal distribution
+            # 1. Normal distribution
             norm.mean <- mean(sample.fpkm.qq.nozero);
             norm.sd <- sd(sample.fpkm.qq.nozero);
             simulated.sample <- rtnorm(length(sample.number), mean = norm.mean, sd = norm.sd, a = 0);
             }
     else if (2 == noise.min.off.bic.distribution.residue[i]) {
+            # 2. Log-normal distribution
             mean.log <- mean(sample.fpkm.qq.nozero);
             sd.log <- sd(sample.fpkm.qq.nozero);
             m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
@@ -122,12 +123,12 @@ negative.random.number.noise.bic <- foreach(i = 1:nrow(residue.negative.random.n
             simulated.sample <- rlnorm(n = length(sample.number), m2, sd2);
             }
     else if (3 == noise.min.off.bic.distribution.residue[i]) {
-            ### 4) exponential distribution
+            # 3. Exponential distribution
             exp.rate <- 1 / mean(sample.fpkm.qq.nozero);
             simulated.sample <- rexp(n = length(sample.number), rate = exp.rate);
             }
     else if (4 == noise.min.off.bic.distribution.residue[i]) {
-            ### 5) gamma distribution
+           # 4. Gamma distribution
            mean.gamma <- mean(sample.fpkm.qq.nozero);
            sd.gamma <- sd(sample.fpkm.qq.nozero);
            gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
@@ -163,5 +164,5 @@ save(
     noise.min.off.bic.distribution.residue,
     negative.random.number.noise.bic,
     negative.simulated.sum,
-    file = generate.filename('Simulated_data_generation_2', paste(dataset.name, replicate, sep = '.'), 'rda')
+    file = generate.filename('Simulated_Data_generation_2', paste(dataset.name, replicate, sep = '.'), 'rda')
     )

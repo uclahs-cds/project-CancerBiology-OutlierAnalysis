@@ -97,11 +97,11 @@ molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
 trim.sample <- function(x, trim = 0.05) {
     x <- sort(x);
     if (length(x) <= 10) {
-        patient.trim.value <- 2:(length(x)-1);
-        } else {
+        patient.trim.value <- 2:(length(x) - 1);
+    } else {
         trim.sample.number <- length(x) * trim;
         trim.sample.number.integer <- round(trim.sample.number);
-        patient.trim.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
+        patient.trim.value <- (trim.sample.number.integer + 1):(length(x) - trim.sample.number.integer);
         }
     x[patient.trim.value];
     }
@@ -276,7 +276,7 @@ outlier.detection.cosine <- function(x, value.portion = 1) {
             })
         return(decimal.numbers)
         })
-    add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
+    add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
     # function: Compute the cosine similarity of the largest data point
     cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
@@ -312,7 +312,7 @@ outlier.detection.cosine <- function(x, value.portion = 1) {
     sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
 
     # Trimmed samples -Trim 5% of each side
-    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 0.05);
+    sample.trim.number <- trim.sample(x = seq(length(sample.fpkm.qq.nozero)), trim = 0.05);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
 
@@ -349,7 +349,7 @@ outlier.detection.cosine <- function(x, value.portion = 1) {
         last.cos <- cosine.similarity.large.value.percent(exp.quantile, obs.quantile.exp, large.value.percent = value.portion);
         }
     else if (4 == distribution.fit) {
-        ### 4 gamma distribution
+        # 4 gamma distribution
         mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
         sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
         gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
@@ -378,7 +378,7 @@ clusterEvalQ(
     expr = library(gamlss)
     )
 
-# Define a minimum value
+# Define a minimum value (should set a seed)
 random.col <- sample(patient.part, 1)
 decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
     decimal.numbers <- sapply(x, function(y) {
@@ -390,11 +390,11 @@ add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
 bic.trim.distribution <- NULL;
 
-# Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
+# Use foreach to iterate over the rows (genes) of fpkm.tumor.symbol.filter in parallel
 bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
     sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
 
-    sample.trim.number <- trim.sample(sample.number, 5);
+    sample.trim.number <- trim.sample(x = sample.number, trim = 5);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
 
@@ -403,17 +403,18 @@ bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine 
     glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family = GA);
     glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family = EXP);
 
-    glm.bic <- c(glm.norm$sbc,
-                 glm.lnorm$sbc,
-                 glm.exp$sbc,
-                 glm.gamma$sbc);
+    glm.bic <- c(
+        glm.norm$sbc,
+        glm.lnorm$sbc,
+        glm.exp$sbc,
+        glm.gamma$sbc
+        );
     glm.bic;
     }
 
 stopCluster(cl = cl);
 
-# Find the best fitted distribution
-# - BIC
+# Find the best fitted distribution - BIC
 rownames(bic.trim.distribution) <- rownames(fpkm.tumor.symbol.filter);
 bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 

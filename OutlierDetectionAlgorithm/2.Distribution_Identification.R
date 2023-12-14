@@ -102,8 +102,8 @@ obs.residue.quantile <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine =
         # 2. Log-normal distribution
         mean.log <- mean(sample.fpkm.qq.nozero.trim);
         sd.log <- sd(sample.fpkm.qq.nozero.trim);
-        m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
-        sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
+        m2 <-  log(mean.log ^ 2 / sqrt(sd.log ^ 2 + mean.log ^ 2));
+        sd2 <- sqrt(log(1 + (sd.log ^ 2 / mean.log ^ 2)));
         lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
         obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
         obs.residue.non.trim <- obs.quantile.lnorm - lnorm.quantile;
@@ -118,7 +118,7 @@ obs.residue.quantile <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine =
         }
 
     else if (4 == bic.trim.distribution.fit[i]) {
-        ### 4 gamma distribution
+        # 4 gamma distribution
         mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
         sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
         gamma.shape <- (mean.gamma / sd.gamma) ^ 2;
@@ -139,7 +139,7 @@ rownames(obs.residue.quantile) <- rownames(fpkm.tumor.symbol.filter);
 obs.residue.quantile.trim <- apply(
     X = obs.residue.quantile,
     MARGIN = 1,
-    FUN - function(x) {
+    FUN = function(x) {
         sort(as.numeric(x))
         }
     );
@@ -181,10 +181,12 @@ noise.min.off.bic.distribution <- foreach(j = 1:nrow(obs.residue.quantile.trim),
     glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family = GA);
     glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family = EXP);
 
-    glm.bic <- c(glm.norm$sbc,
-                 glm.lnorm$sbc,
-                 glm.exp$sbc,
-                 glm.gamma$sbc)
+    glm.bic <- c(
+        glm.norm$sbc,
+        glm.lnorm$sbc,
+        glm.exp$sbc,
+        glm.gamma$sbc
+        )
     glm.bic;
     }
 
