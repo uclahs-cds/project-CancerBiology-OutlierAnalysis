@@ -314,7 +314,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                     names(kmean.matrix) <- names(x.na);
                     }
                 else {
-                    kmean <- kmeans(non.zero, 2, nstart = 1000);
+                    kmean <- kmeans(non.zero, 2, nstart = 100);
                     cluster <- kmean$cluster;
                     cluster.zero <- c(cluster, rep(0, length(x[x == 0])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
@@ -328,7 +328,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALS
                 names(kmean.matrix) <- names(x.na);
                 }
             else {
-                kmean <- kmeans(x.na, 2, nstart = 1000);
+                kmean <- kmeans(x.na, 2, nstart = 100);
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
                 names(kmean.matrix) <- names(x.na);

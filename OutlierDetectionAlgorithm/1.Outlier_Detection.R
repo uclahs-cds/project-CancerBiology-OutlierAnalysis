@@ -32,7 +32,8 @@ params <- matrix(
         data = c(
                 'dataset.name', 'd', '0', 'character',
                 'working.directory', 'w', '0', 'character',
-                'data.matrix.file', 'f', '0', 'character'
+                'data.matrix.file', 'f', '0', 'character',
+                'patient.to.remove', 'p', '0', 'numeric'
                 ),
         ncol = 4,
         byrow = TRUE
@@ -42,13 +43,13 @@ opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 data.matrix.file <- opt$data.matrix.file
+patient.to.remove <- opt$patient.to.remove
 
-# Set the working directory
-setwd('/hot/users/jlivingstone/outlier/run_method');
 # Set the name of the dataset
-dataset.name <- 'BRCA-EU';
-data.matrix.file <- '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
-working.directory <- '/hot/user/jlivingstone/outlier/run_method'
+#dataset.name <- 'BRCA-EU';
+#data.matrix.file <- '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
+#working.directory <- '/hot/user/jlivingstone/outlier/run_method'
+#patient.to.remove <- 0
 
 setwd(working.directory)
 
@@ -88,10 +89,28 @@ zero.portion <- apply(
         length(x[0 == x]) / length(patient.part)
         }
     );
-fpkm.tumor.symbol.filter <- fpkm.tumor.symbol[which(0.01 > zero.portion), ];
+fpkm.tumor.symbol.filter <- data.matrix(fpkm.tumor.symbol[which(0.01 > zero.portion), ])
+
 annot.filter <- annot[which(0.01 > zero.portion), ]
 
-molecular.data.filter <- fpkm.tumor.symbol.filter[, patient.part];
+# need to remove the most abundant value for each gene
+# note that patient samples are no longer valid, since this will be a seperate patient for each gene
+# but all downstream analysis summarizes across patients so patient level labels are moot
+if (patient.to.remove > 0) {
+    patient.part <- patient.part[1:(length(patient.part) - patient.to.remove)];
+    sample.number <- patient.part
+
+    temp <- matrix(
+        data = NA,
+        nrow = nrow(fpkm.tumor.symbol.filter),
+        ncol = length(patient.part)
+        )
+    for (i in 1:nrow(fpkm.tumor.symbol.filter)) {
+        temp[i,] <- sort(fpkm.tumor.symbol.filter[i,], decreasing = FALSE)[patient.part]
+        }
+    rownames(temp) <- rownames(fpkm.tumor.symbol.filter)
+    fpkm.tumor.symbol.filter <- temp
+    }
 
 ### Trim sample
 trim.sample <- function(x, trim = 0.05) {
@@ -106,15 +125,15 @@ trim.sample <- function(x, trim = 0.05) {
     x[patient.trim.value];
     }
 
-# Would this be faster if they were separate functions instead of if statements ?
+set.seed(42)
 
 ### Outlier detection function
 # Default : methods = 'mean', trim = 0
 # 1. MEAN and SD : methods = 'mean', trim = 0
 # 2. TRIMMED MEAN and TRIMMED SD : methods = 'mean', trim = 0.05
 # 3. MEDIAN and MAD : methods = 'median'
-# 4. KMEAN : methods = 'kmean', nstart = 1000
-quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 1, exclude.zero = FALSE) {
+# 4. KMEAN : methods = 'kmean', nstart = 100
+quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 100, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
     if ('median' == methods) {
         if (exclude.zero) { 
@@ -135,7 +154,7 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 1, exclude
             if (1 == length(unique(x.na))) {
                 kmean.matrix <- rep(NA, length(x.na));
                 names(kmean.matrix) <- names(x.na);
-            }
+                }
             else {
                 data.order <- sort(x.na, decreasing = TRUE);
                 non.zero <- data.order[data.order > 0];
@@ -146,7 +165,13 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 1, exclude
                     names(kmean.matrix) <- names(x.na);
                     }
                 else {
-                    kmean <- kmeans(non.zero, 2, nstart = nstart);
+                    # sometimes kmeans throws 'empty cluster: try a better set of initial centers' error
+                    kmean <- tryCatch(
+                        expr = kmeans(x = non.zero, centers = 2, nstart = nstart),
+                        error = function(err) {
+                            return(list(cluster = NA))
+                            }
+                        )
                     cluster <- kmean$cluster;
                     cluster.zero <- c(cluster, rep(0, length(x[0 == x])));
                     kmean.matrix <- cluster.zero[match(x.na, data.order)];
@@ -160,7 +185,13 @@ quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 1, exclude
                 names(kmean.matrix) <- names(x.na);
                 }
             else {
-                kmean <- kmeans(x.na, 2, nstart = nstart);
+                # sometimes kmeans throws 'empty cluster: try a better set of initial centers' error
+                kmean <- tryCatch(
+                    expr = kmeans(x = x.na, centers = 2, nstart = nstart),
+                    error = function(err) {
+                        return(list(cluster = NA))
+                        }
+                    )
                 cluster <- kmean$cluster;
                 kmean.matrix <- cluster;
                 names(kmean.matrix) <- names(x.na);
@@ -199,21 +230,22 @@ registerDoParallel(cl);
 # 1. MEAN and SD : method = 'mean', trim = 0
 print('Calculating using MEAN and SD')
 print(Sys.time())
-data.mean <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i, ]);
+data.mean <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% quantify.outliers(fpkm.tumor.symbol.filter[i, ]);
 data.mean <- data.frame(data.mean);
 
 # 2. TRIMMED MEAN and TRIMMED SD : method = 'mean', trim = 5
-data.trimmean <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], trim = 5);
+data.trimmean <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% quantify.outliers(fpkm.tumor.symbol.filter[i,], trim = 5);
 data.trimmean <- data.frame(data.trimmean);
 
 # 3. MEDIAN and MAD : method = 'median'
 print('Calculating using MEDIAN and MAD')
 print(Sys.time())
-data.median <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'median');
+data.median <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% quantify.outliers(fpkm.tumor.symbol.filter[i,], methods = 'median');
 data.median <- data.frame(data.median);
 
 # 4. KMEAN : method = 'kmean'
-data.kmean <- foreach(i = 1:nrow(molecular.data.filter), .combine = rbind) %dopar% quantify.outliers(molecular.data.filter[i,], methods = 'kmean', nstart = 1000)
+print('Calculating using KMEANS')
+data.kmean <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% quantify.outliers(fpkm.tumor.symbol.filter[i,], methods = 'kmean', nstart = 100)
 data.kmean <- data.frame(data.kmean);
 
 stopCluster(cl = cl)
@@ -380,21 +412,28 @@ clusterEvalQ(
 
 # Define a minimum value (should set a seed)
 random.col <- sample(patient.part, 1)
-decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
-    decimal.numbers <- sapply(x, function(y) {
-        nchar(as.character(y)) - nchar(as.integer(y)) - 1
-        })
-    return(decimal.numbers)
-    })
+decimal.number.max <- lapply(
+    X = na.omit(fpkm.tumor.symbol.filter[,random.col]),
+    FUN = function(x) {
+        decimal.numbers <- sapply(
+            X = x,
+            FUN = function(y) {
+                nchar(as.character(y)) - nchar(as.integer(y)) - 1
+                }
+            )
+        return(decimal.numbers)
+        }
+    )
 add.minimum.value <- 1 / 10 ^ as.numeric(max(unlist(decimal.number.max)));
 
 bic.trim.distribution <- NULL;
 
 # Use foreach to iterate over the rows (genes) of fpkm.tumor.symbol.filter in parallel
+print('Calculate the distribution')
 bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
     sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
 
-    sample.trim.number <- trim.sample(x = sample.number, trim = 5);
+    sample.trim.number <- trim.sample(x = sample.number, trim = 0.05);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
 
@@ -415,6 +454,7 @@ bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine 
 stopCluster(cl = cl);
 
 # Find the best fitted distribution - BIC
+print('Find the best distribution')
 rownames(bic.trim.distribution) <- rownames(fpkm.tumor.symbol.filter);
 bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
 
@@ -524,7 +564,7 @@ save(
     bic.trim.distribution.fit,
     gene.zrange.fraction.cosine.last.point.bic,
     gene.rank.order.5method.cosine.last.point.bic,
-    file = generate.filename(dataset.name, 'final_outlier_rank_bic.short', 'rda')
+    file = generate.filename(dataset.name, paste('final_outlier_rank_bic.short', patient.to.remove, sep = '.'), 'rda')
     );
 
 #   - long version
@@ -541,5 +581,5 @@ save(
     data.cosine.bic.t,
     gene.zrange.fraction.cosine.last.point.bic,
     gene.rank.order.5method.cosine.last.point.bic,
-    file = generate.filename(dataset.name, 'final_outlier_rank_bic.long', 'rda')
+    file = generate.filename(dataset.name, paste('final_outlier_rank_bic.long', patient.to.remove, sep = '.'), 'rda')
     );
