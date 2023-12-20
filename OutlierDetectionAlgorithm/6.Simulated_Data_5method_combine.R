@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Rscript Simulated_Data_5method_combine.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method --file.date 2023-11-28
+# Rscript 6.Simulated_Data_5method_combine.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method --file.date 2023-11-28 --patients.to.remove 0
 
 ### 6.Simulated_Data_5method_combine.R ####################################################
 # Combine the 10 chunks of statistics results
@@ -11,7 +11,8 @@ params <- matrix(
     data = c(
         'dataset.name', 'd', '0', 'character',
         'working.directory', 'w', '0', 'character',
-        'file.date', 'd', '0', 'character'
+        'file.date', 'f', '0', 'character',
+        'patients.to.remove', 'p', '0', 'numeric'
         ),
     ncol = 4,
     byrow = TRUE
@@ -21,6 +22,7 @@ opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 file.date <- opt$file.date
+patients.to.remove <- opt$patients.to.remove
 
 # Set the working directory
 setwd(working.directory);
@@ -30,7 +32,7 @@ gene.zrange.fraction.negative.simulated.sum.1M.combined <- NULL
 gene.zrange.fraction.negative.simulated.sum.bic.5method.1M.combined <- NULL
 for (i in 1:10) {
     load(
-        file = paste(file.date, '_Simulated_Data_5method_', dataset.name, '.', i, '.short.rda', sep = '')
+        file = paste(file.date, '_Simulated_Data_5method_', dataset.name, '.', i, '.', patients.to.remove, '.short.rda', sep = '')
         )
     gene.zrange.fraction.negative.simulated.sum.1M.combined <- rbind(
         gene.zrange.fraction.negative.simulated.sum.1M.combined,
@@ -51,5 +53,5 @@ save(
     noise.min.off.bic.distribution.fit,
     gene.zrange.fraction.negative.simulated.sum.bic.5method.1M,
     gene.zrange.fraction.negative.simulated.sum.1M,
-    file = generate.filename('Simulated_Data_5method_combine', dataset.name, 'rda')
+    file = generate.filename('Simulated_Data_5method_combine', paste(dataset.name, patients.to.remove, 'short', sep = '.'), 'rda')
     )

@@ -22,7 +22,7 @@ params <- matrix(
                 'working.directory', 'w', '0', 'character',
                 'distribution.identification.file', 'o', '0', 'character',
                 'simulated.data.file', 's', '0', 'character',
-                'patient.to.remove', 'p', '0', 'numeric'
+                'patients.to.remove', 'p', '0', 'numeric'
                 ),
         ncol = 4,
         byrow = TRUE
@@ -33,13 +33,13 @@ dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 distribution.identification.file <- opt$distribution.identification.file
 simulated.data.file <- opt$simulated.data.file
-patient.to.remove <- opt$patient.to.remove
+patients.to.remove <- opt$patients.to.remove
 
 #working.directory <- '/hot/users/jlivingstone/outlier/run_method'
 #dataset.name <- 'BRCA_EU'
 #distribution.identification.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-20_Distribution_Identification_short_BRCA_EU.rda'
 #simulated.data.file <- '/hot/users/jlivingstone/outlier/run_method/2023-11-21_Simulated_data_generation_2_BRCA_EU.1.rda'
-#patient.to.remove <- 0
+#patients.to.remove <- 0
 
 # Set the working directory
 setwd(working.directory);
@@ -64,11 +64,12 @@ sample.number <- 1:ncol(fpkm.tumor.symbol.filter);
 bic.trim.distribution.fit.obs <- bic.trim.distribution.fit;
 
 # remove the number of patients stated for method iteration to identify outlier patients
-if (patient.to.remove > 0) {
-    patient.part <- patient.part[1:(length(patient.part) - patient.to.remove)];
+## This should probably remove the most abundant value per gene like in the real data
+if (patients.to.remove > 0) {
+    patient.part <- patient.part[1:(length(patient.part) - patients.to.remove)];
     sample.number <- patient.part
     negative.simulated.sum <- negative.simulated.sum[, patient.part]
-    fpkm.tumor.symbol.filter <- fpkm.tumor.symbol.filter[,patient.part] 
+    fpkm.tumor.symbol.filter <- fpkm.tumor.symbol.filter[,patient.part]
    }
 
 # Define a minimum value
@@ -451,7 +452,7 @@ save(
     gene.zrange.fraction.negative.simulated.sum.1M,
     data.cosine.negative.t,
     gene.zrange.fraction.negative.simulated.sum.bic.5method.1M,
-    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, patient.to.remove, 'short', sep = '.'), 'rda')
+    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, patients.to.remove, 'short', sep = '.'), 'rda')
     );
 
 save(
@@ -472,5 +473,5 @@ save(
     gene.zrange.fraction.negative.simulated.sum.1M,
     data.cosine.negative.t,
     gene.zrange.fraction.negative.simulated.sum.bic.5method.1M,
-    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, patient.to.remove, 'long', sep = '.'), 'rda')
+    file = generate.filename('Simulated_Data_5method', paste(dataset.name, replicate, patients.to.remove, 'long', sep = '.'), 'rda')
     )

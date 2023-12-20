@@ -3,7 +3,7 @@
 # Rscript 7.Significant_Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/user/jlivingstone/outlier/run_method \
 # --rank.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_BRCA-EU_final_outlier_rank_bic.short.rda \
 # --combined.file /hot/users/jlivingstone/outlier/run_method/2023-11-30_Simulated_Data_5method_combine_BRCA_EU.rda \
-# --row.chunks 1000 --matrix.chunk 1 --method.iteration 0
+# --row.chunks 1000 --matrix.chunk 1 --patients.to.remove 0
 
 ### 7.Significant_Outlier_Detection.R ####################################################
 # Compute p-values
@@ -13,7 +13,6 @@ library(BoutrosLab.utilities)
 library(doParallel);
 library(foreach);
 library(getopt)
-library(parallel);
 
 params <- matrix(
     data = c(
@@ -21,9 +20,9 @@ params <- matrix(
         'working.directory', 'w', '0', 'character',
         'rank.file.', 'f', '0', 'character',
         'combined.file', 'c', '0', 'character',
-        'row.chunks', 'r', '0', 'character',
-        'matrix.chunk', 'm', '0', 'character',
-        'method.iteration', 'i', '0', 'character'
+        'row.chunks', 'r', '0', 'numeric',
+        'matrix.chunk', 'm', '0', 'numeric',
+        'patients.to.remove', 'i', '0', 'numeric'
         ),
     ncol = 4,
     byrow = TRUE
@@ -34,14 +33,9 @@ dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 rank.file <- opt$rank.file
 combined.file <- opt$combined.file
-row.chunks <- as.numeric(opt$row.chunks)
-matrix.chunk <- as.numeric(opt$matrix.chunk)
-
-# This will be used identify the number of outlier patients per gene
-#   - if '0', use whole patients (first step)
-#   - if '1', use n-1 patients (exclude the patient having the largest value)
-#   - repeat this '2', '3', '4'... until there is no outlier genes
-method.iteration <- opt$method.iteration
+row.chunks <- opt$row.chunks
+matrix.chunk <- opt$matrix.chunk
+patients.to.remove <- opt$patients.to.remove
 
 # Set the working directory
 setwd(working.directory);
@@ -157,10 +151,10 @@ gene.rank.p.value.one.gene <- foreach(i = gene.number.start.end.matrix[matrix.ch
 stopCluster(cl = cl);
 
 # to update the object name with the interation number
-p.value.one <- paste0('gene.rank.p.value.one.gene.', method.iteration);
+p.value.one <- paste0('gene.rank.p.value.one.gene.', patients.to.remove);
 assign(p.value.one, gene.rank.p.value.one.gene);
 
 save(
-    list = paste0('gene.rank.p.value.one.gene.', method.iteration),
-    file = generate.filename('Significant_Outlier_Detection', paste(dataset.name, matrix.chunk, method.iteration, sep = '.'), 'rda')
+    list = paste0('gene.rank.p.value.one.gene.', patients.to.remove),
+    file = generate.filename('Significant_Outlier_Detection', paste(dataset.name, matrix.chunk, patients.to.remove, sep = '.'), 'rda')
     );

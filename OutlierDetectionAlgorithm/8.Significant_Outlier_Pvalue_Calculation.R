@@ -2,7 +2,7 @@
 
 # Rscript 8.Significant_Outlier_Pvalue_Calculation.R --dataset.name BRCA_EU \
 # --working.directory /hot/user/jlivingstone/outlier/run_method \
-# --method.iteration 0
+# --patients.to.remove 0
 
 ### 8.Significant_Outlier_Pvalue_Calculation.R ####################################################
 # Combine p-values across chunks
@@ -13,7 +13,7 @@ params <- matrix(
     data = c(
         'dataset.name', 'd', '0', 'character',
         'working.directory', 'w', '0', 'character',
-        'method.iteration', 'i', '0', 'character'
+        'patients.to.remove', 'i', '0', 'numeric'
         ),
     ncol = 4,
     byrow = TRUE
@@ -22,7 +22,7 @@ params <- matrix(
 opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
-method.iteration <- opt$method.iteration
+patients.to.remove <- opt$patients.to.remove
 
 # Set the working directory
 setwd(working.directory)
@@ -38,7 +38,7 @@ for (i in 1:length(files)) {
     )
     assign(
         x = 'variable.name',
-        value = paste('gene.rank.p.value.one.gene', method.iteration, sep = '.')
+        value = paste('gene.rank.p.value.one.gene', patients.to.remove, sep = '.')
     )
     p.value.all <- rbind(
         p.value.all,
@@ -55,6 +55,6 @@ p.value.all$q.value <- p.adjust(
 assign(x = variable.name, value = p.value.all)
 
 save(
-    list = paste('gene.rank.p.value.one.gene', method.iteration, sep = '.'),
-    file = generate.filename('Significant_Outlier_Pvalue_Calculation', paste(dataset.name, method.iteration, sep = '.'), 'rda')
+    list = paste('gene.rank.p.value.one.gene', patients.to.remove, sep = '.'),
+    file = generate.filename('Significant_Outlier_Pvalue_Calculation', paste(dataset.name, patients.to.remove, sep = '.'), 'rda')
     )

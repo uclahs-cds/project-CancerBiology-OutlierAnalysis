@@ -33,7 +33,7 @@ params <- matrix(
                 'dataset.name', 'd', '0', 'character',
                 'working.directory', 'w', '0', 'character',
                 'data.matrix.file', 'f', '0', 'character',
-                'patient.to.remove', 'p', '0', 'numeric'
+                'patients.to.remove', 'p', '0', 'numeric'
                 ),
         ncol = 4,
         byrow = TRUE
@@ -43,13 +43,13 @@ opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 data.matrix.file <- opt$data.matrix.file
-patient.to.remove <- opt$patient.to.remove
+patients.to.remove <- opt$patients.to.remove
 
 # Set the name of the dataset
 #dataset.name <- 'BRCA-EU';
 #data.matrix.file <- '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
 #working.directory <- '/hot/user/jlivingstone/outlier/run_method'
-#patient.to.remove <- 0
+#patients.to.remove <- 0
 
 setwd(working.directory)
 
@@ -96,8 +96,8 @@ annot.filter <- annot[which(0.01 > zero.portion), ]
 # need to remove the most abundant value for each gene
 # note that patient samples are no longer valid, since this will be a seperate patient for each gene
 # but all downstream analysis summarizes across patients so patient level labels are moot
-if (patient.to.remove > 0) {
-    patient.part <- patient.part[1:(length(patient.part) - patient.to.remove)];
+if (patients.to.remove > 0) {
+    patient.part <- patient.part[1:(length(patient.part) - patients.to.remove)];
     sample.number <- patient.part
 
     temp <- matrix(
@@ -136,8 +136,8 @@ set.seed(42)
 quantify.outliers <- function(x, methods = 'mean', trim = 0, nstart = 100, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
     if ('median' == methods) {
-        if (exclude.zero) { 
-            x.nonzero <- x.na[0 != x.na]; 
+        if (exclude.zero) {
+            x.nonzero <- x.na[0 != x.na];
             data.median <- median(x.nonzero);
             data.mad <- mad(x.nonzero);
             }
@@ -564,7 +564,7 @@ save(
     bic.trim.distribution.fit,
     gene.zrange.fraction.cosine.last.point.bic,
     gene.rank.order.5method.cosine.last.point.bic,
-    file = generate.filename(dataset.name, paste('final_outlier_rank_bic.short', patient.to.remove, sep = '.'), 'rda')
+    file = generate.filename('Final_outlier_rank_bic', paste(dataset.name, patients.to.remove, sep = '.'), 'short.rda')
     );
 
 #   - long version
@@ -581,5 +581,5 @@ save(
     data.cosine.bic.t,
     gene.zrange.fraction.cosine.last.point.bic,
     gene.rank.order.5method.cosine.last.point.bic,
-    file = generate.filename(dataset.name, paste('final_outlier_rank_bic.long', patient.to.remove, sep = '.'), 'rda')
+    file = generate.filename('Final_outlier_rank_bic', paste(dataset.name, patients.to.remove, sep = '.'), 'long.rda')
     );
