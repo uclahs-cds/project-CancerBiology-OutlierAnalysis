@@ -13,7 +13,7 @@ setwd('/hot/users/jlivingstone/outlier')
 
 # read in Supplementary Table 1 from Nik-Zanial 2016
 paper <- read.delim(
-	file = '/hot/users/jlivingstone/outlier/NikZainal_2016/SupplementaryTable1.CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv',
+	file = '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable1.CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv',
 	as.is = TRUE,
 	skip = 1,
 	sep = ','

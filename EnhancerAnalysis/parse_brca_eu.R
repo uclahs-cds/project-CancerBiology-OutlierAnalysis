@@ -4,7 +4,7 @@
 
 ### HISTORY ###################################################################
 # Version	Date		Developer	Comments
-# 0.01		2023-01-07	jlivingstone	initial code
+# 0.01		2023-11-07	jlivingstone	initial code
 
 ### PREAMBLE ##################################################################
 
@@ -33,8 +33,9 @@ gain.filtered$gene_affected <- genes.affected
 
 write.table(
 	x = gain.filtered,
-	file = 'gain_unique_somatic_mutation.BRCA-EU.tsv',
+	file = '/hot/ref/cohort/ICGC/BRCA/EU/processed/gain_unique_somatic_mutation.BRCA-EU.tsv',
 	quote = FALSE,
+	sep = '\t',
 	row.names = FALSE
 	)
 
@@ -65,5 +66,6 @@ write.table(
 	x = loss.filtered,
 	file = '/hot/ref/cohort/ICGC/BRCA/EU/processed/loss_unique_somatic_mutation.BRCA-EU.tsv',
 	quote = FALSE,
+	sep = '\t',
 	row.names = FALSE
 	)
