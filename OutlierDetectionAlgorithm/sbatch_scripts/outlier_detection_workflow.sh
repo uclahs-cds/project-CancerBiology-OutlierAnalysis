@@ -35,3 +35,9 @@ Rscript /hot/code/jlivingstone/GitHub/uclahs-cds/project-CancerBiology-OutlierAn
 --dataset.name BRCA_EU \
 --working.directory /hot/user/jlivingstone/outlier/run_method/remove_four_patients \
 --patients.to.remove 4
+
+Rscript /hot/code/jlivingstone/GitHub/uclahs-cds/project-CancerBiology-OutlierAnalysis/OutlierDetectionAlgorithm/9.Patient_Outlier_Identification.R \
+--dataset.name BRCA_EU \
+--working.directory /hot/users/jlivingstone/outlier/run_method \
+--outlier.rank.file /hot/users/jlivingstone/outlier/run_method/2023-11-20_BRCA-EU_final_outlier_rank_bic.short.rda \
+--qvalue.cutoff 0.01

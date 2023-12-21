@@ -1,7 +1,8 @@
 ### Usage ####
-# Rscript 1.Outlier_Detection.R --dataset.name BRCA_EU --working.directory /hot/users/jlivingstone/outlier/run_method \
+# Rscript 9.Patient_Outlier_Identification.R --dataset.name BRCA_EU \
+# --working.directory /hot/users/jlivingstone/outlier/run_method \
 # --outlier.rank.file '/hot/users/jlivingstone/outlier/run_method/2023-11-20_BRCA-EU_final_outlier_rank_bic.short.rda' \
-# --qvalue.cutoff 0.1
+# --qvalue.cutoff 0.01
 
 ### 9.Patient_Outlier_Identification.R ####################################################
 library(BoutrosLab.utilities)
@@ -23,7 +24,7 @@ opt <- getopt(params);
 dataset.name <- opt$dataset.name
 working.directory <- opt$working.directory
 outlier.rank.file <- opt$outlier.rank.file
-qvalue.cutoff <- opt$pvalue.cutoff
+qvalue.cutoff <- opt$qvalue.cutoff
 
 setwd(working.directory)
 
@@ -49,7 +50,7 @@ fpkm.tumor.symbol.filter <- data.matrix(fpkm.tumor.symbol.filter)
 outlier.patient.list <- list()
 for (i in 1:length(files.ordered)) {
 	print(files.ordered[i])
-	variable <- load(files.ordered[i])
+	variable <- load(file = files.ordered[i])
 
 	pvalue <- get(variable)
 	pvalue$qvalue <- p.adjust(
@@ -64,8 +65,12 @@ for (i in 1:length(files.ordered)) {
 			stop = nchar(files.ordered[i]) - chars.to.remove
 			)
 		)
-
 	outlier.genes <- pvalue[which(pvalue$qvalue < qvalue.cutoff),]
+
+	if (nrow(outlier.genes) == 0) {
+		print(paste0('No outlier genes ', files.ordered[i]))
+		break
+		}
 	annot.filtered <- annot.filter[match(outlier.genes$gene, rownames(annot.filter)),]
 	outlier.matrix <- fpkm.tumor.symbol.filter[outlier.genes$gene,]
 
@@ -98,11 +103,13 @@ for (i in 1:length(files.ordered)) {
 
 save(
 	x = outlier.patient.list,
-	file = generate.filename('Outlier_patient_identification', dataset.name, 'rda')
+	file = generate.filename('Outlier_patient_identification', paste(dataset.name, 'cutoff', qvalue.cutoff, sep = '_'), 'rda')
 	)
 
-# create file per gene
-gene.list <- outlier.patient.list[[1]][,c('gene.index', 'gene.name', 'patient')]
+# create file with outlier patients per gene
+# use outlier gene list from analysis with all patients
+gene.list <- outlier.patient.list[[1]][, c('gene.index', 'gene.name', 'patient')]
+
 for (j in 2:length(outlier.patient.list)) {
 	for (i in 1:nrow(gene.list)) {
 		matched.index <- match(gene.list$gene.index[i], outlier.patient.list[[j]]$gene.index)
@@ -113,7 +120,15 @@ for (j in 2:length(outlier.patient.list)) {
 		}
 	}
 
-# and file per sample
+write.table(
+	x = gene.list,
+	file = generate.filename('Outlier_genes_with_patients', paste(dataset.name, 'cutoff', qvalue.cutoff, sep = '_'), 'txt'),
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
+	)
+
+# and create file with outlier genes per sample
 outlier.patient.name <- unique(
 	unlist(
 		lapply(
@@ -140,7 +155,7 @@ for (j in 1:length(outlier.patient.name)) {
 
 write.table(
 	x = outlier.patient.genes,
-	file = generate.filename('Outlier_patient_genes', dataset.name, 'txt'),
+	file = generate.filename('Outlier_patients_with_genes', paste(dataset.name, 'cutoff', qvalue.cutoff, sep = '_'), 'txt'),
 	quote = FALSE,
 	sep = '\t',
 	row.names = FALSE
