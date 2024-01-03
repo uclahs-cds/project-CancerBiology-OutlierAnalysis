@@ -20,7 +20,7 @@ elements <- read.delim(
 	as.is = TRUE
 	)
 # broken down into Enhancer, Promoter, Promoter/Enhancer
-# Enhancer  Promoter  Promoter/Enhancer 
+# Enhancer  Promoter  Promoter/Enhancer
 # 371839    7370	30062
 
 # collect only the elite GHids to begin with, then merge (n = 173,025)
@@ -39,7 +39,7 @@ tissue <- read.delim(
 	as.is = TRUE,
 	sep = '\t'
 	)
-# dbSUPER  ENCODE Ensembl FANTOM5   VISTA 
+# dbSUPER  ENCODE Ensembl FANTOM5   VISTA
 # 365378 1292029 3844417   55407	1903
 
 # number of tissues per GHid median = 9, mean = 15, min = 1, max = 311
@@ -165,7 +165,7 @@ per.gene <- create.densityplot(
 						fill = c('tomato1', 'royalblue')
 						),
 					text = list(
-						lab = c("All genes (n = 264,047)", "Elite only (n = 179,794)")
+						lab = c('All genes (n = 264,047)', 'Elite only (n = 179,794)')
 						),
 					padding.text = 1,
 					cex = 1
@@ -214,7 +214,7 @@ per.id <- create.densityplot(
 						fill = c('tomato1', 'royalblue')
 						),
 					text = list(
-						lab = c("All GHids (n = 409,271)", "Elite only (n = 241,676)")
+						lab = c('All GHids (n = 409,271)', 'Elite only (n = 241,676)')
 						),
 					padding.text = 1,
 					cex = 1

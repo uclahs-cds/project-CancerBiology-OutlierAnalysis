@@ -13,7 +13,7 @@ setwd('/hot/users/jlivingstone/outlier')
 
 # read in Supplementary Table 1 from Nik-Zanial 2016
 paper <- read.delim(
-	file = '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable1.CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv',
+	file = file.path('/hot/users/jlivingstone/outlier/NikZainal_2016/original/', 'SupplementaryTable1.CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv'),
 	as.is = TRUE,
 	skip = 1,
 	sep = ','
@@ -23,7 +23,7 @@ paper.samples <- paper$sample_name
 
 # submitted_sample_id + submitted_sample_id
 eu <- read.delim(
-	file = '/hot/ref/cohort/ICGC/BRCA/EU/original/sample.BRCA-EU.tsv.gz',
+	file = file.path('/hot/ref/cohort/ICGC/BRCA/EU/original/', 'sample.BRCA-EU.tsv.gz'),
 	as.is = TRUE
 	)
 length(intersect(paper.samples, unique(substr(eu$submitted_sample_id, 1, 6))))
@@ -31,7 +31,7 @@ length(intersect(paper.samples, unique(substr(eu$submitted_sample_id, 1, 6))))
 eu.samples <- intersect(paper.samples, unique(substr(eu$submitted_sample_id, 1, 6)))
 
 uk <- read.delim(
-	file = '/hot/ref/cohort/ICGC/BRCA/UK/original/sample.BRCA-UK.tsv.gz',
+	file = file.path('/hot/ref/cohort/ICGC/BRCA/UK/original/', 'sample.BRCA-UK.tsv.gz'),
 	as.is = TRUE
 	)
 length(intersect(paper.samples, unique(substr(uk$submitted_sample_id, 1, 6))))
@@ -44,7 +44,7 @@ uk.samples <- intersect(paper.samples, unique(substr(uk$submitted_sample_id, 1, 
 
 # specimen_type + submitted_donor_id
 eu.specimen <- read.delim(
-	file = '/hot/ref/cohort/ICGC/BRCA/EU/original/specimen.BRCA-EU.tsv.gz',
+	file = file.path('/hot/ref/cohort/ICGC/BRCA/EU/original/', 'specimen.BRCA-EU.tsv.gz'),
 	as.is = TRUE
 	)
 
@@ -56,11 +56,11 @@ eu.primary <- eu.merged[-grep('Normal', eu.merged$specimen_type),]
 
 # clinical + submitted_donor_id
 eu.donor <- read.delim(
-	file = '/hot/ref/cohort/ICGC/BRCA/EU/original/donor.BRCA-EU.tsv.gz',
+	file = file.path('/hot/ref/cohort/ICGC/BRCA/EU/original/', 'donor.BRCA-EU.tsv.gz'),
 	as.is = TRUE
 	
 # now merge eu.primary and eu.donor to have both clinical and PD id
-eu.donor.order <- eu.donor[match(eu.primary$submitted_donor_id, eu.donor$submitted_donor_id),]
+eu.donor.order <- eu.donor[match(eu.primary$submitted_donor_id, eu.donor$submitted_donor_id), ]
 eu.all <- cbind(eu.primary, eu.donor.order)
 eu.all$sample_name <- substr(eu.all$submitted_sample_id, 1, 6)
 

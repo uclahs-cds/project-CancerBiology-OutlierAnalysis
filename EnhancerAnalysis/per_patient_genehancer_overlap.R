@@ -7,53 +7,81 @@
 # 0.01		2023-12-21	jlivingstone	initial code
 
 ### PREAMBLE ##################################################################
-library(BoutrosLab.Utilities)
+library(bedr)
+library(BoutrosLab.utilities)
+library(rtracklayer)
 
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
 
+# read in outlier genes per patient
 outliers <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/run_method/2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt',
+	file = file.path('/hot/user/jlivingstone/outlier/run_method/', '2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'),
 	as.is = TRUE
 	)
 
+# read in GeneHancer elements
 gh <- read.delim(
-	file = '/hot/ref/database/GeneHancer-v5.18/original/GRCh38/GeneHancer_AnnotSV_elements_v5.18.txt',
+	file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18_elite.txt'),
 	as.is = TRUE
 	)
 
 # start with amplifications - gain in enhancer or promoter = higher abundance
 gains <- read.delim(
-	file = '/hot/ref/cohort/ICGC/BRCA/EU/processed/gain_unique_somatic_mutation.BRCA-EU.tsv',
+	file = file.path('/hot/ref/cohort/ICGC/BRCA/EU/processed/', 'gain_unique_somatic_mutation.BRCA-EU.tsv'),
 	as.is = TRUE
 	)
-
-gene.annot <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
-	as.is = TRUE
-	)
-cols.to.keep <- c('UNIQID', 'Ensembl', 'Source', 'Name', 'loc')
-gene.annot  <- gene.annot[, match(cols.to.keep, colnames(gene.annot))]
-
 
 # ugh the WGS names aren't the same as RNA
 outliers$sample.name <- sub('R', 'D', outliers$patient)
 
-# n = 104 (only 1/3 of total RNA patients)
+# n = 104 (57% of total RNA patients)
 sample.overlap <- intersect(outliers$sample.name, gains$submitted_sample_id)
 
 outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name),]
 
+elements.overlap <- list()
+gh.overlap <- list()
+# for each patient, overlap the enhancer regions with sv breakpoints
 for (i in 1:nrow(outliers.parsed)) {
+	print(i)
 	genes <- unlist(
 		strsplit(
 			x = outliers.parsed$outlier_genes[i],
 			split = ';'
 			)
+		)
 
-	temp <- gains[which(gains$submitted_sample_id %in% outliers.parsed$sample.name[i]), ]
+	elements <- gh[gh$symbol %in% genes, ]
+	if (nrow(elements) > 0) {
+		element.regions <- GRanges(
+			seqnames = paste0('chr', elements$chr),
+			ranges = IRanges(
+				start = elements$element_start,
+				end = elements$element_end
+				)
+			)
 
-	# overlap patient specific gains with gene enhancer element for outlier genes
-	
-	# need to get elements only for these genes
+		sample.gains <- gains[gains$submitted_sample_id %in% outliers.parsed$sample.name[i], ]
 
+		regions <- GRanges(
+			seqnames = paste0('chr', sample.gains$chromosome),
+			ranges = IRanges(
+				start = sample.gains$chromosome_start,
+				end = sample.gains$chromosome_end
+				)
+			)
+
+		# check if gain regions overlap with genehancer elements (object a are in object b)
+		regions.overlap <- as.data.frame(mergeByOverlaps(element.regions, regions))
+		regions.overlap.index <- findOverlaps(element.regions, regions)
+
+		if (length(regions.overlap.index) > 0) {
+			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[queryHits(regions.overlap.index),]
+			gh.overlap[[outliers.parsed$sample.name[i]]] <- sample.gains[unique(subjectHits(regions.overlap.index)), -match('gene_affected', colnames(sample.gains))]
+			}
+		}
 	}
+save(
+	list = c('elements.overlap', 'gh.overlap'),
+	file = generate.filename('genehancer_overlap_regions_gains', 'BRCA_EU', 'rda')
+	)

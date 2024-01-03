@@ -15,7 +15,7 @@ library(BoutrosLab.utilities)
 
 # read in GeneHancer hg19 because OS arrays are hg19 based
 gh <- read.delim(
-	file = '/hot/ref/database/GeneHancer-v5.18/original/hg19/GeneHancer_hg19_v5.18.bed',
+	file = file.path('/hot/ref/database/GeneHancer-v5.18/original/hg19/', 'GeneHancer_hg19_v5.18.bed'),
 	header = FALSE,
 	as.is = TRUE
 	)
@@ -23,7 +23,7 @@ colnames(gh) <- c('chr', 'start', 'end', 'ghid')
 
 # but only look at elite positions first
 elements <- read.delim(
-	file = '/hot/ref/database/GeneHancer-v5.18/original/GRCh38/GeneHancer_AnnotSV_elements_v5.18.txt',
+	file = file.path('/hot/ref/database/GeneHancer-v5.18/original/GRCh38/', 'GeneHancer_AnnotSV_elements_v5.18.txt'),
 	as.is = TRUE
 	)
 elite <- elements[which(elements$is_elite == TRUE), ]
@@ -36,7 +36,7 @@ gh.filtered <- gh.ordered[(gh.ordered$end - gh.ordered$start > 20),]
 if (dataset == 'cpcgene') {
 	# read in sample specific CNAs
 	segment <- read.delim(
-		file = '/hot/users/jlivingstone/2016-02-11_CPCG_segments_200pg.txt',
+		file = file.path('/hot/users/jlivingstone/', '2016-02-11_CPCG_segments_200pg.txt'),
 		header = FALSE,
 		as.is = TRUE
 		)
@@ -51,7 +51,7 @@ if (dataset == 'cpcgene') {
 
 if (dataset == 'icgc') {
 	segment <- read.delim(
-		file = '/hot/users/jlivingstone/outlier/2023-11-06_ICGC_BRCA_EU_segments.txt',
+		file = file.path('/hot/users/jlivingstone/outlier/', '2023-11-06_ICGC_BRCA_EU_segments.txt'),
 		as.is = TRUE
 		)
 	colnames(segment) <- c('sample', 'chr', 'start', 'end', 'status')
@@ -69,7 +69,7 @@ for (i in 1:length(samples)) {
 	}
 names(cn.list) <- samples
 
-gh.positions <- paste0(gh.filtered$chr, ':', gh.filtered$start, '-', gh.filtered$end) 
+gh.positions <- paste0(gh.filtered$chr, ':', gh.filtered$start, '-', gh.filtered$end)
 
 overlap.matrix <- matrix(
 	data = NA,
@@ -96,10 +96,10 @@ rownames(overlap.matrix) <- gh.filtered$ghid
 setwd('/hot/users/jlivingstone/outlier/')
 
 if (dataset == 'cpcgene') {
-	filename = generate.filename('outlier', 'GeneHancer_CPCG_OS_overlap', 'txt')
+	filename <- generate.filename('outlier', 'GeneHancer_CPCG_OS_overlap', 'txt')
 	}
 if (dataset == 'icgc') {
-	filename = generate.filename('outlier', 'GeneHancer_ICGC_segment_overlap', 'txt')
+	filename <- generate.filename('outlier', 'GeneHancer_ICGC_segment_overlap', 'txt')
 	}
 
 write.table(
