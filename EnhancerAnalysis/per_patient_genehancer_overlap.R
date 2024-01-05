@@ -41,6 +41,7 @@ outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name),]
 
 elements.overlap <- list()
 gh.overlap <- list()
+engine <- 'granges' #'bedr'
 # for each patient, overlap the enhancer regions with sv breakpoints
 for (i in 1:nrow(outliers.parsed)) {
 	print(i)
@@ -61,6 +62,12 @@ for (i in 1:nrow(outliers.parsed)) {
 				)
 			)
 
+		if (engine == 'bedr') {
+			element.regions <- paste0('chr', elements$chr, ':', elements$element_start, '-', elements$element_end)
+			ind <- order(elements$chr, elements$element_start, elements$element_end)
+			element.regions.ordered <- element.regions[ind]
+			}
+
 		sample.gains <- gains[gains$submitted_sample_id %in% outliers.parsed$sample.name[i], ]
 
 		regions <- GRanges(
@@ -71,6 +78,13 @@ for (i in 1:nrow(outliers.parsed)) {
 				)
 			)
 
+		if (engine == 'bedr') {
+			regions <- paste0('chr', sample.gains$chromosome, ':', sample.gains$chromosome_start, '-', sample.gains$chromosome_end)
+			s.ind <- order(sample.gains$chromosome, sample.gains$chromosome_start, sample.gains$chromosome_end)
+			regions.ordered <- regions[s.ind]
+
+			}
+
 		# check if gain regions overlap with genehancer elements (object a are in object b)
 		regions.overlap <- as.data.frame(mergeByOverlaps(element.regions, regions))
 		regions.overlap.index <- findOverlaps(element.regions, regions)
@@ -78,6 +92,12 @@ for (i in 1:nrow(outliers.parsed)) {
 		if (length(regions.overlap.index) > 0) {
 			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[queryHits(regions.overlap.index),]
 			gh.overlap[[outliers.parsed$sample.name[i]]] <- sample.gains[unique(subjectHits(regions.overlap.index)), -match('gene_affected', colnames(sample.gains))]
+			}
+
+		if (engine == 'bedr') {
+			overlap <- element.regions.ordered[in.region(element.regions.ordered, regions.ordered)]
+			elements.overlap <- elements[match(overlap, element.regions), ]
+			gh.overlap <- sample.gains[in.region(regions.ordered, element.regions.ordered), ]
 			}
 		}
 	}
