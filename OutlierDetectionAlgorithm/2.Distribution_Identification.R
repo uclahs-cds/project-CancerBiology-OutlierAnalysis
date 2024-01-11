@@ -147,44 +147,15 @@ obs.residual.quantile.trim.max <- apply(obs.residual.quantile.trim, 1, max);
 
 # -2. Get distribution of residuals
 # Using "min off" the values
-
-cl <- makeCluster(detectCores()-1) # create a cluster with all available cores except one
-registerDoParallel(cl) # register the cluster with the parallel package
-
-clusterExport(cl, "trim.sample");
-clusterEvalQ(cl, library(gamlss));
-
-noise.min.off.bic.distribution <- NULL
-
-noise.min.off.bic.distribution <- foreach(j = 1:nrow(obs.residue.quantile.trim), .combine = rbind) %dopar% {
-    sample.fpkm.qq <- round(as.numeric(obs.residue.quantile.trim[j,]), digits = 6);
-    sample.fpkm.qq.sort <- sort(sample.fpkm.qq);
-    if (min(sample.fpkm.qq.sort) < 0) {
-        sample.fpkm.qq.nozero <- sample.fpkm.qq.sort - min(sample.fpkm.qq.sort) + add.minimum.value;
-    } else {
-        sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value ;
-    }
-
-    glm.norm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=NO);
-    glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=LNO);
-    glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family=GA);
-    glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family=EXP);
-
-    glm.bic <- c(glm.norm$sbc,
-                 glm.lnorm$sbc,
-                 glm.exp$sbc,
-                 glm.gamma$sbc)
-    glm.bic;
-
-    }
-
-stopCluster(cl) # stop the cluster after the computation is done
-
 # Find the best fitted distribution
 # - BIC
-rownames(noise.min.off.bic.distribution) <- rownames(obs.residue.quantile.trim);
-noise.min.off.bic.distribution.fit <- apply(noise.min.off.bic.distribution, 1, which.min);
+noise.min.off.bic.distribution.fit <- apply(
+    X = obs.residual.quantile.trim,
+    MARGIN = 1,
+    FUN = identify.bic.optimal.distribution.residuals
+    );
 
+names(noise.min.off.bic.distribution.fit) <- rownames(obs.residue.quantile.trim);
 
 # save the R environment
 #   - short version
