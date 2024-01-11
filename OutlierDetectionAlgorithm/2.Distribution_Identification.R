@@ -40,15 +40,6 @@ least.significant.digit <- function(x) {
         );
     1 / 10^as.numeric(max(decimal.number.max));
     }
-    
-    # function: Trim 5% of samples from each side
-trim.sample <- function(x, trim.portion = 5) {
-    trim.sample.number <- length(x) * (trim.portion/100);
-    trim.sample.number.integer <- round(trim.sample.number, digits = 0);
-    patient.trimr.value <- (trim.sample.number.integer + 1):(length(x)-trim.sample.number.integer);
-    patient.trimr.value;
-    }
-
 
 # Identifying the distribution of each residue
 # -1. Get residues
