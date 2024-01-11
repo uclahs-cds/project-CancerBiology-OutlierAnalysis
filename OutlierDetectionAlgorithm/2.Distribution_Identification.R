@@ -133,19 +133,19 @@ obs.residual.quantile <- data.frame(obs.residual.quantile);
 rownames(obs.residual.quantile) <- rownames(fpkm.tumor.symbol.filter);
 
 # Trim each 5%
-obs.residue.quantile.trim <- apply(
-    X = obs.residue.quantile,
+obs.residual.quantile.trim <- apply(
+    X = obs.residual.quantile,
     MARGIN = 1,
     FUN = sort
     );
-obs.residue.quantile.trim <- data.frame(t(obs.residue.quantile.trim));
-obs.residue.quantile.trim <- obs.residue.quantile.trim[
+obs.residual.quantile.trim <- data.frame(t(obs.residual.quantile.trim));
+obs.residual.quantile.trim <- obs.residual.quantile.trim[
     ,
-    trim.sample(seq_len(ncol(obs.residue.quantile.trim)), trim = 0.05)
+    trim.sample(seq_len(ncol(obs.residual.quantile.trim)), trim = 0.05)
     ];
-obs.residue.quantile.trim.max <- apply(obs.residue.quantile.trim, 1, max);
+obs.residual.quantile.trim.max <- apply(obs.residual.quantile.trim, 1, max);
 
-# -2. Get distribution of residues
+# -2. Get distribution of residuals
 # Using "min off" the values
 
 cl <- makeCluster(detectCores()-1) # create a cluster with all available cores except one
