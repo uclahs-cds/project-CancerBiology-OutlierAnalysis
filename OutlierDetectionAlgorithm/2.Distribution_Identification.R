@@ -25,14 +25,21 @@ library(parallel);
 
 ### Function ###
 # Define a minimum value
-random.col <- sample(patient.part, 1)
-decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
-    decimal.numbers <- sapply(x, function(y) {
-        nchar(as.character(y)) - nchar(as.integer(y)) - 1
-        })
-    return(decimal.numbers)
-    })    
-add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
+least.significant.digit <- function(x) {
+    decimal.number.max <- sapply(
+        X = na.omit(x),
+        FUN = function(y) {
+            decimal.numbers <- sapply(
+                X = y,
+                FUN = function(z) {
+                    nchar(as.character(z)) - nchar(as.integer(z)) - 1
+                    }
+                );
+            decimal.numbers;
+            }
+        );
+    1 / 10^as.numeric(max(decimal.number.max));
+    }
     
     # function: Trim 5% of samples from each side
 trim.sample <- function(x, trim.portion = 5) {
