@@ -94,6 +94,26 @@ calculate.residuals.observed.data <- function(x, distr) {
     obs.residual.non.trim;
     }
 
+identify.bic.optimal.distribution.residuals <- function(x) {
+    # Define a minimum value.
+    add.minimum.value <- least.significant.digit(x)
+    # Ensure that all values in `x` are greater than zero.
+    if (min(x) < 0) {
+        x.nozero <- x - min(x) + add.minimum.value;
+        } else {
+        x.nozero <- x + add.minimum.value;
+        }
+
+    # Fit a model of each candidate distribution to the data.
+    glm.norm <- suppressWarnings(gamlss(x.nozero ~ 1, family=NO, control = gamlss.control(trace = FALSE)));
+    glm.lnorm <- suppressWarnings(gamlss(x.nozero ~ 1, family=LNO, control = gamlss.control(trace = FALSE)));
+    glm.gamma <- suppressWarnings(gamlss(x.nozero ~ 1, family=GA, control = gamlss.control(trace = FALSE)));
+    glm.exp <- suppressWarnings(gamlss(x.nozero ~ 1, family=EXP, control = gamlss.control(trace = FALSE)));
+
+    # Return the index of the distribution with the smallest BIC.
+    which.min(c(glm.norm$sbc, glm.lnorm$sbc, glm.exp$sbc, glm.gamma$sbc));
+    }
+
 # Identifying the distribution of each residual
 # -1. Get residuals
 obs.residual.quantile <- lapply(
@@ -127,25 +147,6 @@ obs.residue.quantile.trim.max <- apply(obs.residue.quantile.trim, 1, max);
 
 # -2. Get distribution of residues
 # Using "min off" the values
-identify.bic.optimal.distribution.residuals <- function(x) {
-    # Define a minimum value.
-    add.minimum.value <- least.significant.digit(x)
-    # Ensure that all values in `x` are greater than zero.
-    if (min(x) < 0) {
-        x.nozero <- x - min(x) + add.minimum.value;
-        } else {
-        x.nozero <- x + add.minimum.value;
-        }
-
-    # Fit a model of each candidate distribution to the data.
-    glm.norm <- suppressWarnings(gamlss(x.nozero ~ 1, family=NO, control = gamlss.control(trace = FALSE)));
-    glm.lnorm <- suppressWarnings(gamlss(x.nozero ~ 1, family=LNO, control = gamlss.control(trace = FALSE)));
-    glm.gamma <- suppressWarnings(gamlss(x.nozero ~ 1, family=GA, control = gamlss.control(trace = FALSE)));
-    glm.exp <- suppressWarnings(gamlss(x.nozero ~ 1, family=EXP, control = gamlss.control(trace = FALSE)));
-
-    # Return the index of the distribution with the smallest BIC.
-    which.min(c(glm.norm$sbc, glm.lnorm$sbc, glm.exp$sbc, glm.gamma$sbc));
-    }
 
 cl <- makeCluster(detectCores()-1) # create a cluster with all available cores except one
 registerDoParallel(cl) # register the cluster with the parallel package
