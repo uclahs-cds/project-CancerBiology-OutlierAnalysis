@@ -109,15 +109,15 @@ obs.residue.quantile <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine =
     sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
     sample.fpkm.qq.sort <- sort(sample.fpkm.qq);
     sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
-    
+
     sample.trim.number <- trim.sample(seq(sample.fpkm.qq.sort), 5);
     sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
     sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
-    
+
     # Quantile
     # p <- seq(0.001, 0.patient.number, 0.001);
     p <- ppoints(length(patient.part));
-    
+
     if (1 == bic.trim.distribution.fit[i]) {
     # 1. Normal distribution
     norm.mean <- mean(sample.fpkm.qq.nozero.trim);
@@ -137,7 +137,7 @@ obs.residue.quantile <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine =
     obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
     obs.residue.non.trim <- obs.quantile.lnorm - lnorm.quantile;
         }
-    
+
     else if (3 == bic.trim.distribution.fit[i]) {
     # 3. Exponential distribution
     exp.rate <- 1 / mean(sample.fpkm.qq.nozero.trim);
@@ -145,7 +145,7 @@ obs.residue.quantile <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine =
     obs.quantile.exp <- quantile(sample.fpkm.qq.nozero, prob = p);
     obs.residue.non.trim <- obs.quantile.exp - exp.quantile;
         }
-    
+
     else if (4 == bic.trim.distribution.fit[i]) {
     ### 4 gamma distribution
     mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
@@ -200,13 +200,13 @@ noise.min.off.bic.distribution <- foreach(j = 1:nrow(obs.residue.quantile.trim),
     glm.lnorm <- gamlss(sample.fpkm.qq.nozero ~ 1, family=LNO);
     glm.gamma <- gamlss(sample.fpkm.qq.nozero ~ 1, family=GA);
     glm.exp <- gamlss(sample.fpkm.qq.nozero ~ 1, family=EXP);
-    
+
     glm.bic <- c(glm.norm$sbc,
                  glm.lnorm$sbc,
                  glm.exp$sbc,
                  glm.gamma$sbc)
     glm.bic;
-    
+
     }
 
 stopCluster(cl) # stop the cluster after the computation is done
@@ -250,7 +250,3 @@ save(
     #file = '2023-09-06_CCLE_final_outlier_rank_bic_distribution.long.rda'
     file = paste('2.Distribution_Identification.', dataset.name, '.long.rda', sep = '')
     );
-
-
-
-
