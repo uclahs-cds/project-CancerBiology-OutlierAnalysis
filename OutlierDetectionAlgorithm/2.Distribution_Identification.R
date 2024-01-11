@@ -94,76 +94,24 @@ calculate.residuals.observed.data <- function(x, distr) {
     obs.residual.non.trim;
     }
 
-# Identifying the distribution of each residue
-# -1. Get residues
-
-cl <- makeCluster(detectCores()-1);
-# register the cluster with the parallel package
-registerDoParallel(cl);
-clusterExport(cl, "trim.sample");
-clusterEvalQ(cl, library(gamlss));
-
-
-obs.residue.quantile <- foreach(i = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
-
-    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[i,patient.part]), digits = 6);
-    sample.fpkm.qq.sort <- sort(sample.fpkm.qq);
-    sample.fpkm.qq.nozero <- sample.fpkm.qq.sort + add.minimum.value;
-
-    sample.trim.number <- trim.sample(seq(sample.fpkm.qq.sort), 5);
-    sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
-    sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
-
-    # Quantile
-    # p <- seq(0.001, 0.patient.number, 0.001);
-    p <- ppoints(length(patient.part));
-
-    if (1 == bic.trim.distribution.fit[i]) {
-    # 1. Normal distribution
-    norm.mean <- mean(sample.fpkm.qq.nozero.trim);
-    norm.sd <- sd(sample.fpkm.qq.nozero.trim);
-    norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
-    obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
-    obs.residue.non.trim <- obs.quantile.norm - norm.quantiles;
+# Identifying the distribution of each residual
+# -1. Get residuals
+obs.residual.quantile <- lapply(
+    X = seq_len(nrow(fpkm.tumor.symbol.filter)),
+    FUN = function(i) {
+        calculate.residuals.observed.data(
+            x = fpkm.tumor.symbol.filter[i, ],
+            distr = bic.trim.distribution.fit[i]
+            );
         }
+    );
+obs.residual.quantile <- do.call(
+    what = rbind,
+    args = obs.residual.quantile
+    );
+obs.residual.quantile <- data.frame(obs.residual.quantile);
+rownames(obs.residual.quantile) <- rownames(fpkm.tumor.symbol.filter);
 
-    else if (2 == bic.trim.distribution.fit[i]) {
-    # 2. Log-normal distribution
-    mean.log <- mean(sample.fpkm.qq.nozero.trim);
-    sd.log <- sd(sample.fpkm.qq.nozero.trim);
-    m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
-    sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
-    lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
-    obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
-    obs.residue.non.trim <- obs.quantile.lnorm - lnorm.quantile;
-        }
-
-    else if (3 == bic.trim.distribution.fit[i]) {
-    # 3. Exponential distribution
-    exp.rate <- 1 / mean(sample.fpkm.qq.nozero.trim);
-    exp.quantile <- qexp(p, rate = exp.rate);
-    obs.quantile.exp <- quantile(sample.fpkm.qq.nozero, prob = p);
-    obs.residue.non.trim <- obs.quantile.exp - exp.quantile;
-        }
-
-    else if (4 == bic.trim.distribution.fit[i]) {
-    ### 4 gamma distribution
-    mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
-    sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
-    gamma.shape <- (mean.gamma/sd.gamma)^2;
-    gamma.rate <- mean.gamma/(sd.gamma^2);
-    gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
-    obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
-    obs.residue.non.trim <- obs.quantile.gamma - gamma.quantile;
-        }
-
-    obs.residue.non.trim
-    }
-
-stopCluster(cl)
-
-obs.residue.quantile <- data.frame(obs.residue.quantile);
-rownames(obs.residue.quantile) <- rownames(fpkm.tumor.symbol.filter);
 # Trim each 5%
 obs.residue.quantile.trim <- apply(obs.residue.quantile, 1, function(x) {sort(as.numeric(x))});
 obs.residue.quantile.trim <- data.frame(t(obs.residue.quantile.trim));
