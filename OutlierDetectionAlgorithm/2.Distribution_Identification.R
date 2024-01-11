@@ -41,6 +41,59 @@ least.significant.digit <- function(x) {
     1 / 10^as.numeric(max(decimal.number.max));
     }
 
+calculate.residuals.observed.data <- function(x, distr) {
+    # Define a minimum value
+    add.minimum.value <- least.significant.digit(x);
+    # Add the minimum value so that no values in the data are zero.
+    # Do the same for a 5% trimmed sample of the data.  The trimmed
+    # data will be used to calculate the parameters of the
+    # distributions, while the untrimmed data will be used to generate
+    # residuals.
+    x.nozero <- x + add.minimum.value;
+    x.trim <- trim.sample(x, 0.05);
+    x.nozero.trim <- x.trim + add.minimum.value;
+
+    # Quantile
+    p <- ppoints(x.nozero);
+    # Calculate residuals between the quantiles of the observed data
+    # and the quantiles of the optimal distribution for the observed
+    # data.
+    if (1 == distr) {
+        # 1. Normal distribution
+        norm.mean <- mean(x.nozero.trim);
+        norm.sd <- sd(x.nozero.trim);
+        norm.quantiles <- qnorm(p, mean = norm.mean, sd = norm.sd);
+        obs.quantile.norm <- quantile(x.nozero, prob = p);
+        obs.residual.non.trim <- obs.quantile.norm - norm.quantiles;
+        } else if (2 == distr) {
+        # 2. Log-normal distribution
+        mean.log <- mean(x.nozero.trim);
+        sd.log <- sd(x.nozero.trim);
+        m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
+        sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
+        lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
+        obs.quantile.lnorm <- quantile(x.nozero, prob = p);
+        obs.residual.non.trim <- obs.quantile.lnorm - lnorm.quantile;
+        } else if (3 == distr) {
+        # 3. Exponential distribution
+        exp.rate <- 1 / mean(x.nozero.trim);
+        exp.quantile <- qexp(p, rate = exp.rate);
+        obs.quantile.exp <- quantile(x.nozero, prob = p);
+        obs.residual.non.trim <- obs.quantile.exp - exp.quantile;
+        } else if (4 == distr) {
+        ### 4. Gamma distribution
+        mean.gamma <- mean(x.nozero.trim);
+        sd.gamma <- sd(x.nozero.trim);
+        gamma.shape <- (mean.gamma/sd.gamma)^2;
+        gamma.rate <- mean.gamma/(sd.gamma^2);
+        gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
+        obs.quantile.gamma <- quantile(x.nozero, prob = p);
+        obs.residual.non.trim <- obs.quantile.gamma - gamma.quantile;
+        }
+
+    obs.residual.non.trim;
+    }
+
 # Identifying the distribution of each residue
 # -1. Get residues
 
