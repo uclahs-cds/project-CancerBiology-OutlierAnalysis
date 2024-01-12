@@ -154,8 +154,7 @@ noise.min.off.bic.distribution.fit <- apply(
     MARGIN = 1,
     FUN = identify.bic.optimal.distribution.residuals
     );
-
-names(noise.min.off.bic.distribution.fit) <- rownames(obs.residue.quantile.trim);
+names(noise.min.off.bic.distribution.fit) <- rownames(obs.residual.quantile.trim);
 
 # save the R environment
 #   - short version
