@@ -241,19 +241,7 @@ data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
 
 identify.bic.optimal.distribution <- function(x) {
     # Define a minimum value
-    decimal.number.max <- sapply(
-        X = na.omit(x),
-        FUN = function(y) {
-            decimal.numbers <- sapply(
-                X = y,
-                FUN = function(z) {
-                    nchar(as.character(z)) - nchar(as.integer(z)) - 1
-                    }
-                );
-            decimal.numbers;
-            }
-        );
-    add.minimum.value <- 1 / 10^as.numeric(max(decimal.number.max));
+    add.minimum.value <- least.significant.digit(x);
     x.trimmed <- trim.sample(x, 0.05)
     x.trimmed.nozero <- x.trimmed + add.minimum.value;
 
@@ -302,19 +290,7 @@ cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
 # function: Compute the cosine similarity of the largest data point
 outlier.detection.cosine <- function (x, distr, value.portion = 1) {
     # Define a minimum value
-    decimal.number.max <- sapply(
-        X = na.omit(x),
-        FUN = function(y) {
-            decimal.numbers <- sapply(
-                X = y,
-                FUN = function(z) {
-                    nchar(as.character(z)) - nchar(as.integer(z)) - 1
-                    }
-                );
-            decimal.numbers;
-            }
-        );
-    add.minimum.value <- 1 / 10^as.numeric(max(decimal.number.max));
+    add.minimum.value <- least.significant.digit(x);
 
     x.nozero <- x + add.minimum.value;
     # Trimmed samples -Trim 5% of each side
