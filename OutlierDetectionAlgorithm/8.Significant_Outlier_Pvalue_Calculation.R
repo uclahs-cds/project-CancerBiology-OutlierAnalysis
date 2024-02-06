@@ -35,11 +35,11 @@ p.value.all <- NULL
 for (i in 1:length(files)) {
     load(
         file = files[i]
-    )
+        )
     assign(
         x = 'variable.name',
         value = paste('gene.rank.p.value.one.gene', patients.to.remove, sep = '.')
-    )
+        )
     p.value.all <- rbind(
         p.value.all,
         get(x = variable.name)

@@ -70,7 +70,7 @@ if (patients.to.remove > 0) {
     sample.number <- patient.part
     negative.simulated.sum <- negative.simulated.sum[, patient.part]
     fpkm.tumor.symbol.filter <- fpkm.tumor.symbol.filter[,patient.part]
-   }
+    }
 
 # Define a minimum value
 set.seed(42)
@@ -281,7 +281,6 @@ data.cosine.negative.t <- t(data.cosine.negative);
 data.cosine.negative.t <- data.frame(data.cosine.negative.t);
 colnames(data.cosine.negative.t) <- c('cosine', 'distribution');
 
-
 # 1, 2, 3, 4
 quantify.outliers <- function(x, methods = 'mean', trim = 0, exclude.zero = FALSE) {
     x.na <- na.omit(as.numeric(x));
@@ -428,9 +427,9 @@ kmean.simulated.negative.1M <- data.frame(t(data.fraction.kmean));
 ### Final gene-wise matrix #####
 gene.zrange.fraction.negative.simulated.sum.1M <- cbind(
     mean.simulated.negative.1M$zrange,
-        median.simulated.negative.1M$zrange,
-        trimmean.simulated.negative.1M$zrange,
-        kmean.simulated.negative.1M$fraction
+    median.simulated.negative.1M$zrange,
+    trimmean.simulated.negative.1M$zrange,
+    kmean.simulated.negative.1M$fraction
     )
 rownames(gene.zrange.fraction.negative.simulated.sum.1M) <- rownames(negative.simulated.sum);
 colnames(gene.zrange.fraction.negative.simulated.sum.1M) <- c('zrange.mean', 'zrange.median', 'zrange.trimmean', 'fraction.kmean');
