@@ -2,13 +2,13 @@
 # Description
 # per patient that has an outlier gene, overlap SV segment with GH db
 
-# Rscript per_patient_genehancer_overlap.R --mutation.type tandem
+# Rscript per_patient_genehancer_overlap.R --mutation.type tandem_duplication --elite.only 0 --algorithm bedr
 ### HISTORY ##################################################################################
 # Version	Date		Developer	Comments
 # 0.01		2023-12-21	jlivingstone	initial code
 # 0.02		2024-01-05	jlivingstone	add code to overlap with genehancer regions
 # 0.03		2024-02-07	jlivingstone	update to use WGS deletion/duplication calls
-						add conversion using liftover in rtracklayer
+#						add conversion using liftover in rtracklayer
 ### PREAMBLE #################################################################################
 library(bedr)
 library(BoutrosLab.utilities)
@@ -16,15 +16,19 @@ library(getopt)
 library(rtracklayer)
 
 params <- matrix(
-        data = c(
-                'mutation.type', 'm', '0', 'character'
-                ),
-        ncol = 4,
-        byrow = TRUE
-        );
+	data = c(
+		'mutation.type', 'm', '0', 'character',
+		'elite.only', 'e', '0', 'numeric',
+		'algorithm', 'a', '0', 'character'
+		),
+	ncol = 4,
+	byrow = TRUE
+	);
 
 opt <- getopt(params);
 mutation.type <- opt$mutation.type
+elite.only <- opt$elite.only
+engine <- opt$algorithm
 
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
 
@@ -43,6 +47,7 @@ convert.my.regions <- function(regions, chain) {
 
 	to.keep <- results[match(as.numeric(names(which(table(results$group) == 1))), results$group),]
 
+	# keep region with the shortest difference in length
 	for (i in 1:length(need.to.pick)) {
 		temp <- results[which(results$group == need.to.pick[i]),]
 		to.keep <- rbind(to.keep, temp[which.min(abs(temp$width - need.segment.length[i])),])	
@@ -50,12 +55,12 @@ convert.my.regions <- function(regions, chain) {
 	to.keep.ordered <- to.keep[order(to.keep$group), ]
 
 	regions <- GRanges(
-                seqnames = to.keep.ordered$seqnames,
-                ranges = IRanges(
-                       start = to.keep.ordered$start,
-                       end = to.keep.ordered$end
-                       )
-                )
+		seqnames = to.keep.ordered$seqnames,
+		ranges = IRanges(
+			start = to.keep.ordered$start,
+			end = to.keep.ordered$end
+			)
+		)
 	return(regions)
 	}
 
@@ -66,30 +71,41 @@ outliers <- read.delim(
 	)
 
 # read in GeneHancer elements
-gh <- read.delim(
-	file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18_elite.txt'),
-	as.is = TRUE
-	)
+if (elite.only  == 1) {
+	gh <- read.delim(
+		file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18_elite.txt'),
+		as.is = TRUE
+		)
+} else {
+	gh <- read.delim(
+		file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18.txt'),
+		as.is = TRUE
+		)
+	}
 
 path <- '/hot/ref/cohort/ICGC/BRCA/EU/processed/wgs/'
 
 # interchromosome rearrangment - chr_from, chr_from_bkp & chr_to, chr_to_bkpt (each breakpoint is region ?)
 # read in mutation of interest
+# These mutation calls are from SNP arrays
 if (mutation.type == 'gains') {
 	muts <- read.delim(
-		#file = file.path(path, 'gain_unique_somatic_mutation.BRCA-EU.tsv'),
-		file = file.path(path, 'tandem_duplication.BRCA-EU.tsv'),
+		file = file.path(path, 'gain_unique_somatic_mutation.BRCA-EU.tsv'),
 		as.is = TRUE
 		)
-	muts$chromosome <- muts$chr_to
-	muts$chromosome_start <- muts$chr_from_bkpt
-	muts$chromosome_end <- muts$chr_to_bkpt
 	}
 
+# These mutation calls are from SNP arrays
 if (mutation.type == 'loss') {
 	muts <- read.delim(
-		#file = file.path(path, 'loss_unique_somatic_mutation.BRCA-EU.tsv'),
-		file = file.path(path, 'deletion.BRCA-EU.tsv'),
+		file = file.path(path, 'loss_unique_somatic_mutation.BRCA-EU.tsv'),
+		as.is = TRUE
+		)
+	}
+
+if (mutation.type == 'tandem_duplication') {
+	muts <- read.delim(
+		file = file.path(path, 'tandem_duplication.BRCA-EU.tsv'),
 		as.is = TRUE
 		)
 	muts$chromosome <- muts$chr_to
@@ -97,10 +113,9 @@ if (mutation.type == 'loss') {
 	muts$chromosome_end <- muts$chr_to_bkpt
 	}
 
-# tandem duplication - chr_from, chr_from_bkp & chr_to, chr_to_bkpt (one region)
-if (mutation.type == 'tandem') {
+if (mutation.type == 'deletion') {
 	muts <- read.delim(
-		file = file.path(path, 'tandem_duplication.BRCA-EU.tsv'),
+		file = file.path(path, 'deletion.BRCA-EU.tsv'),
 		as.is = TRUE
 		)
 	muts$chromosome <- muts$chr_to
@@ -119,17 +134,25 @@ if (mutation.type == 'inversion') {
 	muts$chromosome_end <- muts$chr_to_bkpt
 	}
 
+# interchromosomal_rearrangement - need to figure out how to deal with breakpoints on different chromosomes
+if (mutation.type == 'interchromosomal_rearrangement') {
+	muts <- read.delim(
+		file = file.path(path, 'interchromosomal_rearrangement.BRCA-EU.tsv'),
+		as.is = TRUE
+		)
+	# add code here
+	}
+
 # ugh the WGS names aren't the same as RNA
 outliers$sample.name <- sub('R', 'D', outliers$patient)
 
 # n = 104 (57% of total RNA patients)
 sample.overlap <- intersect(outliers$sample.name, muts$submitted_sample_id)
 
-outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name),]
+outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name), ]
 
 elements.overlap <- list()
 gh.overlap <- list()
-engine <- 'granges' #'bedr'
 
 chain <- import.chain(con = '/hot/user/jlivingstone/outlier/enhancer_analysis/hg19ToHg38.over.chain')
 
@@ -142,21 +165,22 @@ for (i in 1:nrow(outliers.parsed)) {
 			split = ';'
 			)
 		)
-
 	elements <- gh[gh$symbol %in% genes, ]
-	if (nrow(elements) > 0) {
-		element.regions <- GRanges(
-			seqnames = paste0('chr', elements$chr),
-			ranges = IRanges(
-				start = elements$element_start,
-				end = elements$element_end
-				)
-			)
 
+	if (nrow(elements) > 0) {
+		# GH regions
 		if (engine == 'bedr') {
 			element.regions <- paste0('chr', elements$chr, ':', elements$element_start, '-', elements$element_end)
 			ind <- order(elements$chr, elements$element_start, elements$element_end)
 			element.regions.ordered <- element.regions[ind]
+		} else {
+			element.regions <- GRanges(
+				seqnames = paste0('chr', elements$chr),
+				ranges = IRanges(
+					start = elements$element_start,
+					end = elements$element_end
+					)
+				)
 			}
 
 		sample.muts <- muts[muts$submitted_sample_id %in% outliers.parsed$sample.name[i], ]
@@ -175,30 +199,29 @@ for (i in 1:nrow(outliers.parsed)) {
 			chain = chain
 			)
 
+		# check if mutation regions overlap with genehancer elements (object a are in object b)
+
 		if (engine == 'bedr') {
-			regions <- paste0('chr', sample.muts$chromosome, ':', sample.muts$chromosome_start, '-', sample.muts$chromosome_end)
-			s.ind <- order(sample.muts$chromosome, sample.muts$chromosome_start, sample.muts$chromosome_end)
+			sample.muts.converted <- as.data.frame(regions, stringsAsFactors = FALSE)
+			regions <- paste0(sample.muts.converted$seqnames, ':', sample.muts.converted$start, '-', sample.muts.converted$end)
+			s.ind <- order(sub('chr', '', sample.muts.converted$seqnames), sample.muts.converted$start, sample.muts.converted$end)
 			regions.ordered <- regions[s.ind]
 
-			}
-
-		# check if mutation regions overlap with genehancer elements (object a are in object b)
-		regions.overlap <- as.data.frame(mergeByOverlaps(element.regions, regions))
-		regions.overlap.index <- findOverlaps(element.regions, regions)
-
-		if (length(regions.overlap.index) > 0) {
-			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[unique(queryHits(regions.overlap.index)),]
+			overlap <- element.regions.ordered[in.region(element.regions.ordered, regions.ordered)]
+			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[match(overlap, element.regions), ]
+			gh.overlap[[outliers.parsed$sample.name[i]]] <- sample.muts[in.region(regions.ordered, element.regions.ordered), ]
+		} else {
+			regions.overlap <- as.data.frame(mergeByOverlaps(element.regions, regions))
+			regions.overlap.index <- findOverlaps(element.regions, regions)
+			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[unique(queryHits(regions.overlap.index)), ]
 			gh.overlap[[outliers.parsed$sample.name[i]]] <- sample.muts[unique(subjectHits(regions.overlap.index)), ]
 			}
-
-		if (engine == 'bedr') {
-			overlap <- element.regions.ordered[in.region(element.regions.ordered, regions.ordered)]
-			elements.overlap <- elements[match(overlap, element.regions), ]
-			gh.overlap <- sample.muts[in.region(regions.ordered, element.regions.ordered), ]
-			}
+	} else {
+		elements.overlap[[outliers.parsed$sample.name[i]]] <- 'No overlapping genes in GH'
+		gh.overlap[[outliers.parsed$sample.name[i]]] <- 'No overlapping genes in GH'
 		}
 	}
 save(
 	list = c('elements.overlap', 'gh.overlap'),
-	file = generate.filename(paste0('genehancer_overlap_regions_', mutation.type), 'BRCA_EU', 'rda')
+	file = generate.filename(paste0('genehancer_overlap_regions_', mutation.type, '_', engine), 'BRCA_EU', 'rda')
 	)
