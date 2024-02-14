@@ -85,8 +85,6 @@ if (elite.only  == 1) {
 
 path <- '/hot/ref/cohort/ICGC/BRCA/EU/processed/wgs/'
 
-# interchromosome rearrangment - chr_from, chr_from_bkp & chr_to, chr_to_bkpt (each breakpoint is region ?)
-# read in mutation of interest
 # These mutation calls are from SNP arrays
 if (mutation.type == 'gains') {
 	muts <- read.delim(
@@ -124,6 +122,7 @@ if (mutation.type == 'deletion') {
 	}
 
 # inversion - chr_from, chr_from_bkp & chr_to, chr_to_bkpt (one region, reverse co-ordinates)
+# add pading around breakpoint?
 if (mutation.type == 'inversion') {
 	muts <- read.delim(
 		file = file.path(path, 'inversion.BRCA-EU.tsv'),
@@ -134,28 +133,42 @@ if (mutation.type == 'inversion') {
 	muts$chromosome_end <- muts$chr_to_bkpt
 	}
 
-# interchromosomal_rearrangement - need to figure out how to deal with breakpoints on different chromosomes
+# interchromosomal_rearrangement - duplicate and add 500bp to each breakpoint
 if (mutation.type == 'interchromosomal_rearrangement') {
-	muts <- read.delim(
+	temp <- read.delim(
 		file = file.path(path, 'interchromosomal_rearrangement.BRCA-EU.tsv'),
 		as.is = TRUE
 		)
-	# add code here
+	# lets add 500kb before and after breakpoint
+	break_one <- break_two <- temp
+	break_one$chromosome <- temp$chr_from
+	break_one$chromosome_start <- temp$chr_from_bkpt - 1000
+	break_one$chromosome_end <- temp$chr_from_bkpt + 1000
+
+	break_two$chromosome <- temp$chr_to
+	break_two$chromosome_start <- temp$chr_to_bkpt - 1000
+	break_two$chromosome_end <- temp$chr_to_bkpt + 1000
+
+	muts <- rbind(break_one, break_two)
 	}
 
 # ugh the WGS names aren't the same as RNA
 outliers$sample.name <- sub('R', 'D', outliers$patient)
+outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
+outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 
-# n = 104 (57% of total RNA patients)
+# to account for trailing numbers
+muts$submitted_sample_id <- sub('a2', 'a', muts$submitted_sample_id)
+muts$submitted_sample_id <- sub('a3', 'a', muts$submitted_sample_id)
+
+# n = 120 / 182 (66% of total RNA patients)
 sample.overlap <- intersect(outliers$sample.name, muts$submitted_sample_id)
-
 outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name), ]
-
-elements.overlap <- list()
-gh.overlap <- list()
 
 chain <- import.chain(con = '/hot/user/jlivingstone/outlier/enhancer_analysis/hg19ToHg38.over.chain')
 
+elements.overlap <- list()
+gh.overlap <- list()
 # for each patient, overlap the enhancer regions with sv breakpoints
 for (i in 1:nrow(outliers.parsed)) {
 	print(i)
