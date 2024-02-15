@@ -2,13 +2,16 @@
 # Description
 # per patient that has an outlier gene, overlap SV segment with GH db
 
-# Rscript per_patient_genehancer_overlap.R --mutation.type tandem_duplication --elite.only 0 --algorithm bedr
+# Rscript per_patient_genehancer_overlap.R --mutation.type tandem_duplication --elite.only 0 --algorithm bedr --input.file --flag ''
+# '/hot/user/jlivingstone/outlier/run_method/2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
+
 ### HISTORY ##################################################################################
 # Version	Date		Developer	Comments
 # 0.01		2023-12-21	jlivingstone	initial code
 # 0.02		2024-01-05	jlivingstone	add code to overlap with genehancer regions
 # 0.03		2024-02-07	jlivingstone	update to use WGS deletion/duplication calls
 #						add conversion using liftover in rtracklayer
+# 0.04		2024-02-15	jlivingstone	add permuation datasets
 ### PREAMBLE #################################################################################
 library(bedr)
 library(BoutrosLab.utilities)
@@ -17,9 +20,11 @@ library(rtracklayer)
 
 params <- matrix(
 	data = c(
-		'mutation.type', 'm', '0', 'character',
-		'elite.only', 'e', '0', 'numeric',
-		'algorithm', 'a', '0', 'character'
+		'mutation.type', 'm', '1', 'character',
+		'elite.only', 'e', '1', 'numeric',
+		'algorithm', 'a', '1', 'character',
+		'input.file', 'i', '1', 'character',
+		'flag', 'f', '1', 'character'
 		),
 	ncol = 4,
 	byrow = TRUE
@@ -29,6 +34,9 @@ opt <- getopt(params);
 mutation.type <- opt$mutation.type
 elite.only <- opt$elite.only
 engine <- opt$algorithm
+input.file <- opt$input.file
+# set when running permutation test ie the seed used
+flag <- opt$flag
 
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
 
@@ -66,7 +74,7 @@ convert.my.regions <- function(regions, chain) {
 
 # read in outlier genes per patient
 outliers <- read.delim(
-	file = file.path('/hot/user/jlivingstone/outlier/run_method/', '2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'),
+	file = input.file,
 	as.is = TRUE
 	)
 
@@ -234,7 +242,8 @@ for (i in 1:nrow(outliers.parsed)) {
 		gh.overlap[[outliers.parsed$sample.name[i]]] <- 'No overlapping genes in GH'
 		}
 	}
+
 save(
 	list = c('elements.overlap', 'gh.overlap'),
-	file = generate.filename(paste0('genehancer_overlap_regions_', mutation.type, '_', engine), 'BRCA_EU', 'rda')
+	file = generate.filename(paste0('genehancer_overlap_regions_', mutation.type, '_', engine, flag), 'BRCA_EU', 'rda')
 	)

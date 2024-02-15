@@ -1,0 +1,53 @@
+### explore_genehancer.R ###########################################################
+# Description
+# Create data files under /hot/ref/database/GeneHancer-v5.18/processed/GRCh38
+
+### HISTORY ########################################################################
+# Version	Date		Developer	Comments
+# 0.01		2024-02-08	jlivingstone	initial code
+
+### PREAMBLE ####################################################################
+
+setwd('/hot/ref/database/GeneHancer-v5.18/original/GRCh38/')
+
+# contains the same information as in GeneHancer_v5.18.bed + element info (n = 409,271)
+elements <- read.delim(
+	file = '/hot/ref/database/GeneHancer-v5.18/original/GRCh38/GeneHancer_AnnotSV_elements_v5.18.txt',
+	as.is = TRUE
+	)
+
+# contains scores for each GHid (n = 2,498,196)
+scores <- read.delim(
+        file = '/hot/ref/database/GeneHancer-v5.18/original/GRCh38/GeneHancer_AnnotSV_gene_association_scores_v5.18.txt',
+        as.is = TRUE
+        )
+
+# need to combine scores with elements to get gene symbol and genomic co-ordinates
+expanded <- list()
+for (i in 1:nrow(elements)) {
+	if (i %% 1000 == 0) {
+		print(i)
+		}
+	temp <- cbind(elements[i,c('chr', 'element_start', 'element_end', 'regulatory_element_type')], scores[which(scores$GHid %in% elements$GHid[i]),])
+	expanded <- rbind(expanded, temp)
+	}
+
+# n = 2,498,196
+write.table(
+	x = expanded,
+	file = '/hot/user/jlivingstone/GeneHancer/GeneHancer_AnnotSV_elements_v5_18.txt',
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
+	)
+
+# elite only
+elite <- expanded[which(expanded$is_elite == 1), ]
+
+write.table(
+	x = elite,
+	file = '/hot/user/jlivingstone/GeneHancer/GeneHancer_AnnotSV_elements_v5.18_elite.txt',
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
+	)
