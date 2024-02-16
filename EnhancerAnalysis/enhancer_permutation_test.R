@@ -8,6 +8,8 @@
 # 0.01		2024-02-15	jlivingstone	initial code
 
 ### PREAMBLE ###########################################################################
+library(BoutrosLab.utilities)
+
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
 
 # pick random 'non' outlier gene and overlap sample mutations with gene enhancer regions for that gene
@@ -22,6 +24,10 @@ outliers <- read.delim(
 	file = file.path('/hot/user/jlivingstone/outlier/run_method/', '2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'),
 	as.is = TRUE
 	)
+outliers$sample.name <- sub('R', 'D', outliers$patient)
+outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
+outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
+
 outlier.genes <- unlist(strsplit(outliers$outlier_genes, ';'))
 gh.gene <- unique(gh$symbol)
 
@@ -34,6 +40,10 @@ data <- read.delim2(
 	)
 dataset.genes <- unique(data$Name)
 overlap.genes <- intersect(dataset.genes, gh.gene)
+
+# and remove outlier genes from pool
+ind.to.remove <- match(intersect(outlier.genes, overlap.genes), overlap.genes)
+overlap.genes <- overlap.genes[-ind.to.remove]
 
 # which samples overlap mutations and rna
 muts <- read.delim(
@@ -54,6 +64,7 @@ samples <- intersect(muts.sample, outliers$sample.name)
 seeds <- c(51404, 366306, 423647, 838004, 50135, 628019, 97782, 253505, 659767, 13142)
 
 for (i in 1:length(seeds)) {
+	print(seeds[i])
 	set.seed(seeds[i])
 
 	toprint <- data.frame(

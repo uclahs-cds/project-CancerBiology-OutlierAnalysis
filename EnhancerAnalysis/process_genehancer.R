@@ -51,3 +51,40 @@ write.table(
 	sep = '\t',
 	row.names = FALSE
 	)
+
+# use GHids to create same files in hg19 instead of using liftover
+hg19 <- read.delim(
+	file = '/hot/ref/database/GeneHancer-v5.18/original/hg19/GeneHancer_AnnotSV_hg19_v5.18.txt',
+	as.is = TRUE,
+	)
+colnames(hg19) <- c('chr', 'element_start', 'element_end', 'GHid')
+# length(unique(hg19$GHid)) - n = 408,144
+
+grch <- read.delim(
+	file = '/hot/ref/database/GeneHancer-v5.18/processed/GRCh38/GeneHancer_AnnotSV_elements_v5.18.txt',
+	as.is = TRUE
+	)
+#length(unique(grch$GHid)) - n = 409,271
+
+hg19.expanded <- hg19[match(grch$GHid, hg19$GHid),]
+liftover <- grch
+liftover$element_start <- hg19.expanded$element_start
+liftover$element_end <- hg19.expanded$element_end
+
+toprint <- liftover[-which(is.na(hg19.expanded$GHid)), ]
+write.table(
+	x = toprint,
+	file = '/hot/user/jlivingstone/GeneHancer_AnnotSV_hg19_elements_v5.18.txt',
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
+	)
+
+elite <- toprint[which(toprint$is_elite == 1),]
+write.table(
+	x = elite,
+	file = '/hot/user/jlivingstone/GeneHancer_AnnotSV_hg19_elements_v5.18_elite.txt',
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
+	)
