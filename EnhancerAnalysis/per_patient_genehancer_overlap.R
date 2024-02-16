@@ -12,6 +12,8 @@
 # 0.03		2024-02-07	jlivingstone	update to use WGS deletion/duplication calls
 #						add conversion using liftover in rtracklayer
 # 0.04		2024-02-15	jlivingstone	add permuation datasets
+# 0.05		2024-02-16	jlivingstone	remove liftover - use GH hg19 files
+
 ### PREAMBLE #################################################################################
 library(bedr)
 library(BoutrosLab.utilities)
@@ -40,38 +42,6 @@ flag <- opt$flag
 
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
 
-convert.my.regions <- function(regions, chain) {
-	results <- as.data.frame(
-		liftOver(
-			x = regions,
-			chain = chain
-			),
-		stringsAsFactors = FALSE
-		)
-	segment.length <- regions@ranges@width
-
-	need.to.pick <- as.numeric(names(which(table(results$group) > 1)))
-	need.segment.length <- segment.length[need.to.pick]
-
-	to.keep <- results[match(as.numeric(names(which(table(results$group) == 1))), results$group),]
-
-	# keep region with the shortest difference in length
-	for (i in 1:length(need.to.pick)) {
-		temp <- results[which(results$group == need.to.pick[i]),]
-		to.keep <- rbind(to.keep, temp[which.min(abs(temp$width - need.segment.length[i])),])	
-		}
-	to.keep.ordered <- to.keep[order(to.keep$group), ]
-
-	regions <- GRanges(
-		seqnames = to.keep.ordered$seqnames,
-		ranges = IRanges(
-			start = to.keep.ordered$start,
-			end = to.keep.ordered$end
-			)
-		)
-	return(regions)
-	}
-
 # read in outlier genes per patient
 outliers <- read.delim(
 	file = input.file,
@@ -81,12 +51,12 @@ outliers <- read.delim(
 # read in GeneHancer elements
 if (elite.only  == 1) {
 	gh <- read.delim(
-		file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18_elite.txt'),
+		file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/hg19', 'GeneHancer_AnnotSV_hg19_elements_v5.18_elite.txt'),
 		as.is = TRUE
 		)
 } else {
 	gh <- read.delim(
-		file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18.txt'),
+		file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/hg19', 'GeneHancer_AnnotSV_hg19_elements_v5.18.txt'),
 		as.is = TRUE
 		)
 	}
@@ -173,8 +143,6 @@ muts$submitted_sample_id <- sub('a3', 'a', muts$submitted_sample_id)
 sample.overlap <- intersect(outliers$sample.name, muts$submitted_sample_id)
 outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name), ]
 
-chain <- import.chain(con = '/hot/user/jlivingstone/outlier/enhancer_analysis/hg19ToHg38.over.chain')
-
 elements.overlap <- list()
 gh.overlap <- list()
 # for each patient, overlap the enhancer regions with sv breakpoints
@@ -206,32 +174,25 @@ for (i in 1:nrow(outliers.parsed)) {
 
 		sample.muts <- muts[muts$submitted_sample_id %in% outliers.parsed$sample.name[i], ]
 
-		regions.grch38 <- GRanges(
-			seqnames = paste0('chr', sample.muts$chromosome),
-			ranges = IRanges(
-				start = sample.muts$chromosome_start,
-				end = sample.muts$chromosome_end
-				)
-			)
-
-		# liftover regions
-		regions = convert.my.regions(
-			regions = regions.grch38,
-			chain = chain
-			)
-
 		# check if mutation regions overlap with genehancer elements (object a are in object b)
-
 		if (engine == 'bedr') {
-			sample.muts.converted <- as.data.frame(regions, stringsAsFactors = FALSE)
-			regions <- paste0(sample.muts.converted$seqnames, ':', sample.muts.converted$start, '-', sample.muts.converted$end)
-			s.ind <- order(sub('chr', '', sample.muts.converted$seqnames), sample.muts.converted$start, sample.muts.converted$end)
-			regions.ordered <- regions[s.ind]
+			regions <- paste0(sample.muts$chromosome, ':', sample.muts$chromosome_start, '-', sample.muts$chromosome_end)
+			s.ind <- order(sample.muts$chromosome, sample.muts$chromosome_start, sample.muts$chromosome_end)
+			regions.ordered <- paste0('chr', regions[s.ind])
+			sample.muts.ordered <- sample.muts[s.ind,]
 
 			overlap <- element.regions.ordered[in.region(element.regions.ordered, regions.ordered)]
 			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[match(overlap, element.regions), ]
-			gh.overlap[[outliers.parsed$sample.name[i]]] <- sample.muts[in.region(regions.ordered, element.regions.ordered), ]
+			gh.overlap[[outliers.parsed$sample.name[i]]] <- sample.muts.ordered[in.region(regions.ordered, element.regions.ordered), ]
 		} else {
+			regions <- GRanges(
+				seqnames = paste0('chr', sample.muts$chromosome),
+				ranges = IRanges(
+					start = sample.muts$chromosome_start,
+					end = sample.muts$chromosome_end
+					)
+				)
+
 			regions.overlap <- as.data.frame(mergeByOverlaps(element.regions, regions))
 			regions.overlap.index <- findOverlaps(element.regions, regions)
 			elements.overlap[[outliers.parsed$sample.name[i]]] <- elements[unique(queryHits(regions.overlap.index)), ]
