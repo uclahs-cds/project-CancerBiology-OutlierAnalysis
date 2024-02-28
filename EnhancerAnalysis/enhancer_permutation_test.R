@@ -31,6 +31,7 @@ outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 outlier.genes <- unlist(strsplit(outliers$outlier_genes, ';'))
 gh.gene <- unique(gh$symbol)
 
+# not all outlier genes are in genehancer so take overlap
 n.outlier.genes <- length(intersect(gh.gene, outlier.genes))
 
 data <- read.delim2(
