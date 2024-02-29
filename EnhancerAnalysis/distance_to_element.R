@@ -67,64 +67,85 @@ outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 sample.overlap <- intersect(outliers$sample.name, samples.with.muts)
 outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name), ]
 
-results <- list()
-for (i in 1:length(sample.overlap)) {
-	print(i)
-	muts <- rbind(
-		inversion[inversion$submitted_sample_id %in% sample.overlap[i],],
-		translocation[translocation$submitted_sample_id %in% sample.overlap[i],]
-		)
+# analysis on outlier level
+# distance between mutation and gh element will be smaller in outlier patients
 
-	from.bkpt <- GRanges(
-		seqnames = paste0('chr', muts$chr_from),
-		strand = muts$chr_from_strand,
+# gh elements for outlier gene
+outlier.genes <- unlist(strsplit(outliers.parsed$outlier_genes, ';'))
+overlap.genes <- intersect(outlier.genes, unique(gh$symbol))
+
+distance.results <- list()
+for (j in 1:length(overlap.genes)) {
+	print(overlap.genes[j])
+
+	gh.gene <- gh[which(gh$symbol == overlap.genes[j]),]
+
+	gh.subset <- GRanges(
+		seqnames = paste0('chr', gh.gene$chr),
 		ranges = IRanges(
-			start = muts$chr_from_bkpt,
-			end = muts$chr_from_bkpt + 1
+			start = gh.gene$element_start,
+			end = gh.gene$element_end
 			)
 		)
 
-        to.bkpt <- GRanges(
-                seqnames = paste0('chr', muts$chr_to),
-		strand = muts$chr_to_strand,
-		ranges = IRanges(
-			start = muts$chr_to_bkpt,
-			end = muts$chr_to_bkpt + 1,
+	# analysis on patient level - distance between mutation and gh elements
+	# just keep the closest mutation / gh element
+	results <- data.frame()
+	for (i in 1:length(sample.overlap)) {
+		print(i)
+		muts <- rbind(
+			inversion[inversion$submitted_sample_id %in% sample.overlap[i],],
+			translocation[translocation$submitted_sample_id %in% sample.overlap[i],]
 			)
-		)
 
-	to.closest.element <- data.frame(
-		distanceToNearest(to.bkpt, gh.regions),
-		stringsAsFactors = FALSE
-		)
+		from.bkpt <- GRanges(
+			seqnames = paste0('chr', muts$chr_from),
+			strand = muts$chr_from_strand,
+			ranges = IRanges(
+				start = muts$chr_from_bkpt,
+				end = muts$chr_from_bkpt + 1
+				)
+			)
 
-	from.closest.element <- data.frame(
-		distanceToNearest(from.bkpt, gh.regions),
-		stringsAsFactors = FALSE
-		)
+	        to.bkpt <- GRanges(
+        	        seqnames = paste0('chr', muts$chr_to),
+			strand = muts$chr_to_strand,
+			ranges = IRanges(
+				start = muts$chr_to_bkpt,
+				end = muts$chr_to_bkpt + 1,
+				)
+			)
 
-	# which distance in the smallest
-	closest.element  <- from.closest.element
-	ind.to.replace <- to.closest.element$distance < from.closest.element$distance
-	closest.element[which(ind.to.replace),] <- to.closest.element[which(ind.to.replace),]
-	
-	# add gene information & co-ordinates
-	closest.element$to.bkpt <- paste0(muts$chr_to, ':', muts$chr_to_bkpt)
-	closest.element$from.bkpt <- paste0(muts$chr_from, ':', muts$chr_from_bkpt)
-	closest.element$gh.gene <- gh$symbol[closest.element$subjectHits]
-	closest.element$gh.coord <- paste0(gh$chr, ':', gh$element_start, '-', gh$element_end)[closest.element$subjectHits]
-	closest.element$bkpt <- ifelse(ind.to.replace, 'to_bkpt', 'from_bkpt')
+		bkpts <- c(to.bkpt, from.bkpt)
+		muts.combined <- rbind(muts, muts)
+		closest.element <- data.frame(
+			distanceToNearest(gh.subset, bkpts),
+			stringsAsFactors = FALSE
+			)
 
-	results[[sample.overlap[i]]] <- closest.element
+		if (nrow(closest.element > 1)) {
+			# add gene information & co-ordinates
+			closest.element$to.bkpt <- paste0(muts.combined$chr_to[closest.element$subjectHits], ':', muts.combined$chr_to_bkpt[closest.element$subjectHits])
+			closest.element$from.bkpt <- paste0(muts.combined$chr_from[closest.element$subjectHits], ':', muts.combined$chr_from_bkpt[closest.element$subjectHits])
+			closest.element$gh.gene <- gh.gene$symbol[closest.element$queryHits]
+			closest.element$gh.coord <- paste0(gh.gene$chr, ':', gh.gene$element_start, '-', gh.gene$element_end)[closest.element$queryHits]
+		} else {
+			# if no mutations are close to element, GRanges will return an empty vector
+			closest.element <- results[1,]
+			closest.element$queryHits <- 0
+			closest.element$subjectHits <- 0
+			closest.element$distance <- -1
+			closest.element$to.bkpt <- NA
+			closest.element$from.bkpt <- NA
+			closest.element$gh.gene <- gh.gene$symbol[1]
+			closest.element$gh.coord <- paste0(gh.gene$chr, ':', gh.gene$element_start, '-', gh.gene$element_end)[1]
+			}
+		results <- rbind(results, closest.element[which.min(closest.element$distance),])
+		}
+	distance.results[[overlap.genes[j]]] <- results
 	}
 
 save(
-	results,
-	file = generate.filename('outlier', 'distance_to_gh_element', 'rda')
+	distance.results,
+	file = generate.filename('outlier', 'distance_of_mutation_to_outlier_gene_gh_element', 'rda')
 	)
-
-# only one PD18734a & LRRC69 match
-#for (i in 1:length(results)) {
-#	x <- match(outliers.parsed$outlier_genes[i], results[[i]]$gh.gene)
-#	print(paste(i, ' ', x))
-#	}
