@@ -255,3 +255,18 @@ tissue.parsed <- data.frame(
 	number_evidence_sources = ghid.source.len,
 	stringsAsFactors = FALSE
 	)
+
+data <- read.delim(
+	file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+	as.is = TRUE
+	)
+
+overlap.genes <- intersect(data$Name, gh$symbol)
+gh <- elite[which(elite$symbol %in% overlap.genes),]
+
+multiple <- names(which(table(gh$symbol) > 1))
+num.chr <- rep(NA, length(multiple))
+for (i in 1:length(multiple)) {
+	num.chr[i] <- length(unique(gh$chr[which(gh$symbol == multiple[i])]))
+	}
+# all elements for the same gene are on the same chromosome
