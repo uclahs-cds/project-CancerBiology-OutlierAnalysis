@@ -1,6 +1,6 @@
 ### permutation_test #########################################################################
 # Description
-# per patient that has an outlier gene, overlap SV segment with GH db
+# shuffle gene and patient to see if there is overlap of mutation (ins, trans) with gh element
 
 ### HISTORY ##################################################################################
 # Version	Date		Developer	Comments
@@ -21,8 +21,6 @@ gh <- read.delim(
 	as.is = TRUE
 	)
 
-path <- '/hot/ref/cohort/ICGC/BRCA/EU/processed/wgs/'
-
 # get sample names & mutation data
 inversion <- read.delim(
 	file = file.path(
@@ -35,9 +33,15 @@ inversion <- read.delim(
 inversion$submitted_sample_id <- sub('a2', 'a', inversion$submitted_sample_id)
 inversion$submitted_sample_id <- sub('a3', 'a', inversion$submitted_sample_id)
 
-inversion$chromosome <- inversion$chr_from
-inversion$chromosome_start <- inversion$chr_from_bkpt
-inversion$chromosome_end <- inversion$chr_to_bkpt
+# only overlap brekpoints, not whole regions, so we don't have to account for size of mutation; add some padding
+ibreak_one <- ibreak_two <- inversion
+ibreak_one$chromosome <- inversion$chr_from
+ibreak_one$chromosome_start <- inversion$chr_from_bkpt - 1000
+ibreak_one$chromosome_end <- inversion$chr_from_bkpt + 1000
+
+ibreak_two$chromosome <- inversion$chr_to
+ibreak_two$chromosome_start <- inversion$chr_to_bkpt - 1000
+ibreak_two$chromosome_end <- inversion$chr_to_bkpt + 1000
 
 translocation <- read.delim(
 	file = file.path(
@@ -62,11 +66,20 @@ break_two$chromosome_end <- translocation$chr_to_bkpt + 1000
 combined.muts <- rbind(
 	break_one,
 	break_two,
-	inversion
+	ibreak_one,
+	ibreak_two
 	)
 muts <- combined.muts[order(combined.muts$submitted_sample_id), ]
 
 samples.with.muts <- union(unique(translocation$submitted_sample_id), unique(inversion$submitted_sample_id))
+
+exprs <- read.delim(
+	file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+	as.is = TRUE
+	)
+colnames(exprs) <- sub('R', 'D', colnames(exprs))
+colnames(exprs) <- sub('.RNA', '', colnames(exprs))
+colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
 
 # read in outlier genes per patient - get number of outlier genes that overlaps with gh & genes to remove
 outliers <- read.delim(
@@ -79,33 +92,47 @@ outliers$sample.name <- sub('R', 'D', outliers$patient)
 outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
 outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 
-outlier.genes <- unlist(strsplit(outliers$outlier_genes, ';'))
+# need to filter out samples/genes that dont have mutation data
+outlier.overlap.samples <- intersect(samples.with.muts, outliers$sample.name)
+outliers.parsed <- outliers[match(outlier.overlap.samples, outliers$sample.name), ]
 
-exprs <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
-	as.is = TRUE
-	)
-
+# run true dataset
+true.outliers <- data.frame()
+for (i in 1:nrow(outliers.parsed)) {
+	temp <- data.frame(
+		sample.name = outliers.parsed$sample.name[i],
+		outlier_genes = unlist(strsplit(outliers.parsed$outlier_genes[i], ';')),
+		stringsAsFactors = FALSE
+		)
+	true.outliers <- rbind(true.outliers, temp)
+	}
 overlap.genes <- intersect(exprs$Name, gh$symbol)
 
-# not all outlier genes are in genehancer so take overlap
+outliers.final <- true.outliers[match(intersect(true.outliers$outlier_genes, gh$symbol), true.outliers$outlier_genes),]
+outlier.genes <- outliers.final$outlier_genes
+
+# not all outlier genes are in genehancer so take overlap (n = 179)
 n.outlier.genes <- length(intersect(overlap.genes, outlier.genes))
 
 # and remove outlier genes from pool
 ind.to.remove <- match(intersect(outlier.genes, overlap.genes), overlap.genes)
 overlap.genes <- overlap.genes[-ind.to.remove]
 
-muts.sample <- unique(muts$submitted_sample_id)
-samples <- intersect(samples.with.muts, outliers$sample.name)
+# overlap with samples that have exprs data - can randomly pick samples that dont have outliers
+sample.pool <- intersect(samples.with.muts, colnames(exprs))
 
 results <- data.frame(
 	seed = numeric(),
 	percent = numeric(),
-       	n.overlap = numeric(),
+	n.overlap = numeric(),
 	stringsAsFactors = FALSE
-       	)
+	)
 
-seeds <- 1:1000
+# run true dataset
+#random.outliers <- outliers.final
+
+#seeds <- 1:1000
+seeds <- 1:25
 for (i in 1:length(seeds)) {
 	print(seeds[i])
 	set.seed(seeds[i])
@@ -115,11 +142,11 @@ for (i in 1:length(seeds)) {
 		outlier_genes = character(),
 		stringsAsFactors = FALSE
 		)
-	picked.samples <- sample(samples, n.outlier.genes, replace = TRUE)
+	picked.samples <- sample(sample.pool, n.outlier.genes, replace = TRUE)
 	picked.genes <- sample(overlap.genes, n.outlier.genes, replace = TRUE)
 
 	random.outliers <- data.frame(
-		patient = picked.samples,
+		sample.name = picked.samples,
 		outlier_genes = picked.genes,
 		stringsAsFactors = FALSE
 		)
@@ -137,7 +164,7 @@ for (i in 1:length(seeds)) {
 			ind <- order(elements$chr, elements$element_start, elements$element_end)
 			element.regions.ordered <- element.regions[ind]
 	
-			sample.muts <- muts[muts$submitted_sample_id %in% random.outliers$patient[j], ]
+			sample.muts <- muts[muts$submitted_sample_id %in% random.outliers$sample.name[j], ]
 
 			# check if mutation regions overlap with genehancer elements (object a are in object b)
 			regions <- paste0(sample.muts$chromosome, ':', sample.muts$chromosome_start, '-', sample.muts$chromosome_end)
@@ -146,8 +173,8 @@ for (i in 1:length(seeds)) {
 			sample.muts.ordered <- sample.muts[s.ind,]
 
 			overlap <- element.regions.ordered[in.region(element.regions.ordered, regions.ordered)]
-			elements.overlap[[random.outliers$patient[j]]] <- elements[match(overlap, element.regions), ]
-			gh.overlap[[random.outliers$patient[j]]] <- sample.muts.ordered[in.region(regions.ordered, element.regions.ordered), ]
+			elements.overlap[[j]] <- elements[match(overlap, element.regions), ]
+			gh.overlap[[j]] <- sample.muts.ordered[in.region(regions.ordered, element.regions.ordered), ]
 			}
 		}
 
@@ -157,3 +184,10 @@ for (i in 1:length(seeds)) {
 		results[i, 'n.overlap'] <- n.overlap
 		results[i, 'percent'] <- (n.overlap / n.outlier.genes) * 100
 	}
+
+write.table(
+	x = results,
+	file = generate.filename('outlier', 'permutation_results_elite_overlap', 'txt'),
+	quote = FALSE,
+	sep = '\t'
+	)
