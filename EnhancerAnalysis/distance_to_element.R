@@ -75,9 +75,18 @@ index <- read.delim(
 	)
 colnames(index) <- c('chr', 'length', 'offset', 'nchar', 'nbytes')
 
+exprs <- read.delim(
+        file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+        as.is = TRUE
+        )
+colnames(exprs) <- sub('R', 'D', colnames(exprs))
+colnames(exprs) <- sub('.RNA', '', colnames(exprs))
+colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
+
 #n = 125 samples with RNA & mut calls
-sample.overlap <- intersect(outliers$sample.name, samples.with.muts)
-outliers.parsed <- outliers[match(sample.overlap, outliers$sample.name), ]
+sample.overlap <- intersect(colnames(exprs), samples.with.muts)
+samples.to.include <- intersect(sample.overlap, outliers$sample.name)
+outliers.parsed <- outliers[match(samples.to.include, outliers$sample.name), ]
 
 # analysis on outlier level
 # distance between mutation and gh element will be smaller in outlier patients
@@ -103,11 +112,10 @@ for (j in 1:length(overlap.genes)) {
 	# analysis on patient level - distance between mutation and gh elements
 	# just keep the closest mutation / gh element
 	results <- data.frame()
-	for (i in 1:length(sample.overlap)) {
-		print(i)
+	for (i in 1:length(samples.to.include)) {
 		muts <- rbind(
-			inversion[inversion$submitted_sample_id %in% sample.overlap[i],],
-			translocation[translocation$submitted_sample_id %in% sample.overlap[i],]
+			inversion[inversion$submitted_sample_id %in% samples.to.include[i],],
+			translocation[translocation$submitted_sample_id %in% samples.to.include[i],]
 			)
 
 		from.bkpt <- GRanges(
@@ -156,7 +164,7 @@ for (j in 1:length(overlap.genes)) {
 			}
 		results <- rbind(results, closest.element[which.min(closest.element$distance),])
 		}
-	rownames(results) <- sample.overlap
+	rownames(results) <- samples.to.include
 	distance.results[[overlap.genes[j]]] <- results
 	}
 
@@ -168,6 +176,18 @@ save(
 # different scenarios - no mutation on same chromosome so no distance returned)
 # distance = -1, so remove ?
 
+true.outliers <- data.frame()
+for (i in 1:nrow(outliers.parsed)) {
+        temp <- data.frame(
+                sample.name = outliers.parsed$sample.name[i],
+                outlier_genes = unlist(strsplit(outliers.parsed$outlier_genes[i], ';')),
+                stringsAsFactors = FALSE
+                )
+        true.outliers <- rbind(true.outliers, temp)
+        }
+# remove genes that aren't in GH
+true.outliers <- true.outliers[match(overlap.genes,true.outliers$outlier_genes),]
+
 # compare outlier gene distance across all outliers (n = 179) ? against non outliers (22,375)
 outlier.distance <- vector()
 nonoutlier.distance <- vector()
@@ -176,7 +196,7 @@ nonoutlier.chr.max.flag <- vector()
 for (i in 1:length(distance.results)) {
 	print(i)
 	# get samples with outlier
-	outlier.sample <- outliers.parsed$sample.name[grep(overlap.genes[i], outliers.parsed$outlier_genes)]
+	outlier.sample <- true.outliers$sample.name[match(names(distance.results)[i], true.outliers$outlier_genes)]
 	outlier.distance <- append(
 		x = outlier.distance,
 		values = distance.results[[i]]$distance[match(outlier.sample, rownames(distance.results[[i]]))]
@@ -225,3 +245,21 @@ plot.general.contingency.table(
 	scheme = 'count',
 	text.cex = 0.75
 	);
+
+p.value <- rep(NA, nrow(true.outliers))
+for (i in 1:nrow(true.outliers)) {
+	temp <- distance.results[[i]]
+	outlier.value <- temp$distance[rownames(temp) == true.outliers$sample.name[i]]
+	nonoutlier.values <- temp$distance[rownames(temp) != true.outliers$sample.name[i]]
+	p.value[i] <- length(which(nonoutlier.values < outlier.value)) / nrow(temp)
+	}
+q.value <- p.adjust(p.value, method = 'fdr')
+
+write.table(
+	x = data.frame(p.value, q.value),
+	file = generate.filename('outlier', 'distance_to_gh_element_statistics', 'tsv'),
+	quote = FALSE,
+	sep = '\t'
+	)
+
+#distance.results[[which(names(distance.results) == 'CLCN4')]][true.outliers$sample.name[which(names(distance.results) == 'CLCN4')],]

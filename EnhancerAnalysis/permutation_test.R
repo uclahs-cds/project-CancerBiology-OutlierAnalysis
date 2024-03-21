@@ -2,6 +2,7 @@
 # Description
 # shuffle gene and patient to see if there is overlap of mutation (ins, trans) with gh element
 
+# Rscript permutation_test.R --seed.start 1 --seed.end 25
 ### HISTORY ##################################################################################
 # Version	Date		Developer	Comments
 # 0.01		2023-12-21	jlivingstone	initial code
@@ -9,9 +10,20 @@
 
 ### PREAMBLE #################################################################################
 library(bedr)
+library(getopt)
 library(BoutrosLab.utilities)
 
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/permutation')
+
+params <- matrix(
+        data = c(
+                'seed.start', 's', '0', 'character',
+                'seed.end', 'e', '0', 'character'
+                ),
+        ncol = 4,
+        byrow = TRUE
+        );
+opt <- getopt(params);
 
 gh <- read.delim(
 	file = file.path(
@@ -131,8 +143,9 @@ results <- data.frame(
 # run true dataset
 #random.outliers <- outliers.final
 
-#seeds <- 1:1000
-seeds <- 1:25
+seeds <- opt$seed.start:opt$seed.end
+simulated.set <- list()
+
 for (i in 1:length(seeds)) {
 	print(seeds[i])
 	set.seed(seeds[i])
@@ -151,6 +164,7 @@ for (i in 1:length(seeds)) {
 		stringsAsFactors = FALSE
 		)
 
+	simulated.set[[seeds[i]]] <- random.outliers
 	elements.overlap <- list()
 	gh.overlap <- list()
 
@@ -185,9 +199,22 @@ for (i in 1:length(seeds)) {
 		results[i, 'percent'] <- (n.overlap / n.outlier.genes) * 100
 	}
 
+save(
+	simulated.set,
+	file = generate.filename(
+		'outlier',
+		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_simulated_sets'),
+		'rda'
+		)
+	)
+
 write.table(
 	x = results,
-	file = generate.filename('outlier', 'permutation_results_elite_overlap', 'txt'),
+	file = generate.filename(
+		'outlier',
+		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_permutation_results_elite_bkpt_1000_overlap'),
+		'txt'
+		),
 	quote = FALSE,
 	sep = '\t'
 	)
