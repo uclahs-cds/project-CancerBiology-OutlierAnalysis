@@ -2,7 +2,7 @@
 # Description
 # shuffle gene and patient to see if there is overlap of mutation (ins, trans) with gh element
 
-# Rscript permutation_test.R --seed.start 1 --seed.end 25
+# Rscript permutation_test.R --seed.start 1 --seed.end 25 --elite 1
 ### HISTORY ##################################################################################
 # Version	Date		Developer	Comments
 # 0.01		2023-12-21	jlivingstone	initial code
@@ -18,17 +18,26 @@ setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/permutation')
 params <- matrix(
         data = c(
                 'seed.start', 's', '0', 'character',
-                'seed.end', 'e', '0', 'character'
+                'seed.end', 'e', '0', 'character',
+                'elite', 'v', '0', 'character'
                 ),
         ncol = 4,
         byrow = TRUE
         );
 opt <- getopt(params);
 
+if (opt$elite == 1) {
+	filename <- 'GeneHancer_AnnotSV_hg19_elements_v5.18_elite.txt'
+	placeholder <- 'elite_'
+} else {
+	filename <- 'GeneHancer_AnnotSV_hg19_elements_v5.18.txt'
+	placeholder <- ''
+	}
+
 gh <- read.delim(
 	file = file.path(
 		'/hot/ref/database/GeneHancer-v5.18/processed/hg19',
-		'GeneHancer_AnnotSV_hg19_elements_v5.18_elite.txt'
+		filename
 		),
 	as.is = TRUE
 	)
@@ -123,6 +132,13 @@ overlap.genes <- intersect(exprs$Name, gh$symbol)
 outliers.final <- true.outliers[match(intersect(true.outliers$outlier_genes, gh$symbol), true.outliers$outlier_genes),]
 outlier.genes <- outliers.final$outlier_genes
 
+write.table(
+	x = outliers.final,
+	file = generate.filename('outliers', 'final_outliers_overlapped_gh_exprs', 'tsv'),
+	quote = FALSE,
+	row.names = FALSE
+	)
+
 # not all outlier genes are in genehancer so take overlap (n = 179)
 n.outlier.genes <- length(intersect(overlap.genes, outlier.genes))
 
@@ -212,7 +228,7 @@ write.table(
 	x = results,
 	file = generate.filename(
 		'outlier',
-		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_permutation_results_elite_bkpt_1000_overlap'),
+		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_permutation_results_', placeholder, 'bkpt_1000_overlap'),
 		'txt'
 		),
 	quote = FALSE,
