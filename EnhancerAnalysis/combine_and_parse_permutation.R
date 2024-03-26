@@ -4,6 +4,7 @@
 ### HISTORY ###################################################################################
 # Version	Date		Developer	Comments
 # 0.01		2024-03-20	jlivingstone	initial code
+# 0.02		2024-03-25	jlivingstone	add density plots
 
 ### PREAMBLE #################################################################################
 library(BoutrosLab.plotting.general)
@@ -12,7 +13,13 @@ library(BoutrosLab.utilities)
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/permutation')
 
 seed.files <- list.files(pattern = 'outlier_seeds')
-files <- seed.files[grep('txt', seed.files)]
+if (is.elite == TRUE) {
+	files <- seed.files[grep('.*elite.*txt', seed.files, perl = TRUE)]
+	placeholder <- 'elite_'
+} else {
+	files <- seed.files[grep('.*results_bkpt.*txt', seed.files, perl = TRUE)]
+	placeholder <- ''
+	}
 
 results <- data.frame()
 for (i in 1:length(files)) {
@@ -23,12 +30,61 @@ for (i in 1:length(files)) {
 	results <- rbind(results, temp)
 	}
 
-load('2024-03-18_true_dataset_bkpt_plus_1000_overlap_elite.rda')
-overlap <- which(unlist(lapply(elements.overlap, function(x) { nrow(x) })) == 1)
+if (is.elite == TRUE) {
+	load(
+		file = file.path(
+			'/hot/user/jlivingstone/outlier/enhancer_analysis/permutation',
+			'2024-03-18_true_dataset_bkpt_plus_1000_overlap_elite.rda'
+			)
+		)
+} else {
+	load(
+		file = file.path(
+			'/hot/user/jlivingstone/outlier/enhancer_analysis/permutation',
+			'2024-03-26_true_dataset_bkpt_plus_1000_overlap.rda'
+			)
+		)
+	}
+overlap <- which(unlist(lapply(elements.overlap, function(x) { nrow(x) })) > 0)
 overlap.n <- length(overlap)
 
 results$n.overlap[is.na(results$n.overlap)] <- 0
 p.value <- length(which(results$n.overlap >= overlap.n)) / nrow(results)
+
+create.histogram(
+	x = results$n.overlap,,
+	filename = generate.filename('outlier', paste0('overlap_', placeholder, 'histogram_plot'), 'png'),
+	type = 'count',
+:	abline.v = overlap.n,
+	abline.lty = 'dashed',
+	abline.lwd = 2,
+	ylab.cex = 1,
+	ylab.label = 'Count',
+	xlab.cex = 1,
+	xaxis.cex = 1,
+	yaxis.cex = 1,
+	legend = list(
+		inside = list(
+			fun = draw.key,
+			args = list(
+				key = list(
+					text = list(
+						lab = as.expression(substitute(P == paste(base %*% 10^exponent),
+						list(
+							base = scientific.notation(p.value, digits = 2, type = 'list')$base,
+							exponent = scientific.notation(p.value, type = 'list')$exponent)
+							)
+						),
+					cex = 1,
+					fontface = 'bold'
+					)
+				)
+			),
+			x = 0.68,
+			y = 0.98
+			)
+		)
+	)
 
 # density plot for distance analysis
 
@@ -49,14 +105,19 @@ load(
 
 outliers <- final.outliers[match(names(distance.results), final.outliers$outlier_genes),]
 
+setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/distance_analysis/histogram')
+
 for (i in 1:length(distance.results)) {
 
 	gene <- names(distance.results)[i]
 	print(gene)
 
 	ind.to.remove <- match(outliers$sample.name[i], rownames(distance.results[[gene]]))
-	null <- log10(distance.results[[gene]]$distance[-ind.to.remove]) 
-	true <- log10(distance.results[[gene]]$distance[ind.to.remove])
+	null <- log10(distance.results[[gene]]$distance[-ind.to.remove] + 1)
+	true <- log10(distance.results[[gene]]$distance[ind.to.remove] + 1)
+
+	x.max <- ceiling(max(c(null, true)) + 1)
+	x.min <- floor(min(c(null, true)) - 1)
 
 	create.histogram(
 		x = null,
@@ -65,13 +126,14 @@ for (i in 1:length(distance.results)) {
 		abline.v = true,
 		abline.lty = 'dashed',
 		abline.lwd = 2,
+		xlimits = c(x.min, x.max),
 		breaks = 16,
 		main = gene,
 		main.cex = 1,
 		ylab.cex = 1,
 		ylab.label = 'Count',
 		xlab.cex = 1,
-		xlab.label = expression(paste('-log'[10], '(distance)')),
+		xlab.label = expression(bold('-log')[bold('10')] * bold('distance)')),
 		xaxis.cex = 1,
 		yaxis.cex = 1
 		)

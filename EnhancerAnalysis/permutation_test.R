@@ -231,6 +231,7 @@ write.table(
 		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_permutation_results_', placeholder, 'bkpt_1000_overlap'),
 		'txt'
 		),
+	row.names = FALSE,
 	quote = FALSE,
 	sep = '\t'
 	)
