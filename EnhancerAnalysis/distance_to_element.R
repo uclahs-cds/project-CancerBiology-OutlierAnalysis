@@ -1,6 +1,7 @@
 ## distance_to_element.R ##############################################################
 # Description
 # determine distance of breakpoint to GeneHancer element
+# from = start; to = end;
 
 ### HISTORY ############################################################################
 # Version	Date		Developer	Comments
@@ -140,6 +141,7 @@ get.distance <- function(gh.subset, bkpts, muts) {
 	return(outcome)
 	}
 
+# need to think of what to do for translocations - end of same chr ?
 distance.results <- list()
 for (j in 1:length(overlap.genes)) {
 	print(overlap.genes[j])
@@ -205,7 +207,7 @@ for (j in 1:length(overlap.genes)) {
 
 save(
 	distance.results,
-	file = generate.filename('outlier', 'distance_of_mutation_to_outlier_gene_gh_element', 'rda')
+	file = generate.filename('outlier', 'distance_of_mutation_to_outlier_gene_gh_element_modified', 'rda')
 	)
 
 # different scenarios - no mutation on same chromosome so no distance returned)
