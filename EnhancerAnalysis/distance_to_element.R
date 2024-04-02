@@ -6,6 +6,8 @@
 # Version	Date		Developer	Comments
 # 0.01		2024-02-28	jlivingstone	initial code
 # 0.02		2024-03-12	jlivingstone	add chromosome max value; heatmap
+# 0.03		2024-03-28	jlivingstone	calculate distance if gh element
+#						is within breakpoints
 
 ### PREAMBLE ###########################################################################
 library(BoutrosLab.utilities)
@@ -83,7 +85,6 @@ colnames(exprs) <- sub('R', 'D', colnames(exprs))
 colnames(exprs) <- sub('.RNA', '', colnames(exprs))
 colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
 
-#n = 125 samples with RNA & mut calls
 sample.overlap <- intersect(colnames(exprs), samples.with.muts)
 samples.to.include <- intersect(sample.overlap, outliers$sample.name)
 outliers.parsed <- outliers[match(samples.to.include, outliers$sample.name), ]
@@ -94,6 +95,50 @@ outliers.parsed <- outliers[match(samples.to.include, outliers$sample.name), ]
 # gh elements for outlier gene
 outlier.genes <- unlist(strsplit(outliers.parsed$outlier_genes, ';'))
 overlap.genes <- intersect(outlier.genes, unique(gh$symbol))
+
+get.distance <- function(gh.subset, bkpts, muts) {
+	closest.element <- data.frame(
+		distanceToNearest(gh.subset, bkpts),
+		stringsAsFactors = FALSE
+		)
+
+	if (nrow(closest.element > 1)) {
+		# add gene information & co-ordinates
+		closest.element$chr.from.bkpt <- muts$chr_from[closest.element$subjectHits]
+		closest.element$from.bkpt <- muts$chr_from_bkpt[closest.element$subjectHits]
+		closest.element$chr.to.bkpt <- muts$chr_to[closest.element$subjectHits]
+		closest.element$to.bkpt <- muts$chr_to_bkpt[closest.element$subjectHits]
+		closest.element$gh.gene <- gh.gene$symbol[closest.element$queryHits]
+		closest.element$gh.coord.chr <- gh.gene$chr[closest.element$queryHits]
+		closest.element$gh.coord.start <- gh.gene$element_start[closest.element$queryHits]
+		closest.element$gh.coord.end <- gh.gene$element_end[closest.element$queryHits]
+
+		gh.within <- closest.element$from.bkpt < closest.element$gh.coord.start & closest.element$to.bkpt > closest.element$gh.coord.end
+		closest.element <- closest.element[which(gh.within == TRUE), ]
+		}
+
+	# after filtering out distances that exist but the gh element isn't within the mutation breakpoints
+	if (nrow(closest.element) == 0) {
+		# if no mutations are close to element, GRanges will return an empty vector so need to account for this
+		closest.element <- data.frame(	
+			queryHits = 0,
+			subjectHits = 0,
+			distance = index$length[match(paste0('chr', unique(gh.gene$chr)), index$chr)],
+			chr.from.bkpt = unique(gh.gene$chr),
+			from.bkpt = NA,
+			chr.to.bkpt = unique(gh.gene$chr),
+			to.bkpt = NA,
+			gh.gene = gh.gene$symbol[which.max(gh.gene$combined_score)],
+			gh.coord.chr = gh.gene$chr[which.max(gh.gene$combined_score)],
+			gh.coord.start = gh.gene$element_start[which.max(gh.gene$combined_score)],
+			gh.coord.end = gh.gene$element_end[which.max(gh.gene$combined_score)],
+			stringsAsFactors = FALSE
+			)
+		}
+
+	outcome <- closest.element[which.min(closest.element$distance),]
+	return(outcome)
+	}
 
 distance.results <- list()
 for (j in 1:length(overlap.genes)) {
@@ -118,6 +163,7 @@ for (j in 1:length(overlap.genes)) {
 			translocation[translocation$submitted_sample_id %in% samples.to.include[i],]
 			)
 
+		#start
 		from.bkpt <- GRanges(
 			seqnames = paste0('chr', muts$chr_from),
 			strand = muts$chr_from_strand,
@@ -127,42 +173,31 @@ for (j in 1:length(overlap.genes)) {
 				)
 			)
 
+		from.results <- get.distance(
+			gh.subset = gh.subset,
+			bkpts = from.bkpt,
+			muts = muts
+			)
+
+		#end
 		to.bkpt <- GRanges(
 			seqnames = paste0('chr', muts$chr_to),
 			strand = muts$chr_to_strand,
 			ranges = IRanges(
 				start = muts$chr_to_bkpt,
-				end = muts$chr_to_bkpt + 1,
+				end = muts$chr_to_bkpt + 1
 				)
 			)
 
-		bkpts <- c(to.bkpt, from.bkpt)
-		muts.combined <- rbind(muts, muts)
-		closest.element <- data.frame(
-			distanceToNearest(gh.subset, bkpts),
-			stringsAsFactors = FALSE
+		to.results <- get.distance(
+			gh.subset = gh.subset,
+			bkpts = to.bkpt,
+			muts = muts
 			)
 
-		if (nrow(closest.element > 1)) {
-			# add gene information & co-ordinates
-			closest.element$from.bkpt <- paste0(muts.combined$chr_from[closest.element$subjectHits], ':', muts.combined$chr_from_bkpt[closest.element$subjectHits])
-			closest.element$to.bkpt <- paste0(muts.combined$chr_to[closest.element$subjectHits], ':', muts.combined$chr_to_bkpt[closest.element$subjectHits])
-			closest.element$gh.gene <- gh.gene$symbol[closest.element$queryHits]
-			closest.element$gh.coord <- paste0(gh.gene$chr, ':', gh.gene$element_start, '-', gh.gene$element_end)[closest.element$queryHits]
-		} else {
-			# if no mutations are close to element, GRanges will return an empty vector so need to account for this
-			# use total length of chromosome
-
-			closest.element <- results[1,]
-			closest.element$queryHits <- 0
-			closest.element$subjectHits <- 0
-			closest.element$distance <- index$length[match(paste0('chr', unique(gh.gene$chr)), index$chr)]
-			closest.element$from.bkpt <- NA
-			closest.element$to.bkpt <- NA
-			closest.element$gh.gene <- gh.gene$symbol[1]
-			closest.element$gh.coord <- paste0(gh.gene$chr, ':', gh.gene$element_start, '-', gh.gene$element_end)[1]
-			}
-		results <- rbind(results, closest.element[which.min(closest.element$distance),])
+		# compare start.results and end.results to get shortest distance
+		outcome <- rbind(to.results, from.results)
+		results <- rbind(results, outcome[which.min(outcome$distance), ])
 		}
 	rownames(results) <- samples.to.include
 	distance.results[[overlap.genes[j]]] <- results
