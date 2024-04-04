@@ -12,7 +12,7 @@ library(GenomicRanges)
 
 setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/deletion_analysis')
 
-bp.threshold <- 5000
+bp.threshold <- 10000
 
 annot <- read.delim(
 	file = file.path(
@@ -104,9 +104,27 @@ for (j in 1:nrow(true.outliers)) {
 	if (gene.annot$strand == '+') {
 		gene.annot$overlap.start <- gene.annot$start - bp.threshold
 		gene.annot$overlap.end <- gene.annot$start
+
+		# upstream is to the left, so need 'end' bkpt of deletion to be in window
+		deletion.ranges <- GRanges(
+			seqnames = paste0('chr', chr.muts$chr_to),
+			ranges = IRanges(
+				start = chr.muts$chr_to_bkpt,
+				end = chr.muts$chr_to_bkpt + 1
+				)
+			)
 	} else {
 		gene.annot$overlap.start <- gene.annot$end
 		gene.annot$overlap.end <- gene.annot$end + bp.threshold
+
+		# upstream is to the right, so need 'start' bkpt of deletion to be in window
+		deletion.ranges <- GRanges(
+			seqnames = paste0('chr', chr.muts$chr_from),
+			ranges = IRanges(
+			start = chr.muts$chr_from_bkpt,
+				end = chr.muts$chr_from_bkpt + 1
+				)
+			)
 		}
 
 	# overlap gene annotation and mutations on same chromosome
@@ -119,15 +137,7 @@ for (j in 1:nrow(true.outliers)) {
 			)
 		)
 
-	deletion.ranges <- GRanges(
-		seqnames = paste0('chr', chr.muts$chr_from),
-		ranges = IRanges(
-			start = chr.muts$chr_from_bkpt,
-			end = chr.muts$chr_to_bkpt
-			)
-		)
-
-	overlap <- findOverlaps(gene.ranges, deletion.ranges)
+	overlap <- findOverlaps(deletion.ranges, gene.ranges, type = 'within')
 	if (length(overlap) == 0) {
 		results[[j]] <- 'No overlap with deletion'
 		next
@@ -143,6 +153,7 @@ for (j in 1:nrow(true.outliers)) {
 			)
 		)
 
+	# deletion event that brings elements together
 	candidate <- chr.muts[subjectHits(overlap), ]
 
  	if (gene.annot$strand == '+') {
@@ -161,11 +172,16 @@ for (j in 1:nrow(true.outliers)) {
 			)
 		)
 
-	gh.overlap <- findOverlaps(gh.ranges, candidate.ranges)
+	#gh.overlap <- findOverlaps(gh.ranges, candidate.ranges)
+	closest <- data.frame(
+		distanceToNearest(gh.ranges, candidate.ranges),
+		stringsAsFactors = FALSE
+		)
+	gh.overlap <- closest$subjectHits[which(closest$distance < bp.threshold)]
 	if (length(gh.overlap) == 0) {
 		results[[j]] <- 'GH element not in range'
 	} else {
-		results[[j]] <- cbind(candidate[subjectHits(gh.overlap), ], data.frame(gh.filtered[queryHits(gh.overlap),]))
+		results[[j]] <- cbind(candidate[gh.overlap$subjectHits, ], gh.filtered[gh.overlap$queryHits,])
 		}
 	}
 names(results) <- paste(true.outliers$sample.name, true.outliers$outlier_genes, sep = '-')
