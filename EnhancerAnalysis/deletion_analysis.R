@@ -1,6 +1,7 @@
 ## deletion_analysis.R #################################################################
 # Description
 # from = start; to = end;
+# hijacking analysis
 
 ### HISTORY ############################################################################
 # Version	Date		Developer	Comments
@@ -10,7 +11,7 @@
 library(BoutrosLab.utilities)
 library(GenomicRanges)
 
-setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/deletion_analysis')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/deletion_analysis')
 
 bp.threshold <- 10000
 
@@ -46,7 +47,7 @@ samples.with.muts <- unique(deletion$submitted_sample_id)
 # read in outlier samples and genes
 outliers <- read.delim(
 	file = file.path(
-		'/hot/user/jlivingstone/outlier/run_method/',
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/run_method',
 		'2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
 		),
 	as.is = TRUE
@@ -57,7 +58,10 @@ outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
 outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 
 exprs <- read.delim(
-        file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+        file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/NikZainal_2016/original',
+		'SupplementaryTable7Transcriptomic342.txt'
+		),
         as.is = TRUE
         )
 colnames(exprs) <- sub('R', 'D', colnames(exprs))
@@ -82,7 +86,7 @@ for (i in 1:nrow(outliers.parsed)) {
                 )
         true.outliers <- rbind(true.outliers, temp)
         }
-true.outliers <- true.outliers[match(overlap.genes,true.outliers$outlier_genes),]
+true.outliers <- true.outliers[match(overlap.genes,true.outliers$outlier_genes), ]
 
 results <- list()
 for (j in 1:nrow(true.outliers)) {
@@ -156,7 +160,7 @@ for (j in 1:nrow(true.outliers)) {
 	# deletion event that brings elements together
 	candidate <- chr.muts[subjectHits(overlap), ]
 
- 	if (gene.annot$strand == '+') {
+	if (gene.annot$strand == '+') {
 		candidate$overlap.start <- candidate$chr_from_bkpt - bp.threshold
 		candidate$overlap.end <- candidate$chr_from_bkpt
 	} else {

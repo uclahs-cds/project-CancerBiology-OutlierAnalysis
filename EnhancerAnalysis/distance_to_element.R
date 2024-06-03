@@ -12,11 +12,12 @@
 
 ### PREAMBLE ###########################################################################
 library(BoutrosLab.utilities)
+library(BoutrosLab.statistics.general)
 library(GenomicRanges)
 
 source('/hot/code/jlivingstone/GitHub/uclahs-cds/project-ProstateCancer-m6A/plot.general.contingency.table.R');
 
-setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/distance_analysis')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/distance_analysis/')
 
 gh <- read.delim(
 	file = file.path(
@@ -25,13 +26,68 @@ gh <- read.delim(
 		),
 	as.is = TRUE
 	)
+gh.unique <- gh[match(unique(gh$GHid), gh$GHid), ]
 
 gh.regions <- GRanges(
-	seqnames = paste0('chr', gh$chr),
+	seqnames = paste0('chr', gh.unique$chr),
 	ranges = IRanges(
-		start = gh$element_start,
-		end = gh$element_end
+		start = gh.unique$element_start,
+		end = gh.unique$element_end
 		)
+	)
+
+annot <- read.delim(
+        file = file.path(
+                '/hot/ref/database/RefSeq/release_2020-01-10',
+                'hg19_refGene_annotation.txt'
+                ),
+        as.is = TRUE
+        )
+
+exprs <- read.delim(
+        file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/NikZainal_2016/original/',
+		'SupplementaryTable7Transcriptomic342.txt'
+		),
+        as.is = TRUE
+        )
+colnames(exprs) <- sub('R', 'D', colnames(exprs))
+colnames(exprs) <- sub('.RNA', '', colnames(exprs))
+colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
+
+genes <- intersect(exprs$Name, annot$gene)
+annot.filtered <- annot[match(genes, annot$gene),]
+
+gene.regions <- GRanges(
+	seqnames = paste0('chr', annot.filtered$chr),
+	ranges = IRanges(
+		start = annot.filtered$start,
+		end = annot.filtered$end
+		),
+	strand = annot.filtered$strand
+	)
+
+# calculate distance to nearest gh element for each gene
+closest.element <- data.frame(
+	distanceToNearest(gene.regions, gh.regions),
+	stringsAsFactors = FALSE
+	)
+# returns index of the interval
+# upstream and is strand aware
+after <- follow(gene.regions, gh.regions)
+following.element <- cbind(annot.filtered, gh.unique[after, ])
+following.element$distance <- ifelse(
+	test = following.element$strand == '+',
+	yes = annot.filtered$start - following.element$element_end,
+	no = following.element$element_start  - annot.filtered$end
+	)
+
+write.table(
+	x = following.element,
+	file = generate.filename('outlier', 'distance_any_gh_element_to_tss', 'tsv'),
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
 	)
 
 inversion <- read.delim(
@@ -50,7 +106,7 @@ samples.with.muts <- unique(inversion$submitted_sample_id)
 # read in outlier samples and genes
 outliers <- read.delim(
 	file = file.path(
-		'/hot/user/jlivingstone/outlier/run_method/',
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/run_method',
 		'2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
 		),
 	as.is = TRUE
@@ -67,14 +123,6 @@ index <- read.delim(
 	)
 colnames(index) <- c('chr', 'length', 'offset', 'nchar', 'nbytes')
 
-exprs <- read.delim(
-        file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
-        as.is = TRUE
-        )
-colnames(exprs) <- sub('R', 'D', colnames(exprs))
-colnames(exprs) <- sub('.RNA', '', colnames(exprs))
-colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
-
 sample.overlap <- intersect(colnames(exprs), samples.with.muts)
 samples.to.include <- intersect(sample.overlap, outliers$sample.name)
 outliers.parsed <- outliers[match(samples.to.include, outliers$sample.name), ]
@@ -85,6 +133,17 @@ outliers.parsed <- outliers[match(samples.to.include, outliers$sample.name), ]
 # gh elements for outlier gene
 outlier.genes <- unlist(strsplit(outliers.parsed$outlier_genes, ';'))
 overlap.genes <- intersect(outlier.genes, unique(gh$symbol))
+
+# calculate p.value for closest element analysis
+distance.genes <- intersect(outlier.genes, following.element$gene)
+
+get.utest.p(
+	x = following.element$distance,
+	group1 = following.element$gene %in% distance.genes,
+	group2 = !following.element$gene %in% distance.genes,
+	paired = FALSE
+	)
+# 0.9654492
 
 get.distance <- function(gh.subset, bkpts, muts) {
 	closest.element <- data.frame(
