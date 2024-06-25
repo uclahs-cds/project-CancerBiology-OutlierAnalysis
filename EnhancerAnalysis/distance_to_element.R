@@ -9,7 +9,7 @@
 # 0.02		2024-03-12	jlivingstone	add chromosome max value; heatmap
 # 0.03		2024-03-28	jlivingstone	calculate distance if gh element
 #						is within breakpoints; remove TRA
-# 0.0.4		2024-05-02	jlivingstone	add distance from TSS to GH analysis
+# 0.04		2024-06-02	jlivingstone	add distance from TSS to GH analysis
 
 ### PREAMBLE ###########################################################################
 library(BoutrosLab.utilities)
@@ -38,20 +38,20 @@ gh.regions <- GRanges(
 	)
 
 annot <- read.delim(
-tfile = file.path(
-tt'/hot/ref/database/RefSeq/release_2020-01-10',
-tt'hg19_refGene_annotation.txt'
-tt),
-tas.is = TRUE
-t)
+	file = file.path(
+		'/hot/ref/database/RefSeq/release_2020-01-10',
+		'hg19_refGene_annotation.txt'
+		),
+	as.is = TRUE
+	)
 
 exprs <- read.delim(
-tfile = file.path(
+	file = file.path(
 		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/NikZainal_2016/original/',
 		'SupplementaryTable7Transcriptomic342.txt'
 		),
-tas.is = TRUE
-t)
+	as.is = TRUE
+	)
 colnames(exprs) <- sub('R', 'D', colnames(exprs))
 colnames(exprs) <- sub('.RNA', '', colnames(exprs))
 colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
@@ -152,42 +152,42 @@ density.data <- list(
 	)
 
 create.densityplot(
-tx = density.data,
-tfilename = generate.filename('outlier', 'tss_to_gh_distribution', 'png'),
-tcol = c('tomato1', 'royalblue'),
-tlty = c('solid', 'dashed'),
-tyaxis.cex = 1,
-txaxis.cex = 1,
-tylab.cex = 1,
-txlab.cex = 1,
-txlab.label = 'Distance',
-txlimit = c(0, 50000),
+	x = density.data,
+	filename = generate.filename('outlier', 'tss_to_gh_distribution', 'png'),
+	col = c('tomato1', 'royalblue'),
+	lty = c('solid', 'dashed'),
+	yaxis.cex = 1,
+	xaxis.cex = 1,
+	ylab.cex = 1,
+	xlab.cex = 1,
+	xlab.label = 'Distance',
+	xlimit = c(0, 50000),
 	xat = seq(0, 50000, 10000),
-tlegend = list(
-ttinside = list(
-tttfun = draw.key,
-tttargs = list(
-ttttkey = list(
-tttttpoints = list(
-ttttttcol = c('tomato1', 'royalblue'),
-ttttttpch = 21,
-ttttttcex = 1,
-ttttttfill = c('tomato1', 'royalblue')
-tttttt),
-ttttttext = list(
-ttttttlab = c('Outlier genes (n = 172)', 'Non Outlier genes(n = 17,567)')
-tttttt),
-tttttpadding.text = 1,
-tttttcex = 1
-ttttt)
-tttt),
-tttx = 0.30,
-ttty = 0.95,
-tttdraw = FALSE
-ttt)
-tt),
-tresolution = 200
-t)
+	legend = list(
+		inside = list(
+			fun = draw.key,
+			args = list(
+				key = list(
+					points = list(
+						col = c('tomato1', 'royalblue'),
+						pch = 21,
+						cex = 1,
+						fill = c('tomato1', 'royalblue')
+						),
+					text = list(
+						lab = c('Outlier genes (n = 172)', 'Non Outlier genes(n = 17,567)')
+						),
+					padding.text = 1,
+					cex = 1
+					)
+				),
+			x = 0.30,
+			y = 0.95,
+			draw = FALSE
+			)
+		),
+	resolution = 200
+	)
 
 get.distance <- function(gh.subset, bkpts, muts) {
 	closest.element <- data.frame(
@@ -303,13 +303,13 @@ save(
 
 true.outliers <- data.frame()
 for (i in 1:nrow(outliers.parsed)) {
-ttemp <- data.frame(
-ttsample.name = outliers.parsed$sample.name[i],
-ttoutlier_genes = unlist(strsplit(outliers.parsed$outlier_genes[i], ';')),
-ttstringsAsFactors = FALSE
-tt)
-ttrue.outliers <- rbind(true.outliers, temp)
-t}
+	temp <- data.frame(
+		sample.name = outliers.parsed$sample.name[i],
+		outlier_genes = unlist(strsplit(outliers.parsed$outlier_genes[i], ';')),
+		stringsAsFactors = FALSE
+		)
+	true.outliers <- rbind(true.outliers, temp)
+	}
 # remove genes that aren't in GH
 true.outliers <- true.outliers[match(overlap.genes,true.outliers$outlier_genes),]
 
