@@ -10,7 +10,7 @@
 library(BoutrosLab.utilities)
 library(GenomicRanges)
 
-setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/translocation_analysis')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/translocation_analysis')
 
 bp.threshold <- 5000
 
@@ -46,7 +46,7 @@ samples.with.muts <- unique(trans$submitted_sample_id)
 # read in outlier samples and genes
 outliers <- read.delim(
 	file = file.path(
-		'/hot/user/jlivingstone/outlier/run_method/',
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/run_method/',
 		'2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
 		),
 	as.is = TRUE
@@ -57,7 +57,7 @@ outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
 outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 
 exprs <- read.delim(
-        file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+        file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
         as.is = TRUE
         )
 colnames(exprs) <- sub('R', 'D', colnames(exprs))

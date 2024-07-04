@@ -10,7 +10,6 @@
 library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities)
 
-#setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/permutation')
 setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/permutation')
 
 seed.files <- list.files(pattern = 'outlier_seeds')
@@ -34,7 +33,6 @@ for (i in 1:length(files)) {
 if (is.elite == TRUE) {
 	load(
 		file = file.path(
-			#'/hot/user/jlivingstone/outlier/enhancer_analysis/permutation',
 			'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/permutation',
 			'2024-03-18_true_dataset_bkpt_plus_1000_overlap_elite.rda'
 			)
@@ -42,7 +40,6 @@ if (is.elite == TRUE) {
 } else {
 	load(
 		file = file.path(
-			#'/hot/user/jlivingstone/outlier/enhancer_analysis/permutation',
 			'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/permutation',
 			'2024-03-26_true_dataset_bkpt_plus_1000_overlap.rda'
 			)
@@ -93,7 +90,6 @@ create.histogram(
 
 final.outliers <- read.delim(
 	file = file.path(
-		#'/hot/user/jlivingstone/outlier/enhancer_analysis/permutation',
 		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/permutation',
 		'2024-03-25_outliers_final_outliers_overlapped_gh_exprs.tsv'
 		),
@@ -102,8 +98,7 @@ final.outliers <- read.delim(
 
 load(
 	file = file.path(
-		#'/hot/user/jlivingstone/outlier/enhancer_analysis/distance_analysis',
-		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/distance_analysis',
+w		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/distance_analysis',
 		'2024-03-19_outlier_distance_of_mutation_to_outlier_gene_gh_element.rda'
 		)
 	)
@@ -111,7 +106,6 @@ load(
 outliers <- final.outliers[match(names(distance.results), final.outliers$outlier_genes),]
 
 setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/distance_analysis/histogram')
-#setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/distance_analysis/histogram')
 
 for (i in 1:length(distance.results)) {
 

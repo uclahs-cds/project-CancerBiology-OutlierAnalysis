@@ -10,10 +10,10 @@
 
 ### PREAMBLE #################################################################################
 library(bedr)
-library(getopt)
 library(BoutrosLab.utilities)
+library(getopt)
 
-setwd('/hot/user/jlivingstone/outlier/enhancer_analysis/permutation')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/permutation')
 
 params <- matrix(
         data = c(
@@ -95,7 +95,10 @@ muts <- combined.muts[order(combined.muts$submitted_sample_id), ]
 samples.with.muts <- union(unique(translocation$submitted_sample_id), unique(inversion$submitted_sample_id))
 
 exprs <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+	file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone',
+		'NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
+		),
 	as.is = TRUE
 	)
 colnames(exprs) <- sub('R', 'D', colnames(exprs))
@@ -104,7 +107,10 @@ colnames(exprs)[grep('PD6418a.2', colnames(exprs))] <- 'PD6418a'
 
 # read in outlier genes per patient - get number of outlier genes that overlaps with gh & genes to remove
 outliers <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/run_method/2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt',
+	file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/run_method',
+		'2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
+		),
 	as.is = TRUE
 	)
 

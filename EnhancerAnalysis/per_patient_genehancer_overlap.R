@@ -3,7 +3,7 @@
 # per patient that has an outlier gene, overlap SV segment with GH db
 
 # Rscript per_patient_genehancer_overlap.R --mutation.type tandem_duplication --elite.only 0 --algorithm bedr --input.file --flag ''
-# '/hot/user/jlivingstone/outlier/run_method/2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
+# '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/run_method/2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
 
 ### HISTORY ##################################################################################
 # Version	Date		Developer	Comments
@@ -40,7 +40,7 @@ input.file <- opt$input.file
 # set when running permutation test ie the seed used
 flag <- opt$flag
 
-setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis')
 
 # read in outlier genes per patient
 outliers <- read.delim(

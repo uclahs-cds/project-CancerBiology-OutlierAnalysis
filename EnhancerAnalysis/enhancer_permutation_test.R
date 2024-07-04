@@ -10,18 +10,24 @@
 ### PREAMBLE ###########################################################################
 library(BoutrosLab.utilities)
 
-setwd('/hot/user/jlivingstone/outlier/enhancer_analysis')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis')
 
 # pick random 'non' outlier gene and overlap sample mutations with gene enhancer regions for that gene
 
 # how many genes to pick ? see how many true outlier genes exist in genehancer
 gh <- read.delim(
-	file = file.path('/hot/ref/database/GeneHancer-v5.18/processed/GRCh38', 'GeneHancer_AnnotSV_elements_v5.18.txt'),
+	file = file.path(
+		'/hot/ref/database/GeneHancer-v5.18/processed/GRCh38',
+		'GeneHancer_AnnotSV_elements_v5.18.txt'
+		),
 	as.is = TRUE
 	)
 
 outliers <- read.delim(
-	file = file.path('/hot/user/jlivingstone/outlier/run_method/', '2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'),
+	file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/run_method/',
+		'2023-12-21_Outlier_patients_with_genes_BRCA_EU_cutoff_0.01.txt'
+		),
 	as.is = TRUE
 	)
 outliers$sample.name <- sub('R', 'D', outliers$patient)
@@ -35,7 +41,10 @@ gh.gene <- unique(gh$symbol)
 n.outlier.genes <- length(intersect(gh.gene, outlier.genes))
 
 data <- read.delim2(
-	file = '/hot/users/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+	file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone',
+		'NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
+		),
 	header = TRUE,
 	row.names = 1
 	)

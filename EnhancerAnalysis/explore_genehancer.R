@@ -12,7 +12,7 @@
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities)
 
-setwd('/hot/users/jlivingstone/outlier')
+setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone')
 
 # contains the same information as in GeneHancer_v5.18.bed + element info (n = 409,271)
 elements <- read.delim(
@@ -257,7 +257,10 @@ tissue.parsed <- data.frame(
 	)
 
 data <- read.delim(
-	file = '/hot/user/jlivingstone/outlier/NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt',
+	file = file.path(
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone',
+		'NikZainal_2016/original/SupplementaryTable7Transcriptomic342.txt'
+		),
 	as.is = TRUE
 	)
 

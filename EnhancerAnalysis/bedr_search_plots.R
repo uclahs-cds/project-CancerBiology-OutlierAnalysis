@@ -14,7 +14,10 @@ dataset <- 'icgc'
 
 if (dataset == 'icgc') {
 	overlap.matrix <- read.delim(
-		file = '/hot/user/jlivingstone/outlier/2023-11-07_outlier_GeneHancer_ICGC_segment_overlap.txt',
+		file = file.path(
+			'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone'
+			'2023-11-07_outlier_GeneHancer_ICGC_segment_overlap.txt'
+			),
 		as.is = TRUE
 		)
 	filename <- generate.filename('outlier', 'ICGC_overlap_recurrcent_histogram', 'png')
@@ -32,7 +35,10 @@ if (dataset == 'icgc') {
 	}
 if (dataset == 'cpcgene') {
 	overlap.matrix <- read.delim(
-		file = '/hot/user/jlivingstone/outlier/2023-11-03_outlier_GeneHancer_CPCG_OS_overlap.txt',
+		file = file.path)
+			'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone',
+			'2023-11-03_outlier_GeneHancer_CPCG_OS_overlap.txt'
+			),
 		as.is = TRUE
 		)
 	filename <- generate.filename('outlier', 'CPCG_overlap_recurrcent_histogram', 'png')
