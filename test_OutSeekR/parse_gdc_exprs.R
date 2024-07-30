@@ -19,8 +19,8 @@ data <- read.delim(
 	as.is = TRUE
 	)
 
-tpm <- data[,grep('tpm', colnames(data))]
-fpkm <- data[,grep('uq_unstranded', colnames(data))]
+tpm <- data[grep('ENSG', data$gene_id), grep('tpm', colnames(data))]
+fpkm <- data[grep('ENSG', data$gene_id), grep('uq_unstranded', colnames(data))]
 
 # in the same order
 tpm.samples <- sub('tpm_unstranded_TCGA.', '', colnames(tpm))
@@ -34,9 +34,15 @@ for (i in 1:ncol(tpm)) {
 
 # use TPM
 colnames(tpm) <- tpm.samples
+
+# since this is a test and we want to reduce the number of genes
+# lets apply a variation cutoff > 1
+gene.var <- apply(log2(tpm + 1), 1, var, na.rm = TRUE)
+tokeep <- which(gene.var > 1)
+
 exprs <- data.frame(
-	ensembl = data$gene_id,
-	log2(tpm + 1)
+	ensembl = data$gene_id[tokeep],
+	log2(tpm + 1)[tokeep,]
 	)
 
 write.table(
