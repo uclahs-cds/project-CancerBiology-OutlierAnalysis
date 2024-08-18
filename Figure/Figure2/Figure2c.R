@@ -1,0 +1,241 @@
+
+### CHR10_CNV_ANALYSIS ##########################################################
+# This script processes CNA data for chromosome 10 across multiple datasets. 
+# It compares outlier and non-outlier samples, generates heatmaps, and 
+# combines these plots into a single multiplot figure.
+# Date: 2024-08-13
+
+### PREAMBLE ####################################################################
+library(BoutrosLab.utilities);
+library(BoutrosLab.plotting.general);
+
+
+load('2024-01-07_cnv_icgc.rda')
+load('2024-01-08_cnv_brca_gistic.rda')
+load('2024-01-08_cnv_meta_gistic.rda')
+
+### DATA EXTRACTION #############################################################
+
+# 1. Outlier Data
+brca.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
+    , substr(brca.out.sample, 1, 15), drop = FALSE
+    ];
+brca.chr10.out.symbol <- brca.cnv.chr.new.gis.fpkm.order.match.chr10$Hugo_Symbol;
+
+meta.chr10.out <- meta.cnv.chr.new.gis.fpkm.order.match.chr10[
+    , substr(na.omit(meta.out.sample), 1, 15)
+    ];
+meta.chr10.out.symbol <- meta.cnv.chr.new.gis.fpkm.order.match.chr10$Hugo_Symbol;
+
+icgc.chr10.out <- icgc.cnv.chr.new.gis.fpkm.order.match.chr.only[
+    , icgc.out.sample, drop = FALSE
+    ];
+icgc.chr10.out.symbol <- icgc.cnv.all.symbol.10;
+
+unique.chr10.symbol <- intersect(
+    brca.chr10.out.symbol, 
+    intersect(meta.chr10.out.symbol, icgc.chr10.out.symbol)
+    );
+
+# Matching Outlier Data
+brca.chr10.out.match <- brca.chr10.out[
+    brca.chr10.out.symbol %in% unique.chr10.symbol, 
+    ];
+brca.chr10.out.match <- brca.chr10.out.match[
+    !duplicated(brca.chr10.out.symbol[brca.chr10.out.symbol %in% unique.chr10.symbol]), 
+    ];
+meta.chr10.out.match <- meta.chr10.out[
+    meta.chr10.out.symbol %in% unique.chr10.symbol, 
+    ];
+meta.chr10.out.match <- meta.chr10.out.match[
+    !duplicated(meta.chr10.out.symbol[meta.chr10.out.symbol %in% unique.chr10.symbol]), 
+    ];
+icgc.chr10.out.match <- icgc.chr10.out[
+    icgc.chr10.out.symbol %in% unique.chr10.symbol, 
+    ];
+
+all.chr10.out.match <- cbind(
+    brca.chr10.out.match,
+    meta.chr10.out.match,
+    icgc.chr10.out.match
+    );
+
+
+# 2. Non-Outlier Data
+brca.chr10.non.out.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
+    brca.chr10.out.symbol %in% unique.chr10.symbol, 
+    ];
+brca.chr10.non.out.match <- brca.chr10.non.out.match[
+    !duplicated(brca.chr10.out.symbol[brca.chr10.out.symbol %in% unique.chr10.symbol]), 
+    ];
+meta.chr10.non.out.match <- meta.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
+    meta.chr10.out.symbol %in% unique.chr10.symbol, 
+    ];
+meta.chr10.non.out.match <- meta.chr10.non.out.match[
+    !duplicated(meta.chr10.out.symbol[meta.chr10.out.symbol %in% unique.chr10.symbol]), 
+    ];
+icgc.chr10.non.out.match <- icgc.cnv.chr.new.gis.fpkm.order.match.chr.out.non[
+    icgc.chr10.out.symbol %in% unique.chr10.symbol, 
+    ];
+
+all.chr10.non.out.match <- cbind(
+    brca.chr10.non.out.match,
+    meta.chr10.non.out.match,
+    icgc.chr10.non.out.match
+    );
+sample.chr10.non <- c(
+    rep('brca', ncol(brca.chr10.non.out.match)),
+    rep('meta', ncol(meta.chr10.non.out.match)),
+    rep('icgc', ncol(icgc.chr10.non.out.match))
+    );
+
+all.chr10.non.out.match.median <- apply(all.chr10.non.out.match, 1, median);
+
+### CLUSTERING AND ORDERING 
+distance_matrix.t.all.chr10.non.out.match <- dist(t(all.chr10.non.out.match), method = "euclidean");
+fit.t.all.chr10.non.out.match <- hclust(distance_matrix.t.all.chr10.non.out.match, method = "ward.D2");
+all.chr10.non.out.match.order <- all.chr10.non.out.match[, fit.t.all.chr10.non.out.match$order];
+sample.chr10.non.order <- sample.chr10.non[fit.t.all.chr10.non.out.match$order];
+
+### HEATMAP 
+chr10.out <- create.heatmap(
+    x = all.chr10.out.match,
+    clustering.method = 'none',
+    colour.scheme = c("#2166ac", "white", "#b2182b"), 
+    grid.row = FALSE, 
+    grid.col = FALSE, 
+    yaxis.tck = 0, 
+    xaxis.tck = 0,
+    yaxis.cex = 1.5,
+    yaxis.rot = 0,
+    ylab.cex = 0,
+    colour.centering.value = 0,
+    at = seq(-2, 2, 0.1),
+    colourkey.cex = 1.3,
+    print.colour.key = FALSE
+    );
+
+chr10.non <- create.heatmap(
+    x = all.chr10.non.out.match.order,
+    clustering.method = 'none',
+    colour.scheme = c("#2166ac", "white", "#b2182b"), 
+    grid.row = FALSE, 
+    grid.col = FALSE, 
+    yaxis.tck = 0, 
+    xaxis.tck = 0,
+    yaxis.cex = 1.5,
+    yaxis.rot = 0,
+    ylab.cex = 0,
+    colour.centering.value = 0,
+    at = seq(-2, 2, 0.1),
+    colourkey.cex = 1.3,
+    print.colour.key = FALSE
+    );
+
+### MULTIPLOT 
+cnv.col <- c("#2166ac", "white", "#b2182b");
+cnv.col.ramp <- colorRampPalette(cnv.col);
+cnv.col.ramp.5 <- cnv.col.ramp(5);
+
+cna.multi <- create.multiplot(
+    plot.objects = list(chr10.non, chr10.out),
+    x.relation = "sliced",
+    y.relation = "sliced",
+    main = expression('CNA of chromosome 10'),
+    xlab.label = expression('Genes on chromosome 10'),
+    ylab.label = c(
+        expression('Outlier patients'), "", "", "", 
+        expression('Non-outlier patients'), "", "", "", ""
+        ),
+    yaxis.fontface = 1,
+    plot.layout = c(1, 2),
+    main.key.padding = 3,
+    panel.heights = c(0.12, 1),
+    ylab.padding = 1,
+    y.spacing = -0.7,
+    main.cex = 1.6,
+    xaxis.cex = 0,
+    xaxis.lab = NULL,
+    xlab.padding = -10, 
+    xlab.to.xaxis.padding = -1, 
+    right.padding = 3,     
+    bottom.padding = 10,
+    yaxis.fontface = 1,
+    plot.layout = c(1, 2),
+    main.key.padding = 3,
+    panel.heights = c(0.12, 1),
+    ylab.padding = 1,
+    y.spacing = -0.7,
+    main.cex = 1.6,
+    xaxis.cex = 0,
+    xaxis.lab = NULL,
+    xlab.padding = -10, 
+    xlab.to.xaxis.padding = -1, 
+    right.padding = 3,     
+    bottom.padding = 10,
+    # Setting groups
+    legend = list(
+        bottom = list(
+            fun = draw.key,
+            args = list(
+                key = list(
+                    points = list(
+                        col = 'black',
+                        pch = 22,
+                        cex = 2.5,
+                        fill = cnv.col.ramp.5
+                        ),
+                    text = list(
+                        lab = c('Homozygous deletion', 'Hemizygous deletion', 'Neutral', 'Gain', 'High level amplification')
+                        ),
+                    padding.text = 3,
+                    cex = 1,
+                    just = 'left'
+                    )
+                )
+            )
+        ),
+    print.new.legend = TRUE,
+    yaxis.cex = 1.2,
+    yaxis.tck = 0,
+    ylab.cex = 1.15,
+    xlab.cex = 1.3,
+    xaxis.rot = 90,
+    xaxis.tck = 0,
+    xlab.key.padding = 9,
+    resolution = 500
+    );
+
+
+
+
+# Save the multi plot as a PDF
+pdf(
+    file = generate.filename(
+        'CNA_chr10', 
+        'multipanel', 
+        'pdf'
+        ), 
+    width = 10.4, 
+    height = 4.5
+    );
+cna.multi;
+dev.off();
+
+# Save the multi plot as a PNG
+png(
+    file = generate.filename(
+        'CNA_chr10', 
+        'multipanel', 
+        'png'
+        ), 
+    width = 10.4, 
+    height = 4.5,
+    unit = 'in', 
+    res = 1200
+    );
+cna.multi;
+dev.off();
+
+
+
