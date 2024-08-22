@@ -29,6 +29,16 @@ for (i in 1:length(files)) {
 		)
 	results <- rbind(results, temp)
 	}
+results.ordered <- results[order(results$seed), ]
+
+write.table(
+	x = results.ordered,
+	file = generate.filename('outlier', paste0(placeholder, 'permutation_results_bkpt_padding_1000'), 'tsv'),
+	quote = FALSE,
+	sep = '\t',
+	row.names = FALSE
+	)
+
 
 if (is.elite == TRUE) {
 	load(
@@ -45,7 +55,14 @@ if (is.elite == TRUE) {
 			)
 		)
 	}
-overlap <- which(unlist(lapply(elements.overlap, function(x) { nrow(x) })) > 0)
+overlap <- which(
+	unlist(
+		lapply(
+			X = elements.overlap,
+			FUN = function(x) { nrow(x) }
+			)
+		) > 0
+	 )
 overlap.n <- length(overlap)
 
 results$n.overlap[is.na(results$n.overlap)] <- 0
@@ -55,7 +72,7 @@ create.histogram(
 	x = results$n.overlap,,
 	filename = generate.filename('outlier', paste0('overlap_', placeholder, 'histogram_plot'), 'png'),
 	type = 'count',
-:	abline.v = overlap.n,
+	abline.v = overlap.n,
 	abline.lty = 'dashed',
 	abline.lwd = 2,
 	ylab.cex = 1,
@@ -98,7 +115,7 @@ final.outliers <- read.delim(
 
 load(
 	file = file.path(
-w		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/distance_analysis',
+		'/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/distance_analysis',
 		'2024-03-19_outlier_distance_of_mutation_to_outlier_gene_gh_element.rda'
 		)
 	)

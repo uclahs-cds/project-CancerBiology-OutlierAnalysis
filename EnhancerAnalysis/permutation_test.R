@@ -116,7 +116,7 @@ outliers <- read.delim(
 
 # ugh the WGS names aren't the same as RNA
 outliers$sample.name <- sub('R', 'D', outliers$patient)
-outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
+#outliers$sample.name <- sub('.RNA', '', outliers$sample.name)
 outliers$sample.name[grep('PD6418a.2', outliers$sample.name)] <- 'PD6418a'
 
 # need to filter out samples/genes that dont have mutation data
@@ -138,14 +138,14 @@ overlap.genes <- intersect(exprs$Name, gh$symbol)
 outliers.final <- true.outliers[match(intersect(true.outliers$outlier_genes, gh$symbol), true.outliers$outlier_genes),]
 outlier.genes <- outliers.final$outlier_genes
 
-write.table(
-	x = outliers.final,
-	file = generate.filename('outliers', 'final_outliers_overlapped_gh_exprs', 'tsv'),
-	quote = FALSE,
-	row.names = FALSE
-	)
+#write.table(
+#	x = outliers.final,
+#	file = generate.filename('outliers', 'final_outliers_overlapped_gh_exprs', 'tsv'),
+#	quote = FALSE,
+#	row.names = FALSE
+#	)
 
-# not all outlier genes are in genehancer so take overlap (n = 179)
+# not all outlier genes are in genehancer so take overlap (n = 174)
 n.outlier.genes <- length(intersect(overlap.genes, outlier.genes))
 
 # and remove outlier genes from pool
@@ -170,14 +170,16 @@ simulated.set <- list()
 
 for (i in 1:length(seeds)) {
 	print(seeds[i])
-	set.seed(seeds[i])
 
 	random.outliers <- data.frame(
 		patient = character(),
 		outlier_genes = character(),
 		stringsAsFactors = FALSE
 		)
+
+	set.seed(seeds[i])
 	picked.samples <- sample(sample.pool, n.outlier.genes, replace = TRUE)
+	set.seed(seeds[i])
 	picked.genes <- sample(overlap.genes, n.outlier.genes, replace = TRUE)
 
 	random.outliers <- data.frame(
@@ -186,7 +188,7 @@ for (i in 1:length(seeds)) {
 		stringsAsFactors = FALSE
 		)
 
-	simulated.set[[seeds[i]]] <- random.outliers
+	simulated.set[[i]] <- random.outliers
 	elements.overlap <- list()
 	gh.overlap <- list()
 
@@ -216,7 +218,7 @@ for (i in 1:length(seeds)) {
 
 		# save results per seed
 		n.overlap <- as.numeric(table(unlist(lapply(gh.overlap, function(x) { nrow(x) })) > 0)['TRUE'])
-	       	results[i, 'seed'] <- seeds[i]
+		results[i, 'seed'] <- seeds[i]
 		results[i, 'n.overlap'] <- n.overlap
 		results[i, 'percent'] <- (n.overlap / n.outlier.genes) * 100
 	}
@@ -225,7 +227,7 @@ save(
 	simulated.set,
 	file = generate.filename(
 		'outlier',
-		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_simulated_sets'),
+		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_simulated_sets', placeholder, 'bkpt_padding_1000_overlap'),
 		'rda'
 		)
 	)
@@ -234,7 +236,7 @@ write.table(
 	x = results,
 	file = generate.filename(
 		'outlier',
-		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_permutation_results_', placeholder, 'bkpt_1000_overlap'),
+		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_permutation_results_', placeholder, 'bkpt_padding_1000_overlap'),
 		'txt'
 		),
 	row.names = FALSE,
