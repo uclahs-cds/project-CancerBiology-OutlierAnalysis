@@ -122,35 +122,18 @@ five.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
     col = five.col
     );
 
-# Display the violin plot
-five.outlier.patient.violin;
-
 ### OUTPUT ######################################################################
 
-# Save the violin plot as a PDF
-pdf(
-    file = generate.filename(
-        '5_patient_number', 
-        'violin', 
-        'pdf'
-        ), 
-    width = 4.3, 
-    height = 5.3
-    );
-five.outlier.patient.violin;
-dev.off();
-
-# Save the violin plot as a PNG
-png(
-    file = generate.filename(
-        '5_patient_number', 
-        'violin', 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = five.outlier.patient.violin,
+    filename = generate.filename(
+        '5_patient_number',
+        'violin',
         'png'
-        ), 
-    width = 4.3, 
-    height = 5.3, 
-    unit = 'in', 
-    res = 1200
-    );
-five.outlier.patient.violin;
-dev.off();
+    ),
+    width = 4.3,
+    height = 5.3,
+    size.units = 'in',
+    resolution = 1200
+);

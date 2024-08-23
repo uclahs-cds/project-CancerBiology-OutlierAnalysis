@@ -1,4 +1,4 @@
-loadNamespace(library(logger));
+invisible(loadNamespace(library(logger)));
 library(BoutrosLab.utilities);
 
 logger::log_threshold(DEBUG);
@@ -11,12 +11,15 @@ logger::log_messages();
 logger::log_info('Starting up');
 load('2024-08-23_Figure1.rda');
 
-message('Figure 1c');
+subfiles <- c(
+    'Figure/Figure1/Figure1c.R',
+    'Figure/Figure1/Figure1d.R',
+    'Figure/Figure1/Figure1e.R'
+);
 
-source('Figure/Figure1/Figure1c.R');
-
-message('Figure 1d');
-
-source('Figure/Figure1/Figure1d.R');
+for (i in seq_along(subfiles)) {
+    message(subfiles[i]);
+    source(subfiles[i]);
+}
 
 logger::log_info('Shutting down');
