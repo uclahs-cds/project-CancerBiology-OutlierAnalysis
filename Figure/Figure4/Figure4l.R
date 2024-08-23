@@ -102,7 +102,7 @@ sanger.drug.breast.match.out <-list();
 sanger.drug.breast.match.non <-list();
 sanger.drug.breast.match.info <-list();
 
-for(i in1:nrow(sample.outlier.05.overlap.na.samger.match.dup.filter)){
+for(i in 1:nrow(sample.outlier.05.overlap.na.samger.match.dup.filter)){
     patient.status <- sample.outlier.05.overlap.na.samger.match.dup.filter[i,];
     drug.target <- depmap.drug.info.match.sanger.dup[depmap.drug.info.match.sanger.dup$repurposing_target %in% rownames(patient.status),];
     out.value <- sanger.drug.match.dup.ic50[match(drug.target$Drug.Name, rownames(sanger.drug.match.dup.ic50)), colnames(patient.status)[patient.status ==1], drop =FALSE];
@@ -159,7 +159,7 @@ sanger.zscore.drug.breast.match.out <-list();
 sanger.zscore.drug.breast.match.non <-list(); 
 sanger.zscore.drug.breast.match.info <-list(); 
 
-for(i in1:nrow(sample.outlier.05.overlap.na.samger.match.dup.filter)){ 
+for(i in 1:nrow(sample.outlier.05.overlap.na.samger.match.dup.filter)){
     patient.status <- sample.outlier.05.overlap.na.samger.match.dup.filter[i,]; 
     drug.target <- depmap.drug.info.match.sanger.dup[depmap.drug.info.match.sanger.dup$repurposing_target %in% rownames(patient.status),]; 
     out.value <- sanger.drug.match.dup.zscore[match(drug.target$Drug.Name, rownames(sanger.drug.match.dup.zscore)), colnames(patient.status)[patient.status ==1], drop =FALSE]; 
