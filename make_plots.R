@@ -1,16 +1,16 @@
-library(logger);
+loadNamespace(library(logger));
 library(BoutrosLab.utilities);
 
-log_threshold(DEBUG);
+logger::log_threshold(DEBUG);
 
-log.filename <- paste0('plotting_', format(Sys.time(), '%Y%m%d_%H%M%S'), '.log');
+logger::log_appender(logger::appender_file('plotting.log'));
+logger::log_errors();
+logger::log_warnings();
+logger::log_messages();
 
-log_appender(appender_tee(log.filename))
-log_errors();
-log_warnings();
-log_messages();
-
-log_info('Starting up');
+logger::log_info('Starting up');
 load('2024-08-23_Figure1.rda');
 
 source('Figure/Figure1/Figure1c.R');
+
+logger::log_info('Shutting down');
