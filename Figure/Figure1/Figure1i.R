@@ -1,6 +1,7 @@
 ### HISTORY #####################################################################
 # This script generates a Manhattan plot of all genes from five datasets, 
 # highlighting the distribution of outlier genes across chromosomes.
+# The analysis is connected to Figure 1f,g.
 # Date: 2024-08-16
 
 
@@ -28,13 +29,13 @@ process.gene.position <- function(gene.position, gene.rank, chromosome.col = "ch
     };
 
 # Process data for each dataset
-gene.position.brca.all.order.fdr.na.chr <- process.gene.position(gene.position.brca.all, gene.rank.order.cosine.observed.p.value.max.filter.1.brca);
-gene.position.meta.all.order.fdr.na.chr <- process.gene.position(gene.position.meta.all, gene.rank.order.cosine.observed.p.value.meta);
-gene.position.ispy.all.order.fdr.na.chr <- process.gene.position(gene.position.ispy.all, gene.rank.order.cosine.observed.p.value.ispy);
-gene.position.metador.all.order.fdr.na.chr <- process.gene.position(gene.position.metador.all, gene.rank.order.cosine.observed.p.value.metador);
+gene.position.brca.all.order.fdr.na.chr <- process.gene.position(gene.position.brca.all, outlier.gene.fdr.all.brca);
+gene.position.meta.all.order.fdr.na.chr <- process.gene.position(gene.position.meta.all, outlier.gene.fdr.all.meta);
+gene.position.ispy.all.order.fdr.na.chr <- process.gene.position(gene.position.ispy.all, outlier.gene.fdr.01.ispy);
+gene.position.metador.all.order.fdr.na.chr <- process.gene.position(gene.position.metador.all, outlier.gene.fdr.01.matador);
 
 # Process ICGC data
-locations <- fpkm.data.icgc$loc[as.numeric(rownames(gene.rank.order.cosine.observed.p.value.icgc))];
+locations <- fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))];
 
 split.location <- function(location) {
     parts <- strsplit(location, ":|\\-")[[1]];
@@ -46,12 +47,12 @@ location.df <- data.frame(split.locations, stringsAsFactors = FALSE);
 names(location.df) <- c("Chromosome", "Start", "End");
 
 gene.position.icgc.all.order.fdr <- data.frame(
-    symbol = fpkm.data.icgc$Name[as.numeric(rownames(gene.rank.order.cosine.observed.p.value.icgc))],
+    symbol = fpkm.data.icgc$Name[as.numeric(rownames(outlier.gene.fdr.all.icgc))],
     location.df,
-    fdr = gene.rank.order.cosine.observed.p.value.icgc$fdr
+    fdr = outlier.gene.fdr.all.icgc$fdr
     );
 
-gene.position.icgc.all.order.fdr.na.chr <- process.gene.position(gene.position.icgc.all.order.fdr, gene.rank.order.cosine.observed.p.value.icgc, "Chromosome", "Start");
+gene.position.icgc.all.order.fdr.na.chr <- process.gene.position(gene.position.icgc.all.order.fdr, outlier.gene.fdr.all.icgc, "Chromosome", "Start");
 
 # Combine all datasets
 all.gene.location <- rbind(

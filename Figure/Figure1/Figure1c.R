@@ -17,67 +17,164 @@ library(BoutrosLab.plotting.general);
 
 ### DATA PREPARATION ############################################################
 
-# Create a summary table of the overlap data
-outlier.patient.overlap.summary <- data.frame(
-    table(outlier.patient.all.five.01.overlap.sum)
+five.data.outlier.symbol <- unique(
+    c(metabric.outlier.symbol, 
+      brca.outlier.symbol, 
+      matador.outlier.symbol, 
+      ispy.outlier.symbol, 
+      icgc.outlier.symbol)
+    );
+five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol); 
+# Remove NA values from 'five.data.outlier.symbol'
+
+### 1. MATADOR
+# Find the position of "_" in Metador data row names
+outlier.patient.tag.01.metador.pos <- which(
+    strsplit(rownames(outlier.patient.tag.01.metador), "")[[1]] == "_"
+    );
+# Extract the substring after "_"
+outlier.patient.tag.01.metador.symbol <- substring(
+    rownames(outlier.patient.tag.01.metador), 
+    outlier.patient.tag.01.metador.pos + 1
+    );
+# Match and extract rows from Metador data based on 'five.data.outlier.symbol.na'
+outlier.patient.tag.01.metador.match.five <- outlier.patient.tag.01.metador[
+    match(five.data.outlier.symbol.na, outlier.patient.tag.01.metador.symbol), 
+    ];
+
+### 2. TCGA-BRCA
+outlier.patient.tag.01.brca.symbol <- fpkm.tumor.symbol.filter.brca[
+    rownames(outlier.patient.tag.01.brca), 
+    ]$Symbol;
+outlier.patient.tag.01.brca.match.five <- outlier.patient.tag.01.brca[
+    match(five.data.outlier.symbol.na, outlier.patient.tag.01.brca.symbol), 
+    ];
+
+
+### 3. METABRIC
+outlier.patient.tag.01.meta.symbol <- fpkm.tumor.symbol.filter.meta.symbol[
+    rownames(outlier.patient.tag.01.meta), 
+    ]$Symbol;
+outlier.patient.tag.01.meta.match.five <- outlier.patient.tag.01.meta[
+    match(five.data.outlier.symbol.na, outlier.patient.tag.01.meta.symbol), 
+    ];
+
+
+### 4. ISPY-2
+outlier.patient.tag.01.ispy.symbol <- rownames(outlier.patient.tag.01.ispy);
+outlier.patient.tag.01.ispy.match.five <- outlier.patient.tag.01.ispy[
+    match(five.data.outlier.symbol.na, outlier.patient.tag.01.ispy.symbol), 
+    ];
+
+
+### 5. ICGC BRCA-EU
+outlier.patient.tag.01.icgc.symbol <- fpkm.tumor.symbol.filter.symbol.icgc[
+    rownames(outlier.patient.tag.01.icgc), 
+    ]$Symbol;
+# Match and extract rows from ICGC data based on 'five.data.outlier.symbol.na'
+outlier.patient.tag.01.icgc.match.five <- outlier.patient.tag.01.icgc[
+    match(five.data.outlier.symbol.na, outlier.patient.tag.01.icgc.symbol), 
+    ];
+
+
+
+# Combine matched data from all sources into a single data frame
+outlier.patient.all.five.01 <- data.frame(
+    cbind(
+        outlier.patient.tag.01.brca.match.five,
+        outlier.patient.tag.01.meta.match.five,
+        outlier.patient.tag.01.ispy.match.five,
+        outlier.patient.tag.01.metador.match.five,
+        outlier.patient.tag.01.icgc.match.five
+        )
     );
 
-# Rename the columns
-colnames(outlier.patient.overlap.summary) <- c('patient', 'number');
+# Set row names of the combined data frame
+rownames(outlier.patient.all.five.01) <- five.data.outlier.symbol.na;
 
-# Add extrapolated values and their logarithmic transformation
-outlier.patient.overlap.summary$ext <- 100000 / as.numeric(outlier.patient.overlap.summary$patient);
-outlier.patient.overlap.summary$ext.log <- log10(outlier.patient.overlap.summary$ext);
-outlier.patient.overlap.summary$fraction <- outlier.patient.overlap.summary$number / sum(outlier.patient.overlap.summary$number);
+# Calculate the sum of non-NA values for each row
+outlier.patient.all.five.01.sum <- apply(
+    outlier.patient.all.five.01, 
+    1, 
+    function(x) { sum(na.omit(x)) }
+    );
 
-# Fit a smoothing spline to the data
-smooth.line.ext <- smooth.spline(
-    outlier.patient.overlap.summary$ext.log, 
-    outlier.patient.overlap.summary$fraction * 100, 
+# Calculate the fraction of the sum relative to the total number of columns
+outlier.patient.all.five.01.sum.fraction <- as.numeric(outlier.patient.all.five.01.sum) / ncol(outlier.patient.all.five.01) * 100;
+
+# Calculate the number of patients required to observe outlier gene
+outlier.patient.all.five.01.sum.fraction.number.patient <- 100 / outlier.patient.all.five.01.sum.fraction;
+
+# Create a table of the log-transformed number of patients
+outlier.patient.all.five.01.sum.fraction.number.patient.table <- data.frame(
+    table(
+        log10(outlier.patient.all.five.01.sum.fraction.number.patient)
+        )
+    );
+
+# Calculate the percentage for each frequency
+outlier.patient.all.five.01.sum.fraction.number.patient.table$percent <- 
+    outlier.patient.all.five.01.sum.fraction.number.patient.table$Freq / 
+    sum(outlier.patient.all.five.01.sum.fraction.number.patient.table$Freq);
+
+# Convert the first column to numeric
+outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1 <- as.numeric(
+    as.vector(outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1)
+    );
+
+# Smooth the line using a spline
+smooth_line <- smooth.spline(
+    outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1, 
+    outlier.patient.all.five.01.sum.fraction.number.patient.table$percent * 100, 
     spar = 0.7
     );
 
 ### PREDICTION ##################################################################
 
-# Generate predicted values for the extrapolated line
-predicted.values.ext <- data.frame(
+# Generate predicted values over a sequence of Var1
+predicted_values <- data.frame(
     Var1 = seq(
-        min(outlier.patient.overlap.summary$ext.log), 
-        max(outlier.patient.overlap.summary$ext.log), 
+        min(outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1), 
+        max(outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1), 
         length.out = 100
-        )
-    );
-predicted.values.ext$predicted <- predict(smooth.line.ext, x = predicted.values.ext$Var1)$y;
+    )
+);
+
+# Predict y-values using the smooth line
+predicted_values$predicted <- predict(smooth_line, x = predicted_values$Var1)$y;
 
 ### SMOOTHING FUNCTION ##########################################################
 
 # Convert the smoothed spline into a function
-smooth.func.ext <- list(function(x) {
-    predict(smooth.line.ext, x)$y;
-    });
+smooth_func <- list(
+    function(x) {
+        predict(smooth_line, x)$y
+    }
+);
+
 
 ### PLOTTING ####################################################################
 
 # Create a scatter plot with the smoothed spline curve
-scatter.smooth.line.ext <- create.scatterplot(
-    formula = fraction * 100 ~ ext.log,
-    data = outlier.patient.overlap.summary,
+scatter.smooth.line <- create.scatterplot(
+    percent*100 ~ Var1,
+    data = outlier.patient.all.five.01.sum.fraction.number.patient.table,
     type = c("p"),
     main = expression('Number of patients needed to observe outlier gene'),
     main.cex = 1.3,
     ylab.label = expression('Percent'),
-    xlab.lab = expression('Required sample size'),
-    xlimits = c(-0.02, 5.4),
-    ylimits = c(-2.5, 65),
-    xat = c(log10(1), log10(10), log10(100), log10(1000), log10(10000), log10(100000)),
-    xaxis.lab = c(0, 10, 100, 1000, 10000, 100000),
+    xlab.lab = expression('Outlier Frequency'),
+    xlimits = c(-0.02, 4.09),
+    ylimits = c(-2.5, 59),
+    xat = c(log10(1),log10(10), log10(100), log10(1000), log10(10000)),
+    xaxis.lab = c(0, 10, 100, 1000, 10000),
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
     xaxis.cex = 1,
     yaxis.cex = 1,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
-    cex = 1.2,
+    cex = 1.4,
     pch = 21,
     col = 'orange',
     col.border = 'black',
@@ -90,9 +187,9 @@ scatter.smooth.line.ext <- create.scatterplot(
     abline.col = 'grey30',
     abline.lwd = 1.5,
     add.curves = TRUE,
-    curves.exprs = smooth.func.ext,
-    curves.from = min(outlier.patient.overlap.summary$ext.log),
-    curves.to = max(outlier.patient.overlap.summary$ext.log),
+    curves.exprs = smooth_func,
+    curves.from = min(outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1),
+    curves.to = max(outlier.patient.all.five.01.sum.fraction.number.patient.table$Var1),
     curves.col = 'grey15',
     curves.lwd = 3.5,
     curves.lty = 1,
@@ -100,30 +197,31 @@ scatter.smooth.line.ext <- create.scatterplot(
     ygrid.at = seq(0, 60, 10),
     xgrid.at = c(log10(10), log10(100), log10(1000), log10(10000)),
     grid.colour = 'grey90'
-    );
+);
 
 # Display the plot
-scatter.smooth.line.ext;
+scatter.smooth.line;
+
 
 ### OUTPUT ######################################################################
 
 # Save the plot as a PDF
 pdf(
     file = generate.filename(
-        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline_fromzero', 
+        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 
         'scatter', 
         'pdf'
         ), 
     width = 5.5, 
     height = 5
     );
-scatter.smooth.line.ext;
+scatter.smooth.line;
 dev.off();
 
 # Save the plot as a PNG
 png(
     file = generate.filename(
-        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline_fromzero', 
+        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 
         'scatter', 
         'png'
         ), 
@@ -132,5 +230,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-scatter.smooth.line.ext;
+scatter.smooth.line;
 dev.off();

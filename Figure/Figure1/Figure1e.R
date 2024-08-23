@@ -11,26 +11,35 @@
 
 ### PREAMBLE ####################################################################
 # Create data frames for each dataset representing the number of outlier genes per patient
+outlier.patient.tag.01.brca.gene.per.patient.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 brca.outlier.patient.number.frame <- data.frame(
     sample = rep('TCGA-BRCA', length(patient.part.brca)), 
     value = as.numeric(outlier.patient.tag.01.brca.gene.per.patient.sum)
     );
 
+
+outlier.patient.tag.01.ispy.gene.per.patient.sum <- apply(outlier.patient.tag.01.ispy, 2, sum);
 ispy.outlier.patient.number.frame <- data.frame(
     sample = rep('ISPY', length(patient.part.ispy)), 
     value = as.numeric(outlier.patient.tag.01.ispy.gene.per.patient.sum)
     );
 
+
+outlier.patient.tag.01.meta.gene.per.patient.sum <- apply(outlier.patient.tag.01.meta, 2, sum);
 meta.outlier.patient.number.frame <- data.frame(
     sample = rep('METABRIC', length(patient.part.meta)), 
     value = as.numeric(outlier.patient.tag.01.meta.gene.per.patient.sum)
     );
 
+
+outlier.patient.tag.01.metador.gene.per.patient.sum <- apply(outlier.patient.tag.01.metador, 2, sum);
 metador.outlier.patient.number.frame <- data.frame(
     sample = rep('METADOR', length(patient.part.metador)), 
     value = as.numeric(outlier.patient.tag.01.metador.gene.per.patient.sum)
     );
 
+
+outlier.patient.tag.01.icgc.gene.per.patient.sum <- apply(outlier.patient.tag.01.icgc, 2, sum);
 icgc.outlier.patient.number.frame <- data.frame(
     sample = rep('ICGC BRCA-EU', length(patient.part.icgc)), 
     value = as.numeric(outlier.patient.tag.01.icgc.gene.per.patient.sum)

@@ -14,131 +14,145 @@ library(BoutrosLab.plotting.general);
 
 ### DATA PREPARATION ############################################################
 
-i <- 'TMEM30A';
+genes <- c('TMEM30A', 'IGF2', 'GAPDH', 'B2M', 'NRAS', 'ACTB'); # 여섯 개의 유전자
 
-# Extract data for the specified gene across different datasets
-metador.i <- fpkm.tumor.symbol.filter.metador.symbol[
-    fpkm.tumor.symbol.filter.metador.symbol$Symbol %in% i, 
-    patient.part.metador
-    ];
-
-ispy.i <- fpkm.tumor.symbol.filter.ispy[
-    rownames(fpkm.tumor.symbol.filter.ispy) %in% i, 
-    patient.part.ispy
-    ];
-
-meta.i <- na.omit(
-    fpkm.tumor.symbol.filter.meta.symbol[
-        fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i, 
-        patient.part.meta
-        ]
-    );
-
-brca.i <- fpkm.tumor.symbol.filter.brca[
-    fpkm.tumor.symbol.filter.brca$Symbol %in% i, 
-    patient.part.brca
-    ];
-
-icgc.i <- fpkm.tumor.symbol.filter.icgc[
-    fpkm.tumor.symbol.filter.symbol.icgc$Symbol %in% i, 
-    ];
-
-### OUTLIER STATUS ##############################################################
-
-# Calculate the outlier status for each dataset
-outlier.status.brca <- outlier.patient.tag.01.brca[
-    rownames(fpkm.tumor.symbol.filter.brca[
+for (i in genes) {
+    
+    # Extract data for the specified gene across different datasets
+    metador.i <- fpkm.tumor.symbol.filter.metador.symbol[
+        fpkm.tumor.symbol.filter.metador.symbol$Symbol %in% i, 
+        patient.part.metador
+        ];
+    
+    ispy.i <- fpkm.tumor.symbol.filter.ispy[
+        rownames(fpkm.tumor.symbol.filter.ispy) %in% i, 
+        patient.part.ispy
+        ];
+    
+    meta.i <- na.omit(
+        fpkm.tumor.symbol.filter.meta.symbol[
+            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i, 
+            patient.part.meta
+            ]
+        );
+        
+    brca.i <- fpkm.tumor.symbol.filter.brca[
         fpkm.tumor.symbol.filter.brca$Symbol %in% i, 
-        ]), 
-    ];
-
-outlier.status.meta <- outlier.patient.tag.01.meta[
-    rownames(fpkm.tumor.symbol.filter.meta.symbol[
-        fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i, 
-        patient.part.meta
-        ]), 
-    ];
-
-outlier.status.ispy <- outlier.patient.tag.01.ispy[
-    gsub(".*_", "", rownames(outlier.patient.tag.01.ispy)) %in% i, 
-    ];
-
-outlier.status.metador <- outlier.patient.tag.01.metador[
-    gsub(".*_", "", rownames(outlier.patient.tag.01.metador)) %in% i, 
-    ];
-
-outlier.status.icgc <- outlier.patient.tag.01.icgc[
-    fpkm.tumor.symbol.filter.symbol.icgc[
-        rownames(outlier.patient.tag.01.icgc), 
-        ]$Symbol %in% i, 
-    ];
-
-# Convert outlier statuses to numeric and handle missing values
-outlier.status.metador <- as.numeric(outlier.status.metador);
-outlier.status.metador[is.na(outlier.status.metador)] <- 0;
-
-outlier.status.ispy <- as.numeric(outlier.status.ispy);
-outlier.status.ispy[is.na(outlier.status.ispy)] <- 0;
-
-outlier.status.meta <- as.numeric(outlier.status.meta);
-outlier.status.meta[is.na(outlier.status.meta)] <- 0;
-
-outlier.status.brca <- as.numeric(outlier.status.brca);
-outlier.status.brca[is.na(outlier.status.brca)] <- 0;
-
-outlier.status.icgc <- as.numeric(outlier.status.icgc);
-outlier.status.icgc[is.na(outlier.status.icgc)] <- 0;
-
-### COMBINING OUTLIER STATUS ###################################################
-
-# Combine outlier status from all datasets
-outlier.status.all <- c(
-    outlier.status.metador, 
-    outlier.status.ispy,
-    outlier.status.meta,
-    outlier.status.brca,
-    outlier.status.icgc
+        patient.part.brca
+        ];
+    
+    icgc.i <- fpkm.tumor.symbol.filter.icgc[
+        fpkm.tumor.symbol.filter.symbol.icgc$Symbol %in% i, 
+        ];
+    
+    ### OUTLIER STATUS ##############################################################
+    
+    # Calculate the outlier status for each dataset
+    outlier.status.brca <- outlier.patient.tag.01.brca[
+        rownames(fpkm.tumor.symbol.filter.brca[
+            fpkm.tumor.symbol.filter.brca$Symbol %in% i, 
+            ]), 
+        ];
+        
+    outlier.status.meta <- outlier.patient.tag.01.meta[
+        rownames(fpkm.tumor.symbol.filter.meta.symbol[
+            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i, 
+            patient.part.meta
+            ]), 
+        ];
+        
+    outlier.status.ispy <- outlier.patient.tag.01.ispy[
+        gsub(".*_", "", rownames(outlier.patient.tag.01.ispy)) %in% i, 
+        ];
+    
+    outlier.status.metador <- outlier.patient.tag.01.metador[
+        gsub(".*_", "", rownames(outlier.patient.tag.01.metador)) %in% i, 
+        ];
+    
+    outlier.status.icgc <- outlier.patient.tag.01.icgc[
+        fpkm.tumor.symbol.filter.symbol.icgc[
+            rownames(outlier.patient.tag.01.icgc), 
+            ]$Symbol %in% i, 
+        ];
+    
+    # Convert outlier statuses to numeric and handle missing values
+    outlier.status.metador <- as.numeric(outlier.status.metador);
+    outlier.status.metador[is.na(outlier.status.metador)] <- 0;
+    
+    outlier.status.ispy <- as.numeric(outlier.status.ispy);
+    outlier.status.ispy[is.na(outlier.status.ispy)] <- 0;
+    
+    outlier.status.meta <- as.numeric(outlier.status.meta);
+    outlier.status.meta[is.na(outlier.status.meta)] <- 0;
+    
+    outlier.status.brca <- as.numeric(outlier.status.brca);
+    outlier.status.brca[is.na(outlier.status.brca)] <- 0;
+    
+    outlier.status.icgc <- as.numeric(outlier.status.icgc);
+    outlier.status.icgc[is.na(outlier.status.icgc)] <- 0;
+    
+    ### COMBINING OUTLIER STATUS ###################################################
+    
+    # Combine outlier status from all datasets
+    outlier.status.all <- c(
+        outlier.status.metador, 
+        outlier.status.ispy,
+        outlier.status.meta,
+        outlier.status.brca,
+        outlier.status.icgc
+        );
+    
+    ### CALCULATING MEANS AND SD ###################################################
+    
+    # Calculate the mean and standard deviation for non-outlier patients in each dataset
+    outlier.status.brca.mean <- mean(as.numeric(brca.i)[outlier.status.brca == 0]);
+    outlier.status.meta.mean <- mean(as.numeric(meta.i)[outlier.status.meta == 0]);
+    outlier.status.ispy.mean <- mean(na.omit(as.numeric(ispy.i)[outlier.status.ispy == 0]));
+    outlier.status.metador.mean <- mean(as.numeric(metador.i)[outlier.status.metador == 0]);
+    outlier.status.icgc.mean <- mean(as.numeric(icgc.i)[outlier.status.icgc == 0]);
+    
+    outlier.status.brca.sd <- sd(as.numeric(brca.i)[outlier.status.brca == 0]);
+    outlier.status.meta.sd <- sd(as.numeric(meta.i)[outlier.status.meta == 0]);
+    outlier.status.ispy.sd <- sd(na.omit(as.numeric(ispy.i)[outlier.status.ispy == 0]));
+    outlier.status.metador.sd <- sd(as.numeric(metador.i)[outlier.status.metador == 0]);
+    outlier.status.icgc.sd <- sd(as.numeric(icgc.i)[outlier.status.icgc == 0]);
+    
+    ### CALCULATING Z-SCORES #######################################################
+    
+    # Calculate the z-scores for each dataset
+    metador.i.z <- (metador.i - outlier.status.metador.mean) / outlier.status.metador.sd;
+    ispy.i.z <- (ispy.i - outlier.status.ispy.mean) / outlier.status.ispy.sd;
+    meta.i.z <- (meta.i - outlier.status.meta.mean) / outlier.status.meta.sd;
+    brca.i.z <- (brca.i - outlier.status.brca.mean) / outlier.status.brca.sd;
+    icgc.i.z <- (icgc.i - outlier.status.icgc.mean) / outlier.status.icgc.sd;
+    
+    # Combine all z-scores into a single vector
+    five.i.z <- c(
+        as.numeric(metador.i.z), 
+        as.numeric(ispy.i.z), 
+        as.numeric(meta.i.z), 
+        as.numeric(brca.i.z), 
+        as.numeric(icgc.i.z)
+        );
+    
+    # Store the z-scores and outlier status in variables
+    gene.z.score <- paste(i, '.z.score', sep = '');
+    assign(gene.z.score, five.i.z);
+    
+    gene.outlier.status <- paste(i, '.outlier.status', sep = '');
+    assign(gene.outlier.status, outlier.status.all);
+    
+    ### DATA FRAME PREPARATION #####################################################
+    
+    # Create data frames for each gene's z-scores
+    assign(paste(i, ".i.frame.z", sep = ''), data.frame(
+        sample = rep(i, length(get(gene.z.score))), 
+        value = as.numeric(get(gene.z.score))
+        )
     );
+    
+    }
 
-### CALCULATING MEANS AND SD ###################################################
-
-# Calculate the mean and standard deviation for non-outlier patients in each dataset
-outlier.status.brca.mean <- mean(as.numeric(brca.i)[outlier.status.brca == 0]);
-outlier.status.meta.mean <- mean(as.numeric(meta.i)[outlier.status.meta == 0]);
-outlier.status.ispy.mean <- mean(na.omit(as.numeric(ispy.i)[outlier.status.ispy == 0]));
-outlier.status.metador.mean <- mean(as.numeric(metador.i)[outlier.status.metador == 0]);
-outlier.status.icgc.mean <- mean(as.numeric(icgc.i)[outlier.status.icgc == 0]);
-
-outlier.status.brca.sd <- sd(as.numeric(brca.i)[outlier.status.brca == 0]);
-outlier.status.meta.sd <- sd(as.numeric(meta.i)[outlier.status.meta == 0]);
-outlier.status.ispy.sd <- sd(na.omit(as.numeric(ispy.i)[outlier.status.ispy == 0]));
-outlier.status.metador.sd <- sd(as.numeric(metador.i)[outlier.status.metador == 0]);
-outlier.status.icgc.sd <- sd(as.numeric(icgc.i)[outlier.status.icgc == 0]);
-
-### CALCULATING Z-SCORES #######################################################
-
-# Calculate the z-scores for each dataset
-metador.i.z <- (metador.i - outlier.status.metador.mean) / outlier.status.metador.sd;
-ispy.i.z <- (ispy.i - outlier.status.ispy.mean) / outlier.status.ispy.sd;
-meta.i.z <- (meta.i - outlier.status.meta.mean) / outlier.status.meta.sd;
-brca.i.z <- (brca.i - outlier.status.brca.mean) / outlier.status.brca.sd;
-icgc.i.z <- (icgc.i - outlier.status.icgc.mean) / outlier.status.icgc.sd;
-
-# Combine all z-scores into a single vector
-five.i.z <- c(
-    as.numeric(metador.i.z), 
-    as.numeric(ispy.i.z), 
-    as.numeric(meta.i.z), 
-    as.numeric(brca.i.z), 
-    as.numeric(icgc.i.z)
-    );
-
-# Store the z-scores and outlier status in variables
-gene.z.score <- paste(i, '.z.score', sep = '');
-assign(gene.z.score, five.i.z);
-
-gene.outlier.status <- paste(i, '.outlier.status', sep = '');
-assign(gene.outlier.status, outlier.status.all);
 
 
 ### DATA FRAME PREPARATION #####################################################

@@ -238,178 +238,149 @@ data.fraction.kmean.t <- data.frame(t(data.fraction.kmean));
 
 
 # 5. Cosine similarity
+
+identify.bic.optimal.distribution <- function(x) {
+    # Define a minimum value
+    add.minimum.value <- least.significant.digit(x);
+    x.trimmed <- trim.sample(x, 0.05)
+    x.trimmed.nozero <- x.trimmed + add.minimum.value;
+
+    # Fit a model of each candidate distribution to the data.
+    glm.norm <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=NO, control = gamlss.control(trace = FALSE)));
+    glm.lnorm <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=LNO, control = gamlss.control(trace = FALSE)));
+    glm.gamma <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=GA, control = gamlss.control(trace = FALSE)));
+    glm.exp <- suppressWarnings(gamlss(x.trimmed.nozero ~ 1, family=EXP, control = gamlss.control(trace = FALSE)));
+
+    # Return the index of the distribution with the smallest BIC,
+    # which `outlier.detection.cosine` can use to choose the optimal
+    # distribution for computing cosine similarity.
+    which.min(c(glm.norm$sbc, glm.lnorm$sbc, glm.exp$sbc, glm.gamma$sbc));
+    }
+
+
 # function: Compute the cosine similarity of the largest data point
-outlier.detection.cosine <- function (x, value.portion = 1) {
-
-        # Define a minimum value
-    decimal.number.max <- lapply(na.omit(x), function(x) {
-        decimal.numbers <- sapply(x, function(y) {
-            nchar(as.character(y)) - nchar(as.integer(y)) - 1
-            })
-        return(decimal.numbers)
-        })    
-    add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
-
-    # function: Compute the cosine similarity of the largest data point
-    cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
-
-        # rounding function
-        roundToInteger <- function(z) round(z, digits = 0)
-
-        # check if large value percent is zero
-        if (0 == large.value.percent) {
-            large.value.number.integer <- 1;
-            }
-        else {
-            large.value.number <- length(x) * (large.value.percent/100);
-            large.value.number.integer <- roundToInteger(large.value.number);
-            }
-        
-        # subset the largest values
-        patient.larger.value <- (length(x)-large.value.number.integer + 1):length(x);
-        observed.value <- sort(y);
-        theoretical.value <- sort(x);
-        mid.value <- c(1, 1);
-        value.x.y <- data.frame(theoretical.value, observed.value);
-
-        # calculate cosine similarity
-        cosine.large.value <- NULL;
-        cosine.large.value <- sapply(patient.larger.value, function(i) {
-            cosine(as.numeric(value.x.y[i,]), c(1, 1))
-            })
-        cosine.large.value;
+cosine.similarity.large.value.percent <- function(x, y, large.value.percent) {
+    # check if large value percent is zero
+    if (0 == large.value.percent) {
+        large.value.number.integer <- 1;
+        } else {
+        large.value.number <- length(x) * (large.value.percent/100);
+        large.value.number.integer <- round(large.value.number);
         }
 
-    sample.fpkm.qq <- na.omit(as.numeric(x[sample.number]))
-    sample.fpkm.qq.nozero <- sample.fpkm.qq + add.minimum.value;
-    
+    # subset the largest values
+    patient.larger.value <- (length(x)-large.value.number.integer + 1):length(x);
+    observed.value <- sort(y);
+    theoretical.value <- sort(x);
+    mid.value <- c(1, 1);
+    value.x.y <- data.frame(theoretical.value, observed.value);
 
+    # calculate cosine similarity
+    cosine.large.value <- NULL;
+    cosine.large.value <- sapply(
+        X = patient.larger.value,
+        FUN = function(i) {
+            cosine(as.numeric(value.x.y[i,]), mid.value);
+            }
+        );
+    cosine.large.value;
+    }
+
+
+# function: Compute the cosine similarity of the largest data point
+outlier.detection.cosine <- function (x, distr, value.portion = 1) {
+    # Define a minimum value
+    add.minimum.value <- least.significant.digit(x);
+
+    x.nozero <- x + add.minimum.value;
     # Trimmed samples -Trim 5% of each side
-    sample.trim.number <- trim.sample(seq(length(sample.fpkm.qq.nozero)), 0.05);
-    sample.fpkm.qq.trim <- sort(sample.fpkm.qq)[sample.trim.number];
-    sample.fpkm.qq.nozero.trim <- sample.fpkm.qq.trim + add.minimum.value;
-
+    x.trim <- trim.sample(x, 0.05);
+    x.nozero.trim <- x.trim + add.minimum.value;
     
     # Quantile
-    p <- ppoints(sample.fpkm.qq.nozero);
+    p <- ppoints(x.nozero);
     
-    # Distribution
-    distribution.fit <- as.numeric(x[length(x)]);
-    
-    if (1 == distribution.fit){
+    if (1 == distr) {
         # 1. Normal distribution
-        norm.mean <- mean(sample.fpkm.qq.nozero.trim);
-        norm.sd <- sd(sample.fpkm.qq.nozero.trim);
+        norm.mean <- mean(x.nozero.trim);
+        norm.sd <- sd(x.nozero.trim);
         # Use truncated norm
         norm.quantiles <- qtruncnorm(p, a=0, b=Inf, mean = norm.mean, sd = norm.sd);
-        obs.quantile.norm <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.norm <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(norm.quantiles, obs.quantile.norm, large.value.percent = value.portion);
-        }
-    else if (2 == distribution.fit) {
+        } else if (2 == distr) {
         # 2. Log-normal distribution
-        mean.log <- mean(sample.fpkm.qq.nozero.trim);
-        sd.log <- sd(sample.fpkm.qq.nozero.trim);
+        mean.log <- mean(x.nozero.trim);
+        sd.log <- sd(x.nozero.trim);
         m2 <-  log(mean.log^2 / sqrt(sd.log^2 + mean.log^2));
         sd2 <- sqrt(log(1 + (sd.log^2 / mean.log^2)));
         lnorm.quantile <- qlnorm(p, meanlog = m2, sdlog = sd2);
-        obs.quantile.lnorm <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.lnorm <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(lnorm.quantile, obs.quantile.lnorm, large.value.percent = value.portion);
-        }
-    else if (3 == distribution.fit) {
+        } else if (3 == distr) {
         # 3. Exponential distribution
-        exp.rate <- 1 / mean(sample.fpkm.qq.nozero.trim);
+        exp.rate <- 1 / mean(x.nozero.trim);
         exp.quantile <- qexp(p, rate = exp.rate);
-        obs.quantile.exp <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.exp <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(exp.quantile, obs.quantile.exp, large.value.percent = value.portion);
-        }
-    else if (4 == distribution.fit) {
+        } else if (4 == distr) {
         ### 4 gamma distribution
-        mean.gamma <- mean(sample.fpkm.qq.nozero.trim);
-        sd.gamma <- sd(sample.fpkm.qq.nozero.trim);
+        mean.gamma <- mean(x.nozero.trim);
+        sd.gamma <- sd(x.nozero.trim);
         gamma.shape <- (mean.gamma/sd.gamma)^2;
         gamma.rate <- mean.gamma/(sd.gamma^2);
         gamma.quantile <- qgamma(p, shape = gamma.shape, rate = gamma.rate);
-        obs.quantile.gamma <- quantile(sample.fpkm.qq.nozero, prob = p);
+        obs.quantile.gamma <- quantile(x.nozero, prob = p);
         last.cos <- cosine.similarity.large.value.percent(gamma.quantile, obs.quantile.gamma, large.value.percent = value.portion);
         }
 
-    cosine.sum.distribution.fit <- c(last.cos, distribution.fit);
+    cosine.sum.distribution.fit <- c(last.cos, distr);
     cosine.sum.distribution.fit;
     }
 
 
-# Determine the distribution
 # Find the best fitted distribution
+# - BIC
 cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, "trim.sample");
+clusterExport(cl, c('trim.sample', 'identify.bic.optimal.distribution'));
 clusterEvalQ(cl, library(gamlss));
 
-# Define a minimum value
-random.col <- sample(patient.part, 1)
-decimal.number.max <- lapply(na.omit(fpkm.tumor.symbol.filter[,random.col]), function(x) {
-    decimal.numbers <- sapply(x, function(y) {
-        nchar(as.character(y)) - nchar(as.integer(y)) - 1
-        })
-    return(decimal.numbers)
-    })    
-add.minimum.value <- 1 / 10^as.numeric(max(unlist(decimal.number.max)));
-
-
-bic.trim.distribution <- NULL;
-
-# Use foreach to iterate over the rows of fpkm.tumor.symbol.filter in parallel
-bic.trim.distribution <- foreach(j = 1:nrow(fpkm.tumor.symbol.filter), .combine = rbind) %dopar% {
-    sample.fpkm.qq <- round(as.numeric(fpkm.tumor.symbol.filter[j,patient.part]), digits = 6);
-    sample.fpkm.qq.trimmed <- trim.sample(sample.fpkm.qq, 0.05)
-    sample.fpkm.qq.trimmed.nozero <- sample.fpkm.qq.trimmed + add.minimum.value;
-    
-    
-    glm.norm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=NO);
-    glm.lnorm <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=LNO);
-    glm.gamma <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=GA);
-    glm.exp <- gamlss(sample.fpkm.qq.trimmed.nozero ~ 1, family=EXP);
-
-    glm.bic <- c(glm.norm$sbc,
-                 glm.lnorm$sbc,
-                 glm.exp$sbc,
-                 glm.gamma$sbc);
-    glm.bic;
-    }
+bic.trim.distribution.fit <- apply(
+    X = fpkm.tumor.symbol.filter,
+    MARGIN = 1,
+    FUN = identify.bic.optimal.distribution
+    );
 
 stopImplicitCluster();
 
-
-# Find the best fitted distribution
-# - BIC
-rownames(bic.trim.distribution) <- rownames(fpkm.tumor.symbol.filter);
-bic.trim.distribution.fit <- apply(bic.trim.distribution, 1, which.min);
-
-# Check the cosine similarity
-fpkm.tumor.symbol.filter.bic.fit <- cbind(fpkm.tumor.symbol.filter, distribution = bic.trim.distribution.fit);
 
 # run it parallel
 cl <- makeCluster(2);
 # register the cluster with the parallel package
 registerDoParallel(cl);
-clusterExport(cl, "outlier.detection.cosine");
+clusterExport(cl, c('cosine.similarity.large.value.percent', 'outlier.detection.cosine'));
 clusterEvalQ(cl, c(library(lsa), library(SnowballC)));
 
-data.cosine.bic <- apply(fpkm.tumor.symbol.filter.bic.fit, 
-                         1, 
-                         outlier.detection.cosine, 
-                         value.portion = 0);
-
-stopImplicitCluster();
-
-data.cosine.bic.t <- data.frame(t(data.cosine.bic));
+data.cosine.bic.t <- lapply(
+    X = seq_len(nrow(fpkm.tumor.symbol.filter)),
+    FUN = function(i) {
+        outlier.detection.cosine(
+            x = fpkm.tumor.symbol.filter[i, ],
+            distr = bic.trim.distribution.fit[i]
+            );
+        }
+    );
+data.cosine.bic.t <- do.call(
+    what = rbind,
+    args = data.cosine.bic.t
+    );
+data.cosine.bic.t <- as.data.frame(data.cosine.bic.t);
+rownames(data.cosine.bic.t) <- rownames(fpkm.tumor.symbol.filter);
 colnames(data.cosine.bic.t) <- c('cosine', 'distribution');
 
-
-
-
-
+stopImplicitCluster();
 
 
 ### Final gene-wise matrix #####
