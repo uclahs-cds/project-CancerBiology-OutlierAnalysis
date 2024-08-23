@@ -1,14 +1,15 @@
-### permutation_test #########################################################################
+### permutation_test ###########################################################################
 # Description
 # shuffle gene and patient to see if there is overlap of mutation (ins, trans) with gh element
 
 # Rscript permutation_test.R --seed.start 1 --seed.end 25 --elite 1
-### HISTORY ##################################################################################
+### HISTORY ####################################################################################
 # Version	Date		Developer	Comments
 # 0.01		2023-12-21	jlivingstone	initial code
 # 0.02		2024-03-12	jlivingstone	update to use inversions and rearrangements
+# 0.03		2024-08-22	jlivingstone	fix bug with setting seed after sample() call
 
-### PREAMBLE #################################################################################
+### PREAMBLE ###################################################################################
 library(bedr)
 library(BoutrosLab.utilities)
 library(getopt)
