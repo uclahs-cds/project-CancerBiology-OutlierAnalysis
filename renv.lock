@@ -30,6 +30,21 @@
       ],
       "Hash": "70c07b8aaecca8b49b0ffd2a86b7ecfe"
     },
+    "BoutrosLab.utilities": {
+      "Package": "BoutrosLab.utilities",
+      "Version": "1.9.10",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "public-R-BoutrosLab-utilities",
+      "RemoteRef": "main",
+      "RemoteSha": "eafa2eafb24f1d24de5dd615ff118135f7cf8e92",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "0005833f9d28f48c2b6e46353078d1e3"
+    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-60",
