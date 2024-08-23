@@ -199,36 +199,18 @@ scatter.smooth.line <- create.scatterplot(
     grid.colour = 'grey90'
 );
 
-# Display the plot
-scatter.smooth.line;
-
-
 ### OUTPUT ######################################################################
 
-# Save the plot as a PDF
-pdf(
-    file = generate.filename(
-        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 5.5, 
-    height = 5
-    );
-scatter.smooth.line;
-dev.off();
-
 # Save the plot as a PNG
-png(
-    file = generate.filename(
-        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 
-        'scatter', 
+write.plot(
+    trellis.object = scatter.smooth.line,
+    filename = generate.filename(
+        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline',
+        'scatter',
         'png'
-        ), 
-    width = 5.5, 
-    height = 5, 
-    unit = 'in', 
-    res = 1200
-    );
-scatter.smooth.line;
-dev.off();
+    ),
+    width = 5.5,
+    height = 5,
+    size.units = 'in',
+    resolution = 1200
+);

@@ -13,4 +13,4 @@ log_messages();
 log_info('Starting up');
 load('2024-08-23_Figure1.rda');
 
-source('Figure/Figure1/Figure1b.R');
+source('Figure/Figure1/Figure1c.R');
