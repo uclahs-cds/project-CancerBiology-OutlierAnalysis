@@ -1140,6 +1140,20 @@
       ],
       "Hash": "bd54ba8a0a5faded999a7aab6e46b374"
     },
+    "poolr": {
+      "Package": "poolr",
+      "Version": "1.1-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "mathjaxr",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "bd8c6901534bcffd702403b746fcd220"
+    },
     "prettyunits": {
       "Package": "prettyunits",
       "Version": "1.2.0",
