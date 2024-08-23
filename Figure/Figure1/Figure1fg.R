@@ -107,6 +107,13 @@ gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol'
                                  mart = ensembl);
 gene.position.meta.all <- gene.position;
 
+
+chr.position.meta.all <- data.frame(as.matrix(table(gene.position.meta.all$chromosome_name)))
+chr.position.order.meta.all <- chr.position.meta.all[chr.name,,drop = FALSE ];
+rownames(chr.position.order.meta.all) <- chr.name;
+chr.position.order.meta.all[is.na(chr.position.order.meta.all$as.matrix.table.gene.position.meta.all.chromosome_name..),] <- 0;
+chr.position.outlier.meta.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.meta.all[,1])));
+
 # segment plot
 p.value.chr.meta.fisher.sub <- NULL;
 p.value.chr.meta.odd.sub <- NULL;

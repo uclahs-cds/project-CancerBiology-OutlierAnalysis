@@ -14,7 +14,7 @@ library(BoutrosLab.plotting.general);
 
 ### DATA PREPARATION ############################################################
 
-genes <- c('TMEM30A', 'IGF2', 'GAPDH', 'B2M', 'NRAS', 'ACTB'); # 여섯 개의 유전자
+genes <- c('TMEM30A', 'IGF2R', 'GAPDH', 'B2M', 'NRAS', 'ACTB'); # 여섯 개의 유전자
 
 for (i in genes) {
     
