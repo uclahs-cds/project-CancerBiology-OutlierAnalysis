@@ -121,35 +121,18 @@ five.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
     main = NULL
     );
 
-# Display the histogram
-five.outlier.gene.sum;
-
 ### OUTPUT ######################################################################
 
-# Save the histogram as a PDF
-pdf(
-    file = generate.filename(
-        '5_patient_per_outlier_gene_number', 
-        'histogram', 
-        'pdf'
-        ), 
-    width = 5.5, 
-    height = 5
-    );
-five.outlier.gene.sum;
-dev.off();
-
-# Save the histogram as a PNG
-png(
-    file = generate.filename(
-        '5_patient_per_outlier_gene_number', 
-        'histogram', 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = five.outlier.gene.sum,
+    filename = generate.filename(
+        '5_patient_per_outlier_gene_number',
+        'histogram',
         'png'
-        ), 
-    width = 5.5, 
-    height = 5, 
-    unit = 'in', 
-    res = 1200
-    );
-five.outlier.gene.sum;
-dev.off();
+    ),
+    width = 5.5,
+    height = 5,
+    size.units = 'in',
+    resolution = 1200
+);

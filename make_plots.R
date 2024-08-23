@@ -11,6 +11,12 @@ logger::log_messages();
 logger::log_info('Starting up');
 load('2024-08-23_Figure1.rda');
 
+message('Figure 1c');
+
 source('Figure/Figure1/Figure1c.R');
+
+message('Figure 1d');
+
+source('Figure/Figure1/Figure1d.R');
 
 logger::log_info('Shutting down');
