@@ -50,11 +50,12 @@ brca <- read.delim(
 #dim(brca)
 #[1] 17696   342
 
+# set fdr to 0.01 - are there still output that is greater than cut-off being displayed?
 outliers <- detect.outliers(
 	data = brca,
 	num.null = 1000,
 	p.value.threshold = 0.05,
-	fdr.threshold = 0.1
+	fdr.threshold = 0.01
 	)
 
 save(
