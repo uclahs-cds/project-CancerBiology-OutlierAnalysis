@@ -2,9 +2,6 @@
 # This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data. 
 
 
-load('2024-01-07_cnv_icgc.rda')
-load('2024-01-08_cnv_brca_gistic.rda')
-load('2024-01-08_cnv_meta_gistic.rda')
 
 ### 1. METABRIC
 # Convert lists to numeric vectors and calculate medians for meta data
@@ -98,8 +95,43 @@ brca.gis.table.num$se <- sqrt(brca.gis.table.num$Freq * (1 - brca.gis.table.num$
 
 
 ### 3. ICGC BRCA-EU
-icgc.gis.table.df <- data.frame(table(icgc.new.gis.value.box));
-icgc.gis.table.num <- cbind(icgc.new.gis.value.box.table, sample = icgc.gis.table.df$Freq);
+icgc.outlier.cnv <- as.numeric(
+    unlist(icgc.outlier.sample.cnv.new.gis)
+    );
+icgc.non.outlier.cnv <- as.numeric(
+    unlist(icgc.non.outlier.sample.cnv.new.gis)
+    );
+
+icgc.outlier.median <- lapply(
+    icgc.outlier.sample.cnv.new.gis, 
+    function(x) {median(na.omit(as.numeric(x)))}
+    );
+icgc.non.outlier.median <- lapply(
+    icgc.non.outlier.sample.cnv.new.gis, 
+    function(x) {median(na.omit(as.numeric(x)))}
+    );
+
+icgc.outlier.median.unlist <- unlist(icgc.outlier.median);
+icgc.non.outlier.median.unlist <- unlist(icgc.non.outlier.median);
+
+icgc.gis.value <- data.frame(new.gis.value = c(icgc.non.outlier.cnv, icgc.outlier.cnv));
+icgc.gis.box <- data.frame(
+    cbind(
+        icgc.gis.value$new.gis.value, 
+        c(rep('non', length(icgc.non.outlier.cnv)), 
+          rep('out', length(icgc.outlier.cnv)))
+        )
+    );
+
+colnames(icgc.gis.box) <- c('new.gis.value', 'status');
+icgc.gis.box[,1] <- as.numeric(icgc.gis.box[,1]);
+icgc.gis.table.df <- data.frame(table(icgc.gis.box));
+icgc.gis.table <- data.frame(table(icgc.gis.box));
+
+icgc.gis.table$Freq[icgc.gis.table$status == 'non'] <- icgc.gis.table$Freq[icgc.gis.table$status == 'non'] / sum(icgc.gis.table$Freq[icgc.gis.table$status == 'non']);
+icgc.gis.table$Freq[icgc.gis.table$status == 'out'] <- icgc.gis.table$Freq[icgc.gis.table$status == 'out'] / sum(icgc.gis.table$Freq[icgc.gis.table$status == 'out']);
+
+icgc.gis.table.num <- cbind(icgc.gis.table, sample = icgc.gis.table.df$Freq);
 icgc.gis.table.num$se <- sqrt(icgc.gis.table.num$Freq * (1 - icgc.gis.table.num$Freq) / icgc.gis.table.num$sample);
 
 
@@ -120,24 +152,24 @@ for (i in 1:5) {
     data <- data.frame(
         measure = c("OR", "OR", "OR"),  
         ai = c(
-            meta.new.gis.value.box.table.df.num$sample[meta.new.gis.value.box.table.df.num$status == 'out'][i], 
-            brca.new.gis.value.box.table.df.num$sample[brca.new.gis.value.box.table.df.num$status == 'out'][i], 
-            icgc.new.gis.value.box.table.df.num$sample[icgc.new.gis.value.box.table.df.num$status == 'out'][i]
+            meta.gis.table.num$sample[meta.gis.table.num$status == 'out'][i], 
+            brca.gis.table.num$sample[brca.gis.table.num$status == 'out'][i], 
+            icgc.gis.table.num$sample[icgc.gis.table.num$status == 'out'][i]
             ),  
         n1i = c(
-            sum(meta.new.gis.value.box.table.df.num$sample[meta.new.gis.value.box.table.df.num$status == 'out']), 
-            sum(brca.new.gis.value.box.table.df.num$sample[brca.new.gis.value.box.table.df.num$status == 'out']), 
-            sum(icgc.new.gis.value.box.table.df.num$sample[icgc.new.gis.value.box.table.df.num$status == 'out'])
+            sum(meta.gis.table.num$sample[meta.gis.table.num$status == 'out']), 
+            sum(brca.gis.table.num$sample[brca.gis.table.num$status == 'out']), 
+            sum(icgc.gis.table.num$sample[icgc.gis.table.num$status == 'out'])
             ), 
         ci = c(
-            meta.new.gis.value.box.table.df.num$sample[meta.new.gis.value.box.table.df.num$status == 'non'][i], 
-            brca.new.gis.value.box.table.df.num$sample[brca.new.gis.value.box.table.df.num$status == 'non'][i], 
-            icgc.new.gis.value.box.table.df.num$sample[icgc.new.gis.value.box.table.df.num$status == 'non'][i]
+            meta.gis.table.num$sample[meta.gis.table.num$status == 'non'][i], 
+            brca.gis.table.num$sample[brca.gis.table.num$status == 'non'][i], 
+            icgc.gis.table.num$sample[icgc.gis.table.num$status == 'non'][i]
             ),  
         n2i = c(
-            sum(meta.new.gis.value.box.table.df.num$sample[meta.new.gis.value.box.table.df.num$status == 'non']), 
-            sum(brca.new.gis.value.box.table.df.num$sample[brca.new.gis.value.box.table.df.num$status == 'non']), 
-            sum(icgc.new.gis.value.box.table.df.num$sample[icgc.new.gis.value.box.table.df.num$status == 'non'])
+            sum(meta.gis.table.num$sample[meta.gis.table.num$status == 'non']), 
+            sum(brca.gis.table.num$sample[brca.gis.table.num$status == 'non']), 
+            sum(icgc.gis.table.num$sample[icgc.gis.table.num$status == 'non'])
             ) 
         );
     
@@ -183,20 +215,39 @@ metafor.cnv.p.all.fdr <- p.adjust(metafor.cnv.p.all, method = 'BH');
 ### PLOTTING RESULTS ############################################################
 # - Use weighted mean
 # Initialize an empty vector to store the weighted means
+brca.sum.vector <- sapply(unique(brca.gis.table.num$new.gis.value), function(x) {
+    sum(brca.gis.table.num$sample[brca.gis.table.num$new.gis.value == x])
+    });
+brca.sum.vector <- rep(brca.sum.vector, each = 2);
+
+
+meta.sum.vector <- sapply(unique(meta.gis.table.num$new.gis.value), function(x) {
+    sum(meta.gis.table.num$sample[meta.gis.table.num$new.gis.value == x])
+    });
+meta.sum.vector <- rep(meta.sum.vector, each = 2);
+
+
+icgc.sum.vector <- sapply(unique(icgc.gis.table.num$new.gis.value), function(x) {
+    sum(icgc.gis.table.num$sample[icgc.gis.table.num$new.gis.value == x])
+    });
+icgc.sum.vector <- rep(icgc.sum.vector, each = 2);
+
+
+
 all.weighted.mean <- NULL;
 
 for (i in 1:10) {
     
     weights <- c(
-        brca.new.gis.value.box.table.df.num$sample[i],
-        meta.new.gis.value.box.table.df.num$sample[i],
-        icgc.new.gis.value.box.table.df.num$sample[i]
+        brca.sum.vector[i],
+        meta.sum.vector[i],
+        icgc.sum.vector[i]
         );
     
     values <- c(
-        brca.new.gis.value.box.table.df.num$Freq[i],
-        meta.new.gis.value.box.table.df.num$Freq[i],
-        icgc.new.gis.value.box.table.df.num$Freq[i]
+        brca.gis.table.num$Freq[i],
+        meta.gis.table.num$Freq[i],
+        icgc.gis.table.num$Freq[i]
         );
     
     # Compute the weighted average and store it

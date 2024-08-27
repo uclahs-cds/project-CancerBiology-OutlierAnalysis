@@ -2,24 +2,26 @@
 # This script processes NGF and LRP4 gene expression and methylation data, and generates 
 # a scatter plot to visualize the relationship between RNA abundance and DNA 
 # methylation levels across different patients.
+# The codes are connected to Figure 2h.
 # Date: 2024-08-14
 
 
 library(BoutrosLab.plotting.general);
 
-load('2024-06-02_brca_meta_methylation.RData');
 
+
+# Two example genes: NGF, LRP4 - run separately
 i <- 'NGF';
 i <- 'LRP4';
 
 
-i.me <- two.outlier.promoter.symbol.sample.match.merge.filter[
+i.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[
     i, 
     , 
     drop = FALSE
     ];
 
-i.patient <- two.outlier.patient.status.merge.filter[
+i.patient <- two.outlier.patient.status.merge.filter.500[
     i, 
     ];
 
@@ -52,14 +54,14 @@ i.me.patient.mean <- mean(
 
 # FPKM data processing
 fpkm.i.brca <- fpkm.tumor.symbol.filter.brca[
-    fpkm.tumor.symbol.filter.brca$Symbol == i, 
+    fpkm.tumor.symbol.filter.brca$Symbol %in% i, 
     -ncol(fpkm.tumor.symbol.filter.brca), 
     drop = FALSE
     ];
 
-fpkm.i.meta <- fpkm.tumor.symbol.filter.symbol.meta[
-    fpkm.tumor.symbol.filter.symbol.meta$Symbol == i, 
-    -ncol(fpkm.tumor.symbol.filter.symbol.meta), 
+fpkm.i.meta <- fpkm.tumor.symbol.filter.meta.symbol[
+    fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i, 
+    -ncol(fpkm.tumor.symbol.filter.meta.symbol), 
     drop = FALSE
     ];
 
@@ -120,7 +122,7 @@ dot.colours.rev <- rev(dot.colours);
 
 scatter.i <- create.scatterplot(
     formula = fpkm ~ me,
-    data = na.omit(i.me.fpkm.scatter.rev),
+    data = i.me.fpkm.scatter.rev,
     col = dot.colours.rev,
     alpha = .6,
     xlimits = c(-0.06, 1.07),

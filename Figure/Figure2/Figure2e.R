@@ -7,26 +7,24 @@ library(BoutrosLab.plotting.general);
 library(metafor);
 
 
-load(file = '2023-11-18_driver_gene_mutation_meta.rda');
-load(file = '2023-11-18_driver_gene_mutation_brca.rda');
-load(file = '2024-01-01_driver_gene_mutation_icgc.rda');
-
-
-
-
 
 prepare.data <- function(row, outlier) {
     df <- data.frame(mutation = row, outlier = outlier);
-    df$mutation <- as.numeric(df$mutation);
     df$outlier <- as.numeric(df$outlier);
-    table <- table(df) + 1;  # Add pseudocount
+    table <- table(df)
     
     if (nrow(table) == 1) {
-        table <- rbind(c(1, 1), table);
-        };
+        odd.table <- cbind(sum(table[,2:ncol(table)]), table[,1]);
+        odd.table <- rbind(c(0, 0),
+                           odd.table) 
+        }
+    else {
+        odd.table <- t(rbind(apply(table[,2:ncol(table)], 1, sum), table[,1]));
+        }
     
-    colnames(table) <- c('out', 'non');
-    return(table);
+    odd.table <- odd.table + 1
+    colnames(odd.table) <- c('out', 'non');
+    return(odd.table);
     };
 
 
@@ -59,6 +57,78 @@ calculate.odds.ratios <- function(mutation.data, outlier.data) {
         ));
     };
 
+# Luma subtype patient
+subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
+outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.luma))];
+
+outlier.patient.tag.01.t.p.order.sum.luma.brca <- 
+    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 4) == 'TCGA'];
+outlier.patient.tag.01.t.p.order.sum.luma.meta <- 
+    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'MB'];
+outlier.patient.tag.01.t.p.order.sum.luma.icgc <- 
+    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'PR'];
+
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 4) == 'TCGA'];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'MB'];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'PR'];
+
+# Lumb subtype patient
+subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 4, ];
+outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.lumb))];
+
+outlier.patient.tag.01.t.p.order.sum.lumb.brca <- 
+    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];
+outlier.patient.tag.01.t.p.order.sum.lumb.meta <- 
+    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'MB'];
+outlier.patient.tag.01.t.p.order.sum.lumb.icgc <- 
+    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'PR'];
+
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 4) == 'TCGA'];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'MB'];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'PR'];
+
+# 1. TCGA-BRCA
+brca.mutation.silent.0 <- c(as.character(brca.mutation.silent), '0');
+
+brca.mutation.driver.list.gene.vector.data.convert.mis <- brca.mutation.driver.list.gene.vector.data;
+brca.mutation.driver.list.gene.vector.data.convert.mis[!(brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0)] <- "mutation";
+brca.mutation.driver.list.gene.vector.data.convert.mis[brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0] <- "normal";
+
+brca.mutation.driver.list.gene.vector.data.convert.mis.luma.brca <- 
+    brca.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca)];
+
+# 2. METABRIC
+meta.mutation.silent.0 <- c(as.character(meta.mutation.silent), '0');
+
+meta.mutation.driver.list.gene.vector.data.convert.mis <- meta.mutation.driver.list.gene.vector.data;
+meta.mutation.driver.list.gene.vector.data.convert.mis[!(meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0)] <- "mutation";
+meta.mutation.driver.list.gene.vector.data.convert.mis[meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0] <- "normal";
+
+meta.mutation.driver.list.gene.vector.data.convert.mis.luma.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta)];
+
+# 3. ICGC BRCA-EU
+icgc.mutation.silent.0 <- c(as.character(icgc.mutation.silent), '0');
+
+icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.list.gene.vector.data;
+icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- "mutation";
+icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- "normal";
+
+icgc.mutation.driver.list.gene.vector.data.convert.mis.luma.icgc <- 
+    icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc)];
+
+# Ensure the column names are preserved for ICGC BRCA-EU data
+colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
+
+
 
 ### Luminal A
 
@@ -70,17 +140,13 @@ brca.results.luma <- calculate.odds.ratios(
 
 # 2. ICGC BRCA-EU
 icgc.results.luma <- calculate.odds.ratios(
-    icgc.mutation.driver.list.gene.vector.data.convert.mis[
-        , colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc)
-        ],
+    icgc.mutation.driver.list.gene.vector.data.convert.mis.luma.icgc,
     outlier.patient.tag.01.t.p.order.sum.luma.icgc
     );
 
 # 3. METABRIC
 meta.results.luma <- calculate.odds.ratios(
-    meta.mutation.driver.list.gene.vector.data.convert.mis[
-        , colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta)
-        ],
+    meta.mutation.driver.list.gene.vector.data.convert.mis.luma.meta,
     outlier.patient.tag.01.t.p.order.sum.luma.meta
     );
 
@@ -139,36 +205,43 @@ datasets.luma <- list(
 
 results.luma <- list();
 
-for (name in names(datasets)) {
-    binary.data <- convert.to.binary(datasets[[name]]);
+for (name in names(datasets.luma)) {
+    binary.data <- convert.to.binary(datasets.luma[[name]]);
     sum.data <- calculate.sum(binary.data);
     threshold <- length(get(paste0("outlier.patient.tag.01.t.p.order.sum.luma.", name))) * 0.05;
-    results[[name]] <- list(
+    results.luma[[name]] <- list(
         sum = sum.data,
         filtered = filter.genes(sum.data, threshold)
         );
     }
 
 
-common.genes.luma <- Reduce(intersect, lapply(results.luma, function(x) names(x$filtered)));
+
+
+names.list <- lapply(results.luma, function(x) names(x$filtered))
+all.names <- unlist(names.list)
+name.counts <- table(all.names)
+common.genes.luma <- names(name.counts[name.counts >= 2])
+
+
 
 
 odds.ratios.luma <- list(
-    meta = meta.luma.odds.ratio.unlist[common.genes.luma],
-    brca = brca.luma.odds.ratio.unlist[common.genes.luma],
-    icgc = icgc.luma.odds.ratio.unlist[common.genes.luma]
+    meta = meta.luma.odds.ratio.unlist[names(results.luma$meta$filtered)][common.genes.luma],
+    brca = brca.luma.odds.ratio.unlist[names(results.luma$brca$filtered)][common.genes.luma],
+    icgc = icgc.luma.odds.ratio.unlist[names(results.luma$icgc$filtered)][common.genes.luma]
     );
 
 p.values.luma <- list(
-    meta = meta.luma.p.unlist[common.genes.luma],
-    brca = brca.luma.p.unlist[common.genes.luma],
-    icgc = icgc.luma.p.unlist[common.genes.luma]
+    meta = meta.luma.p.unlist[names(results.luma$meta$filtered)][common.genes.luma],
+    brca = brca.luma.p.unlist[names(results.luma$brca$filtered)][common.genes.luma],
+    icgc = icgc.luma.p.unlist[names(results.luma$icgc$filtered)][common.genes.luma]
     );
 
 confidence.intervals.luma <- list(
-    meta = meta.luma.ci.df[common.genes.luma,],
-    brca = brca.luma.ci.df[common.genes.luma,],
-    icgc = icgc.luma.ci.df[common.genes.luma,]
+    meta = meta.luma.ci.df[names(results.luma$meta$filtered),][common.genes.luma,],
+    brca = brca.luma.ci.df[names(results.luma$brca$filtered),][common.genes.luma,],
+    icgc = icgc.luma.ci.df[names(results.luma$icgc$filtered), ][match(common.genes.luma, rownames(icgc.luma.ci.df[names(results.luma$icgc$filtered), ])), ]
     );
 
 
@@ -425,6 +498,71 @@ dev.off();
 
 ### 2. Luminal B
 
+# 1. TCGA-BRCA
+brca.results.lumb <- calculate.odds.ratios(
+    brca.mutation.driver.list.gene.vector.data.convert.mis.lumb.brca,
+    outlier.patient.tag.01.t.p.order.sum.lumb.brca
+    );
+
+# 2. ICGC BRCA-EU
+icgc.results.lumb <- calculate.odds.ratios(
+    icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc,
+    outlier.patient.tag.01.t.p.order.sum.lumb.icgc
+    );
+
+# 3. METABRIC
+meta.results.lumb <- calculate.odds.ratios(
+    meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta,
+    outlier.patient.tag.01.t.p.order.sum.lumb.meta
+    );
+
+
+brca.lumb.odds.ratio.unlist <- brca.results.lumb$odds.ratio;
+brca.lumb.ci.df <- brca.results.lumb$ci;
+brca.lumb.p.unlist <- brca.results.lumb$p.value;
+names(brca.lumb.odds.ratio.unlist) <- mutation.driver.list.gene;
+
+# ICGC
+icgc.lumb.odds.ratio.unlist <- icgc.results.lumb$odds.ratio;
+icgc.lumb.ci.df <- icgc.results.lumb$ci;
+icgc.lumb.p.unlist <- icgc.results.lumb$p.value;
+names(icgc.lumb.odds.ratio.unlist) <- rownames(icgc.mutation.driver.list.gene.vector.data);
+
+# METABRIC
+meta.lumb.odds.ratio.unlist <- meta.results.lumb$odds.ratio;
+meta.lumb.ci.df <- meta.results.lumb$ci;
+meta.lumb.p.unlist <- meta.results.lumb$p.value;
+names(meta.lumb.odds.ratio.unlist) <- mutation.driver.list.gene;
+
+    
+    
+    
+    
+
+
+
+convert.to.binary <- function(data) {
+    return(ifelse(data == 'mutation', 1, 0));
+    }
+
+calculate.sum <- function(data) {
+    return(apply(data, 1, sum));
+    }
+
+filter.genes <- function(data, threshold) {
+    return(data[data > threshold]);
+    }
+
+calculate.ln.odds.and.se <- function(odds.ratio, ci) {
+    ln.odds <- log(odds.ratio);
+    se <- (log(ci[,2]) - log(ci[,1])) / 3.92;
+    return(list(ln.odds = ln.odds, se = se));
+    }
+
+
+
+### 2. Luminal B
+
 datasets.lumb <- list(
     icgc = icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc,
     meta = meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta,
@@ -433,36 +571,43 @@ datasets.lumb <- list(
 
 results.lumb <- list();
 
-for (name in names(datasets)) {
-    binary.data <- convert.to.binary(datasets[[name]]);
+for (name in names(datasets.lumb)) {
+    binary.data <- convert.to.binary(datasets.lumb[[name]]);
     sum.data <- calculate.sum(binary.data);
     threshold <- length(get(paste0("outlier.patient.tag.01.t.p.order.sum.lumb.", name))) * 0.05;
-    results[[name]] <- list(
+    results.lumb[[name]] <- list(
         sum = sum.data,
         filtered = filter.genes(sum.data, threshold)
         );
     }
 
 
-common.genes.lumb <- Reduce(intersect, lapply(results.lumb, function(x) names(x$filtered)));
+
+
+names.list <- lapply(results.lumb, function(x) names(x$filtered))
+all.names <- unlist(names.list)
+name.counts <- table(all.names)
+common.genes.lumb <- names(name.counts[name.counts >= 2])
+
+
 
 
 odds.ratios.lumb <- list(
-    meta = meta.lumb.odds.ratio.unlist[common.genes.lumb],
-    brca = brca.lumb.odds.ratio.unlist[common.genes.lumb],
-    icgc = icgc.lumb.odds.ratio.unlist[common.genes.lumb]
+    meta = meta.lumb.odds.ratio.unlist[names(results.lumb$meta$filtered)][common.genes.lumb],
+    brca = brca.lumb.odds.ratio.unlist[names(results.lumb$brca$filtered)][common.genes.lumb],
+    icgc = icgc.lumb.odds.ratio.unlist[names(results.lumb$icgc$filtered)][common.genes.lumb]
     );
 
 p.values.lumb <- list(
-    meta = meta.lumb.p.unlist[common.genes.lumb],
-    brca = brca.lumb.p.unlist[common.genes.lumb],
-    icgc = icgc.lumb.p.unlist[common.genes.lumb]
+    meta = meta.lumb.p.unlist[names(results.lumb$meta$filtered)][common.genes.lumb],
+    brca = brca.lumb.p.unlist[names(results.lumb$brca$filtered)][common.genes.lumb],
+    icgc = icgc.lumb.p.unlist[names(results.lumb$icgc$filtered)][common.genes.lumb]
     );
 
 confidence.intervals.lumb <- list(
-    meta = meta.lumb.ci.df[common.genes.lumb,],
-    brca = brca.lumb.ci.df[common.genes.lumb,],
-    icgc = icgc.lumb.ci.df[common.genes.lumb,]
+    meta = meta.lumb.ci.df[names(results.lumb$meta$filtered),][match(common.genes.lumb, rownames(meta.lumb.ci.df[names(results.lumb$meta$filtered), ])), ],
+    brca = brca.lumb.ci.df[names(results.lumb$brca$filtered),][match(common.genes.lumb, rownames(brca.lumb.ci.df[names(results.lumb$brca$filtered), ])), ],
+    icgc = icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ][match(common.genes.lumb, rownames(icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ])), ]
     );
 
 
@@ -477,17 +622,16 @@ meta.analysis.results.lumb <- lapply(common.genes.lumb, function(gene) {
     data <- data.frame(
         yi = sapply(ln.odds.se.lumb, function(x) x$ln.odds[gene]),
         sei = sapply(ln.odds.se.lumb, function(x) x$se[gene])
-        );
+    );
     data <- data[!is.infinite(data$yi) & !is.infinite(data$sei),];
     
     if (nrow(data) > 1) {
         meta.result <- rma.uni(yi = yi, sei = sei, data = data, method = 'DL');
         return(c(exp(meta.result$beta), exp(meta.result$ci.lb), exp(meta.result$ci.ub), meta.result$pval));
-        } 
-    else {
+    } else {
         return(c(NA, NA, NA, NA));
-        };
-    });
+    };
+});
 
 # Prepare final results
 final.results.lumb <- do.call(rbind, meta.analysis.results.lumb);
@@ -496,6 +640,12 @@ rownames(final.results.lumb) <- common.genes.lumb;
 
 # Filter significant results
 significant.genes.lumb <- rownames(final.results.lumb)[final.results.lumb[,"p.value"] < 0.05];
+
+
+
+
+
+
 
 
 

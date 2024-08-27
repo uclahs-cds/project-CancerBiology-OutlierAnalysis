@@ -190,6 +190,7 @@ gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol'
                                  filters = 'ensembl_gene_id', 
                                  values = gene.list.sub, 
                                  mart = ensembl);
+gene.position.metador <- gene.position;
 
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.metador.max <- apply(fpkm.tumor.symbol.filter.metador, 1, max);

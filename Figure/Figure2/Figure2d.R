@@ -11,18 +11,17 @@ library(rtracklayer)
 library(liftOver)
 library(GenomicRanges)
 
-### Read Amplicon Data ###########################################################
-brca.amplicon <- read.delim2(
-    file = "/TCGA/TCGA-BRCA/ecDNA/amplicon_allpatient.txt",
-    header = TRUE
-    );
+
+
+
 
 ### Preprocess Amplicon Data #####################################################
 brca.amplicon$sample_barcode <- gsub('-', '.', brca.amplicon$sample_barcode);
+outlier.patient.tag.01.brca.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 
 brca.amplicon.match <- brca.amplicon[
     brca.amplicon$sample_barcode %in% substr(
-        names(outlier.patient.tag.01.t.p.order.patient.sum), 1, 15
+        names(outlier.patient.tag.01.brca.sum), 1, 15
         ),
     ];
 
@@ -99,11 +98,34 @@ brca.amplicon.match.ec.each.chr.hg38 <- cbind(
     brca.amplicon.match.ec.each.chr[,1:3],
     hg38.location.reduce
     );
+# Summing the outlier patient tags for each BRCA sample
+outlier.patient.tag.01.brca.patient.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 
+# Extracting ecDNA related outlier patient tags for BRCA samples
+outlier.patient.tag.01.brca.ecDNA <- outlier.patient.tag.01.brca[
+    , substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% unique(brca.amplicon.match.ec.each.chr.hg38$sample_barcode)
+    ];
+
+# Filtering BRCA samples with ecDNA outlier tags
+outlier.patient.tag.01.brca.ecDNA.match <- outlier.patient.tag.01.brca[
+    apply(outlier.patient.tag.01.brca.ecDNA, 1, sum) > 0,
+    ];
+
+# Matching outlier locations in BRCA CNV data for specific gene names
+brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[
+    brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name %in% brca.outlier.symbol,
+    ];
+
+# Matching outlier locations with ecDNA in BRCA CNV data
+brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location[
+    brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location$gene_name %in% fpkm.tumor.symbol.filter.brca[
+        rownames(outlier.patient.tag.01.brca.ecDNA.match), 'Symbol'
+        ],
+    ];
 
 
 # Pre-compute patient barcodes
-patient_barcodes <- substr(colnames(outlier.patient.tag.01.t.p.order.ecDNA.match), 1, 15);
+patient_barcodes <- substr(colnames(outlier.patient.tag.01.brca.ecDNA.match), 1, 15);
 
 
 ecDNA.outlier.patient.location <- list();
@@ -115,12 +137,12 @@ for (i in 1:nrow(brca.amplicon.match.ec.each.chr.hg38)) {
     target.start <- brca.amplicon.match.ec.each.chr.hg38$start[i];
     target.end <- brca.amplicon.match.ec.each.chr.hg38$end[i];
     
-    target.outlier <- rownames(outlier.patient.tag.01.t.p.order.ecDNA.match)[
-        outlier.patient.tag.01.t.p.order.ecDNA.match[, patient_barcodes %in% target.patient] == 1
+    target.outlier <- rownames(outlier.patient.tag.01.brca.ecDNA.match)[
+        outlier.patient.tag.01.brca.ecDNA.match[, patient_barcodes %in% target.patient] == 1
         ];
     
     # Get the corresponding gene symbols for the outliers
-    target.symbol <- fpkm.tumor.symbol.filter[target.outlier, 'Symbol', drop = FALSE];
+    target.symbol <- fpkm.tumor.symbol.filter.brca[target.outlier, 'Symbol', drop = FALSE];
     
     # Locate the symbols in the ecDNA matched location dataset
     target.symbol.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match[
@@ -148,10 +170,13 @@ for (i in 1:nrow(brca.amplicon.match.ec.each.chr.hg38)) {
 ecDNA.outlier.patient.location <- do.call(rbind, ecDNA.outlier.patient.location)
 
 
+brca.cnv.chr.new.gis.fpkm.order.match.chr6 <- brca.cnv.chr.new.gis.fpkm.order.match[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr6',];
+brca.cnv.chr.new.gis.fpkm.order.match.chr6.all.gene.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome %in% 'chr6', ];
+
 # Filter FPKM data for genes on chromosome 6
-fpkm.chr6 <- fpkm.tumor.symbol.filter[
-    match(brca.cnv.chr.new.gis.fpkm.order.match.chr6$Hugo.Symbol, fpkm.tumor.symbol.filter$Symbol), 
-    patient.part
+fpkm.chr6 <- fpkm.tumor.symbol.filter.brca[
+    match(brca.cnv.chr.new.gis.fpkm.order.match.chr6$Hugo_Symbol, fpkm.tumor.symbol.filter.brca$Symbol), 
+    patient.part.brca
     ];
 
 # Calculate robust z-scores for each gene
@@ -167,30 +192,32 @@ for (i in 1:nrow(fpkm.chr6)) {
 rownames(fpkm.chr6.median.z) <- rownames(fpkm.chr6);
 colnames(fpkm.chr6.median.z) <- colnames(fpkm.chr6);
 
+
+ecdna.patient <- 'TCGA.A2.A3XX.01A';
+
 # Prepare data for plotting
 fpkm.chr6.median.z.bar <- data.frame(
-    cbind(fpkm.chr6.median.z[, out.sample, drop = FALSE], sample = c(1:nrow(fpkm.chr6.median.z)))
+    cbind(fpkm.chr6.median.z[, ecdna.patient, drop = FALSE], sample = c(1:nrow(fpkm.chr6.median.z)))
     );
 
 
-ecdna.patient <- 'TCGA.A2.A3XX.01';
 
 # Set bar colors, highlighting outlier genes in red
 bar.colours <- rep('black', nrow(fpkm.chr6.median.z.bar));
 outlier.gene.indices <- which(
-    brca.cnv.chr.new.gis.fpkm.order.match.chr6$Hugo.Symbol %in% 
-        ecDNA.outlier.patient.location$gene.name[
-            ecDNA.outlier.patient.location$sample.barcode %in% ecdna.patient
+    brca.cnv.chr.new.gis.fpkm.order.match.chr6$Hugo_Symbol %in% 
+        ecDNA.outlier.patient.location$gene_name[
+            ecDNA.outlier.patient.location$sample_barcode %in% substr(ecdna.patient, 1, 15)
             ]
     );
 bar.colours[outlier.gene.indices] <- 'red';
 
 # Define ecDNA region start and end genes
 chr6.ecdna.start <- as.numeric(ecDNA.outlier.patient.location[
-    ecDNA.outlier.patient.location$sample.barcode %in% ecdna.patient,]$start[1]
+    ecDNA.outlier.patient.location$sample_barcode %in% substr(ecdna.patient, 1, 15),]$start[1]
     );
 chr6.ecdna.end <- as.numeric(ecDNA.outlier.patient.location[
-    ecDNA.outlier.patient.location$sample.barcode %in% ecdna.patient,]$end[1]
+    ecDNA.outlier.patient.location$sample_barcode %in% substr(ecdna.patient, 1, 15),]$end[1]
     );
 chr6.ecdna.start.gene <- which(
     as.numeric(brca.cnv.chr.new.gis.fpkm.order.match.chr6.all.gene.location$start) > chr6.ecdna.start

@@ -8,21 +8,21 @@
 
 # Load necessary library
 library(BoutrosLab.plotting.general);
-load('2024-06-02_brca_meta_methylation.RData');
+
 
 # Check PDXNL gene
 i <- 'PDXNL';
 i.me <- brca.outlier.promoter.symbol.sample.match.merge.filter[
     brca.outlier.promoter.symbol.sample.match.merge.filter$Symbol == i, 
-    1:ncol(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter)
+    1:ncol(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca)
     ];
 
-i.patient <- outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter[
-    rownames(fpkm.tumor.symbol.filter)[fpkm.tumor.symbol.filter$Symbol == i], 
+i.patient <- outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol == i], 
     ];
 
 i.me.mean <- apply(
-    i.me[, 1:ncol(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter)], 
+    i.me[, 1:ncol(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca)], 
     1, 
     function(x) {mean(na.omit(x));}
     );
@@ -44,15 +44,15 @@ promoters.i.order <- promoters.i[order(promoters.i$pos), ];
 i.me.mean.order <- i.me.mean[rownames(promoters.i[order(promoters.i$pos), 1:7])];
 i.me.patient.order <- i.me.patient[rownames(promoters.i[order(promoters.i$pos), 1:7])];
 
-fpkm.i <- fpkm.tumor.symbol.filter[
-    fpkm.tumor.symbol.filter$Symbol == i, 
+fpkm.i <- fpkm.tumor.symbol.filter.brca[
+    fpkm.tumor.symbol.filter.brca$Symbol == i, 
     , 
     drop = FALSE
     ];
 
 fpkm.i.order <- fpkm.i[
     , 
-    colnames(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter), 
+    colnames(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca), 
     drop = FALSE
     ];
 

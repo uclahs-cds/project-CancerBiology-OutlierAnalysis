@@ -3,7 +3,7 @@
 # response in outlier vs non-outlier samples.
 # Date: 2024-08-16
 
-i <-'SYK';
+i <- 'SYK';
 
 .drug <- sanger.zscore.drug.breast.match.info.df[sanger.zscore.drug.breast.match.info.df$repurposing_target %in% i,]$Drug.Name;
 
