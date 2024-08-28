@@ -2,7 +2,6 @@
 # This script processes and merges DNA methylation data. 
 # Date: 2024-08-14
 
-load('2024-06-02_brca_meta_methylation.RData');
 
 
 
