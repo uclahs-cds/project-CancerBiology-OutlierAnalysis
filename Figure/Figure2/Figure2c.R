@@ -12,208 +12,208 @@ library(BoutrosLab.plotting.general);
 
 
 
-### DATA EXTRACTION #############################################################
-
-# 1. TCGA-BRCA
-# Filtering data for chromosome 10
-brca.cnv.chr.new.gis.fpkm.order.match.chr10 <- brca.cnv.chr.new.gis.fpkm.order.match[
-    brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',
-    ];
-
-# Extracting outlier patient samples for FGFR2
-brca.out.sample <- colnames(outlier.patient.tag.01.brca.cnv.match)[
-    outlier.patient.tag.01.brca.cnv.match[
-        rownames(fpkm.tumor.symbol.filter.brca[
-            fpkm.tumor.symbol.filter.brca$Symbol %in% 'FGFR2',
-            ]), 
-        ] == 1
-    ];
-
-# Filtering data for outlier patient samples in chromosome 10
-brca.cnv.chr.new.gis.fpkm.order.match.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , substr(brca.out.sample, 1, 15)
-    ];
-
-# Extracting non-outlier patient samples for FGFR2
-brca.non.out.sample <- colnames(outlier.patient.tag.01.brca.cnv.match)[
-    outlier.patient.tag.01.brca.cnv.match[
-        rownames(fpkm.tumor.symbol.filter.brca[
-            fpkm.tumor.symbol.filter.brca$Symbol %in% 'FGFR2',
-            ]), 
-        ] == 0
-    ];
-
-# Filtering data for non-outlier patient samples in chromosome 10
-brca.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , 2:ncol(brca.cnv.chr.new.gis.fpkm.order.match.chr10)
-    ][
-    , colnames(brca.cnv.chr.new.gis.fpkm.order.match.chr10)[2:ncol(brca.cnv.chr.new.gis.fpkm.order.match.chr10)] %in% substr(brca.non.out.sample, 1, 15)
-    ];
-
-
-
-# 2. METABRIC
-# Filtering data for chromosome 10
-meta.cnv.chr.new.gis.fpkm.order.match.chr10 <- meta.cnv.chr.new.gis.fpkm.order.match[
-    meta.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',
-    ];
-
-# Extracting outlier patient samples for FGFR2
-meta.out.sample <- colnames(outlier.patient.tag.01.meta.cnv.match)[
-    outlier.patient.tag.01.meta.cnv.match[
-        rownames(fpkm.tumor.symbol.filter.meta.symbol[
-            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% 'FGFR2',
-            ]), 
-        ] == 1
-    ];
-
-# Filtering data for outlier patient samples in chromosome 10
-meta.cnv.chr.new.gis.fpkm.order.match.chr10.out <- meta.cnv.chr.new.gis.fpkm.order.match.chr10[,substr(na.omit(meta.out.sample), 1, 15)];
-
-# Extracting non-outlier patient samples for FGFR2
-meta.non.out.sample <- colnames(outlier.patient.tag.01.meta.cnv.match)[
-    outlier.patient.tag.01.meta.cnv.match[
-        rownames(fpkm.tumor.symbol.filter.meta.symbol[
-            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% 'FGFR2',
-            ]), 
-        ] == 0
-    ];
-
-# Filtering data for non-outlier patient samples in chromosome 10
-meta.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <-  meta.cnv.chr.new.gis.fpkm.order.match.chr10[
-    ,2:ncol(meta.cnv.chr.new.gis.fpkm.order.match.chr10)
-    ][
-        ,colnames(meta.cnv.chr.new.gis.fpkm.order.match.chr10)[
-            2:ncol(meta.cnv.chr.new.gis.fpkm.order.match.chr10)] %in% substr(meta.non.out.sample, 1, 15)
-            ];
-
-
-# 3. ICGC-BRCA_EU
-# Extracting gene symbols from raw data
-icgc.cnv.all.symbol <- sub("\\|.*", "", icgc.cnv.chr.new.gis.raw$Gene.Symbol);
-
-# Filtering data for chromosome 10
-icgc.cnv.chr.new.gis.fpkm.order.match.chr10 <- icgc.cnv.chr.new.gis.fpkm.order.match[
-    icgc.cnv.chr.new.gis.fpkm.order.match.chr == "10",
-    ];
-
-# Filtering gene symbols for chromosome 10
-icgc.cnv.all.symbol.10 <- icgc.cnv.all.symbol[
-    icgc.cnv.chr.new.gis.fpkm.order.match.chr == "10"
-    ];
-
-# Extracting outlier patient samples for FGFR2 in ICGC data
-icgc.out.sample <- colnames(outlier.patient.tag.01.icgc)[
-    outlier.patient.tag.01.icgc[
-        rownames(fpkm.data.icgc)[
-            fpkm.data.icgc$Name %in% "FGFR2"
-            ],
-        ] == 1
-    ];
-
-# Filtering data for outlier patient samples in chromosome 10
-icgc.cnv.chr.new.gis.fpkm.order.match.chr.out <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , icgc.out.sample
-    ];
-
-# Extracting non-outlier patient samples for FGFR2 in ICGC data
-icgc.non.out.sample <- colnames(outlier.patient.tag.01.icgc)[
-    outlier.patient.tag.01.icgc[
-        rownames(icgc.fpkm.data)[
-            icgc.fpkm.data$Name %in% "FGFR2"
-            ],
-        ] == 0
-    ];
-
-# Filtering data for non-outlier patient samples in chromosome 10
-icgc.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , !(colnames(icgc.cnv.chr.new.gis.fpkm.order.match.chr10) %in% icgc.out.sample)
-    ];
-
-
-
-
-
-# 1. Outlier Data
-brca.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , substr(brca.out.sample, 1, 15), drop = FALSE
-    ];
-brca.chr10.out.symbol <- brca.cnv.chr.new.gis.fpkm.order.match.chr10$Hugo_Symbol;
-
-meta.chr10.out <- meta.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , substr(na.omit(meta.out.sample), 1, 15)
-    ];
-meta.chr10.out.symbol <- meta.cnv.chr.new.gis.fpkm.order.match.chr10$Hugo_Symbol;
-
-icgc.chr10.out <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , icgc.out.sample, drop = FALSE
-    ];
-icgc.chr10.out.symbol <- icgc.cnv.all.symbol.10;
-
-unique.chr10.symbol <- intersect(
-    brca.chr10.out.symbol, 
-    intersect(meta.chr10.out.symbol, icgc.chr10.out.symbol)
-    );
-
-# Matching Outlier Data
-brca.chr10.out.match <- brca.chr10.out[
-    brca.chr10.out.symbol %in% unique.chr10.symbol, 
-    ];
-brca.chr10.out.match <- brca.chr10.out.match[
-    !duplicated(brca.chr10.out.symbol[brca.chr10.out.symbol %in% unique.chr10.symbol]), 
-    ];
-meta.chr10.out.match <- meta.chr10.out[
-    meta.chr10.out.symbol %in% unique.chr10.symbol, 
-    ];
-meta.chr10.out.match <- meta.chr10.out.match[
-    !duplicated(meta.chr10.out.symbol[meta.chr10.out.symbol %in% unique.chr10.symbol]), 
-    ];
-icgc.chr10.out.match <- icgc.chr10.out[
-    icgc.chr10.out.symbol %in% unique.chr10.symbol, 
-    ];
-
-all.chr10.out.match <- cbind(
-    brca.chr10.out.match,
-    meta.chr10.out.match,
-    icgc.chr10.out.match
-    );
-
-
-# 2. Non-Outlier Data
-brca.chr10.non.out.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
-    brca.chr10.out.symbol %in% unique.chr10.symbol, 
-    ];
-brca.chr10.non.out.match <- brca.chr10.non.out.match[
-    !duplicated(brca.chr10.out.symbol[brca.chr10.out.symbol %in% unique.chr10.symbol]), 
-    ];
-meta.chr10.non.out.match <- meta.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
-    meta.chr10.out.symbol %in% unique.chr10.symbol, 
-    ];
-meta.chr10.non.out.match <- meta.chr10.non.out.match[
-    !duplicated(meta.chr10.out.symbol[meta.chr10.out.symbol %in% unique.chr10.symbol]), 
-    ];
-icgc.chr10.non.out.match <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
-    icgc.chr10.out.symbol %in% unique.chr10.symbol, 
-    ];
-
-all.chr10.non.out.match <- cbind(
-    brca.chr10.non.out.match,
-    meta.chr10.non.out.match,
-    icgc.chr10.non.out.match
-    );
-sample.chr10.non <- c(
-    rep('brca', ncol(brca.chr10.non.out.match)),
-    rep('meta', ncol(meta.chr10.non.out.match)),
-    rep('icgc', ncol(icgc.chr10.non.out.match))
-    );
-
-all.chr10.non.out.match.median <- apply(all.chr10.non.out.match, 1, median);
-
-### CLUSTERING AND ORDERING 
-distance_matrix.t.all.chr10.non.out.match <- dist(t(all.chr10.non.out.match), method = "euclidean");
-fit.t.all.chr10.non.out.match <- hclust(distance_matrix.t.all.chr10.non.out.match, method = "ward.D2");
-all.chr10.non.out.match.order <- all.chr10.non.out.match[, fit.t.all.chr10.non.out.match$order];
-sample.chr10.non.order <- sample.chr10.non[fit.t.all.chr10.non.out.match$order];
+# ### DATA EXTRACTION #############################################################
+# 
+# # 1. TCGA-BRCA
+# # Filtering data for chromosome 10
+# brca.cnv.chr.new.gis.fpkm.order.match.chr10 <- brca.cnv.chr.new.gis.fpkm.order.match[
+#     brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',
+#     ];
+# 
+# # Extracting outlier patient samples for FGFR2
+# brca.out.sample <- colnames(outlier.patient.tag.01.brca.cnv.match)[
+#     outlier.patient.tag.01.brca.cnv.match[
+#         rownames(fpkm.tumor.symbol.filter.brca[
+#             fpkm.tumor.symbol.filter.brca$Symbol %in% 'FGFR2',
+#             ]), 
+#         ] == 1
+#     ];
+# 
+# # Filtering data for outlier patient samples in chromosome 10
+# brca.cnv.chr.new.gis.fpkm.order.match.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , substr(brca.out.sample, 1, 15)
+#     ];
+# 
+# # Extracting non-outlier patient samples for FGFR2
+# brca.non.out.sample <- colnames(outlier.patient.tag.01.brca.cnv.match)[
+#     outlier.patient.tag.01.brca.cnv.match[
+#         rownames(fpkm.tumor.symbol.filter.brca[
+#             fpkm.tumor.symbol.filter.brca$Symbol %in% 'FGFR2',
+#             ]), 
+#         ] == 0
+#     ];
+# 
+# # Filtering data for non-outlier patient samples in chromosome 10
+# brca.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , 2:ncol(brca.cnv.chr.new.gis.fpkm.order.match.chr10)
+#     ][
+#     , colnames(brca.cnv.chr.new.gis.fpkm.order.match.chr10)[2:ncol(brca.cnv.chr.new.gis.fpkm.order.match.chr10)] %in% substr(brca.non.out.sample, 1, 15)
+#     ];
+# 
+# 
+# 
+# # 2. METABRIC
+# # Filtering data for chromosome 10
+# meta.cnv.chr.new.gis.fpkm.order.match.chr10 <- meta.cnv.chr.new.gis.fpkm.order.match[
+#     meta.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',
+#     ];
+# 
+# # Extracting outlier patient samples for FGFR2
+# meta.out.sample <- colnames(outlier.patient.tag.01.meta.cnv.match)[
+#     outlier.patient.tag.01.meta.cnv.match[
+#         rownames(fpkm.tumor.symbol.filter.meta.symbol[
+#             fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% 'FGFR2',
+#             ]), 
+#         ] == 1
+#     ];
+# 
+# # Filtering data for outlier patient samples in chromosome 10
+# meta.cnv.chr.new.gis.fpkm.order.match.chr10.out <- meta.cnv.chr.new.gis.fpkm.order.match.chr10[,substr(na.omit(meta.out.sample), 1, 15)];
+# 
+# # Extracting non-outlier patient samples for FGFR2
+# meta.non.out.sample <- colnames(outlier.patient.tag.01.meta.cnv.match)[
+#     outlier.patient.tag.01.meta.cnv.match[
+#         rownames(fpkm.tumor.symbol.filter.meta.symbol[
+#             fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% 'FGFR2',
+#             ]), 
+#         ] == 0
+#     ];
+# 
+# # Filtering data for non-outlier patient samples in chromosome 10
+# meta.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <-  meta.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     ,2:ncol(meta.cnv.chr.new.gis.fpkm.order.match.chr10)
+#     ][
+#         ,colnames(meta.cnv.chr.new.gis.fpkm.order.match.chr10)[
+#             2:ncol(meta.cnv.chr.new.gis.fpkm.order.match.chr10)] %in% substr(meta.non.out.sample, 1, 15)
+#             ];
+# 
+# 
+# # 3. ICGC-BRCA_EU
+# # Extracting gene symbols from raw data
+# icgc.cnv.all.symbol <- sub("\\|.*", "", icgc.cnv.chr.new.gis.raw$Gene.Symbol);
+# 
+# # Filtering data for chromosome 10
+# icgc.cnv.chr.new.gis.fpkm.order.match.chr10 <- icgc.cnv.chr.new.gis.fpkm.order.match[
+#     icgc.cnv.chr.new.gis.fpkm.order.match.chr == "10",
+#     ];
+# 
+# # Filtering gene symbols for chromosome 10
+# icgc.cnv.all.symbol.10 <- icgc.cnv.all.symbol[
+#     icgc.cnv.chr.new.gis.fpkm.order.match.chr == "10"
+#     ];
+# 
+# # Extracting outlier patient samples for FGFR2 in ICGC data
+# icgc.out.sample <- colnames(outlier.patient.tag.01.icgc)[
+#     outlier.patient.tag.01.icgc[
+#         rownames(fpkm.data.icgc)[
+#             fpkm.data.icgc$Name %in% "FGFR2"
+#             ],
+#         ] == 1
+#     ];
+# 
+# # Filtering data for outlier patient samples in chromosome 10
+# icgc.cnv.chr.new.gis.fpkm.order.match.chr.out <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , icgc.out.sample
+#     ];
+# 
+# # Extracting non-outlier patient samples for FGFR2 in ICGC data
+# icgc.non.out.sample <- colnames(outlier.patient.tag.01.icgc)[
+#     outlier.patient.tag.01.icgc[
+#         rownames(icgc.fpkm.data)[
+#             icgc.fpkm.data$Name %in% "FGFR2"
+#             ],
+#         ] == 0
+#     ];
+# 
+# # Filtering data for non-outlier patient samples in chromosome 10
+# icgc.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , !(colnames(icgc.cnv.chr.new.gis.fpkm.order.match.chr10) %in% icgc.out.sample)
+#     ];
+# 
+# 
+# 
+# 
+# 
+# # 1. Outlier Data
+# brca.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , substr(brca.out.sample, 1, 15), drop = FALSE
+#     ];
+# brca.chr10.out.symbol <- brca.cnv.chr.new.gis.fpkm.order.match.chr10$Hugo_Symbol;
+# 
+# meta.chr10.out <- meta.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , substr(na.omit(meta.out.sample), 1, 15)
+#     ];
+# meta.chr10.out.symbol <- meta.cnv.chr.new.gis.fpkm.order.match.chr10$Hugo_Symbol;
+# 
+# icgc.chr10.out <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
+#     , icgc.out.sample, drop = FALSE
+#     ];
+# icgc.chr10.out.symbol <- icgc.cnv.all.symbol.10;
+# 
+# unique.chr10.symbol <- intersect(
+#     brca.chr10.out.symbol, 
+#     intersect(meta.chr10.out.symbol, icgc.chr10.out.symbol)
+#     );
+# 
+# # Matching Outlier Data
+# brca.chr10.out.match <- brca.chr10.out[
+#     brca.chr10.out.symbol %in% unique.chr10.symbol, 
+#     ];
+# brca.chr10.out.match <- brca.chr10.out.match[
+#     !duplicated(brca.chr10.out.symbol[brca.chr10.out.symbol %in% unique.chr10.symbol]), 
+#     ];
+# meta.chr10.out.match <- meta.chr10.out[
+#     meta.chr10.out.symbol %in% unique.chr10.symbol, 
+#     ];
+# meta.chr10.out.match <- meta.chr10.out.match[
+#     !duplicated(meta.chr10.out.symbol[meta.chr10.out.symbol %in% unique.chr10.symbol]), 
+#     ];
+# icgc.chr10.out.match <- icgc.chr10.out[
+#     icgc.chr10.out.symbol %in% unique.chr10.symbol, 
+#     ];
+# 
+# all.chr10.out.match <- cbind(
+#     brca.chr10.out.match,
+#     meta.chr10.out.match,
+#     icgc.chr10.out.match
+#     );
+# 
+# 
+# # 2. Non-Outlier Data
+# brca.chr10.non.out.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
+#     brca.chr10.out.symbol %in% unique.chr10.symbol, 
+#     ];
+# brca.chr10.non.out.match <- brca.chr10.non.out.match[
+#     !duplicated(brca.chr10.out.symbol[brca.chr10.out.symbol %in% unique.chr10.symbol]), 
+#     ];
+# meta.chr10.non.out.match <- meta.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
+#     meta.chr10.out.symbol %in% unique.chr10.symbol, 
+#     ];
+# meta.chr10.non.out.match <- meta.chr10.non.out.match[
+#     !duplicated(meta.chr10.out.symbol[meta.chr10.out.symbol %in% unique.chr10.symbol]), 
+#     ];
+# icgc.chr10.non.out.match <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10.out.non[
+#     icgc.chr10.out.symbol %in% unique.chr10.symbol, 
+#     ];
+# 
+# all.chr10.non.out.match <- cbind(
+#     brca.chr10.non.out.match,
+#     meta.chr10.non.out.match,
+#     icgc.chr10.non.out.match
+#     );
+# sample.chr10.non <- c(
+#     rep('brca', ncol(brca.chr10.non.out.match)),
+#     rep('meta', ncol(meta.chr10.non.out.match)),
+#     rep('icgc', ncol(icgc.chr10.non.out.match))
+#     );
+# 
+# all.chr10.non.out.match.median <- apply(all.chr10.non.out.match, 1, median);
+# 
+# ### CLUSTERING AND ORDERING 
+# distance_matrix.t.all.chr10.non.out.match <- dist(t(all.chr10.non.out.match), method = "euclidean");
+# fit.t.all.chr10.non.out.match <- hclust(distance_matrix.t.all.chr10.non.out.match, method = "ward.D2");
+# all.chr10.non.out.match.order <- all.chr10.non.out.match[, fit.t.all.chr10.non.out.match$order];
+# sample.chr10.non.order <- sample.chr10.non[fit.t.all.chr10.non.out.match$order];
 
 ### HEATMAP 
 chr10.out <- create.heatmap(
@@ -278,19 +278,6 @@ cna.multi <- create.multiplot(
     xlab.to.xaxis.padding = -1, 
     right.padding = 3,     
     bottom.padding = 10,
-    yaxis.fontface = 1,
-    plot.layout = c(1, 2),
-    main.key.padding = 3,
-    panel.heights = c(0.12, 1),
-    ylab.padding = 1,
-    y.spacing = -0.7,
-    main.cex = 1.6,
-    xaxis.cex = 0,
-    xaxis.lab = NULL,
-    xlab.padding = -10, 
-    xlab.to.xaxis.padding = -1, 
-    right.padding = 3,     
-    bottom.padding = 10,
     # Setting groups
     legend = list(
         bottom = list(
@@ -325,35 +312,12 @@ cna.multi <- create.multiplot(
     );
 
 
-
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'CNA_chr10', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 10.4, 
-    height = 4.5
-    );
-cna.multi;
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'CNA_chr10', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 10.4, 
-    height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-cna.multi;
-dev.off();
-
-
-
+# Save the plot as a PNG
+BoutrosLab.plotting.general::write.plot(
+    trellis.object = cna.multi,
+    filename = 'figures/Figure_2_c.png',
+    width = 9,
+    height = 8.5,
+    size.units = 'in',
+    resolution = 1200
+);
