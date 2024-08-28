@@ -126,11 +126,12 @@ five.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
 # Save the plot as a PNG
 write.plot(
     trellis.object = five.outlier.gene.sum,
-    filename = generate.filename(
-        '5_patient_per_outlier_gene_number',
-        'histogram',
-        'png'
-    ),
+    filename = "Figure_1_d.png",
+    # filename = generate.filename(
+    #     '5_patient_per_outlier_gene_number',
+    #     'histogram',
+    #     'png'
+    # ),
     width = 5.5,
     height = 5,
     size.units = 'in',

@@ -285,35 +285,14 @@ stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
         )
     );
 
-
-stripplot.gene.z.scores;
-
 ### OUTPUT ######################################################################
 
-# Save the plot as a PDF
-pdf(
-    file = generate.filename(
-        'six_gene', 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 4.7, 
-    height = 5.3
-    );
-stripplot.gene.z.scores;
-dev.off();
-
 # Save the plot as a PNG
-png(
-    file = generate.filename(
-        'six_gene', 
-        'scatter', 
-        'png'
-        ), 
-    width = 4.7, 
-    height = 5.3, 
-    unit = 'in', 
-    res = 1200
-    );
-stripplot.gene.z.scores;
-dev.off();
+write.plot(
+    trellis.object = stripplot.gene.z.scores,
+    filename = 'Figure_1_b.png',
+    width = 4.7,
+    height = 5.3,
+    size.units = 'in',
+    resolution = 1200
+);
