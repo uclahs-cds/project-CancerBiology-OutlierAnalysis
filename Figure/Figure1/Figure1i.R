@@ -4,97 +4,99 @@
 # The analysis is connected to Figure 1f,g.
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
-# Chromosome name vector
-chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'MT', 'X', 'Y');
 
-# Function to process gene position data
-process.gene.position <- function(gene.position, gene.rank, chromosome.col = "chromosome_name", start.col = "start_position") {
-    gene.position.order <- gene.position[match(gene.rank$gene_id, gene.position$gene_id), ];
-    gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'X'] <- 24;
-    gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'Y'] <- NA;
-    gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'MT'] <- 23;
-
-    gene.position.order.fdr <- data.frame(
-        gene.position.order,
-        fdr = gene.rank$fdr
-        );
-
-    gene.position.order.fdr.na <- na.omit(gene.position.order.fdr);
-    gene.position.order.fdr.na <- gene.position.order.fdr.na[order(as.numeric(gene.position.order.fdr.na[[start.col]])), ];
-    gene.position.order.fdr.na.chr <- gene.position.order.fdr.na[order(as.numeric(gene.position.order.fdr.na[[chromosome.col]])), ];
-    gene.position.order.fdr.na.chr <- gene.position.order.fdr.na.chr[gene.position.order.fdr.na.chr[[chromosome.col]] %in% c(1:24), ];
-
-    return(gene.position.order.fdr.na.chr);
-    };
-
-# Process data for each dataset
-gene.position.brca.all.order.fdr.na.chr <- process.gene.position(gene.position.brca.all, outlier.gene.fdr.all.brca);
-gene.position.meta.all.order.fdr.na.chr <- process.gene.position(gene.position.meta.all, outlier.gene.fdr.all.meta);
-gene.position.ispy.all.order.fdr.na.chr <- process.gene.position(gene.position.ispy.all, outlier.gene.fdr.01.ispy);
-gene.position.metador.all.order.fdr.na.chr <- process.gene.position(gene.position.metador.all, outlier.gene.fdr.01.matador);
-
-# Process ICGC data
-locations <- fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))];
-
-split.location <- function(location) {
-    parts <- strsplit(location, ":|\\-")[[1]];
-    return(c(parts[1], parts[2], parts[3]));
-    };
-
-split.locations <- t(sapply(locations, split.location));
-location.df <- data.frame(split.locations, stringsAsFactors = FALSE);
-names(location.df) <- c("Chromosome", "Start", "End");
-
-gene.position.icgc.all.order.fdr <- data.frame(
-    symbol = fpkm.data.icgc$Name[as.numeric(rownames(outlier.gene.fdr.all.icgc))],
-    location.df,
-    fdr = outlier.gene.fdr.all.icgc$fdr
-    );
-
-gene.position.icgc.all.order.fdr.na.chr <- process.gene.position(gene.position.icgc.all.order.fdr, outlier.gene.fdr.all.icgc, "Chromosome", "Start");
-
-# Combine all datasets
-all.gene.location <- rbind(
-    gene.position.meta.all[, 2:5],
-    gene.position.brca.all[, 2:5],
-    gene.position.ispy.all[, 2:5],
-    gene.position.metador.all[, 2:5],
-    gene.position.icgc.all[, 2:5]
-    );
-
-all.gene.location.filter <- all.gene.location[!grepl("^CHR", all.gene.location$chromosome_name), ];
-all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ];
-
-all.gene.location.filter.nodup.order <- all.gene.location.filter.nodup[match(names(combine.fisher.pvalue.all.fdr.sort.log), all.gene.location.filter.nodup$hgnc_symbol), ];
-all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name == 'X'] <- 23;
-all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name %in% c('Y', 'MT')] <- NA;
-
-all.gene.location.filter.nodup.order.fdr <- data.frame(
-    all.gene.location.filter.nodup.order, 
-    fdr = combine.fisher.pvalue.all.fdr.sort.log
-    );
-
-all.gene.location.filter.nodup.order.fdr.na.chr <- process.gene.position(all.gene.location.filter.nodup.order.fdr, data.frame(fdr = combine.fisher.pvalue.all.fdr.sort.log));
-all.gene.location.filter.nodup.order.fdr.na.chr <- all.gene.location.filter.nodup.order.fdr.na.chr[!duplicated(all.gene.location.filter.nodup.order.fdr.na.chr$hgnc_symbol), ];
-
-# Set up chromosome colors and positions
-chr.colours <- force.colour.scheme(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name, scheme = 'chromosome');
-
-chr.n.genes <- numeric(23);
-chr.tck <- numeric(23);
-chr.pos.genes <- numeric(23);
-chr.break <- c(0, numeric(23));
-
-for (i in 1:23) {
-    n <- sum(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name == i);
-    chr.n.genes[i] <- n;
-    chr.break[i + 1] <- n + chr.break[i];
-    chr.pos.genes[i] <- floor(chr.n.genes[i] / 2);
-    chr.tck[i] <- chr.pos.genes[i] + which(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name == i)[1];
-    };
-
-all.gene.location.filter.nodup.order.fdr.na.chr$ind <- seq_len(nrow(all.gene.location.filter.nodup.order.fdr.na.chr));
+# # Chromosome name vector
+# chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'MT', 'X', 'Y');
+# 
+# # Function to process gene position data
+# process.gene.position <- function(gene.position, gene.rank, chromosome.col = "chromosome_name", start.col = "start_position") {
+#     gene.position.order <- gene.position[match(gene.rank$gene_id, gene.position$gene_id), ];
+#     gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'X'] <- 24;
+#     gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'Y'] <- NA;
+#     gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'MT'] <- 23;
+# 
+#     gene.position.order.fdr <- data.frame(
+#         gene.position.order,
+#         fdr = gene.rank$fdr
+#         );
+# 
+#     gene.position.order.fdr.na <- na.omit(gene.position.order.fdr);
+#     gene.position.order.fdr.na <- gene.position.order.fdr.na[order(as.numeric(gene.position.order.fdr.na[[start.col]])), ];
+#     gene.position.order.fdr.na.chr <- gene.position.order.fdr.na[order(as.numeric(gene.position.order.fdr.na[[chromosome.col]])), ];
+#     gene.position.order.fdr.na.chr <- gene.position.order.fdr.na.chr[gene.position.order.fdr.na.chr[[chromosome.col]] %in% c(1:24), ];
+# 
+#     return(gene.position.order.fdr.na.chr);
+#     };
+# 
+# # Process data for each dataset
+# gene.position.brca.all.order.fdr.na.chr <- process.gene.position(gene.position.brca.all, outlier.gene.fdr.all.brca);
+# gene.position.meta.all.order.fdr.na.chr <- process.gene.position(gene.position.meta.all, outlier.gene.fdr.all.meta);
+# gene.position.ispy.all.order.fdr.na.chr <- process.gene.position(gene.position.ispy.all, outlier.gene.fdr.01.ispy);
+# gene.position.metador.all.order.fdr.na.chr <- process.gene.position(gene.position.metador.all, outlier.gene.fdr.01.matador);
+# 
+# # Process ICGC data
+# locations <- fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))];
+# 
+# split.location <- function(location) {
+#     parts <- strsplit(location, ":|\\-")[[1]];
+#     return(c(parts[1], parts[2], parts[3]));
+#     };
+# 
+# split.locations <- t(sapply(locations, split.location));
+# location.df <- data.frame(split.locations, stringsAsFactors = FALSE);
+# names(location.df) <- c("Chromosome", "Start", "End");
+# 
+# gene.position.icgc.all.order.fdr <- data.frame(
+#     symbol = fpkm.data.icgc$Name[as.numeric(rownames(outlier.gene.fdr.all.icgc))],
+#     location.df,
+#     fdr = outlier.gene.fdr.all.icgc$fdr
+#     );
+# 
+# gene.position.icgc.all.order.fdr.na.chr <- process.gene.position(gene.position.icgc.all.order.fdr, outlier.gene.fdr.all.icgc, "Chromosome", "Start");
+# 
+# # Combine all datasets
+# all.gene.location <- rbind(
+#     gene.position.meta.all[, 2:5],
+#     gene.position.brca.all[, 2:5],
+#     gene.position.ispy.all[, 2:5],
+#     gene.position.metador.all[, 2:5],
+#     gene.position.icgc.all[, 2:5]
+#     );
+# 
+# all.gene.location.filter <- all.gene.location[!grepl("^CHR", all.gene.location$chromosome_name), ];
+# all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ];
+# 
+# all.gene.location.filter.nodup.order <- all.gene.location.filter.nodup[match(names(combine.fisher.pvalue.all.fdr.sort.log), all.gene.location.filter.nodup$hgnc_symbol), ];
+# all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name == 'X'] <- 23;
+# all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name %in% c('Y', 'MT')] <- NA;
+# 
+# all.gene.location.filter.nodup.order.fdr <- data.frame(
+#     all.gene.location.filter.nodup.order, 
+#     fdr = combine.fisher.pvalue.all.fdr.sort.log
+#     );
+# 
+# all.gene.location.filter.nodup.order.fdr.na.chr <- process.gene.position(all.gene.location.filter.nodup.order.fdr, data.frame(fdr = combine.fisher.pvalue.all.fdr.sort.log));
+# all.gene.location.filter.nodup.order.fdr.na.chr <- all.gene.location.filter.nodup.order.fdr.na.chr[!duplicated(all.gene.location.filter.nodup.order.fdr.na.chr$hgnc_symbol), ];
+# 
+# # Set up chromosome colors and positions
+# chr.colours <- force.colour.scheme(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name, scheme = 'chromosome');
+# 
+# chr.n.genes <- numeric(23);
+# chr.tck <- numeric(23);
+# chr.pos.genes <- numeric(23);
+# chr.break <- c(0, numeric(23));
+# 
+# for (i in 1:23) {
+#     n <- sum(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name == i);
+#     chr.n.genes[i] <- n;
+#     chr.break[i + 1] <- n + chr.break[i];
+#     chr.pos.genes[i] <- floor(chr.n.genes[i] / 2);
+#     chr.tck[i] <- chr.pos.genes[i] + which(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name == i)[1];
+#     };
+# 
+# all.gene.location.filter.nodup.order.fdr.na.chr$ind <- seq_len(nrow(all.gene.location.filter.nodup.order.fdr.na.chr));
 
 # Generate Manhattan plot
 outlier.manhattan <- create.manhattanplot(
@@ -131,33 +133,12 @@ outlier.manhattan <- create.manhattanplot(
     );
 
 
-# Save the manhattan plot as a PDF
-pdf(
-    file = generate.filename(
-        'combine_outlier', 
-        'manhattan', 
-        'pdf'
-        ), 
-    width = 11, 
-    height = 4.5
-    );
-outlier.manhattan;
-dev.off();
-
-# Save the manhattan plot as a PNG
-png(
-    file = generate.filename(
-        'combine_outlier', 
-        'manhattan', 
-        'png'
-        ), 
-    width = 11, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = outlier.manhattan,
+    filename = 'Figure_1_i.png',
+    width = 11,
     height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-outlier.manhattan;
-dev.off();
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);
