@@ -10,13 +10,11 @@ logger::log_warnings();
 logger::log_messages();
 
 logger::log_info('Starting up');
-load('/Users/nwiltsie/src/project-CancerBiology-OutlierAnalysis/untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData');
+load('/Users/nwiltsie/src/project-CancerBiology-OutlierAnalysis/untracked_data/outlier/2024-05-05_driver_gene.RData');
 
 subfiles <- c(
-    'Figure/Figure2/Figure2a.R',
-    'Figure/Figure2/Figure2b.R',
-    'Figure/Figure2/Figure2c.R',
-    'Figure/Figure2/Figure2d.R'
+    # 'Figure/Figure2/Figure2e.R',
+    'Figure/Figure2/Figure2f.R'
 );
 
 for (i in seq_along(subfiles)) {
