@@ -395,7 +395,7 @@ metafor.cnv.fdr <- data.frame(
     sample = rep('a', 5),
     odd = metafor.cnv.odd.ci.p.data$fdr);
 
-fdr.bar <- BoutrosLab.plotting.general:::create.barplot(
+fdr.bar <- BoutrosLab.plotting.general::create.barplot(
     formula = group ~ -log10(odd),
     data = metafor.cnv.fdr,
     main = NULL,
@@ -433,7 +433,7 @@ fdr.bar;
 
 
 
-multi.gene <- create.multipanelplot(
+multi.gene <- BoutrosLab.plotting.general::create.multipanelplot(
     list(non.fraction.bar, out.fraction.bar, metafor.all.segplot, fdr.bar),
     main.cex = 0,
     main.y = 0.5,
@@ -449,35 +449,12 @@ multi.gene <- create.multipanelplot(
     right.legend.padding = 0
     );
 
-multi.gene;
-
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'CNA', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 10.4, 
-    height = 4.5
-    );
-multi.gene;
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'CNA', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 10.4, 
+# Save the plot as a PNG
+BoutrosLab.plotting.general::write.plot(
+    trellis.object = multi.gene,
+    filename = 'Figure_2_a.png',
+    width = 10.4,
     height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-multi.gene;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);
