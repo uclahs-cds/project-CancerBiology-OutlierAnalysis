@@ -13,13 +13,14 @@ logger::log_messages();
 logger::log_info('Starting up');
 # load('2024-08-23_Figure1.rda');
 load('/Users/nwiltsie/src/project-CancerBiology-OutlierAnalysis/untracked_data/outlier/2024-08-27_metabric_tcga_ispy_matador_icgc.RData');
+# load('/Users/nwiltsie/src/project-CancerBiology-OutlierAnalysis/untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData');
 
 subfiles <- c(
     'Figure/Figure1/Figure1b.R',
     'Figure/Figure1/Figure1c.R',
     'Figure/Figure1/Figure1d.R',
     'Figure/Figure1/Figure1e.R',
-    # 'Figure/Figure1/Figure1h.R', # No plotting code present
+    # 'Figure/Figure1/Figure1h.R'
     'Figure/Figure1/Figure1i.R'
 );
 
