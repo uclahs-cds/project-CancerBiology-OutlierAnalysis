@@ -290,7 +290,7 @@ stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
 # Save the plot as a PNG
 write.plot(
     trellis.object = stripplot.gene.z.scores,
-    filename = 'Figure_1_b.png',
+    filename = 'figures/Figure_1_b.png',
     width = 4.7,
     height = 5.3,
     size.units = 'in',

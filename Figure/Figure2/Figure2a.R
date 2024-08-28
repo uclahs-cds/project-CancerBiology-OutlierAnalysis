@@ -452,7 +452,7 @@ multi.gene <- BoutrosLab.plotting.general::create.multipanelplot(
 # Save the plot as a PNG
 BoutrosLab.plotting.general::write.plot(
     trellis.object = multi.gene,
-    filename = 'Figure_2_a.png',
+    filename = 'figures/Figure_2_a.png',
     width = 10.4,
     height = 4.5,
     size.units = 'in',

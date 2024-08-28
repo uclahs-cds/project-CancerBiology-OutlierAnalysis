@@ -127,12 +127,7 @@ five.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
 # Save the plot as a PNG
 write.plot(
     trellis.object = five.outlier.patient.violin,
-    filename = "Figure_1_e.png",
-    # filename = generate.filename(
-    #     '5_patient_number',
-    #     'violin',
-    #     'png'
-    # ),
+    filename = "figures/Figure_1_e.png",
     width = 4.3,
     height = 5.3,
     size.units = 'in',

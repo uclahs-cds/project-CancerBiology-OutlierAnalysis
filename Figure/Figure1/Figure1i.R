@@ -136,7 +136,7 @@ outlier.manhattan <- create.manhattanplot(
 # Save the plot as a PNG
 write.plot(
     trellis.object = outlier.manhattan,
-    filename = 'Figure_1_i.png',
+    filename = 'figures/Figure_1_i.png',
     width = 11,
     height = 4.5,
     size.units = 'in',

@@ -107,32 +107,12 @@ your.points <- xyplot(i.fpkm.merge.data.order.out.three ~ c(0.9, 1, 1, 1.1, 1),
 i.fpkm.merge.data.order.quan.unequal.three.dot <- i.fpkm.merge.data.order.quan.unequal.three + as.layer(your.points);
 
 
-# Save the bar plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'barplot', 
-        'pdf'
-        ), 
-    width = 4.5, 
-    height = 5
-    );
-i.fpkm.merge.data.order.quan.unequal.three.dot;
-dev.off();
-
-# Save the bar plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'barplot', 
-        'png'
-        ), 
-    width = 4.5, 
+# Save the plot as a PNG
+BoutrosLab.plotting.general::write.plot(
+    trellis.object = i.fpkm.merge.data.order.quan.unequal.three.dot,
+    filename = 'figures/Figure_2_b.png',
+    width = 4.5,
     height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-i.fpkm.merge.data.order.quan.unequal.three.dot;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);

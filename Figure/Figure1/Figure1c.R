@@ -204,12 +204,7 @@ scatter.smooth.line <- create.scatterplot(
 # Save the plot as a PNG
 write.plot(
     trellis.object = scatter.smooth.line,
-    filename = "Figure_1_c.png",
-    # filename = generate.filename(
-    #     '5_patient_per_outlier_ratio_needed_patient_percent_smoothline',
-    #     'scatter',
-    #     'png'
-    # ),
+    filename = "figures/Figure_1_c.png",
     width = 5.5,
     height = 5,
     size.units = 'in',
