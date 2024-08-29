@@ -2,8 +2,8 @@
 invisible(loadNamespace(library(logger)));
 library(BoutrosLab.utilities);
 
+# Set up logging code
 logger::log_threshold(DEBUG);
-
 logger::log_appender(logger::appender_file('plotting.log'));
 logger::log_errors();
 logger::log_warnings();
@@ -14,14 +14,13 @@ logger::log_info('Starting up');
 # Upgrade all warnings to errors
 options(warn = 2);
 
+# Helper functions to colorize text
 ansi.yellow <- function(str) {
     paste('\x1b[33;1m', str, '\x1b[0m', sep = '');
 }
-
 ansi.green <- function(str) {
     paste('\x1b[32;1m', str, '\x1b[0m', sep = '');
 }
-
 ansi.red <- function(str) {
     paste('\x1b[31;1m', str, '\x1b[0m', sep = '');
 }
@@ -29,7 +28,10 @@ ansi.red <- function(str) {
 save.multiple.plots <- function(datafile, subfiles) {
     message(ansi.green(paste('Sourcing', datafile)));
 
+    # Don't fail on warnings while loading the datafile
+    options(warn = 1);
     data.env.name <- attr(attach(datafile), 'name');
+    options(warn = 2);
 
     for (figure.file in subfiles) {
         message(ansi.yellow(figure.file));
