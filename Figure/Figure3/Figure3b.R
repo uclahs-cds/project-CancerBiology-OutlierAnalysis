@@ -6,22 +6,23 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
-# Load TCGA-BRCA RPPA data
-brca.protein <- read.delim2(
-    "/TCGA/TCGA-BRCA/Protein/Protein_Expression_Quantification.tsv", 
-    row.names = 1, 
-    header = TRUE
-    );
-
-# Load RPPA antibody list
-protein.antibody <- read.delim2(
-    "/TCGA/TCGA-BRCA/Protein/TCGA_antibodies_descriptions.gencode.v36.tsv", 
-    row.names = 1,
-    header = TRUE
-    );
+# Haven't uploaded yet. These are included as variables.
+# # Load TCGA-BRCA RPPA data
+# brca.protein <- read.delim2(
+#     "/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Protein_Expression_Quantification.tsv", 
+#     row.names = 1, 
+#     header = TRUE
+#     );
+# 
+# # Load RPPA antibody list
+# protein.antibody <- read.delim2(
+#     "/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/TCGA_antibodies_descriptions.gencode.v36.tsv", 
+#     row.names = 1,
+#     header = TRUE
+#     );
 
 # Outlier symbol
-outlier.symbol <- fpkm.tumor.symbol.filter[rownames(outlier.patient.tag.01.t.p.order), 'Symbol'];
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca), 'Symbol'];
 
 # Protein gene list from antibody data
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, "/"));
@@ -41,11 +42,11 @@ protein.antibody.outlier.id <- rownames(protein.antibody.outlier);
 brca.protein.outlier <- brca.protein[protein.antibody.outlier.id, 5:ncol(brca.protein)];
 brca.protein.outlier.match <- brca.protein.outlier[
     , 
-    colnames(brca.protein.outlier) %in% colnames(outlier.patient.tag.01.t.p.order)
+    colnames(brca.protein.outlier) %in% colnames(outlier.patient.tag.01.brca)
     ];
 
-outlier.patient.tag.01.t.p.order.protein.match <- outlier.patient.tag.01.t.p.order[
-    rownames(fpkm.tumor.symbol.filter)[fpkm.tumor.symbol.filter$Symbol %in% unique(outlier.protein.gene)], 
+outlier.patient.tag.01.brca.protein.match <- outlier.patient.tag.01.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% unique(outlier.protein.gene)], 
     colnames(brca.protein.outlier.match)
     ];
 
@@ -57,9 +58,9 @@ for (i in 1:nrow(brca.protein.outlier.match)) {
     target.gene.name <- protein.antibody[rownames(brca.protein.outlier.match), 'gene_name'][i];
     target.gene.name.split <- unlist(strsplit(target.gene.name, "/"));
     target.gene.name.single <- outlier.protein.gene[outlier.protein.gene %in% target.gene.name.split];
-    row.name.target <- rownames(fpkm.tumor.symbol.filter)[fpkm.tumor.symbol.filter$Symbol %in% target.gene.name.single];
-    target.col <- colnames(outlier.patient.tag.01.t.p.order.protein.match)[outlier.patient.tag.01.t.p.order.protein.match[row.name.target, ] == 1];
-    non.target.col <- colnames(outlier.patient.tag.01.t.p.order.protein.match)[outlier.patient.tag.01.t.p.order.protein.match[row.name.target, ] == 0];
+    row.name.target <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% target.gene.name.single];
+    target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[outlier.patient.tag.01.brca.protein.match[row.name.target, ] == 1];
+    non.target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[outlier.patient.tag.01.brca.protein.match[row.name.target, ] == 0];
     target.gene.list <- c(target.gene.list, target.gene.name.single);
     outlier.protein.list[[i]] <- brca.protein.outlier.match[i, target.col];
     non.outlier.protein.list[[i]] <- brca.protein.outlier.match[i, non.target.col];
@@ -77,11 +78,11 @@ protein.antibody.outlier.id.no.p <- rownames(protein.antibody.outlier.no.p);
 brca.protein.outlier.no.p <- brca.protein[protein.antibody.outlier.id.no.p, 5:ncol(brca.protein)];
 brca.protein.outlier.match.no.p <- brca.protein.outlier.no.p[
     , 
-    colnames(brca.protein.outlier.no.p) %in% colnames(outlier.patient.tag.01.t.p.order)
+    colnames(brca.protein.outlier.no.p) %in% colnames(outlier.patient.tag.01.brca)
     ];
 
-outlier.patient.tag.01.t.p.order.protein.match.no.p <- outlier.patient.tag.01.t.p.order[
-    rownames(fpkm.tumor.symbol.filter)[fpkm.tumor.symbol.filter$Symbol %in% unique(protein.antibody.outlier.no.p$gene_name)], 
+outlier.patient.tag.01.brca.protein.match.no.p <- outlier.patient.tag.01.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% unique(protein.antibody.outlier.no.p$gene_name)], 
     colnames(brca.protein.outlier.match.no.p)
     ];
 
@@ -93,9 +94,9 @@ for (i in 1:nrow(brca.protein.outlier.match.no.p)) {
     target.gene.name <- protein.antibody[rownames(brca.protein.outlier.match.no.p), 'gene_name'][i];
     target.gene.name.split <- unlist(strsplit(target.gene.name, "/"));
     target.gene.name.single <- outlier.protein.gene[outlier.protein.gene %in% target.gene.name.split];
-    row.name.target <- rownames(fpkm.tumor.symbol.filter)[fpkm.tumor.symbol.filter$Symbol %in% target.gene.name.single];
-    target.col <- colnames(outlier.patient.tag.01.t.p.order.protein.match.no.p)[outlier.patient.tag.01.t.p.order.protein.match.no.p[row.name.target, ] == 1];
-    non.target.col <- colnames(outlier.patient.tag.01.t.p.order.protein.match.no.p)[outlier.patient.tag.01.t.p.order.protein.match.no.p[row.name.target, ] == 0];
+    row.name.target <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% target.gene.name.single];
+    target.col <- colnames(outlier.patient.tag.01.brca.protein.match.no.p)[outlier.patient.tag.01.brca.protein.match.no.p[row.name.target, ] == 1];
+    non.target.col <- colnames(outlier.patient.tag.01.brca.protein.match.no.p)[outlier.patient.tag.01.brca.protein.match.no.p[row.name.target, ] == 0];
     target.gene.list.no.p <- c(target.gene.list.no.p, target.gene.name.single);
     outlier.protein.list.no.p[[i]] <- brca.protein.outlier.match.no.p[i, target.col];
     non.outlier.protein.list.no.p[[i]] <- brca.protein.outlier.match.no.p[i, non.target.col];

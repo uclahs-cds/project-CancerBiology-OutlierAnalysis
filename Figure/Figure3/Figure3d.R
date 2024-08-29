@@ -10,25 +10,26 @@
 i <- 'IGF1R';
 i <- 'CLU';
 # Extract matching protein data for a specific gene (i)
+brca.protein.cptac.outlier.match <- brca.protein.cptac[,colnames(brca.protein.cptac) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)];
 brca.protein.cptac.outlier.match.i <- brca.protein.cptac.outlier.match[i, ];
 
 # Match corresponding FPKM data
-fpkm.protein.cptac.match.i <- fpkm.tumor.symbol.filter[
-    fpkm.tumor.symbol.filter$Symbol == i, 
-    match(colnames(brca.protein.cptac.outlier.match.i), substr(colnames(fpkm.tumor.symbol.filter), 1, 15))
+fpkm.protein.cptac.match.i <- fpkm.tumor.symbol.filter.brca[
+    fpkm.tumor.symbol.filter.brca$Symbol == i, 
+    match(colnames(brca.protein.cptac.outlier.match.i), substr(colnames(fpkm.tumor.symbol.filter.brca), 1, 15))
     ];
 
 # Identify outlier patients for the specific gene (i)
-outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match.i <- colnames(
-    outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match
-    )[outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match[
+outlier.patient.tag.01.brca.protein.cptac.zscore.match.i <- colnames(
+    outlier.patient.tag.01.brca.protein.cptac.zscore.match
+    )[outlier.patient.tag.01.brca.protein.cptac.zscore.match[
         rownames(fpkm.protein.cptac.match.i), ] == 1
     ];
 
 # Extract FPKM and protein CPTAC data for outlier patients
-i.fpkm <- fpkm.protein.cptac.match.i[outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match.i];
+i.fpkm <- fpkm.protein.cptac.match.i[outlier.patient.tag.01.brca.protein.cptac.zscore.match.i];
 i.protein.cptac <- brca.protein.cptac.outlier.match.i[
-    substr(outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match.i, 1, 15)
+    substr(outlier.patient.tag.01.brca.protein.cptac.zscore.match.i, 1, 15)
     ];
 
 # Combine protein and mRNA data into a comparison data frame
@@ -45,7 +46,7 @@ colnames(protein.cptac.rna.i.comparison) <- c('non', 'out');
 # Define colors for scatter plot based on outlier status
 dot.colours <- rep('black', nrow(protein.cptac.rna.i.comparison));
 dot.colours[
-    which(colnames(fpkm.protein.cptac.match.i) == outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match.i)
+    which(colnames(fpkm.protein.cptac.match.i) == outlier.patient.tag.01.brca.protein.cptac.zscore.match.i)
     ] <- 'red2';
 
 cptac.gene.scatter <- create.scatterplot(
@@ -139,8 +140,8 @@ brca.protein.outlier.match.i <- brca.protein.outlier.match[
     ];
 
 # Match corresponding FPKM data for i
-fpkm.protein.match.i <- fpkm.tumor.symbol.filter[
-    fpkm.tumor.symbol.filter$Symbol == i, 
+fpkm.protein.match.i <- fpkm.tumor.symbol.filter.brca[
+    fpkm.tumor.symbol.filter.brca$Symbol == i, 
     colnames(brca.protein.outlier.match.i)
     ];
 
@@ -156,25 +157,25 @@ protein.rna.i.comparison <- data.frame(
 colnames(protein.rna.i.comparison) <- c('non', 'out');
 
 # Identify outlier patients for i
-outlier.patient.tag.01.t.p.order.protein.match.no.p.i <- colnames(
-    outlier.patient.tag.01.t.p.order.protein.match.no.p
-    )[outlier.patient.tag.01.t.p.order.protein.match.no.p[
+outlier.patient.tag.01.brca.protein.match.no.p.i <- colnames(
+    outlier.patient.tag.01.brca.protein.match.no.p
+    )[outlier.patient.tag.01.brca.protein.match.no.p[
         rownames(fpkm.protein.match.i), ] == 1
     ];
 
 # Extract FPKM and protein data for outlier patients
 i.fpkm <- fpkm.protein.match.i[
-    outlier.patient.tag.01.t.p.order.protein.match.no.p.i
+    outlier.patient.tag.01.brca.protein.match.no.p.i
     ];
 
 i.protein <- brca.protein.outlier.match.i[
-    1, outlier.patient.tag.01.t.p.order.protein.match.no.p.i
+    1, outlier.patient.tag.01.brca.protein.match.no.p.i
     ];
 
 # Define colors for scatter plot based on outlier status
 dot.colours <- rep('black', nrow(protein.rna.i.comparison));
 dot.colours[
-    which(colnames(fpkm.protein.match.i) %in% outlier.patient.tag.01.t.p.order.protein.match.no.p.i)
+    which(colnames(fpkm.protein.match.i) %in% outlier.patient.tag.01.brca.protein.match.no.p.i)
     ] <- 'red2';
 
 

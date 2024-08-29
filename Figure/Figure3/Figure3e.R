@@ -46,6 +46,21 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
     }
 
 
+
+brca.clinic <- read.csv(
+    file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/brca_tcga_pan_can_atlas_2018_clinical_data.csv', 
+    header = TRUE, 
+    stringsAsFactors = F, 
+    sep = ',');
+
+
+brca.sample.clinic <- gsub("-", ".", brca.clinic$Patient.ID, fixed = TRUE);
+rownames(brca.clinic) <- brca.sample.clinic;
+brca.clinic.sort <- brca.clinic[order(brca.clinic$Subtype),];
+brca.clinic.order <- brca.clinic.sort[substr(colnames(brca.outlier.patient.tag.01.t.p.order), 1, 12),]
+
+brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
+
 os.data.stage.pseudo.brca <- data.frame(
     status = substr(brca.clinic.order$Overall.Survival.Status, 1, 1),
     os = brca.clinic.order$Overall.Survival..Months.,
@@ -116,6 +131,21 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.brca <- normal.results$p.value
 
 
 ### 2. METABRIC
+outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
+
+meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
+meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
+
+# get subtype info from other clinical dataset
+meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
+meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
+rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
+meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
+
+meta.clinic.5.order.combine <- meta.clinic.order;
+meta.clinic.5.order.combine$pam50 <- meta.clinic.5.order$Pam50Subtype;
+
+
 perform.fisher.test.meta <- function(data, subtype = NULL) {
     if (!is.null(subtype)) {
         data <- data[data$pam50 == subtype, ];
@@ -148,7 +178,7 @@ perform.fisher.test.meta <- function(data, subtype = NULL) {
 os.data.stage.pseudo.meta <- data.frame(
     status = substr(meta.clinic.5.order.combine$Overall.Survival.Status, 1, 1),
     os = meta.clinic.5.order.combine$Overall.Survival..Months.,
-    patient = outlier.patient.tag.01.sum,
+    patient = outlier.patient.tag.01.meta.sum,
     pam50 = meta.clinic.5.order.combine$pam50,
     age = meta.clinic.5.order.combine$Age.at.Diagnosis,
     stage = meta.clinic.5.order$stage
@@ -209,7 +239,9 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.meta <- normal.meta.results$p.
 
 
 
-### 3. TCGA BRCA-EU
+### 3. ICGC BRCA-EU
+icgc.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Supplementary.Table.1 CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv', header = T, sep =',');
+icgc.clinic.order <- icgc.clinic[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic$sample),];
 colnames(icgc.clinic) <- icgc.clinic[1,];
 icgc.clinic <- icgc.clinic[-1,];
 icgc.sample.num <- substr(icgc.clinic$sample_name, 3, nchar(icgc.clinic$sample_name));
@@ -300,9 +332,8 @@ perform.fisher.test.icgc <- function(data, subtype = NULL) {
 
 
 # Data preparation
-os.data.stage.pseudo.icgc <- data.frame(subtype = subtype.total.outlier.num.icgc,
-                                        patient = outlier.patient.tag.01.icgc,
-                                        stage = icgc.stage.convert.new.x);
+os.data.stage.pseudo.icgc <- data.frame(cbind(subtype.total.outlier.num.icgc,
+                                        stage = icgc.stage.convert.new.x));
 os.data.stage.pseudo.icgc <- na.omit(os.data.stage.pseudo.icgc);
 
 # All ICGC

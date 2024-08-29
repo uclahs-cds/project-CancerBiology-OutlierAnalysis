@@ -6,12 +6,21 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
-# Load normalized data (z-score)
-brca.protein.cptac.zscore <- read.delim2(
-    "/TCGA/TCGA-BRCA/brca_tcga_pan_can_atlas_2018/data_protein_quantification_zscores.txt", 
-    row.names = 1, 
-    header = TRUE
-    );
+# Haven't uploaded yet. These are included as variables.
+# # Load normalized data (z-score)
+# brca.protein.cptac.zscore <- read.delim2(
+#     "/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_protein_quantification_zscores.txt", 
+#     row.names = 1, 
+#     header = TRUE
+#     );
+# 
+# # Load antibody list
+# protein.antibody <- read.delim2(
+#     "/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/TCGA_antibodies_descriptions.gencode.v36.tsv", 
+#     row.names = 1,
+#     header = TRUE
+#     );
+
 
 rownames(brca.protein.cptac.zscore) <- sapply(
     strsplit(rownames(brca.protein.cptac.zscore), "|", fixed = TRUE), 
@@ -19,7 +28,7 @@ rownames(brca.protein.cptac.zscore) <- sapply(
     );
 
 # Outlier symbol
-outlier.symbol <- fpkm.tumor.symbol.filter[rownames(outlier.patient.tag.01.t.p.order), 'Symbol'];
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca), 'Symbol'];
 
 # Protein CPTAC z-score list
 protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
@@ -29,17 +38,17 @@ outlier.protein.cptac.zscore.gene <- outlier.symbol[outlier.symbol %in% protein.
 
 brca.protein.cptac.zscore.outlier.match <- brca.protein.cptac.zscore[
     , 
-    colnames(brca.protein.cptac.zscore) %in% substr(colnames(outlier.patient.tag.01.t.p.order), 1, 15)
+    colnames(brca.protein.cptac.zscore) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)
     ];
 
-outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match <- outlier.patient.tag.01.t.p.order[
-    rownames(fpkm.tumor.symbol.filter)[fpkm.tumor.symbol.filter$Symbol %in% unique(outlier.protein.cptac.zscore.gene)], 
-    substr(colnames(outlier.patient.tag.01.t.p.order), 1, 15) %in% colnames(brca.protein.cptac.zscore)
+outlier.patient.tag.01.brca.protein.cptac.zscore.match <- outlier.patient.tag.01.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% unique(outlier.protein.cptac.zscore.gene)], 
+    substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% colnames(brca.protein.cptac.zscore)
     ];
 
 # Only outlier gene's FPKM
-fpkm.tumor.symbol.filter.outlier <- fpkm.tumor.symbol.filter[
-    rownames(gene.rank.order.cosine.observed.p.value.max.filter.fdr.01.1), 
+fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[
+    rownames(outlier.gene.fdr.01.brca), 
     ];
 
 outlier.protein.cptac.zscore.list <- list();
@@ -50,14 +59,14 @@ for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
     target.gene.name.protein <- brca.protein.cptac.zscore.outlier.match[
         rownames(brca.protein.cptac.zscore.outlier.match) %in% outlier.protein.cptac.zscore.gene[i], 
         ];
-    row.name.target <- rownames(fpkm.tumor.symbol.filter.outlier)[
-        fpkm.tumor.symbol.filter.outlier$Symbol %in% outlier.protein.cptac.zscore.gene[i]
+    row.name.target <- rownames(fpkm.tumor.symbol.filter.brca.outlier)[
+        fpkm.tumor.symbol.filter.brca.outlier$Symbol %in% outlier.protein.cptac.zscore.gene[i]
         ];
-    target.col <- colnames(outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match)[
-        outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match[row.name.target, ] == 1
+    target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
+        outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 1
         ];
-    non.target.col <- colnames(outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match)[
-        outlier.patient.tag.01.t.p.order.protein.cptac.zscore.match[row.name.target, ] == 0
+    non.target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
+        outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 0
         ];
     target.gene.cptac.zscore.list <- c(target.gene.cptac.zscore.list, outlier.protein.cptac.zscore.gene[i]);
     outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(target.col, 1, 15)];

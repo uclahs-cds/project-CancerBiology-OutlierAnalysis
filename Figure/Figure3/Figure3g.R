@@ -50,7 +50,7 @@ os.group.brca <- na.omit(os.group.brca);
 os.data.meta <- data.frame(cbind(
     status = substr(meta.clinic.5.order.combine$Overall.Survival.Status, 1, 1),
     os = meta.clinic.5.order.combine$Overall.Survival..Months.,
-    patient = outlier.patient.tag.01.sum, 
+    patient = outlier.patient.tag.01.meta.sum, 
     pam50 = meta.clinic.5.order.combine$pam50, 
     age = meta.clinic.5.order.combine$Age.at.Diagnosis
 ));

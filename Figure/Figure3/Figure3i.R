@@ -9,9 +9,78 @@
 library(metafor);
 
 
+
+# Combine two datasets
+os.group.combine <- data.frame(rbind(
+    os.group.brca,
+    os.group.meta));
+
+
+os.group.combine$pam50 <- as.factor(os.group.combine$pam50);
+os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = "LumA");
+os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% "NC"),];
+os.group.combine$pam50 <- factor(os.group.combine$pam50);
+os.group.combine <- na.omit(os.group.combine);
+
+
+os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine);
+cox.rf.group.assumption.sub <- cox.zph(os.model.subtype);
+
+summary_cox.sub <-summary(os.model.subtype);
+
+all.data.combine <- data.frame(
+    mean = as.numeric(summary_cox.sub$conf.int[1]),
+    lower = as.numeric(summary_cox.sub$conf.int[3]),
+    upper = as.numeric(summary_cox.sub$conf.int[4]),
+    Features = 'Outlier patients',
+    number = paste(as.character(sum(os.group.combine[,'patient'] == 2)), '/', as.character(length(os.group.combine[,'patient'])), sep = ''),
+    # log2HR = as.character(round(log2(as.numeric(summary_cox$conf.int[1])), digits = 2)),
+    HR = as.character(round(as.numeric(summary_cox.sub$conf.int[1]), digits = 2)),
+    Pvalue = as.character(round(as.numeric(summary_cox.sub$coefficients[5]), digits = 4)),
+    event = paste(as.character(sum(os.group.combine[os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[, 'status'] == 1)), sep = ''),
+    assumption = as.character(round(cox.rf.group.assumption.sub$table[1,3], digits = 3))
+    );
+
+
+input.subtype <- c('Basal', 'Her2', 'LumA', 'LumB', 'Normal')
+
+for (i in input.subtype) {
+    os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine[os.group.combine$pam50 == i,]);
+    cox.rf.group.assumption.sub <- cox.zph(os.model.subtype);
+    summary_cox.sub <- summary(os.model.subtype);
+    
+    data <- data.frame(
+        mean = as.numeric(summary_cox.sub$conf.int[1]),
+        lower = as.numeric(summary_cox.sub$conf.int[3]),
+        upper = as.numeric(summary_cox.sub$conf.int[4]),
+        Features = 'Outlier patients',
+        number = paste(as.character(sum(os.group.combine[os.group.combine$pam50 == i,'patient'] == 2)), '/', as.character(length(os.group.combine[os.group.combine$pam50 == i,'patient'])), sep = ''),
+        HR = as.character(round(as.numeric(summary_cox.sub$conf.int[1]), digits = 2)),
+        Pvalue = as.character(round(as.numeric(summary_cox.sub$coefficients[5]), digits = 3)),
+        event = paste(as.character(sum(os.group.combine[os.group.combine$pam50 == i & os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[os.group.combine$pam50 == i, 'status'] == 1)), sep = ''),
+        assumption = as.character(round(cox.rf.group.assumption.sub$table[1,3], digits = 3))
+        );
+    
+    data.name <- paste(i, ".data.combine", sep = '');
+    assign(data.name, data);
+    }
+
+
+combine.surv.data <- rbind(
+    all = all.data.combine,
+    basal = Basal.data.combine,
+    her2 = Her2.data.combine,
+    luma = LumA.data.combine,
+    lumb = LumB.data.combine,
+    normal = Normal.data.combine
+    );
+combine.surv.data$Features <- c('All patients', 'Basal', 'Her2', 'LuminalA', 'LuminalB', 'Normal');
+
+
+
 combine.surv.data.subtype <- combine.surv.data[2:6, ];
-ln.hr.combine.surv.data.subtype <- ln(combine.surv.data.subtype$mean);
-se.hr.combine.surv.data.subtype <- (ln(combine.surv.data.subtype$upper) - ln(combine.surv.data.subtype$lower)) / 3.92;
+ln.hr.combine.surv.data.subtype <- log(combine.surv.data.subtype$mean);
+se.hr.combine.surv.data.subtype <- (log(combine.surv.data.subtype$upper) - log(combine.surv.data.subtype$lower)) / 3.92;
 
 # Perform meta-meta analysis
 res.meta.meta.all.combine.cox <- rma.uni(yi = ln.hr.combine.surv.data.subtype, sei = se.hr.combine.surv.data.subtype, method = "DL");
