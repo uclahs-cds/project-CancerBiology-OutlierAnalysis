@@ -25,34 +25,92 @@ ansi.red <- function(str) {
     paste('\x1b[31;1m', str, '\x1b[0m', sep = '');
 }
 
-save.multiple.plots <- function(datafile, subfiles) {
-    message(ansi.green(paste('Sourcing', datafile)));
+warn.env.duplicates <- function(base.env, plot.env) {
+    message('Comparing dupes');
+    base.stuff <- ls(base.env);
+    local.stuff <- ls(plot.env);
+    for (duplicate.object.name in intersect(base.stuff, local.stuff)) {
+        if (digest::digest(as.environment(base.env)[[duplicate.object.name]]) ==
+                digest::digest(as.environment(plot.env)[[duplicate.object.name]])) {
+            message(ansi.green(paste('Redundant:', duplicate.object.name)));
+        } else {
+            message(ansi.red(paste('DIFFERENT:', duplicate.object.name)));
+        }
+    }
+}
 
-    # Don't fail on warnings while loading the datafile
-    options(warn = 1);
-    data.env.name <- attr(attach(datafile), 'name');
-    options(warn = 2);
+
+save.multiple.plots <- function(datafiles, subfiles, output.directory = 'NEWFIGURES') {
+    data.env.names <- character(length(datafiles));
+
+    dir.create(output.directory, showWarnings = FALSE);
+
+    for (i in seq_along(datafiles)) {
+        message(ansi.green(paste('Sourcing', datafiles[i])));
+        # Don't fail on warnings while loading the datafile
+        options(warn = 1);
+        data.env.names[i] <- attr(attach(datafiles[i]), 'name');
+        options(warn = 2);
+    }
 
     for (figure.file in subfiles) {
         message(ansi.yellow(figure.file));
         # create.histogram resets warn to 0, so continually set it back
-        options(warn = 2);
+        options(warn = 1);
+
+        accessed_vars <- new.env(parent = emptyenv());
+        plot.env <- new.env();
+        plot.sub.env <- new.env(parent = plot.env);
+
+        track_access <- function(name) {
+            makeActiveBinding(
+                name,
+                function(value) {
+                    if (missing(value)) {
+                        assign(name, get(name, envir = plot.env), envir = accessed_vars)
+                        get(name, envir = plot.env)
+                    } else {
+                        assign(name, value, envir = plot.env)
+                    }
+                },
+                plot.sub.env
+            )
+        }
+
+        for (data.env.name in data.env.names) {
+            for (var in ls(data.env.name)) {
+                track_access(var)
+            }
+        }
 
         if (inherits(
-            try(source(figure.file, local = new.env(), echo = FALSE)),
+            try(source(figure.file, local = plot.sub.env, echo = FALSE)),
             'try-error'
         )) {
             message(ansi.red(paste('Problem with', figure.file, '!')));
         }
-        warnings();
+
+        for (accessed.var in ls(accessed_vars)) {
+            message(ansi.yellow(paste('Accessed', accessed.var)));
+        }
+
+        for (data.env.name in data.env.names) {
+            warn.env.duplicates(data.env.name, plot.env);
+        }
     }
 
-    message(ansi.green(paste('Detaching', datafile)));
-    detach(data.env.name, character.only = TRUE);
+    for (data.env.name in data.env.names) {
+        message(ansi.green(paste('Detaching', data.env.name)));
+        detach(data.env.name, character.only = TRUE);
+    }
 }
 
+
 save.multiple.plots(
-    'untracked_data/outlier/2024-08-27_metabric_tcga_ispy_matador_icgc.RData',
+    c(
+        'untracked_data/outlier/2024-08-27_metabric_tcga_ispy_matador_icgc.RData',
+        'untracked_data/data/2024-08-27_Figure1.rda'
+    ),
     c(
         'Figure/Figure1/Figure1b.R',
         'Figure/Figure1/Figure1c.R',
@@ -64,7 +122,8 @@ save.multiple.plots(
 );
 
 save.multiple.plots(
-    'untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData',
+    # 'untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData',
+    'untracked_data/data/2024-08-23_Figure2a-d.rda',
     c(
         'Figure/Figure2/Figure2a.R',
         'Figure/Figure2/Figure2b.R',
@@ -74,7 +133,8 @@ save.multiple.plots(
 );
 
 save.multiple.plots(
-    'untracked_data/outlier/2024-05-05_driver_gene.RData',
+    # 'untracked_data/outlier/2024-05-05_driver_gene.RData',
+    'untracked_data/data/2024-08-24_Figure2ef_drivergene.rda',
     c(
         'Figure/Figure2/Figure2e.R',
         'Figure/Figure2/Figure2f.R'
@@ -82,8 +142,38 @@ save.multiple.plots(
 );
 
 save.multiple.plots(
-    'untracked_data/outlier/2024-08-26_meta_brca_methylation_merge.RData',
+    # 'untracked_data/outlier/2024-08-26_meta_brca_methylation_merge.RData',
+    'untracked_data/data/2024-08-26_Figure2h-l_input.rda',
     c(
-        'Figure/Figure2/Figure2h.R'
+        'Figure/Figure2/Figure2h.R',
+        'Figure/Figure2/Figure2i.R',
+        'Figure/Figure2/Figure2j.R',
+        'Figure/Figure2/Figure2k.R',
+        'Figure/Figure2/Figure2l.R'
+    )
+);
+
+save.multiple.plots(
+    'untracked_data/data/2024-08-28_Figure3a-d.rda',
+    c(
+        'Figure/Figure3/Figure3a.R',
+        'Figure/Figure3/Figure3b.R'
+    )
+);
+
+save.multiple.plots(
+    'untracked_data/outlier/2024-02-20_brca.RData',
+    c(
+        'Figure/Figure3/Figure3c.R'
+    )
+);
+
+save.multiple.plots(
+    c(
+        'untracked_data/data/2024-08-28_Figure3a-d.rda',
+        'untracked_data/outlier/2024-02-20_brca.RData'
+    ),
+    c(
+        'Figure/Figure3/Figure3d.R'
     )
 );
