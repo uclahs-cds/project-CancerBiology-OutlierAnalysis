@@ -659,14 +659,11 @@ dot.multi <- create.multipanelplot(
     );
 
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the multi plot as a PDF
 pdf(
-    file = generate.filename(
-        'tumour_stage', 
-        'multipanel', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_3_e.pdf'),
     width = 4.5, 
     height = 5.6
     );
@@ -675,11 +672,7 @@ dev.off();
 
 # Save the multi plot as a PNG
 png(
-    file = generate.filename(
-        'tumour_stage', 
-        'multipanel', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_3_e.png'),
     width = 4.5, 
     height = 5.6,
     unit = 'in', 

@@ -124,9 +124,11 @@ five.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
 ### OUTPUT ######################################################################
 
 # Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 write.plot(
     trellis.object = five.outlier.gene.sum,
-    filename = "figures/Figure_1_d.png",
+    filename = file.path(output.directory, 'Figure_1_d.png'),
     width = 5.5,
     height = 5,
     size.units = 'in',

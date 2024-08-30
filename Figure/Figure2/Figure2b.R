@@ -107,10 +107,12 @@ your.points <- xyplot(i.fpkm.merge.data.order.out.three ~ c(0.9, 1, 1, 1.1, 1),
 i.fpkm.merge.data.order.quan.unequal.three.dot <- i.fpkm.merge.data.order.quan.unequal.three + as.layer(your.points);
 
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 # Save the plot as a PNG
 BoutrosLab.plotting.general::write.plot(
     trellis.object = i.fpkm.merge.data.order.quan.unequal.three.dot,
-    filename = 'figures/Figure_2_b.png',
+    filename = file.path(output.directory, 'Figure_2_b.png'),
     width = 4.5,
     height = 5,
     size.units = 'in',

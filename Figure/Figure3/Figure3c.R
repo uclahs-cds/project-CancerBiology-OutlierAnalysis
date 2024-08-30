@@ -68,33 +68,14 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     print.colour.key = FALSE
     );  
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the heatmap as a PDF
-pdf(
-    file = generate.filename(
-        'cptac', 
-        'heatmap', 
-        'pdf'
-        ), 
-    width = 6, 
-    height = 4.5
-    );
-heat.out;
-dev.off();
-
-# Save the heatmap as a PNG
-png(
-    file = generate.filename(
-        'cptac', 
-        'heatmap', 
-        'png'
-        ), 
-    width = 6, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = heat.out,
+    filename = file.path(output.directory, 'Figure_3_c.png'),
+    width = 6,
     height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-heat.out;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);

@@ -40,15 +40,11 @@ km.os.group.combine <- create.km.plot(
     );
 km.os.group.combine;
 
-
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the km plot as a PDF
 pdf(
-    file = generate.filename(
-        i, 
-        'km', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_3_h.pdf'),
     width = 7.5, 
     height = 7
     );
@@ -57,11 +53,7 @@ dev.off();
 
 # Save the km plot as a PNG
 png(
-    file = generate.filename(
-        i, 
-        'km', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_3_h.png'),
     width = 7.5, 
     height = 7,
     unit = 'in', 

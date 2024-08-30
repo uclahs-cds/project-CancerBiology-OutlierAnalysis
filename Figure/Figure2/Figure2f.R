@@ -221,10 +221,12 @@ mutation.density <- BoutrosLab.plotting.general::create.scatterplot(
     main = expression('Number of outlier genes per patient')
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 # Save the plot as a PNG
 write.plot(
     trellis.object = mutation.density,
-    filename = 'figures/Figure_2_f.png',
+    filename = file.path(output.directory, 'Figure_2_f.png'),
     width = 6,
     height = 5.5,
     size.units = 'in',

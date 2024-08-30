@@ -140,32 +140,14 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     
     );  
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        'merge_me_quantile', 
-        'heatmap', 
-        'pdf'
-        ), 
-    width = 6, 
-    height = 4.5
-    );
-heat.out;
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        'merge_me_quantile', 
-        'heatmap', 
-        'png'
-        ), 
-    width = 6, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = heat.out,
+    filename = file.path(output.directory, 'Figure_2_j.png'),
+    width = 6,
     height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-heat.out;
-dev.off();
-
+    size.units = 'in',
+    resolution = 1200
+);

@@ -164,11 +164,12 @@ cptac.box <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the plot as a PNG
 write.plot(
     trellis.object = cptac.box,
-    filename = 'figures/Figure_3_a.png',
+    filename = file.path(output.directory, 'Figure_3_a.png'),
     width = 3.5,
     height = 6.5,
     size.units = 'in',

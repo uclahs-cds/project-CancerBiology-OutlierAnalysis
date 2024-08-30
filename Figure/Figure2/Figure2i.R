@@ -180,5 +180,7 @@ write.plot(
 
 }
 
-do.plot.2i('NGF', 'figures/Figure_2_i_NFG.png');
-do.plot.2i('LRP4', 'figures/Figure_2_i_LRP4.png');
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
+do.plot.2i('NGF', file.path(output.directory, 'Figure_2_i_NGF.png'),
+do.plot.2i('LRP4', file.path(output.directory, 'Figure_2_i_LRP4.png'),

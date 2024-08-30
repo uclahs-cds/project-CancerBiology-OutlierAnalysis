@@ -242,11 +242,12 @@ me.merge.scatter <- create.scatterplot(
     abline.lty = 3
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the plot as a PNG
 write.plot(
     trellis.object = me.merge.scatter,
-    filename = 'figures/Figure_2_h.png',
+    filename = file.path(output.directory, 'Figure_2_h.png'),
     width = 6,
     height = 4.8,
     size.units = 'in',

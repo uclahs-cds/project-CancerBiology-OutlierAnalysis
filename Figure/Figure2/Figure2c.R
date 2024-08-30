@@ -311,11 +311,12 @@ cna.multi <- create.multiplot(
     resolution = 500
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the plot as a PNG
 BoutrosLab.plotting.general::write.plot(
     trellis.object = cna.multi,
-    filename = 'figures/Figure_2_c.png',
+    filename = file.path(output.directory, 'Figure_2_c.png'),
     width = 9,
     height = 8.5,
     size.units = 'in',

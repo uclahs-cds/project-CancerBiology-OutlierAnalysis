@@ -278,10 +278,12 @@ ecdna.bar.chr6 <- create.barplot(
         )
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 # Save the plot as a PNG
 BoutrosLab.plotting.general::write.plot(
     trellis.object = ecdna.bar.chr6, 
-    filename = 'figures/Figure_2_d.png',
+    filename = file.path(output.directory, 'Figure_2_d.png'),
     width = 8,
     height = 3.5,
     size.units = 'in',

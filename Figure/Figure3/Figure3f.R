@@ -345,13 +345,12 @@ multi.gene <- create.multipanelplot(
 multi.gene;
 
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
+
 # Save the multi plot as a PDF
 pdf(
-    file = generate.filename(
-        'subtype', 
-        'multi', 
-        'pdf'
-        ), 
+    filename = file.path(output.directory, 'Figure_3_f.pdf'),
     width = 7, 
     height = 5
     );
@@ -360,11 +359,7 @@ dev.off();
 
 # Save the multi plot as a PNG
 png(
-    file = generate.filename(
-        'subtype', 
-        'multi', 
-        'png'
-        ), 
+    filename = file.path(output.directory, 'Figure_3_f.png'),
     width = 7, 
     height = 5,
     unit = 'in', 

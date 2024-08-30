@@ -125,34 +125,14 @@ tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.4
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'merge_tumour_normal_me', 
-        'box', 
-        'pdf'
-        ), 
-    width = 4.5, 
-    height = 5
-    );
-tumor.normal.box.plot;
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'merge_tumour_normal_me', 
-        'box', 
-        'png'
-        ), 
-    width = 4.5, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = tumor.normal.box.plot,
+    filename = file.path(output.directory, 'Figure_2_k.png'),
+    width = 4.5,
     height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-tumor.normal.box.plot;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);

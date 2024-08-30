@@ -125,9 +125,11 @@ five.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
 ### OUTPUT ######################################################################
 
 # Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 write.plot(
     trellis.object = five.outlier.patient.violin,
-    filename = "figures/Figure_1_e.png",
+    filename = file.path(output.directory, 'Figure_1_e.png'),
     width = 4.3,
     height = 5.3,
     size.units = 'in',

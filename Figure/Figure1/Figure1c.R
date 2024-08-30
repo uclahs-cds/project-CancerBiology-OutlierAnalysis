@@ -202,9 +202,11 @@ scatter.smooth.line <- create.scatterplot(
 ### OUTPUT ######################################################################
 
 # Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 write.plot(
     trellis.object = scatter.smooth.line,
-    filename = "figures/Figure_1_c.png",
+    filename = file.path(output.directory, 'Figure_1_c.png'),
     width = 5.5,
     height = 5,
     size.units = 'in',

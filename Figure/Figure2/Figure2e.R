@@ -785,13 +785,11 @@ dot.multi.lumb <- create.multipanelplot(
     );
 dot.multi.lumb
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 # Save the multi plot as a PDF
 pdf(
-    file = generate.filename(
-        'drivergene_lumb', 
-        'multipanel', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_2_e.pdf'),
     width = 6.9, 
     height = 5.7
     );
@@ -800,11 +798,7 @@ dev.off();
 
 # Save the multi plot as a PNG
 png(
-    file = generate.filename(
-        'drivergene_lumb', 
-        'multipanel', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_2_e.png'),
     width = 6.9, 
     height = 5.7,
     unit = 'in', 

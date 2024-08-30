@@ -191,11 +191,12 @@ rppa.box <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.3
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the plot as a PNG
 write.plot(
     trellis.object = rppa.box,
-    filename = 'figures/Figure_3_b.png',
+    filename = file.path(output.directory, 'Figure_3_b.png'),
     width = 3.5,
     height = 6.5,
     size.units = 'in',

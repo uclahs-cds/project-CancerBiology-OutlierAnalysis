@@ -149,33 +149,14 @@ i.heat  <- BoutrosLab.plotting.general:::create.multiplot(
     resolution = 500
     );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the heatmap as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'heatmap_me', 
-        'pdf'
-        ), 
-    width = 7.5, 
-    height = 7.5
-    );
-i.heat;
-dev.off();
-
-# Save the heatmap as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'heatmap_me', 
-        'png'
-        ), 
-    width = 7.5, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = i.heat,
+    filename = file.path(output.directory, 'Figure_2_l.png'),
+    width = 7.5,
     height = 7.5,
-    unit = 'in', 
-    res = 1200
-    );
-i.heat;
-dev.off();
-
+    size.units = 'in',
+    resolution = 1200
+);

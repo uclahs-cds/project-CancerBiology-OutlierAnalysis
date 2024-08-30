@@ -223,34 +223,14 @@ rppa.gene.scatter <- BoutrosLab.plotting.general::create.scatterplot(
     )
 );
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'scatter_rppa', 
-        'pdf'
-        ), 
-    width = 6, 
-    height = 6
-    );
-rppa.gene.scatter;
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'scatter_rppa', 
-        'png'
-        ), 
-    width = 6, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = rppa.gene.scatter,
+    filename = file.path(output.directory, 'Figure_3_d.png'),
+    width = 6,
     height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-rppa.gene.scatter;
-dev.off();
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);
