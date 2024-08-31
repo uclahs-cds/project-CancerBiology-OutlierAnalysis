@@ -40,7 +40,7 @@ warn.env.duplicates <- function(base.env, plot.env) {
 }
 
 
-save.multiple.plots <- function(datafiles, subfiles, output.directory = 'NEWFIGURES') {
+save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures') {
     data.env.names <- character(length(datafiles));
 
     dir.create(output.directory, showWarnings = FALSE);
@@ -106,11 +106,21 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'NEWFIGU
 }
 
 
-save.multiple.plots(
-    c(
-        'untracked_data/outlier/2024-08-27_metabric_tcga_ispy_matador_icgc.RData',
-        'untracked_data/data/2024-08-27_Figure1.rda'
-    ),
+make.plots.twice <- function(figure.files, full.dataset, restricted.dataset) {
+    save.multiple.plots(
+        full.dataset,
+        figure.files,
+        'full_figures'
+    );
+
+    save.multiple.plots(
+        restricted.dataset,
+        figure.files,
+        'restricted_figures'
+    );
+}
+
+make.plots.twice(
     c(
         'Figure/Figure1/Figure1b.R',
         'Figure/Figure1/Figure1c.R',
@@ -118,62 +128,50 @@ save.multiple.plots(
         'Figure/Figure1/Figure1e.R',
         'Figure/Figure1/Figure1h.R',
         'Figure/Figure1/Figure1i.R'
-    )
+    ),
+    'untracked_data/outlier/2024-08-27_metabric_tcga_ispy_matador_icgc.RData',
+    'untracked_data/data/2024-08-27_Figure1.rda'
 );
 
-save.multiple.plots(
-    # 'untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData',
-    'untracked_data/data/2024-08-23_Figure2a-d.rda',
+make.plots.twice(
     c(
         'Figure/Figure2/Figure2a.R',
         'Figure/Figure2/Figure2b.R',
         'Figure/Figure2/Figure2c.R',
         'Figure/Figure2/Figure2d.R'
-    )
+    ),
+    'untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData',
+    'untracked_data/data/2024-08-23_Figure2a-d.rda'
 );
 
-save.multiple.plots(
-    # 'untracked_data/outlier/2024-05-05_driver_gene.RData',
-    'untracked_data/data/2024-08-24_Figure2ef_drivergene.rda',
+make.plots.twice(
     c(
         'Figure/Figure2/Figure2e.R',
         'Figure/Figure2/Figure2f.R'
-    )
+    ),
+    'untracked_data/outlier/2024-05-05_driver_gene.RData',
+    'untracked_data/data/2024-08-24_Figure2ef_drivergene.rda'
 );
 
-save.multiple.plots(
-    # 'untracked_data/outlier/2024-08-26_meta_brca_methylation_merge.RData',
-    'untracked_data/data/2024-08-26_Figure2h-l_input.rda',
+make.plots.twice(
     c(
         'Figure/Figure2/Figure2h.R',
         'Figure/Figure2/Figure2i.R',
         'Figure/Figure2/Figure2j.R',
         'Figure/Figure2/Figure2k.R',
         'Figure/Figure2/Figure2l.R'
-    )
+    ),
+    'untracked_data/outlier/2024-08-26_meta_brca_methylation_merge.RData',
+    'untracked_data/data/2024-08-26_Figure2h-l_input.rda'
 );
 
-save.multiple.plots(
-    'untracked_data/data/2024-08-28_Figure3a-d.rda',
+make.plots.twice(
     c(
         'Figure/Figure3/Figure3a.R',
-        'Figure/Figure3/Figure3b.R'
-    )
-);
-
-save.multiple.plots(
-    'untracked_data/outlier/2024-02-20_brca.RData',
-    c(
-        'Figure/Figure3/Figure3c.R'
-    )
-);
-
-save.multiple.plots(
-    c(
-        'untracked_data/data/2024-08-28_Figure3a-d.rda',
-        'untracked_data/outlier/2024-02-20_brca.RData'
-    ),
-    c(
+        'Figure/Figure3/Figure3b.R',
+        'Figure/Figure3/Figure3c.R',
         'Figure/Figure3/Figure3d.R'
-    )
+    ),
+    'untracked_data/outlier/2024-02-20_brca.RData',
+    'untracked_data/data/2024-08-28_Figure3a-d.rda'
 );
