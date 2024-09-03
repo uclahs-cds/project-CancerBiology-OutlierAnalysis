@@ -5,36 +5,52 @@
 # Date: 2024-08-16
 
 
-# Read gene dependency file
-gene.dependency <- read.delim2(
-    file = '/CCLE/CRISPRGeneDependency.csv', 
-    header = TRUE, 
-    row.names = 1, 
-    sep = ','
-    );
 
-gene.dependency.breast <- gene.dependency[
-    rownames(gene.dependency) %in% colnames(rna.coding.tpm.log.t.breast), 
-    ];
+
+
+
 gene.dependency.breast.t <- t(gene.dependency.breast);
-gene.dependency.breast.t.num <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
-rownames(gene.dependency.breast.t.num) <- rownames(gene.dependency.breast.t);
-colnames(gene.dependency.breast.t.num) <- colnames(gene.dependency.breast.t);
+gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
+rownames(gene.dependency.breast.t.num.match) <- rownames(gene.dependency.breast.t);
+colnames(gene.dependency.breast.t.num.match) <- colnames(gene.dependency.breast.t);
 gene.dependency.breast.t.num.match <- gene.dependency.breast.t.num[
-    , colnames(fpkm.tumor.symbol.filter)
+    , colnames(fpkm.tumor.symbol.filter.ccle)
     ];
 
 # Filter for FDR < 0.05
-sample.outlier.05.overlap <- sample.outlier.05[
-    rownames(gene.rank.p.value.one.gene.p0.fdr.05), 
+ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[
+    rownames(ccle.outlier.rank.fdr.05), 
     ];
 gene.dependency.breast.t.num.match.05 <- gene.dependency.breast.t.num.match[
-    rownames(gene.rank.p.value.one.gene.p0.fdr.05), 
+    rownames(ccle.outlier.rank.fdr.05), 
     ];
 gene.dependency.breast.t.num.match.05.na <- na.omit(gene.dependency.breast.t.num.match.05);
-sample.outlier.05.overlap.na <- sample.outlier.05.overlap[
+ccle.sample.outlier.status.overlap.na <- ccle.sample.outlier.status.overlap[
     rownames(gene.dependency.breast.t.num.match.05.na), 
     ];
+
+ccle.sample.outlier.status.na <- ccle.sample.outlier.status[rownames(gene.dependency.breast.t.num.match.05.na),];
+
+
+dependency.quantile.05 <- list();
+outlier.gene.dependency.score.05 <- list();
+nonoutlier.gene.dependency.score.05 <- list();
+for (i in 1:nrow(ccle.sample.outlier.status.na)) {
+    outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, which(ccle.sample.outlier.status.na[i,] == 1), drop = FALSE];
+    non.outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, -(which(ccle.sample.outlier.status.na[i,] == 1))];
+    ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
+    quantile.value <- ecdf_obj(outlier.gene);
+    ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
+    quantile.value <- ecdf.obj(outlier.gene);
+    quantile.value <- t(data.frame(quantile.value));
+    colnames(quantile.value) <- colnames(outlier.gene);
+    rownames(quantile.value) <- rownames(outlier.gene);
+    dependency.quantile.05[[i]] <- quantile.value;
+    
+    outlier.gene.dependency.score.05[[i]] <- outlier.gene;
+    nonoutlier.gene.dependency.score.05[[i]] <- non.outlier.gene;
+}
+
 
 # Calculate gene dependency score differences
 calculte.mean <- function(scores) {
@@ -48,8 +64,8 @@ nonoutlier.gene.dependency.score.05.mean <- data.frame(
     dependency = calculte.mean(nonoutlier.gene.dependency.score.05)
     );
 
-rownames(outlier.gene.dependency.score.05.mean) <- rownames(sample.outlier.05.overlap.na);
-rownames(nonoutlier.gene.dependency.score.05.mean) <- rownames(sample.outlier.05.overlap.na);
+rownames(outlier.gene.dependency.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
+rownames(nonoutlier.gene.dependency.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
 
 p.dependency.05 <- wilcox.test(
     outlier.gene.dependency.score.05.mean$dependency, 

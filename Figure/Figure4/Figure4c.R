@@ -4,14 +4,16 @@
 # Date: 2024-08-16
 #################################################################################
 
+
+# Haven't upload these files on cluster. These are included as variables
 # Get protein info
-protein.info.pancancer <- read.delim2(
-    file = '1-s2.0-S1535610822002744-mmc3_name.csv',
-    header = T, row.names = 1, sep = ','
-    );
+# protein.info.pancancer <- read.delim2(
+#     file = '1-s2.0-S1535610822002744-mmc3_name.csv',
+#     header = T, row.names = 1, sep = ','
+#     );
 
 protein.info.pancancer.breast <- protein.info.pancancer[
-    protein.info.pancancer$BROAD_ID %in% colnames(fpkm.tumor.symbol.filter), 
+    protein.info.pancancer$BROAD_ID %in% colnames(fpkm.tumor.symbol.filter.ccle),
     ];
 
 protein.info.pancancer.breast.match <- protein.info.pancancer.breast[
@@ -29,29 +31,35 @@ rownames(protein.info.pancancer.breast.match) <- protein.info.pancancer.breast$B
 
 protein.info.pancancer.breast.match.t <- t(protein.info.pancancer.breast.match);
 
+ccle.sample.outlier.status.only <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05),];
+ccle.sample.outlier.status.only.five <- ccle.sample.outlier.status.only[sub("\\..*", "", rownames(ccle.sample.outlier.status.only)) %in% five.data.outlier.symbol,];
+
+# Tissue overall outlier status
+ccle.sample.outlier.status.only.five.symbol <- sub("\\..*", "", rownames(ccle.sample.outlier.status.only.five));
+
 protein.info.pancancer.breast.match.05 <- protein.info.pancancer.breast.match.t[
-    rownames(protein.info.pancancer.breast.match.t) %in% sample.outlier.05.only.five.symbol, 
+    rownames(protein.info.pancancer.breast.match.t) %in% ccle.sample.outlier.status.only.five.symbol, 
     ];
 
 # Only outlier gene's FPKM
-fpkm.tumor.symbol.filter.outlier.pancancer <- fpkm.tumor.symbol.filter[
-    sub("\\..*", "", rownames(fpkm.tumor.symbol.filter)) %in% rownames(protein.info.pancancer.breast.match.05),
+fpkm.tumor.symbol.filter.ccle.outlier.pancancer <- fpkm.tumor.symbol.filter.ccle[
+    sub("\\..*", "", rownames(fpkm.tumor.symbol.filter.ccle)) %in% rownames(protein.info.pancancer.breast.match.05),
     colnames(protein.info.pancancer.breast.match.05)
     ];
 
 # Only outlier gene's status
-sample.outlier.05.protein.match.pancancer <- sample.outlier.05[
-    rownames(fpkm.tumor.symbol.filter.outlier.pancancer), 
+ccle.sample.outlier.status.protein.match.pancancer <- ccle.sample.outlier.status[
+    rownames(fpkm.tumor.symbol.filter.ccle.outlier.pancancer), 
     colnames(protein.info.pancancer.breast.match.05)
     ];
 
-rownames(fpkm.tumor.symbol.filter.outlier.pancancer) <- sub(
+rownames(fpkm.tumor.symbol.filter.ccle.outlier.pancancer) <- sub(
     "\\..*", "", 
-    rownames(fpkm.tumor.symbol.filter.outlier.pancancer)
+    rownames(fpkm.tumor.symbol.filter.ccle.outlier.pancancer)
     );
-rownames(sample.outlier.05.protein.match.pancancer) <- sub(
+rownames(ccle.sample.outlier.status.protein.match.pancancer) <- sub(
     "\\..*", "", 
-    rownames(sample.outlier.05.protein.match.pancancer)
+    rownames(ccle.sample.outlier.status.protein.match.pancancer)
     );
 
 # Only overlapped outlier genes with tissue
@@ -64,11 +72,11 @@ for (i in 1:nrow(protein.info.pancancer.breast.match.05)) {
     target.gene.name.protein <- rownames(protein.info.pancancer.breast.match.05)[i];
     
     # Outlier patient column
-    target.col <- colnames(sample.outlier.05.protein.match.pancancer)[
-        sample.outlier.05.protein.match.pancancer[target.gene.name.protein,] == 1
+    target.col <- colnames(ccle.sample.outlier.status.protein.match.pancancer)[
+        ccle.sample.outlier.status.protein.match.pancancer[target.gene.name.protein,] == 1
         ];
-    non.target.col <- colnames(sample.outlier.05.protein.match.pancancer)[
-        sample.outlier.05.protein.match.pancancer[target.gene.name.protein,] == 0
+    non.target.col <- colnames(ccle.sample.outlier.status.protein.match.pancancer)[
+        ccle.sample.outlier.status.protein.match.pancancer[target.gene.name.protein,] == 0
         ];
     
     target.gene.ccle.zscore.list.pancancer <- c(

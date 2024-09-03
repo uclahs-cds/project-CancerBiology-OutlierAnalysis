@@ -9,33 +9,6 @@ library(BoutrosLab.plotting.general);
 
 
 
-# Define functions
-calculate.mean <- function(data, symbol, patients) {
-    mean(na.omit(as.numeric(data[symbol, patients])));
-    }
-
-process.gene <- function(symbol, data) {
-    # 1. Outlier patients - tumor
-    out.tumor.patients <- colnames(two.outlier.patient.status.merge.filter.500)[which(two.outlier.patient.status.merge.filter.500[symbol,] == 1)];
-    out.tumor.mean <- calculate.mean(two.outlier.promoter.symbol.sample.match.merge.filter.500, symbol, out.tumor.patients);
-    
-    # 2. Outlier patients - normal
-    out.normal.patients.meta <- gsub("_", ".", sample.info.norm$samp[sample.info.norm$matched_tumor %in% gsub("\\.", "_", out.tumor.patients)]);
-    out.normal.patients.brca <- colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500)[substr(colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500), 1, 12) %in% substr(out.tumor.patients, 1, 12)];
-    
-    out.normal.meta <- calculate.mean(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500, symbol, out.normal.patients.meta);
-    out.normal.brca <- calculate.mean(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500, symbol, out.normal.patients.brca);
-    out.normal.mean <- mean(c(out.normal.meta, out.normal.brca));
-    
-    # 3. Non-outlier patients - tumor
-    non.out.tumor.mean <- calculate.mean(two.outlier.promoter.symbol.sample.match.merge.filter.500, symbol, setdiff(colnames(two.outlier.promoter.symbol.sample.match.merge.filter.500), out.tumor.patients));
-    
-    # 4. Non-outlier patients - normal
-    non.out.normal.mean <- calculate.mean(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500, symbol, setdiff(colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500), c(out.normal.patients.meta, out.normal.patients.brca)));
-    
-    c(out.tumor.mean, out.normal.mean, non.out.tumor.mean, non.out.normal.mean);
-    }
-
 # Main analysis
 # divide into outlier and non-outlier
 
@@ -70,17 +43,62 @@ colnames(mean.minus.ma.merge.two.500) <- c('mean.beta', 'minus.beta', 'Symbol');
 
 two.out.non.tumor.normal.gene.500 <- mean.minus.ma.merge.two.500$Symbol[mean.minus.ma.merge.two.500$Symbol %in% rownames(normal.tumor.beta.comparison.two.minus.order.500)];
 
-results <- lapply(two.out.non.tumor.normal.gene.500, process.gene);
-two.out.non.tumor.normal.gene.value.mean.500 <- do.call(rbind, results);
-rownames(two.out.non.tumor.normal.gene.value.mean.500) <- two.out.non.tumor.normal.gene.500;
-colnames(two.out.non.tumor.normal.gene.value.mean.500) <- c('out.tu', 'out.nor', 'non.tu', 'non.nor');
 
+two.out.non.tumor.normal.gene.value.mean.500 <- NULL;
+for (i in 1:length(two.out.non.tumor.normal.gene.500)) {
+    
+    target.symbol <- two.out.non.tumor.normal.gene.500[i];
+    
+    # 1. outlier patient - tumor
+    target.out.tumor.patient <- colnames(two.outlier.patient.status.merge.filter.500)[which(two.outlier.patient.status.merge.filter.500[target.symbol,] == 1)];
+    target.out.tumor.mean <- mean(na.omit(as.numeric(two.outlier.promoter.symbol.sample.match.merge.filter.500[target.symbol, target.out.tumor.patient])));
+    
+    # 2. outlier patient - normal
+    #    - METABRIC
+    target.out.normal.patient.meta <- sample.info.norm[sample.info.norm$matched_tumor %in% gsub("\\.", "_", target.out.tumor.patient),]$samp;
+    target.out.normal.patient.meta <- gsub("\\_", ".", target.out.normal.patient.meta);
+    target.out.normal.meta <- na.omit(as.numeric(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500[target.symbol, target.out.normal.patient.meta]))
+    #    - TCGA-BRCA
+    target.out.normal.patient.brca <- colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500)[substr(colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500), 1, 12) %in% substr(target.out.tumor.patient, 1, 12)];
+    target.out.normal.brca <- na.omit(as.numeric(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500[target.symbol, target.out.normal.patient.brca]))
+    #   - combine
+    target.out.normal.mean <- mean(na.omit(c(target.out.normal.meta, target.out.normal.brca)));
+    
+    # 3. non-outlier patient - tumor
+    target.non.tumor.mean <- mean(na.omit(as.numeric(two.outlier.promoter.symbol.sample.match.merge.filter.500[target.symbol, -which(colnames(two.outlier.promoter.symbol.sample.match.merge.filter.500) %in% target.out.tumor.patient)])));
+    
+    # 4. non-outlier patient - normal
+    target.non.normal.mean <- mean(na.omit(as.numeric(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500[target.symbol, -which(colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500) %in% c(target.out.normal.patient.meta, target.out.normal.patient.brca))])));
+    
+    # Combine
+    all.target.mean <- c(target.out.tumor.mean, target.out.normal.mean, target.non.tumor.mean, target.non.normal.mean);
+    
+    two.out.non.tumor.normal.gene.value.mean.500 <- rbind(two.out.non.tumor.normal.gene.value.mean.500, all.target.mean);
+    
+    }
+
+
+rownames(two.out.non.tumor.normal.gene.value.mean.500) <- two.out.non.tumor.normal.gene.500;
 two.out.non.tumor.normal.gene.value.mean.na.500 <- na.omit(two.out.non.tumor.normal.gene.value.mean.500);
+
+
+
+# Use only differntially methylated genes
+colnames(two.out.non.tumor.normal.gene.value.mean.na.500) <- c("outlier_tumor", "outlier_normal", "non_outlier_tumor", "non_outlier_normal");
+diff.outlier.normal.tumor <- two.out.non.tumor.normal.gene.value.mean.na.500[, "outlier_normal"] - two.out.non.tumor.normal.gene.value.mean.na.500[, "outlier_tumor"];
+diff.non.outlier.tumor.outlier.tumor <- two.out.non.tumor.normal.gene.value.mean.na.500[, "non_outlier_tumor"] - two.out.non.tumor.normal.gene.value.mean.na.500[, "outlier_tumor"];
+
+
+threshold <- 0.2;
+two.out.non.tumor.normal.gene.value.mean.na.500.02 <- two.out.non.tumor.normal.gene.value.mean.na.500[
+    diff.outlier.normal.tumor > threshold & 
+        diff.non.outlier.tumor.outlier.tumor > threshold, ];
+
 
 # boxplot data
 box.data <- data.frame(
-    value = as.vector(two.out.non.tumor.normal.gene.value.mean.na.500),
-    sample = rep(c('a', 'b', 'c', 'd'), each = nrow(two.out.non.tumor.normal.gene.value.mean.na.500))
+    value = as.vector(two.out.non.tumor.normal.gene.value.mean.na.500.02),
+    sample = rep(c('a', 'b', 'c', 'd'), each = nrow(two.out.non.tumor.normal.gene.value.mean.na.500.02))
     );
 
 # Kruskal-Wallis test
@@ -102,6 +120,8 @@ tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
     outliers = FALSE,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
     ylimits = c(-0.05, 1.1),
     yat = seq(0, 1, 0.2),
     key = list(
@@ -109,16 +129,18 @@ tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
         x = 0.55,
         y = 0.95
         ),
-    add.stripplot = FALSE,
+    add.stripplot = TRUE,
     points.pch = 1,
     points.cex = 0.8,
     points.col = 'grey50',
     add.rectangle = TRUE,
     xleft.rectangle = c(1.5, 3.5),
-    xright.rectangle = c(2.5, 5),
+    xright.rectangle =c(2.5, 5),
     ybottom.rectangle = -200,
     ytop.rectangle = 200,
+    # set rectangle colour
     col.rectangle = "grey",
+    # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     lwd = 1.2,
     col = c('red3', 'gold3', 'dodgerblue4', 'darkgreen'),
