@@ -111,6 +111,11 @@ for (j in 1:length(package.genes)){
 colnames(outlier.samples.per.transcript) <- colnames(outlier.numbers) <- cutoff
 rownames(outlier.samples.per.transcript) <- rownames(outlier.numbers) <- package.genes
 
+# length(which(outlier.numbers[,2] > 0))
+# [1] 6084 - sum 17459
+# length(which(outlier.numbers[,3] > 0))
+# [1] 15 - sum = 33
+
 write.table(
 	x = outlier.samples.per.transcript,
 	file = generate.filename('outlier', 'package_outlier_samples_per_gene_per_cutoff', 'tsv'),
@@ -125,7 +130,51 @@ write.table(
 	sep = '\t'
 	)
 
-# length(which(outlier.numbers[,2] > 0))
-# [1] 6084
-# length(which(outlier.numbers[,3] > 0))
-# [1] 15
+fdr.genes <- names(outlier.numbers[which(outlier.numbers[,3] > 0), 3])
+# intersect(fdr.genes, outlier.genes$ensemb)
+# 9/15
+
+# get abundance value for outlier genes (n = 6084)
+get.transcript.sample.pairs <- function(index = 2, fdr.value = '0.05', cutoff = 5) {
+	per.transcript <- outlier.samples.per.transcript[, index][which(outlier.samples.per.transcript[, index] != '')]
+
+	pairs <- NULL
+	for (i in 1:length(per.transcript)) {
+		if (i %% 1000 == 0) { print(i) }
+		tmp <- unlog[names(per.transcript[i]), unlist(strsplit(per.transcript[i], ';')), drop = FALSE]
+		toadd <- data.frame(
+			transcript = rownames(tmp),
+			sample = names(tmp),
+			values = as.numeric(tmp),
+			stringsAsFactors = FALSE
+			)
+		pairs <- rbind(pairs, toadd)
+		}
+
+	filtered.pairs <- pairs[-which(pairs$values < cutoff), ]
+	write.table(
+		x = filtered.pairs,
+		file = generate.filename('outlier', paste0('transcript_sample_pairs_fdr_', fdr.value, '_tpm_filtered'), 'tsv'),
+		row.names = FALSE,
+		sep = '\t'
+		)
+	return(filtered.pairs)
+	}
+
+pairs.fdr.pointone <- get.transcript.sample.pairs(
+	index = 1,
+	fdr.value = '0.1',
+	cutoff = 5
+	)
+
+pairs.fdr.pointzerofive <- get.transcript.sample.pairs(
+	index = 2,
+	fdr.value = '0.05',
+	cutoff = 5
+	)
+
+pairs.fdr.pointzeroone <- get.transcript.sample.pairs(
+	index = 3,
+	fdr.value = '0.01',
+	cutoff = 5
+	)
