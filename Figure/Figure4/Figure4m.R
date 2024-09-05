@@ -5,10 +5,10 @@
 
 i <- 'SYK';
 
-.drug <- sanger.zscore.drug.breast.match.info.df[sanger.zscore.drug.breast.match.info.df$repurposing_target %in% i,]$Drug.Name;
+drug.target <- sanger.zscore.drug.breast.match.info.df[sanger.zscore.drug.breast.match.info.df$repurposing_target %in% i,]$Drug.Name;
 
 # Get patient status and drug target information
-patient.status <- sample.outlier.05.overlap.na.samger.match.dup.filter[i,];
+patient.status <- ccle.sample.outlier.status.overlap.na.samger.match.dup.filter[i,];
 drug.target <- depmap.drug.info.match.sanger.dup[depmap.drug.info.match.sanger.dup$repurposing_target %in% i,];
 
 # Get IC50 z-score values for the selected gene
