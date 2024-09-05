@@ -1084,9 +1084,9 @@ rna.box.meta$rna.content <- as.numeric(rna.box.meta$rna.content);
 
 
 # 3. I-SPY-2
-outlier.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[rownames(gene.rank.order.cosine.observed.p.value.fdr.01.ispy),patient.part.ispy], 1, median);
+outlier.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[rownames(outlier.gene.fdr.01.ispy),patient.part.ispy], 1, median);
 
-gene.non.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[!(rownames(fpkm.tumor.symbol.filter.ispy) %in% rownames(gene.rank.order.cosine.observed.p.value.fdr.01.ispy)), patient.part.ispy], 1, median)
+gene.non.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[!(rownames(fpkm.tumor.symbol.filter.ispy) %in% rownames(outlier.gene.fdr.01.ispy)), patient.part.ispy], 1, median)
 
 rna.box.ispy <- data.frame(cbind(
     rna.content = c(gene.non.rna.ispy, outlier.rna.ispy),
@@ -1098,9 +1098,9 @@ rna.box.ispy$rna.content <- as.numeric(rna.box.ispy$rna.content);
 
 
 # 4. MATADOR
-outlier.rna.metador <- apply(fpkm.tumor.symbol.filter.metador[rownames(gene.rank.order.cosine.observed.p.value.fdr.01.metador),patient.part.metador], 1, median);
+outlier.rna.metador <- apply(fpkm.tumor.symbol.filter.metador[rownames(outlier.gene.fdr.01.matador),patient.part.metador], 1, median);
 
-gene.non.rna.metador <- apply(fpkm.tumor.symbol.filter.metador[!(rownames(fpkm.tumor.symbol.filter.metador) %in% rownames(gene.rank.order.cosine.observed.p.value.fdr.01.metador)), patient.part.metador], 1, median)
+gene.non.rna.metador <- apply(fpkm.tumor.symbol.filter.metador[!(rownames(fpkm.tumor.symbol.filter.metador) %in% rownames(outlier.gene.fdr.01.matador)), patient.part.metador], 1, median)
 
 rna.box.metador <- data.frame(cbind(
     rna.content = c(gene.non.rna.metador, outlier.rna.metador),
@@ -1112,9 +1112,9 @@ rna.box.metador$rna.content <- as.numeric(rna.box.metador$rna.content);
 
 
 # 5. ICGC
-outlier.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[gene.rank.order.cosine.observed.p.value.max.filter.fdr.01.icgc$gene,patient.part.icgc], 1, median);
+outlier.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[rownames(outlier.gene.fdr.01.icgc),patient.part.icgc], 1, median);
 
-gene.non.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[!(rownames(fpkm.tumor.symbol.filter.icgc) %in% gene.rank.order.cosine.observed.p.value.max.filter.fdr.01.icgc$gene), patient.part.icgc], 1, median)
+gene.non.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[!(rownames(fpkm.tumor.symbol.filter.icgc) %in% rownames(outlier.gene.fdr.01.icgc)), patient.part.icgc], 1, median)
 
 rna.box.icgc <- data.frame(cbind(
     rna.content = c(gene.non.rna.icgc, outlier.rna.icgc),

@@ -5,28 +5,28 @@
 
 # All CCLE outlier genes
 protein.info.pancancer.breast.match.all <- protein.info.pancancer.breast.match.t[
-    rownames(protein.info.pancancer.breast.match.t) %in% sub("\\..*", "", rownames(sample.outlier.05.only)), 
+    rownames(protein.info.pancancer.breast.match.t) %in% sub("\\..*", "", rownames(ccle.sample.outlier.status.only)), 
     ];
 
 
-fpkm.tumor.symbol.filter.outlier.pancancer.all <- fpkm.tumor.symbol.filter[
-    sub("\\..*", "", rownames(fpkm.tumor.symbol.filter)) %in% rownames(protein.info.pancancer.breast.match.all), 
+fpkm.tumor.symbol.filter.ccle.outlier.pancancer.all <- fpkm.tumor.symbol.filter.ccle[
+    sub("\\..*", "", rownames(fpkm.tumor.symbol.filter.ccle)) %in% rownames(protein.info.pancancer.breast.match.all), 
     colnames(protein.info.pancancer.breast.match.all)
     ];
 
 
-sample.outlier.05.protein.match.pancancer.all <- sample.outlier.05[
-    rownames(fpkm.tumor.symbol.filter.outlier.pancancer.all), 
+ccle.sample.outlier.status.protein.match.pancancer.all <- ccle.sample.outlier.status[
+    rownames(fpkm.tumor.symbol.filter.ccle.outlier.pancancer.all), 
     colnames(protein.info.pancancer.breast.match.all)
     ];
 
-rownames(fpkm.tumor.symbol.filter.outlier.pancancer.all) <- sub(
+rownames(fpkm.tumor.symbol.filter.ccle.outlier.pancancer.all) <- sub(
     "\\..*", "", 
-    rownames(fpkm.tumor.symbol.filter.outlier.pancancer.all)
+    rownames(fpkm.tumor.symbol.filter.ccle.outlier.pancancer.all)
     );
-rownames(sample.outlier.05.protein.match.pancancer.all) <- sub(
+rownames(ccle.sample.outlier.status.protein.match.pancancer.all) <- sub(
     "\\..*", "", 
-    rownames(sample.outlier.05.protein.match.pancancer.all)
+    rownames(ccle.sample.outlier.status.protein.match.pancancer.all)
     );
 
 outlier.protein.ccle.zscore.list.pancancer.all <- list();
@@ -38,11 +38,11 @@ for (i in 1:nrow(protein.info.pancancer.breast.match.all)) {
     target.gene.name.protein <- rownames(protein.info.pancancer.breast.match.all)[i];
     
     # Outlier patient column
-    target.col <- colnames(sample.outlier.05.protein.match.pancancer.all)[
-        sample.outlier.05.protein.match.pancancer.all[target.gene.name.protein,] == 1
+    target.col <- colnames(ccle.sample.outlier.status.protein.match.pancancer.all)[
+        ccle.sample.outlier.status.protein.match.pancancer.all[target.gene.name.protein,] == 1
         ];
-    non.target.col <- colnames(sample.outlier.05.protein.match.pancancer.all)[
-        sample.outlier.05.protein.match.pancancer.all[target.gene.name.protein,] == 0
+    non.target.col <- colnames(ccle.sample.outlier.status.protein.match.pancancer.all)[
+        ccle.sample.outlier.status.protein.match.pancancer.all[target.gene.name.protein,] == 0
         ];
     
     target.gene.ccle.zscore.list.pancancer.all <- c(

@@ -4,6 +4,56 @@
 # Date: 2024-08-16
 
 
+
+# Get RNAi data
+# score of the overlap outliers
+gene.rnai.diff.matrix.05.overlap.minus.05 <- gene.rnai.diff.matrix.05.overlap[gene.rnai.diff.matrix.05.overlap$diff < -0.4,];
+gene.rnai.diff.matrix.05.overlap.minus.05 <- na.omit(gene.rnai.diff.matrix.05.overlap.minus.05);
+gene.rnai.diff.matrix.05.overlap.minus.05.order <- gene.rnai.diff.matrix.05.overlap.minus.05[order(gene.rnai.diff.matrix.05.overlap.minus.05$diff),];
+
+rnai.score.05.overlap.minus.05 <- gene.rnai.breast.t.num.match.05.na[rownames(gene.rnai.diff.matrix.05.overlap.minus.05.order),];
+outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[rownames(gene.rnai.diff.matrix.05.overlap.minus.05.order),];
+
+gene.name.box.05 <- NULL;
+for (i in 1:nrow(outlier.status.05.overlap.minus.05)) {
+    gene.name <- rep(sub("\\..*", "", rownames(rnai.score.05.overlap.minus.05))[i], ncol(rnai.score.05.overlap.minus.05));
+    gene.name.box.05 <- c(gene.name.box.05, gene.name);
+    }
+
+rnai.05.box <- data.frame(cbind(
+    score = as.numeric(unlist(t(rnai.score.05.overlap.minus.05))),
+    gene = gene.name.box.05,
+    status = as.numeric(unlist(t(outlier.status.05.overlap.minus.05)))
+    ));
+rnai.05.box$score <- as.numeric(rnai.05.box$score);
+rnai.05.box$status <- as.numeric(rnai.05.box$status);
+
+
+
+# Get Cas-CRISPR data
+gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5,];
+gene.effect.diff.matrix.05.overlap.minus.05.order <- gene.effect.diff.matrix.05.overlap.minus.05[order(gene.effect.diff.matrix.05.overlap.minus.05$diff),];
+
+effect.score.05.overlap.minus.05 <- cas.effect.breast.05.na[rownames(gene.effect.diff.matrix.05.overlap.minus.05.order),];
+outlier.status.05.overlap.minus.05 <- sample.outlier.05.overlap.na[rownames(gene.effect.diff.matrix.05.overlap.minus.05.order),];
+
+gene.name.box.05 <- NULL;
+for (i in 1:nrow(outlier.status.05.overlap.minus.05)) {
+    gene.name <- rep(sub("\\..*", "", rownames(effect.score.05.overlap.minus.05))[i], ncol(effect.score.05.overlap.minus.05));
+    gene.name.box.05 <- c(gene.name.box.05, gene.name);
+    }
+
+effect.05.box <- data.frame(cbind(
+    score = as.numeric(unlist(t(effect.score.05.overlap.minus.05))),
+    gene = gene.name.box.05,
+    status = as.numeric(unlist(t(outlier.status.05.overlap.minus.05)))
+    ));
+effect.05.box$score <- as.numeric(effect.05.box$score);
+effect.05.box$status <- as.numeric(effect.05.box$status);
+
+
+
+
 # Select four specific genes from both datasets
 gene.five.cas.rnai <-c('MECOM','FGFR2','FOXP4','WIPF2');
 rnai.05.box.4 <- rnai.05.box[rnai.05.box$gene %in% gene.five.cas.rnai,];

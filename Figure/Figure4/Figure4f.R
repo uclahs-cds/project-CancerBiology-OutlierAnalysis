@@ -15,7 +15,7 @@ gene.dependency.diff.matrix.05.overlap.minus.05.order <- gene.dependency.diff.ma
 dependency.score.05.overlap.minus.05 <- gene.dependency.breast.t.num.match.05.na[
     rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order), 
     ];
-outlier.status.05.overlap.minus.05 <- sample.outlier.05.overlap.na[
+outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[
     rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order), 
     ];
 
@@ -49,7 +49,7 @@ gene.dependency.diff.matrix.05.overlap.plus.05 <- gene.dependency.diff.matrix.05
 dependency.score.05.overlap.plus.05 <- gene.dependency.breast.t.num.match.05.na[
     rownames(gene.dependency.diff.matrix.05.overlap.plus.05), 
     ];
-outlier.status.05.overlap.plus.05 <- sample.outlier.05.overlap.na[
+outlier.status.05.overlap.plus.05 <- ccle.sample.outlier.status.overlap.na[
     rownames(gene.dependency.diff.matrix.05.overlap.plus.05), 
     ];
 dependency.05.box.plus <- data.frame(

@@ -7,10 +7,10 @@
 i <-'FOXP4';
 
 # Prepare RNA abundance data 
-i.fpkm <- fpkm.tumor.symbol.filter[i,];
+i.fpkm <- fpkm.tumor.symbol.filter.ccle[i,];
 i.fpkm.data <- data.frame(
     gene = as.numeric(i.fpkm),        
-    sample = colnames(fpkm.tumor.symbol.filter)
+    sample = colnames(fpkm.tumor.symbol.filter.ccle)
     );
 i.fpkm.data.order <- i.fpkm.data[order(i.fpkm.data$gene, decreasing =TRUE),];
 
@@ -108,7 +108,7 @@ cnv.plot <- BoutrosLab.plotting.general::create.heatmap(
     );
 
 # Prepare RNAi data for barplot
-rnai.05.box.4.FOXP4 <- rnai.05.box[rnai.05.box$gene %in% gene.five.cas.rnai.FOXP4,];
+rnai.05.box.4.FOXP4 <- rnai.05.box[rnai.05.box$gene %in% i,];
 rnai.05.box.4.FOXP4$label <- rep('RNAi', nrow(rnai.05.box.4.FOXP4));
 rownames(rnai.05.box.4.FOXP4)<- colnames(rnai.score.05.overlap.minus.05);
 rnai.05.box.4.FOXP4.order <- rnai.05.box.4.FOXP4[match(i.protein.na.df$sample, rownames(rnai.05.box.4.FOXP4)),];
@@ -145,7 +145,7 @@ bar.rnai.na <- BoutrosLab.plotting.general::create.barplot(
     alpha.rectangle = 0.25);
 
 # Prepare CRISPR-Cas data for barplot
-effect.05.box.4.FOXP4 <- effect.05.box[effect.05.box$gene %in% gene.five.cas.rnai.FOXP4,];
+effect.05.box.4.FOXP4 <- effect.05.box[effect.05.box$gene %in% i,];
 effect.05.box.4.FOXP4$label <- rep('Cas', nrow(effect.05.box.4.FOXP4));
 rownames(effect.05.box.4.FOXP4)<- colnames(effect.score.05.overlap.minus.05);
 effect.05.box.4.FOXP4.order <- effect.05.box.4.FOXP4[match(i.protein.na.df$sample, rownames(effect.05.box.4.FOXP4)),];

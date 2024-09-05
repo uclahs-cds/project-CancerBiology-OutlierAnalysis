@@ -47,8 +47,8 @@ icgc.outlier.patient.number.frame <- data.frame(
 
 # Combine all datasets into a single data frame
 five.outlier.patient.number.frame <- rbind(
-    brca.outlier.patient.number.frame,
     meta.outlier.patient.number.frame,
+    brca.outlier.patient.number.frame,
     ispy.outlier.patient.number.frame,
     metador.outlier.patient.number.frame,
     icgc.outlier.patient.number.frame
@@ -86,11 +86,11 @@ five.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
     xaxis.cex = 1.1,
     yaxis.cex = 1,
     xaxis.lab = c( 
-        'METABRIC\n (n = 1991)', 
-        'TCGA-BRCA\n (n = 1085)',
-        'I-SPY2\n (n = 988)', 
-        'METADOR\n (n = 528)', 
-        'ICGC BRCA-EU\n (n = 342)'
+        'METABRIC\n n = 1991', 
+        'TCGA-BRCA\n n = 1085',
+        'I-SPY2\n n = 988', 
+        'METADOR\n n = 528', 
+        'ICGC BRCA-EU\n n = 342'
         ),
     yaxis.lab = c(
         expression('2'^'0'), 
