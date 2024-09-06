@@ -39,7 +39,6 @@ warn.env.duplicates <- function(base.env, plot.env) {
     }
 }
 
-
 save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures') {
     data.env.names <- character(length(datafiles));
 
@@ -58,16 +57,16 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures
         # create.histogram resets warn to 0, so continually set it back
         options(warn = 1);
 
-        accessed_vars <- new.env(parent = emptyenv());
+        accessed.vars <- new.env(parent = emptyenv());
         plot.env <- new.env();
         plot.sub.env <- new.env(parent = plot.env);
 
-        track_access <- function(name) {
+        track.access <- function(name) {
             makeActiveBinding(
                 name,
                 function(value) {
                     if (missing(value)) {
-                        assign(name, get(name, envir = plot.env), envir = accessed_vars)
+                        assign(name, get(name, envir = plot.env), envir = accessed.vars)
                         get(name, envir = plot.env)
                     } else {
                         assign(name, value, envir = plot.env)
@@ -79,7 +78,7 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures
 
         for (data.env.name in data.env.names) {
             for (var in ls(data.env.name)) {
-                track_access(var)
+                track.access(var)
             }
         }
 
@@ -90,7 +89,7 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures
             message(ansi.red(paste('Problem with', figure.file, '!')));
         }
 
-        for (accessed.var in ls(accessed_vars)) {
+        for (accessed.var in ls(accessed.vars)) {
             message(ansi.yellow(paste('Accessed', accessed.var)));
         }
 
@@ -106,6 +105,8 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures
 }
 
 
+# Generate the full set of plots twice - once with the original dataset, once
+# with the restricted dataset for plotting.
 make.plots.twice <- function(figure.files, full.dataset, restricted.dataset) {
     save.multiple.plots(
         full.dataset,
@@ -120,6 +121,20 @@ make.plots.twice <- function(figure.files, full.dataset, restricted.dataset) {
     );
 }
 
+# Use the original data on the cluster, falling back to the copied local data
+
+# The processed / subsetted data intended for plotting
+data.dir <- '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data';
+if (!dir.exists(data.dir)) {
+    data.dir <- 'untracked_data/data';
+}
+
+# The original data
+dev.dir <- '/hot/users/jyhan/TCGA/RNA-seq/outlier';
+if (!dir.exists(dev.dir)) {
+    dev.dir <- 'untracked_data/outlier';
+}
+
 make.plots.twice(
     c(
         'Figure/Figure1/Figure1b.R',
@@ -129,8 +144,8 @@ make.plots.twice(
         'Figure/Figure1/Figure1h.R',
         'Figure/Figure1/Figure1i.R'
     ),
-    'untracked_data/outlier/2024-08-27_metabric_tcga_ispy_matador_icgc.RData',
-    'untracked_data/data/2024-08-27_Figure1.rda'
+    file.path(dev.dir, '2024-08-27_metabric_tcga_ispy_matador_icgc.RData'),
+    file.path(data.dir, '2024-08-27_Figure1.rda')
 );
 
 make.plots.twice(
@@ -140,8 +155,8 @@ make.plots.twice(
         'Figure/Figure2/Figure2c.R',
         'Figure/Figure2/Figure2d.R'
     ),
-    'untracked_data/outlier/2024-08-27_cnv_all_brca_meta_icgc.RData',
-    'untracked_data/data/2024-08-23_Figure2a-d.rda'
+    file.path(dev.dir, '2024-08-27_cnv_all_brca_meta_icgc.RData'),
+    file.path(data.dir, '2024-08-23_Figure2a-d.rda')
 );
 
 make.plots.twice(
@@ -149,8 +164,8 @@ make.plots.twice(
         'Figure/Figure2/Figure2e.R',
         'Figure/Figure2/Figure2f.R'
     ),
-    'untracked_data/outlier/2024-05-05_driver_gene.RData',
-    'untracked_data/data/2024-08-24_Figure2ef_drivergene.rda'
+    file.path(dev.dir, '2024-05-05_driver_gene.RData'),
+    file.path(data.dir, '2024-08-24_Figure2ef_drivergene.rda')
 );
 
 make.plots.twice(
@@ -161,8 +176,8 @@ make.plots.twice(
         'Figure/Figure2/Figure2k.R',
         'Figure/Figure2/Figure2l.R'
     ),
-    'untracked_data/outlier/2024-08-26_meta_brca_methylation_merge.RData',
-    'untracked_data/data/2024-08-26_Figure2h-l_input.rda'
+    file.path(dev.dir, '2024-08-26_meta_brca_methylation_merge.RData'),
+    file.path(data.dir, '2024-08-26_Figure2h-l_input.rda')
 );
 
 make.plots.twice(
@@ -172,6 +187,6 @@ make.plots.twice(
         'Figure/Figure3/Figure3c.R',
         'Figure/Figure3/Figure3d.R'
     ),
-    'untracked_data/outlier/2024-02-20_brca.RData',
-    'untracked_data/data/2024-08-28_Figure3a-d.rda'
+    file.path(dev.dir, '2024-02-20_brca.RData'),
+    file.path(data.dir, '2024-08-28_Figure3a-d.rda')
 );
