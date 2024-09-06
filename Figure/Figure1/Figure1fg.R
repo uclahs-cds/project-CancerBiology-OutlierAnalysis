@@ -1338,30 +1338,14 @@ metafor.multi.chr.smd.5 <- create.multipanelplot(
 metafor.multi.chr.smd.5;
 
 
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'metafor.multi.chr.smd.5', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 5, 
-    height = 6.5
-    );
-metafor.multi.chr.smd.5;
-dev.off();
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'metafor.multi.chr.smd.5', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 5, 
+write.plot(
+    trellis.object = metafor.multi.chr.smd.5,
+    filename = file.path(output.directory, 'Figure_1_fg.png'),
+    width = 5,
     height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-metafor.multi.chr.smd.5;
-dev.off();
+    size.units = 'in',
+    resolution = 1200
+);
