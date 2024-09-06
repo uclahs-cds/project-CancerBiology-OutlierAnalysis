@@ -200,16 +200,12 @@ heat.all <- BoutrosLab.plotting.general:::create.multiplot(
     resolution = 500
     );
 
-
-
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the multi plot as a PDF
 pdf(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'multi', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_a.pdf'),
     width = 7.5, 
     height = 8.15
     );
@@ -218,11 +214,7 @@ dev.off();
 
 # Save the multi plot as a PNG
 png(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'multi', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_a.png'),
     width = 7.5, 
     height = 8.15,
     unit = 'in', 

@@ -135,13 +135,13 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
 
 
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
+
 # Save the scatter plot as a PDF
 pdf(
-    file = generate.filename(
-        'gene_dependency_diff', 
-        'scatter', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_e.pdf'),
     width = 6, 
     height = 5
     );
@@ -150,11 +150,7 @@ dev.off();
 
 # Save the scatter plot as a PNG
 png(
-    file = generate.filename(
-        'gene_dependency_diff', 
-        'scatter', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_e.png'),
     width = 6, 
     height = 5,
     unit = 'in', 

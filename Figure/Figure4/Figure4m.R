@@ -61,14 +61,12 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.25
     );
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the box plot as a PDF
 pdf(
-    file = generate.filename(
-        i, 
-        'box_drug', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_m.pdf'),
     width = 5, 
     height = 6
     );
@@ -77,11 +75,7 @@ dev.off();
 
 # Save the box plot as a PNG
 png(
-    file = generate.filename(
-        i, 
-        'box_drug', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_m.png'),
     width = 5, 
     height = 6,
     unit = 'in', 

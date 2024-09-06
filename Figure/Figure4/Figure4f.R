@@ -116,13 +116,12 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 # Save the box plot as a PDF
 pdf(
-    file = generate.filename(
-        'gene_dependency_example', 
-        'box', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_f.pdf'),
     width = 6, 
     height = 5
     );
@@ -131,11 +130,7 @@ dev.off();
 
 # Save the box plot as a PNG
 png(
-    file = generate.filename(
-        'gene_dependency_example', 
-        'box', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_f.png'),
     width = 6, 
     height = 5,
     unit = 'in', 

@@ -117,15 +117,14 @@ outlier.number.density <- create.scatterplot(
     );
 
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 
 
 # Save the density plot as a PDF
 pdf(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'density', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_b.pdf'),
     width = 5, 
     height = 5
     );
@@ -134,11 +133,7 @@ dev.off();
 
 # Save the density plot as a PNG
 png(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'density', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_b.png'),
     width = 5, 
     height = 5,
     unit = 'in', 

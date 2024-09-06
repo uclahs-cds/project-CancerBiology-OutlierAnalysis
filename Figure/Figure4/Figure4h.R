@@ -64,16 +64,12 @@ rnai.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha =0.25
     );
 
-
-
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the box plot as a PDF
 pdf(
-    file = generate.filename(
-        'gene_effect_example_rnai', 
-        'box', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_h.pdf'),
     width = 6, 
     height = 6
     );
@@ -82,11 +78,7 @@ dev.off();
 
 # Save the box plot as a PNG
 png(
-    file = generate.filename(
-        'gene_effect_example_rnai', 
-        'box', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_h.png'),
     width = 6, 
     height = 6,
     unit = 'in', 

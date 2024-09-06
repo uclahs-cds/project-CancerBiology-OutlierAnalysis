@@ -303,15 +303,13 @@ zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 
 # Save the box plot as a PDF
 pdf(
-    file = generate.filename(
-        'sanger_drug', 
-        'box', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_l.pdf'),
     width = 4, 
     height = 6
     );
@@ -320,11 +318,7 @@ dev.off();
 
 # Save the box plot as a PNG
 png(
-    file = generate.filename(
-        'sanger_drug', 
-        'box', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_l.png'),
     width = 4, 
     height = 6,
     unit = 'in', 

@@ -206,14 +206,12 @@ multi.gene.protein.bar <- create.multipanelplot(
     );
 
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the multi plot as a PDF
 pdf(
-    file = generate.filename(
-        i, 
-        'multi_bar', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_k.pdf'),
     width = 9, 
     height = 10
     );
@@ -222,11 +220,7 @@ dev.off();
 
 # Save the multi plot as a PNG
 png(
-    file = generate.filename(
-        i, 
-        'multi_bar', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_k.png'),
     width = 9, 
     height = 10,
     unit = 'in', 

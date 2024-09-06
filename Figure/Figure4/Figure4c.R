@@ -189,15 +189,14 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
+# Save the plot as a PNG
+output.directory <- get0('output.directory', ifnotfound = 'figures');
+
 
 
 # Save the box plot as a PDF
 pdf(
-    file = generate.filename(
-        'CCLE_outlier_protein', 
-        'box', 
-        'pdf'
-        ), 
+    file = file.path(output.directory, 'Figure_4_c.pdf'),
     width = 3.5, 
     height = 6.5
     );
@@ -206,11 +205,7 @@ dev.off();
 
 # Save the box plot as a PNG
 png(
-    file = generate.filename(
-        'CCLE_outlier_protein', 
-        'box', 
-        'png'
-        ), 
+    file = file.path(output.directory, 'Figure_4_c.png'),
     width = 3.5, 
     height = 6.5,
     unit = 'in', 
