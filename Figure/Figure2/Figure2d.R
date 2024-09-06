@@ -170,38 +170,38 @@ library(BoutrosLab.plotting.general);
 # ecDNA.outlier.patient.location <- do.call(rbind, ecDNA.outlier.patient.location)
 # 
 # 
-# brca.cnv.chr.new.gis.fpkm.order.match.chr6 <- brca.cnv.chr.new.gis.fpkm.order.match[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr6',];
-# brca.cnv.chr.new.gis.fpkm.order.match.chr6.all.gene.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome %in% 'chr6', ];
+brca.cnv.chr.new.gis.fpkm.order.match.chr6 <- brca.cnv.chr.new.gis.fpkm.order.match[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr6',];
+brca.cnv.chr.new.gis.fpkm.order.match.chr6.all.gene.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome %in% 'chr6', ];
 # 
 # # Filter FPKM data for genes on chromosome 6
-# fpkm.chr6 <- fpkm.tumor.symbol.filter.brca[
-#     match(brca.cnv.chr.new.gis.fpkm.order.match.chr6$Hugo_Symbol, fpkm.tumor.symbol.filter.brca$Symbol), 
-#     patient.part.brca
-#     ];
-# 
-# # Calculate robust z-scores for each gene
-# fpkm.chr6.median.z <- NULL;
-# for (i in 1:nrow(fpkm.chr6)) {
-#     gene.median <- median(as.numeric(fpkm.chr6[i,]));
-#     gene.mad <- mad(as.numeric(fpkm.chr6[i,]));
-#     robust.z <- (as.numeric(fpkm.chr6[i,]) - gene.median) / gene.mad;
-#     fpkm.chr6.median.z <- rbind(fpkm.chr6.median.z, robust.z);
-#     }
-# 
-# # Set row and column names for the z-score matrix
-# rownames(fpkm.chr6.median.z) <- rownames(fpkm.chr6);
-# colnames(fpkm.chr6.median.z) <- colnames(fpkm.chr6);
-# 
-# 
-# ecdna.patient <- 'TCGA.A2.A3XX.01A';
-# 
-# # Prepare data for plotting
-# fpkm.chr6.median.z.bar <- data.frame(
-#     cbind(fpkm.chr6.median.z[, ecdna.patient, drop = FALSE], sample = c(1:nrow(fpkm.chr6.median.z)))
-#     );
-# 
-# 
-# 
+fpkm.chr6 <- fpkm.tumor.symbol.filter.brca[
+    match(brca.cnv.chr.new.gis.fpkm.order.match.chr6$Hugo_Symbol, fpkm.tumor.symbol.filter.brca$Symbol), 
+    patient.part.brca
+    ];
+
+# Calculate robust z-scores for each gene
+fpkm.chr6.median.z <- NULL;
+for (i in 1:nrow(fpkm.chr6)) {
+    gene.median <- median(as.numeric(fpkm.chr6[i,]));
+    gene.mad <- mad(as.numeric(fpkm.chr6[i,]));
+    robust.z <- (as.numeric(fpkm.chr6[i,]) - gene.median) / gene.mad;
+    fpkm.chr6.median.z <- rbind(fpkm.chr6.median.z, robust.z);
+    }
+
+# Set row and column names for the z-score matrix
+rownames(fpkm.chr6.median.z) <- rownames(fpkm.chr6);
+colnames(fpkm.chr6.median.z) <- colnames(fpkm.chr6);
+
+
+ecdna.patient <- 'TCGA.A2.A3XX.01A';
+
+# Prepare data for plotting
+fpkm.chr6.median.z.bar <- data.frame(
+    cbind(fpkm.chr6.median.z[, ecdna.patient, drop = FALSE], sample = c(1:nrow(fpkm.chr6.median.z)))
+    );
+
+
+
 # # Set bar colors, highlighting outlier genes in red
 bar.colours <- rep('black', nrow(fpkm.chr6.median.z.bar));
 outlier.gene.indices <- which(

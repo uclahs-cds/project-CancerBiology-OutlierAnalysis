@@ -17,151 +17,149 @@
 #   4. LumB - non-mutated
 
 # Luma subtype patient
-# subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
-# outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
-# meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.luma))];
-# 
-# outlier.patient.tag.01.t.p.order.sum.luma.brca <- 
-#     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 4) == 'TCGA'];
-# outlier.patient.tag.01.t.p.order.sum.luma.meta <- 
-#     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'MB'];
-# outlier.patient.tag.01.t.p.order.sum.luma.icgc <- 
-#     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'PR'];
-# 
-# meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca <- 
-#     meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 4) == 'TCGA'];
-# meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta <- 
-#     meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'MB'];
-# meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <- 
-#     meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'PR'];
-# 
-# # Lumb subtype patient
-# subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 4, ];
-# outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
-# meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.lumb))];
-# 
-# outlier.patient.tag.01.t.p.order.sum.lumb.brca <- 
-#     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];
-# outlier.patient.tag.01.t.p.order.sum.lumb.meta <- 
-#     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'MB'];
-# outlier.patient.tag.01.t.p.order.sum.lumb.icgc <- 
-#     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'PR'];
-# 
-# meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca <- 
-#     meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 4) == 'TCGA'];
-# meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta <- 
-#     meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'MB'];
-# meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc <- 
-#     meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'PR'];
-# 
-# 
-# meta.mutation.driver.list.gene.vector.data.convert.na.luma.all <- data.frame(
-#     meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta,
-#     meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca,
-#     meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc
-#     );
-# 
-# outlier.patient.tag.01.t.p.order.sum.luma.all <- c(
-#     outlier.patient.tag.01.t.p.order.sum.luma.meta,
-#     outlier.patient.tag.01.t.p.order.sum.luma.brca,
-#     outlier.patient.tag.01.t.p.order.sum.luma.icgc
-#     );
-# 
-# meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all <- data.frame(
-#     meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta,
-#     meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca,
-#     meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc
-#     );
-# 
-# outlier.patient.tag.01.t.p.order.sum.lumb.all <- c(
-#     outlier.patient.tag.01.t.p.order.sum.lumb.meta,
-#     outlier.patient.tag.01.t.p.order.sum.lumb.brca,
-#     outlier.patient.tag.01.t.p.order.sum.lumb.icgc
-#     );
-# 
-# i <- 'PIK3CA';
-# 
-# # Create scatter plot
-# i.luma.mut <- outlier.patient.tag.01.t.p.order.sum.luma.all[meta.mutation.driver.list.gene.vector.data.convert.na.luma.all[i,] == 'mutation'];
-# i.luma.non <- outlier.patient.tag.01.t.p.order.sum.luma.all[meta.mutation.driver.list.gene.vector.data.convert.na.luma.all[i,] == 'normal'];
-# i.lumb.mut <- outlier.patient.tag.01.t.p.order.sum.lumb.all[meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all[i,] == 'mutation'];
-# i.lumb.non <- outlier.patient.tag.01.t.p.order.sum.lumb.all[meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all[i,] == 'normal'];
-# 
-# wilcox.test(i.luma.mut, i.luma.non, alternative = "two.sided", conf.int = TRUE);
-# wilcox.test(i.lumb.mut, i.lumb.non, alternative = "two.sided", conf.int = TRUE);
-# 
-# bw.value <- 0.6;
-# 
-# dens.luma.mut <- density(
-#     na.omit(i.luma.mut), 
-#     bw = bw.value, 
-#     from = 0, 
-#     to = max(as.numeric(i.luma.mut))
-#     );
-# 
-# dens.luma.mut.df <- as.data.frame(
-#     dens.luma.mut[c('x', 'y')]
-#     );
-# 
-# 
-# 
-# dens.luma.non <- density(
-#     na.omit(i.luma.non), 
-#     bw = bw.value, 
-#     from = 0, 
-#     to = max(as.numeric(i.luma.non))
-#     );
-# 
-# dens.luma.non.df <- as.data.frame(
-#     dens.luma.non[c('x', 'y')]
-#     );
-# 
-# 
-# 
-# dens.lumb.mut <- density(
-#     na.omit(i.lumb.mut), 
-#     bw = bw.value, 
-#     from = 0, 
-#     to = max(as.numeric(i.lumb.mut))
-#     );
-# 
-# dens.lumb.mut.df <- as.data.frame(
-#     dens.lumb.mut[c('x', 'y')]
-#     );
-# 
-# 
-# 
-# dens.lumb.non <- density(
-#     na.omit(i.lumb.non), 
-#     bw = bw.value, 
-#     from = 0, 
-#     to = max(as.numeric(i.lumb.non))
-#     );
-# 
-# dens.lumb.non.df <- as.data.frame(
-#     dens.lumb.non[c('x', 'y')]
-#     );
-# 
-# 
-# 
-# combine.density.scatter.old <- rbind(
-#     dens.luma.mut.df,
-#     dens.luma.non.df,
-#     dens.lumb.mut.df,
-#     dens.lumb.non.df
-#     );
-# 
-# combine.density.scatter.group.old <- cbind(
-#     combine.density.scatter.old,
-#     group = c(
-#         rep('a', nrow(dens.luma.mut.df)),
-#         rep('b', nrow(dens.luma.non.df)),
-#         rep('c', nrow(dens.lumb.mut.df)),
-#         rep('d', nrow(dens.lumb.non.df))
-#         )
-#     );
+subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
+outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.luma))];
 
-library(BoutrosLab.plotting.general);
+outlier.patient.tag.01.t.p.order.sum.luma.brca <- 
+    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 4) == 'TCGA'];
+outlier.patient.tag.01.t.p.order.sum.luma.meta <- 
+    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'MB'];
+outlier.patient.tag.01.t.p.order.sum.luma.icgc <- 
+    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'PR'];
+
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 4) == 'TCGA'];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'MB'];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'PR'];
+
+# Lumb subtype patient
+subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 4, ];
+outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.lumb))];
+
+outlier.patient.tag.01.t.p.order.sum.lumb.brca <- 
+    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];
+outlier.patient.tag.01.t.p.order.sum.lumb.meta <- 
+    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'MB'];
+outlier.patient.tag.01.t.p.order.sum.lumb.icgc <- 
+    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'PR'];
+
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 4) == 'TCGA'];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'MB'];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc <- 
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'PR'];
+
+
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.all <- data.frame(
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta,
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca,
+    meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc
+    );
+
+outlier.patient.tag.01.t.p.order.sum.luma.all <- c(
+    outlier.patient.tag.01.t.p.order.sum.luma.meta,
+    outlier.patient.tag.01.t.p.order.sum.luma.brca,
+    outlier.patient.tag.01.t.p.order.sum.luma.icgc
+    );
+
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all <- data.frame(
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta,
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca,
+    meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc
+    );
+
+outlier.patient.tag.01.t.p.order.sum.lumb.all <- c(
+    outlier.patient.tag.01.t.p.order.sum.lumb.meta,
+    outlier.patient.tag.01.t.p.order.sum.lumb.brca,
+    outlier.patient.tag.01.t.p.order.sum.lumb.icgc
+    );
+
+i <- 'PIK3CA';
+
+# Create scatter plot
+i.luma.mut <- outlier.patient.tag.01.t.p.order.sum.luma.all[meta.mutation.driver.list.gene.vector.data.convert.na.luma.all[i,] == 'mutation'];
+i.luma.non <- outlier.patient.tag.01.t.p.order.sum.luma.all[meta.mutation.driver.list.gene.vector.data.convert.na.luma.all[i,] == 'normal'];
+i.lumb.mut <- outlier.patient.tag.01.t.p.order.sum.lumb.all[meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all[i,] == 'mutation'];
+i.lumb.non <- outlier.patient.tag.01.t.p.order.sum.lumb.all[meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all[i,] == 'normal'];
+
+wilcox.test(i.luma.mut, i.luma.non, alternative = "two.sided", conf.int = TRUE);
+wilcox.test(i.lumb.mut, i.lumb.non, alternative = "two.sided", conf.int = TRUE);
+
+bw.value <- 0.6;
+
+dens.luma.mut <- density(
+    na.omit(i.luma.mut), 
+    bw = bw.value, 
+    from = 0, 
+    to = max(as.numeric(i.luma.mut))
+    );
+
+dens.luma.mut.df <- as.data.frame(
+    dens.luma.mut[c('x', 'y')]
+    );
+
+
+
+dens.luma.non <- density(
+    na.omit(i.luma.non), 
+    bw = bw.value, 
+    from = 0, 
+    to = max(as.numeric(i.luma.non))
+    );
+
+dens.luma.non.df <- as.data.frame(
+    dens.luma.non[c('x', 'y')]
+    );
+
+
+
+dens.lumb.mut <- density(
+    na.omit(i.lumb.mut), 
+    bw = bw.value, 
+    from = 0, 
+    to = max(as.numeric(i.lumb.mut))
+    );
+
+dens.lumb.mut.df <- as.data.frame(
+    dens.lumb.mut[c('x', 'y')]
+    );
+
+
+
+dens.lumb.non <- density(
+    na.omit(i.lumb.non), 
+    bw = bw.value, 
+    from = 0, 
+    to = max(as.numeric(i.lumb.non))
+    );
+
+dens.lumb.non.df <- as.data.frame(
+    dens.lumb.non[c('x', 'y')]
+    );
+
+
+
+combine.density.scatter.old <- rbind(
+    dens.luma.mut.df,
+    dens.luma.non.df,
+    dens.lumb.mut.df,
+    dens.lumb.non.df
+    );
+
+combine.density.scatter.group.old <- cbind(
+    combine.density.scatter.old,
+    group = c(
+        rep('a', nrow(dens.luma.mut.df)),
+        rep('b', nrow(dens.luma.non.df)),
+        rep('c', nrow(dens.lumb.mut.df)),
+        rep('d', nrow(dens.lumb.non.df))
+        )
+    );
 
 
 mutation.density <- BoutrosLab.plotting.general::create.scatterplot(

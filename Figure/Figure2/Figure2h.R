@@ -173,17 +173,17 @@ dot.colours <- rep(
 dot.colours[mean.minus.ma.merge.two.500$minus.beta < -0.2] <- 'dodgerblue3';
 dot.colours[mean.minus.ma.merge.two.500$minus.beta > 0.2] <- 'red2';
 
-# p.me <- wilcox.test(
-#     outlier.sample.me.two.unlist.500, 
-#     non.outlier.sample.me.two.unlist.500, 
-#     alternative = "two.sided", 
-#     conf.int = TRUE
-#     );
+p.me <- wilcox.test(
+    outlier.sample.me.two.unlist.500, 
+    non.outlier.sample.me.two.unlist.500, 
+    alternative = "two.sided", 
+    conf.int = TRUE
+    );
 
-# p_value.com <- sprintf("%.1e", p.me$p.value);
-# p_value_parts.com <- strsplit(p_value.com, split = "e")[[1]];
-# base.com <- as.numeric(p_value_parts.com[1]);
-# exponent.com <- as.numeric(p_value_parts.com[2]);
+p_value.com <- sprintf("%.1e", p.me$p.value);
+p_value_parts.com <- strsplit(p_value.com, split = "e")[[1]];
+base.com <- as.numeric(p_value_parts.com[1]);
+exponent.com <- as.numeric(p_value_parts.com[2]);
 
 text.pvalue <- display.statistical.result(
     x = p.me$p.value,
