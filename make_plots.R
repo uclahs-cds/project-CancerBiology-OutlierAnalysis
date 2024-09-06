@@ -25,16 +25,16 @@ ansi.red <- function(str) {
     paste('\x1b[31;1m', str, '\x1b[0m', sep = '');
 }
 
-warn.env.duplicates <- function(base.env, plot.env) {
+warn.env.duplicates <- function(figure.file, base.env, plot.env) {
     message('Comparing dupes');
     base.stuff <- ls(base.env);
     local.stuff <- ls(plot.env);
     for (duplicate.object.name in intersect(base.stuff, local.stuff)) {
         if (digest::digest(as.environment(base.env)[[duplicate.object.name]]) ==
                 digest::digest(as.environment(plot.env)[[duplicate.object.name]])) {
-            message(ansi.green(paste('Redundant:', duplicate.object.name)));
+            message(paste('Redundant', figure.file, base.env, duplicate.object.name, sep = '|'));
         } else {
-            message(ansi.red(paste('DIFFERENT:', duplicate.object.name)));
+            message(paste('Different', figure.file, base.env, duplicate.object.name, sep = '|'));
         }
     }
 }
@@ -90,11 +90,11 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures
         }
 
         for (accessed.var in ls(accessed.vars)) {
-            message(ansi.yellow(paste('Accessed', accessed.var)));
+            message(paste('Accessed', figure.file, data.env.name, accessed.var, sep = '|'));
         }
 
         for (data.env.name in data.env.names) {
-            warn.env.duplicates(data.env.name, plot.env);
+            warn.env.duplicates(figure.file, data.env.name, plot.env);
         }
     }
 
