@@ -357,6 +357,8 @@ metafor.cnv.odd.ci.p.data$label <- as.factor(metafor.cnv.odd.ci.p.data$label);
 # Change the order from lowest to higest odds from meta analysis
 metafor.cnv.odd.ci.p.data.rev <- metafor.cnv.odd.ci.p.data[rev(1:5),];
 
+cnv.col.ramp.5.seg <- c("#2166AC", "#90B2D5", "grey60", "#D88B95", "#B2182B");
+
 metafor.all.segplot <- BoutrosLab.plotting.general::create.segplot(
     formula = label ~ log2(ci.min) + log2(ci.max),
     data = metafor.cnv.odd.ci.p.data.rev,
