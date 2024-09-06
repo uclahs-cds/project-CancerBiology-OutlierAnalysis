@@ -4,6 +4,7 @@
 # Date: 2024-08-16
 #################################################################################
 
+library(BoutrosLab.plotting.general);
 
 # Haven't upload these files on cluster. These are included as variables
 # Get protein info
@@ -192,26 +193,12 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_c.pdf'),
-    width = 3.5, 
-    height = 6.5
-    );
-ccle.protein.box;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_c.png'),
-    width = 3.5, 
+write.plot(
+    trellis.object = ccle.protein.box,
+    filename = file.path(output.directory, 'Figure_4_c.png'),
+    width = 3.5,
     height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-ccle.protein.box;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);

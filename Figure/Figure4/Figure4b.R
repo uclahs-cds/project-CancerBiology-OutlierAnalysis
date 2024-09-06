@@ -3,6 +3,7 @@
 # datasets.
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
 # Outlier patient number
 outlier.patient.tag.sum.05 <- apply(ccle.sample.outlier.status, 2, sum);
@@ -120,26 +121,12 @@ outlier.number.density <- create.scatterplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-
-# Save the density plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_b.pdf'),
-    width = 5, 
-    height = 5
-    );
-outlier.number.density;
-dev.off();
-
 # Save the density plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_b.png'),
-    width = 5, 
+write.plot(
+    trellis.object = outlier.number.density,
+    filename = file.path(output.directory, 'Figure_4_b.png'),
+    width = 5,
     height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-outlier.number.density;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);

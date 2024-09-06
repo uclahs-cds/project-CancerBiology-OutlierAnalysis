@@ -3,6 +3,7 @@
 # in CCLE. 
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
 
 # Filter for FDR < 0.05 and match gene names
@@ -122,27 +123,12 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_g.pdf'),
-    width = 6, 
-    height = 5
-    );
-gene.scatter.05.minus.overlap.label;
-dev.off();
-
 # Save the scatter plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_g.png'),
-    width = 6, 
+write.plot(
+    trellis.object = gene.scatter.05.minus.overlap.label,
+    filename = file.path(output.directory, 'Figure_4_g.png'),
+    width = 6,
     height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-gene.scatter.05.minus.overlap.label;
-dev.off();
-
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);

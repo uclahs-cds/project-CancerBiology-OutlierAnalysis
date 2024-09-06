@@ -67,26 +67,12 @@ rnai.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_h.pdf'),
-    width = 6, 
-    height = 6
-    );
-rnai.05.box.plot;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_h.png'),
-    width = 6, 
+write.plot(
+    trellis.object = gene.scatter.05.minus.overlap.label,
+    filename = file.path(output.directory, 'Figure_4_h.png'),
+    width = 6,
     height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-rnai.05.box.plot;
-dev.off();
-
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);

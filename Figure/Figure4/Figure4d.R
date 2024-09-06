@@ -2,6 +2,7 @@
 # This script analyzes the protein abundance of all outlier genes identified in CCLE. 
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
 # All CCLE outlier genes
 protein.info.pancancer.breast.match.all <- protein.info.pancancer.breast.match.t[
@@ -156,24 +157,12 @@ ccle.protein.box.all <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_d.pdf'),
-    width = 3.5, 
-    height = 6.5
-    );
-ccle.protein.box.all;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_d.png'),
-    width = 3.5, 
+write.plot(
+    trellis.object = ccle.protein.box.all,
+    filename = file.path(output.directory, 'Figure_4_d.png'),
+    width = 3.5,
     height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-ccle.protein.box.all;
-dev.off();
-
+    size.units = 'in',
+    resolution = 1200
+);

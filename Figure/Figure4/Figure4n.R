@@ -75,23 +75,12 @@ rnai.cas.effect.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_n.pdf'),
-    width = 3.8, 
-    height = 6
-    );
-rnai.cas.effect.box.plot;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_n.png'),
-    width = 3.8, 
+write.plot(
+    trellis.object = rnai.cas.effect.box.plot,
+    filename = file.path(output.directory, 'Figure_4_n.png'),
+    width = 3.8,
     height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-rnai.cas.effect.box.plot;
-dev.off();
+    size.units = 'in',
+    resolution = 1200
+);

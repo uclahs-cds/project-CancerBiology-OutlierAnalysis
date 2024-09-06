@@ -136,26 +136,12 @@ cor.scatter.effect.cas.rnai <- BoutrosLab.plotting.general::create.scatterplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_i.pdf'),
-    width = 5, 
-    height = 5
-    );
-cor.scatter.effect.cas.rnai;
-dev.off();
-
 # Save the scatter plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_i.png'),
-    width = 5, 
+write.plot(
+    trellis.object = cor.scatter.effect.cas.rnai,
+    filename = file.path(output.directory, 'Figure_4_i.png'),
+    width = 5,
     height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-cor.scatter.effect.cas.rnai;
-dev.off();
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);

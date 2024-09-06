@@ -3,6 +3,7 @@
 # effect scores (RNAi and CRISPR-Cas) for a specific gene (e.g., FOXP4).
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
 i <-'FOXP4';
 
@@ -209,23 +210,12 @@ multi.gene.protein.bar <- create.multipanelplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the multi plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_k.pdf'),
-    width = 9, 
-    height = 10
-    );
-multi.gene.protein.bar;
-dev.off();
-
 # Save the multi plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_k.png'),
-    width = 9, 
+write.plot(
+    trellis.object = multi.gene.protein.bar,
+    filename = file.path(output.directory, 'Figure_4_k.png'),
+    width = 9,
     height = 10,
-    unit = 'in', 
-    res = 1200
-    );
-multi.gene.protein.bar;
-dev.off();
-
+    size.units = 'in',
+    resolution = 1200
+);

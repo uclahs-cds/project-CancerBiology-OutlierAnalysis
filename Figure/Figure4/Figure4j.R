@@ -143,26 +143,12 @@ cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_j.pdf'),
-    width = 5, 
-    height = 6.5
-    );
-cas.rnai.example.box;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_j.png'),
-    width = 5, 
+write.plot(
+    trellis.object = cas.rnai.example.box,
+    filename = file.path(output.directory, 'Figure_4_j.png'),
+    width = 5,
     height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-cas.rnai.example.box;
-dev.off();
-
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);

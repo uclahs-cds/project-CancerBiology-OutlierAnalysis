@@ -64,24 +64,12 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_m.pdf'),
-    width = 5, 
-    height = 6
-    );
-i.drug.box.plot;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_m.png'),
-    width = 5, 
+write.plot(
+    trellis.object = i.drug.box.plot,
+    filename = file.path(output.directory, 'Figure_4_m.png'),
+    width = 5,
     height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-i.drug.box.plot;
-dev.off();
-
-
+    size.units = 'in',
+    resolution = 1200
+);

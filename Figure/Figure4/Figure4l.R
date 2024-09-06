@@ -306,24 +306,12 @@ zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
 # Save the plot as a PNG
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the box plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_l.pdf'),
-    width = 4, 
-    height = 6
-    );
-zscore.box.sanger;
-dev.off();
-
 # Save the box plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_l.png'),
-    width = 4, 
+write.plot(
+    trellis.object = zscore.box.sanger,
+    filename = file.path(output.directory, 'Figure_4_l.png'),
+    width = 4,
     height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-zscore.box.sanger;
-dev.off();
-
+    size.units = 'in',
+    resolution = 1200
+);

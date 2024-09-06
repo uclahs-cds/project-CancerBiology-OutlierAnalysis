@@ -5,6 +5,8 @@
 # Date: 2024-08-16
 
 
+library(BoutrosLab.plotting.general);
+
 
 # sample outlier status
 ccle.sample.outlier.status.fdr.05 <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05),];
@@ -204,21 +206,11 @@ heat.all <- BoutrosLab.plotting.general:::create.multiplot(
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
 # Save the multi plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_4_a.pdf'),
-    width = 7.5, 
-    height = 8.15
-    );
-heat.all;
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_4_a.png'),
+write.plot(
+    trellis.object = heat.all,
+    filename = file.path(output.directory, 'Figure_4_a.png'),
     width = 7.5, 
     height = 8.15,
-    unit = 'in', 
-    res = 1200
-    );
-heat.all;
-dev.off();
+    size.units = 'in',
+    resolution = 1200
+);
