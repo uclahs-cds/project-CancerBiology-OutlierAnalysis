@@ -142,46 +142,58 @@ class Figure:
         if not self.expected_images:
             self.expected_images.add(f"Figure_{number}_{letter}.png")
 
-    def validate(self):
-        """Compare the full and restricted images."""
-        # Second level - were the data sources parsed?
-        if not self.restricted_dataset:
-            raise ValidationError("Restricted dataset not parsed")
-
+    def validate_full(self):
+        """Validate the full dataset."""
         if not self.full_dataset:
             raise ValidationError("Full dataset not parsed")
 
-        # Zeroth level - were there errors?
-        if self.errors:
-            if self.restricted_dataset in self.errors and (
-                undefined_match := re.search(
-                    r"object '([^']+)' not found",
-                    "\n".join(self.errors[self.restricted_dataset]),
-                )
-            ):
-                raise ValidationError(
-                    f"Undefined object in restricted dataset: `{undefined_match.group(1)}`"
-                )
-
-            if self.full_dataset in self.errors and (
-                undefined_match := re.search(
-                    r"object '([^']+)' not found",
-                    "\n".join(self.errors[self.full_dataset]),
-                )
-            ):
+        if self.full_dataset in self.errors:
+            error_lines = "\n\t\t\t".join(self.errors[self.full_dataset])
+            if undefined_match := re.search(r"object '([^']+)' not found", error_lines):
                 raise ValidationError(
                     f"Undefined object in full dataset: `{undefined_match.group(1)}`"
                 )
 
-            error_text = ""
+            raise ValidationError("Unspecified error\n\t\t\t" + error_lines)
 
-            for source, lines in self.errors.items():
-                error_text += f"------ {source} -------\n"
-                error_text += "\n".join(lines)
-                error_text += "\n---------\n"
+        # First level - do the images match?
+        for imagename in sorted(self.expected_images):
+            full = self.full_base / imagename
+            if not full.is_file():
+                raise ValidationError(f"Full {imagename} doesn't exist")
 
-            raise ValidationError("Errors while producing figure!\n" + error_text)
+    def validate_restricted(self):
+        """Validate the restricted dataset."""
+        # Second level - were the data sources parsed?
+        if not self.restricted_dataset:
+            raise ValidationError("Restricted dataset not parsed")
 
+        # Zeroth level - were there errors?
+        if self.restricted_dataset in self.errors:
+            error_lines = "\n\t\t\t".join(self.errors[self.restricted_dataset])
+            if undefined_match := re.search(r"object '([^']+)' not found", error_lines):
+                raise ValidationError(
+                    f"Undefined object in restricted dataset: `{undefined_match.group(1)}`"
+                )
+
+            raise ValidationError("Unspecified error\n\t\t\t" + error_lines)
+
+        for imagename in sorted(self.expected_images):
+            restricted = self.restricted_base / imagename
+
+            if not restricted.is_file():
+                raise ValidationError(f"Restricted {imagename} doesn't exist")
+
+        # Third level - are there modified variables from the restricted
+        # dataset?
+        for variable, usage in self.variables[self.restricted_dataset].items():
+            if usage > Usage.REDUNDANT:
+                raise ValidationError(
+                    f"Variable `{variable}` {usage.name} in restricted dataset"
+                )
+
+    def validate_images(self):
+        """Validate both images."""
         # First level - do the images match?
         for imagename in sorted(self.expected_images):
             restricted = self.restricted_base / imagename
@@ -210,27 +222,33 @@ class Figure:
             if pixel_difference:
                 raise ValidationError(f"Full and restricted {imagename} don't match")
 
-        # Third level - are there modified variables from the restricted
-        # dataset?
-        for variable, usage in self.variables[self.restricted_dataset].items():
-            if usage > Usage.REDUNDANT:
-                raise ValidationError(
-                    f"Variable `{variable}` {usage.name} in restricted dataset"
-                )
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("first", type=Path)
-    parser.add_argument("second", type=Path)
     parser.add_argument("logfile", type=Path)
 
     args = parser.parse_args()
-    # compare_folders(args.first, args.second)
     for figure in Figure.from_logs(args.logfile):
-        print(f"{figure.sourcefile}:\t", end="")
+        print(f"{figure.sourcefile}:")
+        print("  Full dataset:\t\t", end="")
         try:
-            figure.validate()
+            figure.validate_full()
             print("GOOD")
         except ValidationError as err:
             print(err)
+
+        print("  Restricted dataset:\t", end="")
+        try:
+            figure.validate_restricted()
+            print("GOOD")
+        except ValidationError as err:
+            print(err)
+
+        print("  Comparison:\t\t", end="")
+        try:
+            figure.validate_images()
+            print("GOOD")
+        except ValidationError as err:
+            print(err)
+
+        print()
