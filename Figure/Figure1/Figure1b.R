@@ -158,9 +158,9 @@ for (i in genes) {
 ### DATA FRAME PREPARATION #####################################################
 
 # Create data frames for each gene's z-scores
-IGF2.i.frame.z <- data.frame(
-    sample = rep('IGF2', length(IGF2.z.score)), 
-    value = as.numeric(IGF2.z.score)
+IGF2R.i.frame.z <- data.frame(
+    sample = rep('IGF2', length(IGF2R.z.score)), 
+    value = as.numeric(IGF2R.z.score)
     );
 
 TMEM30A.i.frame.z <- data.frame(
@@ -189,7 +189,7 @@ NRAS.i.frame.z <- data.frame(
 
 # Combine the data for all genes into a single data frame
 all.gene.z.scores <- rbind(
-    IGF2.i.frame.z,
+    IGF2R.i.frame.z,
     TMEM30A.i.frame.z,
     NRAS.i.frame.z,
     IGF2R.i.frame.z,
@@ -201,7 +201,7 @@ all.gene.z.scores <- rbind(
 all.gene.z.scores.ordered <- cbind(
     all.gene.z.scores,
     order = c(
-        rep('a', nrow(IGF2.i.frame.z)),
+        rep('a', nrow(IGF2R.i.frame.z)),
         rep('b', nrow(TMEM30A.i.frame.z)),
         rep('c', nrow(NRAS.i.frame.z)),
         rep('d', nrow(IGF2R.i.frame.z)),
@@ -212,7 +212,7 @@ all.gene.z.scores.ordered <- cbind(
 
 # Combine outlier status from all genes
 all.gene.outlier.status <- c(
-    IGF2.outlier.status,
+    IGF2R.outlier.status,
     TMEM30A.outlier.status,
     NRAS.outlier.status,
     IGF2R.outlier.status,
