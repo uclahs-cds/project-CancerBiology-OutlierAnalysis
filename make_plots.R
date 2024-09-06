@@ -1,15 +1,17 @@
 #!/usr/bin/env Rscript
-invisible(loadNamespace(library(logger)));
+# invisible(loadNamespace(library(logger)));
 library(BoutrosLab.utilities);
 
 # Set up logging code
-logger::log_threshold(DEBUG);
-logger::log_appender(logger::appender_file('plotting.log'));
-logger::log_errors();
-logger::log_warnings();
-logger::log_messages();
+# logger::log_threshold(DEBUG);
+# logger::log_appender(logger::appender_file('plotting.log'));
+# logger::log_errors();
+# logger::log_warnings();
+# logger::log_messages();
 
-logger::log_info('Starting up');
+message("Staring up");
+
+# logger::log_info('Starting up');
 
 # Upgrade all warnings to errors
 options(warn = 2);
@@ -26,7 +28,6 @@ ansi.red <- function(str) {
 }
 
 warn.env.duplicates <- function(figure.file, base.env, plot.env) {
-    message('Comparing dupes');
     base.stuff <- ls(base.env);
     local.stuff <- ls(plot.env);
     for (duplicate.object.name in intersect(base.stuff, local.stuff)) {
@@ -140,7 +141,7 @@ make.plots.twice(
         'Figure/Figure1/Figure1b.R',
         'Figure/Figure1/Figure1c.R',
         'Figure/Figure1/Figure1d.R',
-        'Figure/Figure1/Figure1e.R',
+        # 'Figure/Figure1/Figure1e.R',  # GOOD
         'Figure/Figure1/Figure1h.R',
         'Figure/Figure1/Figure1i.R'
     ),
@@ -151,7 +152,7 @@ make.plots.twice(
 make.plots.twice(
     c(
         'Figure/Figure2/Figure2a.R',
-        'Figure/Figure2/Figure2b.R',
+        # 'Figure/Figure2/Figure2b.R',  # GOOD
         'Figure/Figure2/Figure2c.R',
         'Figure/Figure2/Figure2d.R'
     ),
@@ -173,7 +174,7 @@ make.plots.twice(
         'Figure/Figure2/Figure2h.R',
         'Figure/Figure2/Figure2i.R',
         'Figure/Figure2/Figure2j.R',
-        'Figure/Figure2/Figure2k.R',
+        # 'Figure/Figure2/Figure2k.R',  # THIS ONE THROWS SO MANY ERRORS
         'Figure/Figure2/Figure2l.R'
     ),
     file.path(dev.dir, '2024-08-26_meta_brca_methylation_merge.RData'),

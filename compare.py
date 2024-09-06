@@ -29,7 +29,7 @@ class Figure:
         """Parse Figures from the logfile."""
         log_text = logfile.read_text(encoding="utf-8")
         # Just get the logs from the last session
-        last_text = log_text.split(" Starting up\n")[-1]
+        last_text = log_text.split("Starting up\n")[-1]
 
         symbol_re = re.compile(
             r"""
@@ -44,9 +44,53 @@ class Figure:
             flags=re.VERBOSE,
         )
 
+        figure_start_re = re.compile(r"^.*33;1m(Figure/Figure[^.]+\.R)")
+        source_start_re = re.compile(r"^.*32;1mSourcing ([^.]+\.\w+)")
+        problem_re = re.compile(r"^.*31;1mProblem with (Figure/Figure[^.]+\.R) !")
+
+        current_figure_lines = []
+
         figures = {}
 
+        active_figure = ""
+        active_source = ""
+
         for line in last_text.splitlines():
+            if source_match := source_start_re.search(line.strip()):
+                active_source = source_match.group(1)
+                continue
+
+            if figure_match := figure_start_re.search(line.strip()):
+                active_figure = figure_match.group(1)
+                current_figure_lines = []
+
+                if active_figure not in figures:
+                    figures[active_figure] = cls(Path(active_figure))
+
+                # Determine if the source is a full or restricted dataset
+                if "data" in Path(active_source).parts:
+                    if not figures[active_figure].restricted_dataset:
+                        figures[active_figure].restricted_dataset = active_source
+                    assert figures[active_figure].restricted_dataset == active_source
+
+                if "outlier" in Path(active_source).parts:
+                    if not figures[active_figure].full_dataset:
+                        figures[active_figure].full_dataset = active_source
+                    assert figures[active_figure].full_dataset == active_source
+                continue
+
+            if problem_match := problem_re.search(line.strip()):
+                assert active_figure
+                assert active_source
+
+                assert problem_match.group(1) == active_figure
+                if active_figure not in figures:
+                    figures[active_figure] = cls(Path(active_figure))
+
+                assert active_source not in figures[active_figure].errors
+                figures[active_figure].errors[active_source] = current_figure_lines[:]
+                continue
+
             if symbol := symbol_re.search(line.strip()):
                 action, figurefile, source, variable = symbol.groups()
                 if figurefile not in figures:
@@ -67,6 +111,8 @@ class Figure:
                     if not figures[figurefile].full_dataset:
                         figures[figurefile].full_dataset = source
                     assert figures[figurefile].full_dataset == source
+            else:
+                current_figure_lines.append(line)
 
         return list(figures.values())
 
@@ -76,6 +122,8 @@ class Figure:
         self.variables: dict[str, dict[str, Usage]] = {}
         self.full_dataset = ""
         self.restricted_dataset = ""
+
+        self.errors: dict[str, list[str]] = {}
 
         if not (name_match := re.match(r"Figure(\d+)(\w+)", sourcefile.stem)):
             raise ValueError("Invalid filename!")
@@ -96,6 +144,32 @@ class Figure:
 
     def validate(self):
         """Compare the full and restricted images."""
+        # Second level - were the data sources parsed?
+        if not self.restricted_dataset:
+            raise ValidationError("Restricted dataset not parsed")
+
+        if not self.full_dataset:
+            raise ValidationError("Full dataset not parsed")
+
+        # Zeroth level - were there errors?
+        if self.errors:
+            if self.restricted_dataset in self.errors and \
+                    (undefined_match := re.search(r"object '([^']+)' not found", "\n".join(self.errors[self.restricted_dataset]))):
+                raise ValidationError(f"Undefined object in restricted dataset: `{undefined_match.group(1)}`")
+
+            if self.full_dataset in self.errors and \
+                    (undefined_match := re.search(r"object '([^']+)' not found", "\n".join(self.errors[self.full_dataset]))):
+                raise ValidationError(f"Undefined object in full dataset: `{undefined_match.group(1)}`")
+
+            error_text = ""
+
+            for source, lines in self.errors.items():
+                error_text += f"------ {source} -------\n"
+                error_text += "\n".join(lines)
+                error_text += "\n---------\n"
+
+            raise ValidationError("Errors while producing figure!\n" + error_text)
+
         # First level - do the images match?
         for imagename in sorted(self.expected_images):
             restricted = self.restricted_base / imagename
@@ -124,17 +198,10 @@ class Figure:
             if pixel_difference:
                 raise ValidationError(f"Full and restricted {imagename} don't match")
 
-        # Second level - were the data sources parsed?
-        if not self.restricted_dataset:
-            raise ValidationError("Restricted dataset not parsed")
-
-        if not self.full_dataset:
-            raise ValidationError("Full dataset not parsed")
-
-        # Third level - are there redundant or modified variables from the
-        # restricted dataset?
+        # Third level - are there modified variables from the restricted
+        # dataset?
         for variable, usage in self.variables[self.restricted_dataset].items():
-            if usage > Usage.ACCESSED:
+            if usage > Usage.REDUNDANT:
                 raise ValidationError(
                     f"Variable `{variable}` {usage.name} in restricted dataset"
                 )
