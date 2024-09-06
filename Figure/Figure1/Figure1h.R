@@ -11,6 +11,7 @@
 library(dplyr);
 library(tidyr);
 library(poolr);
+library(msigdbr);
 
 
 outlier.gene.fdr.all.icgc$Symbol <- fpkm.data.icgc$Name[as.numeric(outlier.gene.fdr.all.icgc$gene)];
