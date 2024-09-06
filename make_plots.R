@@ -139,8 +139,8 @@ if (!dir.exists(dev.dir)) {
 make.plots.twice(
     c(
         'Figure/Figure1/Figure1b.R',
-        'Figure/Figure1/Figure1c.R',
-        'Figure/Figure1/Figure1d.R',
+        # 'Figure/Figure1/Figure1c.R',  # GOOD
+        # 'Figure/Figure1/Figure1d.R',  # GOOD
         # 'Figure/Figure1/Figure1e.R',  # GOOD
         'Figure/Figure1/Figure1h.R',
         'Figure/Figure1/Figure1i.R'

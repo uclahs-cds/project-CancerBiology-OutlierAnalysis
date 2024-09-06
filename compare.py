@@ -153,13 +153,25 @@ class Figure:
 
         # Zeroth level - were there errors?
         if self.errors:
-            if self.restricted_dataset in self.errors and \
-                    (undefined_match := re.search(r"object '([^']+)' not found", "\n".join(self.errors[self.restricted_dataset]))):
-                raise ValidationError(f"Undefined object in restricted dataset: `{undefined_match.group(1)}`")
+            if self.restricted_dataset in self.errors and (
+                undefined_match := re.search(
+                    r"object '([^']+)' not found",
+                    "\n".join(self.errors[self.restricted_dataset]),
+                )
+            ):
+                raise ValidationError(
+                    f"Undefined object in restricted dataset: `{undefined_match.group(1)}`"
+                )
 
-            if self.full_dataset in self.errors and \
-                    (undefined_match := re.search(r"object '([^']+)' not found", "\n".join(self.errors[self.full_dataset]))):
-                raise ValidationError(f"Undefined object in full dataset: `{undefined_match.group(1)}`")
+            if self.full_dataset in self.errors and (
+                undefined_match := re.search(
+                    r"object '([^']+)' not found",
+                    "\n".join(self.errors[self.full_dataset]),
+                )
+            ):
+                raise ValidationError(
+                    f"Undefined object in full dataset: `{undefined_match.group(1)}`"
+                )
 
             error_text = ""
 
