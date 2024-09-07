@@ -138,10 +138,11 @@ if (!dir.exists(dev.dir)) {
 
 make.plots.twice(
     c(
-        # 'Figure/Figure1/Figure1b.R',  # MISSING VARIABLE FROM RESTRICTED
-        # 'Figure/Figure1/Figure1c.R',  # GOOD
-        # 'Figure/Figure1/Figure1d.R',  # GOOD
-        # 'Figure/Figure1/Figure1e.R',  # GOOD
+        'Figure/Figure1/Figure1b.R',  # MISSING VARIABLE FROM RESTRICTED
+        'Figure/Figure1/Figure1c.R',  # GOOD
+        'Figure/Figure1/Figure1d.R',  # GOOD
+        'Figure/Figure1/Figure1e.R',  # GOOD
+        'Figure/Figure1/Figure1fg.R',
         # 'Figure/Figure1/Figure1h.R',  # NO PLOTTING CODE
         'Figure/Figure1/Figure1i.R'
     ),
@@ -149,21 +150,21 @@ make.plots.twice(
     file.path(data.dir, '2024-08-27_Figure1.rda')
 );
 
-# make.plots.twice(
-#     c(
-#         # 'Figure/Figure2/Figure2a.R',  # GOOD
-#         # 'Figure/Figure2/Figure2b.R',  # GOOD
-#         'Figure/Figure2/Figure2c.R',  # MISSING VARIABLE FROM RESTRICTED
-#         'Figure/Figure2/Figure2d.R'   # MISSING VARIABLE FROM RESTRICTED
-#     ),
-#     file.path(dev.dir, '2024-08-27_cnv_all_brca_meta_icgc.RData'),
-#     file.path(data.dir, '2024-08-23_Figure2a-d.rda')
-# );
+make.plots.twice(
+    c(
+        'Figure/Figure2/Figure2a.R',  # GOOD
+        'Figure/Figure2/Figure2b.R',  # GOOD
+        'Figure/Figure2/Figure2c.R',  # MISSING VARIABLE FROM RESTRICTED
+        'Figure/Figure2/Figure2d.R'   # MISSING VARIABLE FROM RESTRICTED
+    ),
+    file.path(dev.dir, '2024-08-27_cnv_all_brca_meta_icgc.RData'),
+    file.path(data.dir, '2024-08-23_Figure2a-d.rda')
+);
 
 make.plots.twice(
     c(
-        'Figure/Figure2/Figure2e.R'
-        # 'Figure/Figure2/Figure2f.R'   # GOOD
+        'Figure/Figure2/Figure2e.R',
+        'Figure/Figure2/Figure2f.R'   # GOOD
     ),
     file.path(dev.dir, '2024-05-05_driver_gene.RData'),
     file.path(data.dir, '2024-08-24_Figure2ef_drivergene.rda')
@@ -171,27 +172,26 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        # 'Figure/Figure2/Figure2h.R',  # MISSING VARIABLE FROM RESTRICTED
-        # 'Figure/Figure2/Figure2i.R',  # MISSING VARIABLE FROM RESTRICTED
+        'Figure/Figure2/Figure2h.R',  # MISSING VARIABLE FROM RESTRICTED
+        'Figure/Figure2/Figure2i.R',  # MISSING VARIABLE FROM RESTRICTED
         'Figure/Figure2/Figure2j.R',
-        # 'Figure/Figure2/Figure2k.R',  # THIS ONE THROWS SO MANY ERRORS
+        'Figure/Figure2/Figure2k.R',  # THIS ONE THROWS SO MANY ERRORS
         'Figure/Figure2/Figure2l.R'
     ),
     file.path(dev.dir, '2024-08-26_meta_brca_methylation_merge.RData'),
     file.path(data.dir, '2024-08-26_Figure2h-l_input.rda')
 );
 
-# make.plots.twice(
-#     c(
-#         'Figure/Figure3/Figure3a.R',
-#         'Figure/Figure3/Figure3b.R',
-#         'Figure/Figure3/Figure3c.R',
-#         'Figure/Figure3/Figure3d.R'
-#     ),
-#     file.path(dev.dir, '2024-02-20_brca.RData'),
-#     file.path(data.dir, '2024-08-28_Figure3a-d.rda')
-# );
-
+make.plots.twice(
+    c(
+        'Figure/Figure3/Figure3a.R',
+        'Figure/Figure3/Figure3b.R',
+        'Figure/Figure3/Figure3c.R',
+        'Figure/Figure3/Figure3d.R'
+    ),
+    file.path(dev.dir, '2024-02-20_brca.RData'),
+    file.path(data.dir, '2024-08-28_Figure3a-d.rda')
+);
 
 make.plots.twice(
     c(

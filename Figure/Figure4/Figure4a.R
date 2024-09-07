@@ -161,7 +161,7 @@ legend.sample.grob <- BoutrosLab.plotting.general:::legend.grob(
             padding.text = 2
             ),
         legend = list(
-            colours = c(white),
+            colours = c('white'),
             title = expression(underline('Status')),
             labels = c('Outlier'),
             size = 2,

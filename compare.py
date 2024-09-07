@@ -2,15 +2,58 @@
 """Compare images in two folders."""
 
 import argparse
-import subprocess
-import re
 import enum
+import json
+import re
+import textwrap
+import subprocess
 
 from pathlib import Path
+
+import colors
+
+
+class MissingVariable(Exception):
+    """Simple class to declare that variables not defined by a datafile."""
+    def __init__(self, variable: str, datafile: str):
+        self.variable = variable
+        self.datafile = datafile
+
+    def __str__(self):
+        return f"Missing from {self.datafile}: {self.variable}"
+
+
+class ExecutionError(Exception):
+    """Simple class to indicate an error during execution."""
+    def __init__(self, error: str):
+        self.error = error
+
+    def __str__(self):
+        return "Error output:\n" + self.error
+
+
+class MismatchedPlot(Exception):
+    """Indicate that a plot changes when the data source is changed."""
+    def __init__(self, image_name):
+        self.image_name = image_name
+
+    def __str__(self):
+        return f"Full and restricted plots of {self.image_name} don't match"
 
 
 class ValidationError(Exception):
     """Simple class to indicate a validation error."""
+
+    def __str__(self):
+        original = super().__str__()
+        lines = original.splitlines()
+        for index, line in enumerate(lines):
+            if index == 0:
+                lines[index] = colors.yellow(line)
+            else:
+                lines[index] = colors.faint(line)
+
+        return "\n".join(lines)
 
 
 class Usage(enum.IntEnum):
@@ -19,6 +62,23 @@ class Usage(enum.IntEnum):
     ACCESSED = 1
     REDUNDANT = 2
     DIFFERENT = 3
+
+
+def simplify_symbol(symbol: str) -> str:
+    """Simplify an R symbol."""
+    if re.match(r"^[\w|\.]+$", symbol):
+        return symbol
+
+    if match := re.match(r"^([\w|\.]+)\$", symbol):
+        return simplify_symbol(match.group(1))
+
+    if match := re.match(r"^([\w|\.]+)\[", symbol):
+        return simplify_symbol(match.group(1))
+
+    if match := re.match(r"^(?:names|colnames|rownames)\(([\w|\.]+)\)$", symbol):
+        return simplify_symbol(match.group(1))
+
+    return symbol
 
 
 class Figure:
@@ -142,19 +202,26 @@ class Figure:
         if not self.expected_images:
             self.expected_images.add(f"Figure_{number}_{letter}.png")
 
+        # Scrape the defined symbols from the script
+        self.defined_symbols = set()
+
+        with self.sourcefile.open(encoding="utf-8") as infile:
+            for line in infile:
+                if match := re.match(r"^\s*([^#\n]+?)\s*<-", line):
+                    self.defined_symbols.add(simplify_symbol(match.group(1).strip()))
+
+
     def validate_full(self):
         """Validate the full dataset."""
         if not self.full_dataset:
             raise ValidationError("Full dataset not parsed")
 
         if self.full_dataset in self.errors:
-            error_lines = "\n\t\t\t".join(self.errors[self.full_dataset])
+            error_lines = "\n".join(self.errors[self.full_dataset])
             if undefined_match := re.search(r"object '([^']+)' not found", error_lines):
-                raise ValidationError(
-                    f"Undefined object in full dataset: `{undefined_match.group(1)}`"
-                )
+                raise MissingVariable(undefined_match.group(1), self.full_dataset)
 
-            raise ValidationError("Unspecified error\n\t\t\t" + error_lines)
+            raise ExecutionError(error_lines)
 
         # First level - do the images match?
         for imagename in sorted(self.expected_images):
@@ -168,15 +235,12 @@ class Figure:
         if not self.restricted_dataset:
             raise ValidationError("Restricted dataset not parsed")
 
-        # Zeroth level - were there errors?
         if self.restricted_dataset in self.errors:
-            error_lines = "\n\t\t\t".join(self.errors[self.restricted_dataset])
+            error_lines = "\n".join(self.errors[self.restricted_dataset])
             if undefined_match := re.search(r"object '([^']+)' not found", error_lines):
-                raise ValidationError(
-                    f"Undefined object in restricted dataset: `{undefined_match.group(1)}`"
-                )
+                raise MissingVariable(undefined_match.group(1), self.restricted_dataset)
 
-            raise ValidationError("Unspecified error\n\t\t\t" + error_lines)
+            raise ExecutionError(error_lines)
 
         for imagename in sorted(self.expected_images):
             restricted = self.restricted_base / imagename
@@ -186,11 +250,15 @@ class Figure:
 
         # Third level - are there modified variables from the restricted
         # dataset?
-        for variable, usage in self.variables[self.restricted_dataset].items():
-            if usage > Usage.REDUNDANT:
-                raise ValidationError(
-                    f"Variable `{variable}` {usage.name} in restricted dataset"
-                )
+        bad_symbols = [
+            (variable, usage) for (variable, usage) in self.variables[self.restricted_dataset].items()
+            if usage >= Usage.REDUNDANT
+        ]
+
+        bad_symbols.sort(key=lambda x: x[1])
+
+        if bad_symbols:
+            raise ValidationError("Variables misused in restricted dataset: %s" % bad_symbols)
 
     def validate_images(self):
         """Validate both images."""
@@ -220,7 +288,7 @@ class Figure:
             )
 
             if pixel_difference:
-                raise ValidationError(f"Full and restricted {imagename} don't match")
+                raise MismatchedPlot(imagename)
 
 
 if __name__ == "__main__":
@@ -228,27 +296,66 @@ if __name__ == "__main__":
     parser.add_argument("logfile", type=Path)
 
     args = parser.parse_args()
+
+    missing_variables: dict[str, dict[str, str]] = {}
+    execution_errors: dict[str, dict[str, str]] = {}
+    mismatched_images = []
+
     for figure in Figure.from_logs(args.logfile):
-        print(f"{figure.sourcefile}:")
+        print(colors.bold(f"{figure.sourcefile}:"))
         print("  Full dataset:\t\t", end="")
         try:
             figure.validate_full()
-            print("GOOD")
+            print(colors.green("GOOD"))
+
+        except MissingVariable as err:
+            print(colors.yellow(err))
+            datadict = missing_variables.setdefault(err.datafile, {})
+            datadict[figure.sourcefile.name] = err.variable
+
+        except ExecutionError as err:
+            figuredict = execution_errors.setdefault(figure.sourcefile.name, {})
+            figuredict[figure.full_dataset] = err.error
+
+            print(textwrap.indent(colors.faint(err), "\t\t\t").lstrip())
+
         except ValidationError as err:
             print(err)
 
         print("  Restricted dataset:\t", end="")
         try:
             figure.validate_restricted()
-            print("GOOD")
+            print(colors.green("GOOD"))
+
+        except MissingVariable as err:
+            print(colors.yellow(err))
+            datadict = missing_variables.setdefault(err.datafile, {})
+            datadict[figure.sourcefile.name] = err.variable
+
+        except ExecutionError as err:
+            figuredict = execution_errors.setdefault(figure.sourcefile.name, {})
+            figuredict[figure.restricted_dataset] = err.error
+            print(textwrap.indent(colors.faint(err), "\t\t\t").lstrip())
+
         except ValidationError as err:
             print(err)
 
         print("  Comparison:\t\t", end="")
         try:
             figure.validate_images()
-            print("GOOD")
+            print(colors.green("GOOD"))
+
+        except MismatchedPlot as err:
+            mismatched_images.append(err.image_name)
+            print(colors.red(err))
+
         except ValidationError as err:
             print(err)
 
         print()
+
+    with open("missing_variables.json", mode="w", encoding="utf-8") as outfile:
+        json.dump(missing_variables, outfile, indent=2)
+
+    with open("execution_errors.json", mode="w", encoding="utf-8") as outfile:
+        json.dump(execution_errors, outfile, indent=2)
