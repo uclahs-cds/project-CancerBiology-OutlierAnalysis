@@ -14,7 +14,7 @@ library(BoutrosLab.plotting.general);
 
 ### DATA PREPARATION ############################################################
 
-genes <- c('TMEM30A', 'IGF2R', 'GAPDH', 'B2M', 'NRAS', 'ACTB'); # 여섯 개의 유전자
+genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
 
 for (i in genes) {
     
@@ -158,8 +158,14 @@ for (i in genes) {
 ### DATA FRAME PREPARATION #####################################################
 
 # Create data frames for each gene's z-scores
+# Create data frames for each gene's z-scores
+IGF2.i.frame.z <- data.frame(
+    sample = rep('IGF2', length(IGF2.z.score)), 
+    value = as.numeric(IGF2.z.score)
+    );
+
 IGF2R.i.frame.z <- data.frame(
-    sample = rep('IGF2', length(IGF2R.z.score)), 
+    sample = rep('IGF2R', length(IGF2R.z.score)), 
     value = as.numeric(IGF2R.z.score)
     );
 
@@ -189,7 +195,7 @@ NRAS.i.frame.z <- data.frame(
 
 # Combine the data for all genes into a single data frame
 all.gene.z.scores <- rbind(
-    IGF2R.i.frame.z,
+    IGF2.i.frame.z,
     TMEM30A.i.frame.z,
     NRAS.i.frame.z,
     IGF2R.i.frame.z,
@@ -201,7 +207,7 @@ all.gene.z.scores <- rbind(
 all.gene.z.scores.ordered <- cbind(
     all.gene.z.scores,
     order = c(
-        rep('a', nrow(IGF2R.i.frame.z)),
+        rep('a', nrow(IGF2.i.frame.z)),
         rep('b', nrow(TMEM30A.i.frame.z)),
         rep('c', nrow(NRAS.i.frame.z)),
         rep('d', nrow(IGF2R.i.frame.z)),
@@ -212,11 +218,10 @@ all.gene.z.scores.ordered <- cbind(
 
 # Combine outlier status from all genes
 all.gene.outlier.status <- c(
-    IGF2R.outlier.status,
+    IGF2.outlier.status,
     TMEM30A.outlier.status,
     NRAS.outlier.status,
     IGF2R.outlier.status,
-    TMEM25.outlier.status,
     GAPDH.outlier.status,
     B2M.outlier.status
     );

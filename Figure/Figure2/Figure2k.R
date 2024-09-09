@@ -136,8 +136,8 @@ tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     add.rectangle = TRUE,
     xleft.rectangle = c(1.5, 3.5),
     xright.rectangle =c(2.5, 5),
-    ybottom.rectangle = -200,
-    ytop.rectangle = 200,
+    ybottom.rectangle = -2,
+    ytop.rectangle = 3,
     # set rectangle colour
     col.rectangle = "grey",
     # set rectangle alpha (transparency)
@@ -156,7 +156,7 @@ pdf(
         'box', 
         'pdf'
         ), 
-    width = 4.5, 
+    width = 3.7, 
     height = 5
     );
 tumor.normal.box.plot;
@@ -169,12 +169,13 @@ png(
         'box', 
         'png'
         ), 
-    width = 4.5, 
+    width = 3.7, 
     height = 5,
     unit = 'in', 
     res = 1200
     );
 tumor.normal.box.plot;
 dev.off();
+
 
 

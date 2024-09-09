@@ -81,21 +81,21 @@ colnames(fpkm.i.two.df) <- c(
     colnames(fpkm.i.meta)
     );
 
-# Prepare scatter plot data
+# # Prepare scatter plot data
 fpkm.i.order <- fpkm.i.two.df[
-    , 
-    colnames(two.outlier.patient.status.merge.filter), 
+    ,
+    colnames(two.outlier.patient.status.merge.filter.500),
     drop = FALSE
     ];
 
 fpkm.i.order <- fpkm.i.order[
-    , 
-    order(as.numeric(fpkm.i.order[1, ]), decreasing = TRUE), 
+    ,
+    order(as.numeric(fpkm.i.order[1, ]), decreasing = TRUE),
     drop = FALSE
     ];
 
 i.me.order <- i.me[
-    , 
+    ,
     colnames(fpkm.i.order)
     ];
 
