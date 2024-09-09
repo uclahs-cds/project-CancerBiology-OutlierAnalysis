@@ -119,8 +119,8 @@ icgc.cnv.chr.new.gis.fpkm.order.match.chr.out <- icgc.cnv.chr.new.gis.fpkm.order
 # Extracting non-outlier patient samples for FGFR2 in ICGC data
 icgc.non.out.sample <- colnames(outlier.patient.tag.01.icgc)[
     outlier.patient.tag.01.icgc[
-        rownames(icgc.fpkm.data)[
-            icgc.fpkm.data$Name %in% "FGFR2"
+        rownames(fpkm.data.icgc)[
+            fpkm.data.icgc$Name %in% "FGFR2"
             ],
         ] == 0
     ];

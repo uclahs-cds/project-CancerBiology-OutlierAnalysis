@@ -7,81 +7,103 @@
 library(BoutrosLab.plotting.general);
 
 
-# Chromosome name vector
+
+
+library(dplyr)
+library(tidyr)
+library(poolr)
+
+outlier.gene.fdr.all.icgc.symbol <- outlier.gene.fdr.all.icgc;
+outlier.gene.fdr.all.icgc.symbol$Symbol <- fpkm.data.icgc$Name[as.numeric(outlier.gene.fdr.all.icgc.symbol$gene)];
+
+outlier.gene.fdr.all.ispy.symbol <- outlier.gene.fdr.all.ispy;
+outlier.gene.fdr.all.ispy.symbol$Symbol <- rownames(outlier.gene.fdr.all.ispy.symbol);
+
+outlier.gene.fdr.all.meta.symbol <- outlier.gene.fdr.all.meta;
+outlier.gene.fdr.all.meta.symbol$Symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.all.meta.symbol),]$Symbol;
+
+outlier.gene.fdr.all.matador.symbol <- outlier.gene.fdr.all.matador;
+outlier.gene.fdr.all.matador.symbol$Symbol <- substr(rownames(outlier.gene.fdr.all.matador.symbol), 17, nchar(rownames(outlier.gene.fdr.all.matador.symbol)))
+
+outlier.gene.fdr.all.brca.symbol <- outlier.gene.fdr.all.brca;
+outlier.gene.fdr.all.brca.symbol$Symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.all.brca.symbol),]$Symbol
+
+
+
+# p-value combine and then multiple testing correction
+icgc.all.pvalue <- outlier.gene.fdr.all.icgc.symbol[, c('obs.p.value', 'Symbol')];
+ispy.all.pvalue <- outlier.gene.fdr.all.ispy.symbol[, c('new.p.value', 'Symbol')];
+meta.all.pvalue <- outlier.gene.fdr.all.meta.symbol[, c('new.p.value', 'Symbol')];
+metador.all.pvalue <- outlier.gene.fdr.all.matador.symbol[, c('new.p.value', 'Symbol')];
+brca.all.pvalue <- outlier.gene.fdr.all.brca.symbol[, c('new.p.value', 'Symbol')];
+
+colnames(icgc.all.pvalue) <- c("pvalue_icgc", "Symbol");
+colnames(ispy.all.pvalue) <- c("pvalue_ispy", "Symbol");
+colnames(meta.all.pvalue) <- c("pvalue_meta", "Symbol");
+colnames(metador.all.pvalue) <- c("pvalue_metador", "Symbol");
+colnames(brca.all.pvalue) <- c("pvalue_brca", "Symbol");
+
+
+combined_df <- icgc.all.pvalue %>%
+    rename(pvalue_icgc = pvalue_icgc) %>%
+    full_join(ispy.all.pvalue %>% rename(pvalue_ispy = pvalue_ispy), by = "Symbol") %>%
+    full_join(meta.all.pvalue %>% rename(pvalue_meta = pvalue_meta), by = "Symbol") %>%
+    full_join(metador.all.pvalue %>% rename(pvalue_metador = pvalue_metador), by = "Symbol") %>%
+    full_join(brca.all.pvalue %>% rename(pvalue_brca = pvalue_brca), by = "Symbol")
+
+
+all.pvalue.df <- combined_df[,c(1, 3, 4, 5, 6, 2)];
+combine.fisher.pvalue.all <- apply(all.pvalue.df[,1:5], 1, function(x) { fisher(na.omit(x))$p});
+combine.fisher.pvalue.all.fdr <- p.adjust(combine.fisher.pvalue.all, method = 'BH');
+
+
+names(combine.fisher.pvalue.all.fdr) <- all.pvalue.df$Symbol;
+combine.fisher.pvalue.all.fdr.sort <- sort(combine.fisher.pvalue.all.fdr);
+combine.fisher.pvalue.all.fdr.sort.log <- -log10(combine.fisher.pvalue.all.fdr.sort);
+
+
+
+gene.position.ispy.all.location <- gene.position.ispy.all[,2:5];
+gene.position.meta.all.location <- gene.position.meta.all[,2:5];
+gene.position.brca.all.location <- gene.position.brca.all[,2:5];
+gene.position.metador.all.location <- gene.position.metador.all[,2:5];
+gene.position.icgc.all.location <- gene.position.icgc.all[,2:5];
+
+all.gene.location <- rbind(
+    gene.position.meta.all.location,
+    gene.position.brca.all.location,
+    gene.position.ispy.all.location,
+    gene.position.metador.all.location,
+    gene.position.icgc.all.location
+    );
+
+all.gene.location.filter <- all.gene.location[!grepl("^CHR", all.gene.location$chromosome_name), ]
+all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ]
+
+
 chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'MT', 'X', 'Y');
 
-# Function to process gene position data
-process.gene.position <- function(gene.position, gene.rank, chromosome.col = "chromosome_name", start.col = "start_position") {
-    gene.position.order <- gene.position[match(gene.rank$gene_id, gene.position$gene_id), ];
-    gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'X'] <- 24;
-    gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'Y'] <- NA;
-    gene.position.order[[chromosome.col]][gene.position.order[[chromosome.col]] == 'MT'] <- 23;
+all.gene.location.filter.nodup.order <- all.gene.location.filter.nodup[match(names(combine.fisher.pvalue.all.fdr.sort.log), all.gene.location.filter.nodup$hgnc_symbol),];
 
-    gene.position.order.fdr <- data.frame(
-        gene.position.order,
-        fdr = gene.rank$fdr
-        );
-
-    gene.position.order.fdr.na <- na.omit(gene.position.order.fdr);
-    gene.position.order.fdr.na <- gene.position.order.fdr.na[order(as.numeric(gene.position.order.fdr.na[[start.col]])), ];
-    gene.position.order.fdr.na.chr <- gene.position.order.fdr.na[order(as.numeric(gene.position.order.fdr.na[[chromosome.col]])), ];
-    gene.position.order.fdr.na.chr <- gene.position.order.fdr.na.chr[gene.position.order.fdr.na.chr[[chromosome.col]] %in% c(1:24), ];
-
-    return(gene.position.order.fdr.na.chr);
-    };
-
-# Process data for each dataset
-gene.position.brca.all.order.fdr.na.chr <- process.gene.position(gene.position.brca.all, outlier.gene.fdr.all.brca);
-gene.position.meta.all.order.fdr.na.chr <- process.gene.position(gene.position.meta.all, outlier.gene.fdr.all.meta);
-gene.position.ispy.all.order.fdr.na.chr <- process.gene.position(gene.position.ispy.all, outlier.gene.fdr.01.ispy);
-gene.position.metador.all.order.fdr.na.chr <- process.gene.position(gene.position.metador.all, outlier.gene.fdr.01.matador);
-
-# Process ICGC data
-locations <- fpkm.data.icgc$loc[as.numeric(rownames(outlier.gene.fdr.all.icgc))];
-
-split.location <- function(location) {
-    parts <- strsplit(location, ":|\\-")[[1]];
-    return(c(parts[1], parts[2], parts[3]));
-    };
-
-split.locations <- t(sapply(locations, split.location));
-location.df <- data.frame(split.locations, stringsAsFactors = FALSE);
-names(location.df) <- c("Chromosome", "Start", "End");
-
-gene.position.icgc.all.order.fdr <- data.frame(
-    symbol = fpkm.data.icgc$Name[as.numeric(rownames(outlier.gene.fdr.all.icgc))],
-    location.df,
-    fdr = outlier.gene.fdr.all.icgc$fdr
-    );
-
-gene.position.icgc.all.order.fdr.na.chr <- process.gene.position(gene.position.icgc.all.order.fdr, outlier.gene.fdr.all.icgc, "Chromosome", "Start");
-
-# Combine all datasets
-all.gene.location <- rbind(
-    gene.position.meta.all[, 2:5],
-    gene.position.brca.all[, 2:5],
-    gene.position.ispy.all[, 2:5],
-    gene.position.metador.all[, 2:5],
-    gene.position.icgc.all[, 2:5]
-    );
-
-all.gene.location.filter <- all.gene.location[!grepl("^CHR", all.gene.location$chromosome_name), ];
-all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ];
-
-all.gene.location.filter.nodup.order <- all.gene.location.filter.nodup[match(names(combine.fisher.pvalue.all.fdr.sort.log), all.gene.location.filter.nodup$hgnc_symbol), ];
 all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name == 'X'] <- 23;
-all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name %in% c('Y', 'MT')] <- NA;
-
-all.gene.location.filter.nodup.order.fdr <- data.frame(
-    all.gene.location.filter.nodup.order, 
-    fdr = combine.fisher.pvalue.all.fdr.sort.log
+all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name == 'Y'] <- NA;
+all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name == 'MT'] <- NA;
+all.gene.location.filter.nodup.order.fdr <- data.frame(cbind(
+    all.gene.location.filter.nodup.order,
+    fdr = combine.fisher.pvalue.all.fdr.sort.log)
     );
+all.gene.location.filter.nodup.order.fdr.na <- na.omit(all.gene.location.filter.nodup.order.fdr);
+    
 
-all.gene.location.filter.nodup.order.fdr.na.chr <- process.gene.position(all.gene.location.filter.nodup.order.fdr, data.frame(fdr = combine.fisher.pvalue.all.fdr.sort.log));
-all.gene.location.filter.nodup.order.fdr.na.chr <- all.gene.location.filter.nodup.order.fdr.na.chr[!duplicated(all.gene.location.filter.nodup.order.fdr.na.chr$hgnc_symbol), ];
 
-# Set up chromosome colors and positions
+all.gene.location.filter.nodup.order.fdr.na <- all.gene.location.filter.nodup.order.fdr.na[order(as.numeric(all.gene.location.filter.nodup.order.fdr.na$start_position)),];
+all.gene.location.filter.nodup.order.fdr.na.chr <- all.gene.location.filter.nodup.order.fdr.na[order(as.numeric(all.gene.location.filter.nodup.order.fdr.na$chromosome_name)),]
+all.gene.location.filter.nodup.order.fdr.na.chr <- all.gene.location.filter.nodup.order.fdr.na.chr[all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name %in% c(1:23),];
+all.gene.location.filter.nodup.order.fdr.na.chr <- all.gene.location.filter.nodup.order.fdr.na.chr[!duplicated(all.gene.location.filter.nodup.order.fdr.na.chr$hgnc_symbol), ]
+
+ # set up chromosome covariate colours to use for chr covariate, below
 chr.colours <- force.colour.scheme(all.gene.location.filter.nodup.order.fdr.na.chr$chromosome_name, scheme = 'chromosome');
+
 
 chr.n.genes <- numeric(23);
 chr.tck <- numeric(23);

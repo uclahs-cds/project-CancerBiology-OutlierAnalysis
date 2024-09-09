@@ -215,45 +215,48 @@ metafor.cnv.p.all.fdr <- p.adjust(metafor.cnv.p.all, method = 'BH');
 ### PLOTTING RESULTS ############################################################
 # - Use weighted mean
 # Initialize an empty vector to store the weighted means
+# Initialize vectors to store the weighted sums
 brca.sum.vector <- sapply(unique(brca.gis.table.num$new.gis.value), function(x) {
     sum(brca.gis.table.num$sample[brca.gis.table.num$new.gis.value == x])
-    });
+    })
 brca.sum.vector <- rep(brca.sum.vector, each = 2);
-
 
 meta.sum.vector <- sapply(unique(meta.gis.table.num$new.gis.value), function(x) {
     sum(meta.gis.table.num$sample[meta.gis.table.num$new.gis.value == x])
-    });
+    })
 meta.sum.vector <- rep(meta.sum.vector, each = 2);
-
 
 icgc.sum.vector <- sapply(unique(icgc.gis.table.num$new.gis.value), function(x) {
     sum(icgc.gis.table.num$sample[icgc.gis.table.num$new.gis.value == x])
-    });
+    })
 icgc.sum.vector <- rep(icgc.sum.vector, each = 2);
 
+# Initialize vector to store the weighted means
+all.weighted.mean <- numeric(10);
 
-
-all.weighted.mean <- NULL;
-
-for (i in 1:10) {
-    
-    weights <- c(
-        brca.sum.vector[i],
-        meta.sum.vector[i],
-        icgc.sum.vector[i]
-        );
-    
-    values <- c(
-        brca.gis.table.num$Freq[i],
-        meta.gis.table.num$Freq[i],
-        icgc.gis.table.num$Freq[i]
-        );
-    
-    # Compute the weighted average and store it
-    weighted_avg <- weighted.mean(values, weights);
-    all.weighted.mean <- c(all.weighted.mean, weighted_avg);
+# Compute weighted means for each status and GIS value combination
+for (status in c("non", "out")) {
+    for (i in 1:5) {
+        gis_value <- c(-2, -1, 0, 1, 2)[i];
+        
+        weights <- c(
+            sum(brca.gis.table.num$sample[brca.gis.table.num$new.gis.value == gis_value & brca.gis.table.num$status == status]),
+            sum(meta.gis.table.num$sample[meta.gis.table.num$new.gis.value == gis_value & meta.gis.table.num$status == status]),
+            sum(icgc.gis.table.num$sample[icgc.gis.table.num$new.gis.value == gis_value & icgc.gis.table.num$status == status])
+            );
+        
+        values <- c(
+            brca.gis.table.num$Freq[brca.gis.table.num$new.gis.value == gis_value & brca.gis.table.num$status == status],
+            meta.gis.table.num$Freq[meta.gis.table.num$new.gis.value == gis_value & meta.gis.table.num$status == status],
+            icgc.gis.table.num$Freq[icgc.gis.table.num$new.gis.value == gis_value & icgc.gis.table.num$status == status]
+            );
+        
+        # Compute the weighted average and store it
+        index <- ifelse(status == "non", i, i + 5);
+        all.weighted.mean[index] <- weighted.mean(values, weights);
+        }
     }
+
 
 
 # 1. Create non-outlier fraction bar plot
@@ -265,6 +268,7 @@ metafor.cnv.odd.all.df.fraction.non <- data.frame(
 
 col.pal <- colorspace::diverging_hcl(9, "Blue-Red 3")[c(1, 2, 5, 8, 9)];
 col.pal <- colorspace::diverging_hcl(21, "Blue-Red 3")[c(1, 4, 11, 18, 21)];
+cnv.col.ramp.5.bar <- c("#2166AC", "#90B2D5", "white", "#D88B95", "#B2182B")
 cnv.col.ramp.5 <- c("#2166AC", "#90B2D5", "grey60", "#D88B95", "#B2182B")
 
 non.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
@@ -272,7 +276,7 @@ non.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     data = metafor.cnv.odd.all.df.fraction.non,
     main = NULL,
     plot.horizontal = TRUE,
-    col = cnv.col.ramp.5,
+    col = cnv.col.ramp.5.bar,
     stack = FALSE,
     main.cex = 0,
     border.col = 'black',
@@ -312,7 +316,7 @@ out.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     data = metafor.cnv.odd.all.df.fraction.out,
     main = NULL,
     plot.horizontal = TRUE,
-    col = cnv.col.ramp.5,
+    col = cnv.col.ramp.5.bar,
     stack = FALSE,
     main.cex = 0,
     border.col = 'black',
