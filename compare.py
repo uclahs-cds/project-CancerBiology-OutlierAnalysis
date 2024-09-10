@@ -5,8 +5,9 @@ import argparse
 import enum
 import json
 import re
-import textwrap
 import subprocess
+import tempfile
+import textwrap
 
 from pathlib import Path
 
@@ -79,6 +80,52 @@ def simplify_symbol(symbol: str) -> str:
         return simplify_symbol(match.group(1))
 
     return symbol
+
+
+def make_mosaic(restricted: Path, full: Path, output: Path):
+    """Make a mosaic of the restricted, full, and reference images."""
+    reference = restricted.parent.parent / "reference_figures" / restricted.name
+
+    assert reference.is_file()
+
+    ref_dims = subprocess.check_output(["magick", "identify", "-format", "%h:%w", reference]).decode("utf-8")
+    ref_height, ref_width = (int(item) for item in ref_dims.split(":"))
+
+    with tempfile.NamedTemporaryFile() as diffimage:
+        if restricted.is_file() and full.is_file():
+            subprocess.run(
+                ["compare", "-metric", "AE", restricted, full, diffimage.name],
+                capture_output=True,
+                check=False,
+            )
+            restricted_args = [restricted, "-resize", f"x{ref_height}"]
+            full_args = [diffimage.name, "-resize", f"x{ref_height}"]
+
+            subprocess.check_call([
+                "magick",
+                restricted,
+                full,
+                diffimage.name,
+                "+append",
+                output.with_stem(output.stem + "-diff")
+            ])
+
+        elif restricted.is_file():
+            restricted_args = [restricted, "-resize", f"x{ref_height}"]
+            full_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:yellow", ")"]
+        elif full.is_file():
+            restricted_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:gray", ")"]
+            full_args = [full, "-resize", f"x{ref_height}"]
+        else:
+            restricted_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:gray", ")"]
+            full_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:yellow", ")"]
+
+        subprocess.check_call([
+            "magick",
+            *restricted_args,
+            *full_args,
+            reference, "+append", output,
+        ])
 
 
 class Figure:
@@ -267,6 +314,8 @@ class Figure:
             restricted = self.restricted_base / imagename
             full = self.full_base / imagename
 
+            make_mosaic(restricted, full, Path("comp-" + restricted.name))
+
             if not restricted.is_file():
                 if not full.is_file():
                     raise ValidationError(
@@ -277,7 +326,7 @@ class Figure:
             if not full.is_file():
                 raise ValidationError(f"Full {imagename} doesn't exist")
 
-            pixel_difference = int(
+            pixel_difference = int(float(
                 subprocess.run(
                     ["compare", "-metric", "AE", restricted, full, "NULL:"],
                     capture_output=True,
@@ -285,7 +334,7 @@ class Figure:
                 )
                 .stderr.decode("utf-8")
                 .strip()
-            )
+            ))
 
             if pixel_difference:
                 raise MismatchedPlot(imagename)
