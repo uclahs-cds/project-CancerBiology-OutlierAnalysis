@@ -118,16 +118,16 @@ meta.mutation.driver.list.gene.vector.data.convert.mis.luma.meta <-
 # 3. ICGC BRCA-EU
 icgc.mutation.silent.0 <- c(as.character(icgc.mutation.silent), '0');
 
-icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.list.gene.vector.data;
+icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.list.gene.vector.data.mis;
 icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- "mutation";
 icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- "normal";
+
+colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
 
 icgc.mutation.driver.list.gene.vector.data.convert.mis.luma.icgc <- 
     icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc)];
 
 # Ensure the column names are preserved for ICGC BRCA-EU data
-colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
-
 
 
 ### Luminal A
@@ -501,6 +501,42 @@ dev.off();
 
 
 ### 2. Luminal B
+# 1. TCGA-BRCA
+brca.mutation.silent.0 <- c(as.character(brca.mutation.silent), '0');
+
+brca.mutation.driver.list.gene.vector.data.convert.mis <- brca.mutation.driver.list.gene.vector.data;
+brca.mutation.driver.list.gene.vector.data.convert.mis[!(brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0)] <- "mutation";
+brca.mutation.driver.list.gene.vector.data.convert.mis[brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0] <- "normal";
+
+brca.mutation.driver.list.gene.vector.data.convert.mis.lumb.brca <- 
+    brca.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca)];
+
+# 2. METABRIC
+meta.mutation.silent.0 <- c(as.character(meta.mutation.silent), '0');
+
+meta.mutation.driver.list.gene.vector.data.convert.mis <- meta.mutation.driver.list.gene.vector.data;
+meta.mutation.driver.list.gene.vector.data.convert.mis[!(meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0)] <- "mutation";
+meta.mutation.driver.list.gene.vector.data.convert.mis[meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0] <- "normal";
+
+meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta)];
+
+# 3. ICGC BRCA-EU
+icgc.mutation.silent.0 <- c(as.character(icgc.mutation.silent), '0');
+
+icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.list.gene.vector.data.mis;
+icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- "mutation";
+icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- "normal";
+
+# Ensure the column names are preserved for ICGC BRCA-EU data
+colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
+
+icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc <- 
+    icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc)];
+
+
+
+
 
 # 1. TCGA-BRCA
 brca.results.lumb <- calculate.odds.ratios(
@@ -565,20 +601,6 @@ calculate.ln.odds.and.se <- function(odds.ratio, ci) {
 
 
 
-### 2. Luminal B
-
-
-brca.mutation.driver.list.gene.vector.data.convert.mis.lumb.brca <- 
-    brca.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca)];
-
-meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta <- 
-    meta.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta)];
-
-icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc <- 
-    icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc)];
-
-
-
 datasets.lumb <- list(
     icgc = icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc,
     meta = meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta,
@@ -603,7 +625,19 @@ for (name in names(datasets.lumb)) {
 names.list <- lapply(results.lumb, function(x) names(x$filtered))
 all.names <- unlist(names.list)
 name.counts <- table(all.names)
-common.genes.lumb <- names(name.counts[name.counts >= 2])
+# common.genes.lumb <- names(name.counts[name.counts >= 2])
+
+
+
+common.genes.lumb <- union(
+    intersect(names(results.lumb$meta$filtered), names(results.lumb$brca$filtered)),
+    union(
+        intersect(names(results.lumb$meta$filtered), names(results.lumb$icgc$filtered)),
+        intersect(names(results.lumb$brca$filtered), names(results.lumb$icgc$filtered))
+        )
+    );
+
+
 
 
 
