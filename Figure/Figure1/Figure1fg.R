@@ -485,7 +485,7 @@ outlier.gene.fdr.all.meta.ensg <- cbind(
 gene.gc.meta.all <- gene.gc[match(gene.position.meta.order.all$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
 gene.gc.meta.content.all <- as.numeric(gene.gc.meta.all$Gene...GC.content);
 outlier.gene.fdr.all.meta.gc <- cbind(
-    na.omit(outlier.gene.fdr.all.meta.ensg),
+    outlier.gene.fdr.all.meta.ensg,
     GC.content = gene.gc.meta.content.all
     );
 
@@ -691,7 +691,7 @@ outlier.length.brca <- gene.position.brca$end_position - gene.position.brca$star
 gene.length.brca <- gene.position.brca.all$end_position - gene.position.brca.all$start_position + 1;
 
 # Create a subset of non-outlier genes
-gene.position.all.non.brca <- gene.position.brca.all[!(gene.position.brca.all$ensembl_gene_id %in% gene.position.brca.1$ensembl_gene_id), ];
+gene.position.all.non.brca <- gene.position.brca.all[!(gene.position.brca.all$ensembl_gene_id %in% gene.position.brca$ensembl_gene_id), ];
 gene.non.length.brca <- gene.position.all.non.brca$end_position - gene.position.all.non.brca$start_position + 1;
 
 # Create a data frame for the lengths and status of genes
@@ -977,25 +977,25 @@ exon.box.metador$exon.content <- as.numeric(exon.box.metador$exon.content);
 
 
 # 5. ICGC
-gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)];
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl", 
-                     dataset = "hsapiens_gene_ensembl", 
-                     mirror = "useast");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id', 
-                                 values = gene.list, 
-                                 mart = ensembl);
-gene.position.icgc.all.entrez <- gene.position.entrez;
-
-gene.list <- fpkm.data$Ensembl[as.numeric(outlier.gene.fdr.01.icgc$gene)]
-gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id', 
-                                 values = gene.list, 
-                                 mart = ensembl);
-gene.position.icgc.entrez <- gene.position.entrez;
+# gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)];
+# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl", 
+#                      dataset = "hsapiens_gene_ensembl", 
+#                      mirror = "useast");
+# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
+# gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
+#                                  filters = 'ensembl_gene_id', 
+#                                  values = gene.list, 
+#                                  mart = ensembl);
+# gene.position.icgc.all.entrez <- gene.position.entrez;
+# 
+# gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01.icgc$gene)]
+# gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
+#                                  filters = 'ensembl_gene_id', 
+#                                  values = gene.list, 
+#                                  mart = ensembl);
+# gene.position.icgc.entrez <- gene.position.entrez;
 
 exon.num.order.icgc <- exon.num[match(gene.position.icgc.all.entrez$entrezgene_id, names(exon.num))];
 gene.position.all.exon.icgc <- data.frame(cbind(
@@ -1111,9 +1111,9 @@ rna.box.brca$rna.content <- as.numeric(rna.box.brca$rna.content);
 
 
 # 2. METABRIC
-outlier.rna.meta <- apply(fpkm.tumor.symbol.filter.meta[rownames(outlier.gene.fdr.01.meta),patient.part.meta], 1, median);
+outlier.rna.meta <- apply(fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01.meta),patient.part.meta], 1, median);
 
-gene.non.rna.meta <- apply(fpkm.tumor.symbol.filter.meta[!(rownames(fpkm.tumor.symbol.filter.meta) %in% rownames(outlier.gene.fdr.01.meta)), patient.part.meta], 1, median)
+gene.non.rna.meta <- apply(fpkm.tumor.symbol.filter.meta.symbol[!(rownames(fpkm.tumor.symbol.filter.meta.symbol) %in% rownames(outlier.gene.fdr.01.meta)), patient.part.meta], 1, median)
 
 rna.box.meta <- data.frame(cbind(
     rna.content = c(gene.non.rna.meta, outlier.rna.meta),
@@ -1139,9 +1139,9 @@ rna.box.ispy$rna.content <- as.numeric(rna.box.ispy$rna.content);
 
 
 # 4. MATADOR
-outlier.rna.metador <- apply(fpkm.tumor.symbol.filter.metador[rownames(outlier.gene.fdr.01.matador),patient.part.metador], 1, median);
+outlier.rna.metador <- apply(fpkm.tumor.symbol.filter.metador.symbol[rownames(outlier.gene.fdr.01.matador),patient.part.metador], 1, median);
 
-gene.non.rna.metador <- apply(fpkm.tumor.symbol.filter.metador[!(rownames(fpkm.tumor.symbol.filter.metador) %in% rownames(outlier.gene.fdr.01.matador)), patient.part.metador], 1, median)
+gene.non.rna.metador <- apply(fpkm.tumor.symbol.filter.metador.symbol[!(rownames(fpkm.tumor.symbol.filter.metador.symbol) %in% rownames(outlier.gene.fdr.01.matador)), patient.part.metador], 1, median)
 
 rna.box.metador <- data.frame(cbind(
     rna.content = c(gene.non.rna.metador, outlier.rna.metador),
@@ -1153,9 +1153,9 @@ rna.box.metador$rna.content <- as.numeric(rna.box.metador$rna.content);
 
 
 # 5. ICGC
-outlier.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[rownames(outlier.gene.fdr.01.icgc),patient.part.icgc], 1, median);
+outlier.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[outlier.gene.fdr.01.icgc$gene,patient.part.icgc], 1, median);
 
-gene.non.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[!(rownames(fpkm.tumor.symbol.filter.icgc) %in% rownames(outlier.gene.fdr.01.icgc)), patient.part.icgc], 1, median)
+gene.non.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[!(rownames(fpkm.tumor.symbol.filter.icgc) %in% outlier.gene.fdr.01.icgc$gene), patient.part.icgc], 1, median)
 
 rna.box.icgc <- data.frame(cbind(
     rna.content = c(gene.non.rna.icgc, outlier.rna.icgc),
@@ -1272,8 +1272,8 @@ metafor.smd.all.matrix.label.5 <- data.frame(cbind(
 # FDR correction for the SMD matrix
 metafor.smd.all.matrix.label.fdr.5 <- p.adjust(metafor.smd.all.matrix.label.5$p.value, method = 'BH');
 
-
-
+metafor.chr.odd.ci.p.data.label.rev.5 <- metafor.chr.odd.ci.p.data.label.5[rev(c(1:24)),];
+fdr.metafor.schr.5 <- p.adjust(metafor.chr.odd.ci.p.data.label.rev.5$p.value, method = 'BH');
 ### PLOTTING RESULTS ############################################################
 
 # Perform FDR correction on the p-values
