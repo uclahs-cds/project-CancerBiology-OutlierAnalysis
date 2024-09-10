@@ -75,15 +75,15 @@ gene.rnai.diff.matrix.05 <- data.frame(
 rownames(gene.rnai.diff.matrix.05)<- rownames(outlier.gene.rnai.score.05.mean);
 
 # Set colors for the scatter plot
-dot.colours <-rep('grey30', nrow(gene.rnai.diff.matrix.05));
-dot.colours[gene.rnai.diff.matrix.05$diff <-0.5]<-'dodgerblue3';
-dot.colours[gene.rnai.diff.matrix.05$diff >0.5]<-'red2';
 
 gene.rnai.diff.matrix.05.overlap <- gene.rnai.diff.matrix.05[gene.rnai.diff.matrix.05$symbol %in% five.data.outlier.symbol,];
-interesting.points <- gene.rnai.diff.matrix.05.overlap$diff <-0.5;
+interesting.points <- gene.rnai.diff.matrix.05.overlap$diff < -0.5;
 text.x <- na.omit(gene.rnai.diff.matrix.05.overlap$non[interesting.points]);
 text.y <- na.omit(gene.rnai.diff.matrix.05.overlap$out[interesting.points]);
 text.labels <- na.omit(gene.rnai.diff.matrix.05.overlap$symbol[interesting.points]);
+dot.colours <-rep('grey30', nrow(gene.rnai.diff.matrix.05.overlap));
+dot.colours[gene.rnai.diff.matrix.05.overlap$diff < -0.5] <- 'dodgerblue3';
+dot.colours[gene.rnai.diff.matrix.05.overlap$diff > 0.5] <- 'red2';
 
 # Create the scatter plot
 gene.scatter.05.minus.overlap.label <- create.scatterplot(

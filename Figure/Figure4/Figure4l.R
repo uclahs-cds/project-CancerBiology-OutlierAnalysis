@@ -40,6 +40,7 @@ sanger.drug.info.dup <- separate_rows(sanger.drug.info.dup, TARGET, sep =",");
 sanger.drug.info.dup <- data.frame(sanger.drug.info.dup);
 
 # Filter CCLE and tissue-specific data
+fdr.05.symbol <- sub("\\..*", "", rownames(ccle.outlier.rank.fdr.05));
 sanger.drug.info.dup.ccle <- sanger.drug.info.name.dup[sanger.drug.info.name.dup$merged.target.sanger.depmap %in% fdr.05.symbol,];
 sanger.drug.info.dup.tissue <- sanger.drug.info.name.dup[sanger.drug.info.name.dup$merged.target.sanger.depmap %in% five.data.outlier.symbol,];
 

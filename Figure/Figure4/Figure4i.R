@@ -18,7 +18,7 @@ for (i in 1:nrow(ccle.sample.outlier.status.overlap.na)) {
     outlier.gene <- cas.effect.breast.05.na[i, which(ccle.sample.outlier.status.overlap.na[i,] == 1), drop = FALSE];
     non.outlier.gene <- cas.effect.breast.05.na[i, -(which(ccle.sample.outlier.status.overlap.na[i,] == 1))];
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
-    quantile.value <- ecdf_obj(outlier.gene);
+    quantile.value <- ecdf.obj(outlier.gene);
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
     quantile.value <- ecdf.obj(outlier.gene);
     quantile.value <- t(data.frame(quantile.value));
@@ -79,10 +79,10 @@ cor.diff.cas.rnai.effect$cas <-as.numeric(cor.diff.cas.rnai.effect$cas);
 # Set dot colors 
 dot.colours <- vector(length=nrow(cor.diff.cas.rnai.effect));
 dot.colours <-rep('grey60', nrow(cor.diff.cas.rnai.effect));
-dot.colours[cor.diff.cas.rnai.effect$cas <-0.5& cor.diff.cas.rnai.effect$rnai <-0.4]<-'dodgerblue2';
+dot.colours[cor.diff.cas.rnai.effect$cas < -0.5 & cor.diff.cas.rnai.effect$rnai < -0.4]<-'dodgerblue2';
 
 
-interesting.points <- cor.diff.cas.rnai.effect$cas <-0.5& cor.diff.cas.rnai.effect$rnai <-0.4;
+interesting.points <- cor.diff.cas.rnai.effect$cas < -0.5 & cor.diff.cas.rnai.effect$rnai < -0.4;
 text.x <- na.omit(cor.diff.cas.rnai.effect$cas[interesting.points]);
 text.y <- na.omit(cor.diff.cas.rnai.effect$rnai[interesting.points]);
 text.labels <- na.omit(cor.diff.cas.rnai.effect$symbol[interesting.points]);

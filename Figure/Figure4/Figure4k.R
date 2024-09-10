@@ -32,7 +32,7 @@ bar.fpkm <- BoutrosLab.plotting.general::create.barplot(
     xlab.cex = 1.3,
     ylab.cex = 1.2,
     main.cex = 1.4,
-    col = 'grey20',
+    col = c('red3', rep('grey20', (nrow(i.fpkm.data)-1))),
     xaxis.fontface = 1, 
     yaxis.fontface = 1, 
     data = i.fpkm.data,
@@ -65,7 +65,7 @@ bar.protein.na <- BoutrosLab.plotting.general::create.barplot(
     xlab.cex = 1.3,
     ylab.cex = 1.2,
     main.cex = 1.4,
-    col = 'grey20',
+    col = c('red3', rep('grey20', (nrow(i.fpkm.data)-1))),
     xaxis.fontface = 1, 
     yaxis.fontface = 1, 
     data = i.protein.na.df,
@@ -103,7 +103,7 @@ cnv.plot <- BoutrosLab.plotting.general::create.heatmap(
     ylab.cex = 0,
     xlab.cex = 1,
     colour.centering.value = 1,
-    at = seq(0, max.lim.cnv,0.001),
+    at = seq(0, 2.1,0.001),
     colourkey.cex = 1.3,
     print.colour.key = FALSE
     );
@@ -132,7 +132,7 @@ bar.rnai.na <- BoutrosLab.plotting.general::create.barplot(
     xlab.cex = 1.3,
     ylab.cex = 1.2,
     main.cex = 1.4,
-    col = 'grey20',
+    col = c('red3', rep('grey20', (nrow(i.fpkm.data)-1))),
     xaxis.fontface = 1, 
     yaxis.fontface = 1, 
     data = rnai.05.box.4.FOXP4.order,
@@ -166,7 +166,7 @@ bar.cas.na <- BoutrosLab.plotting.general::create.barplot(
     xlab.cex = 1.3,
     ylab.cex = 1.2,
     main.cex = 1.4,
-    col = 'grey20',
+    col = c('red3', rep('grey20', (nrow(i.fpkm.data)-1))),
     xaxis.fontface = 1, 
     yaxis.fontface = 1, 
     data = effect.05.box.4.FOXP4.order,
@@ -215,7 +215,7 @@ write.plot(
     trellis.object = multi.gene.protein.bar,
     filename = file.path(output.directory, 'Figure_4_k.png'),
     width = 9,
-    height = 10,
+    height = 12,
     size.units = 'in',
     resolution = 1200
 );
