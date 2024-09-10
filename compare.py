@@ -262,6 +262,7 @@ class Figure:
 
         self.full_base = sourcefile.parent.parent.parent / "full_figures"
         self.restricted_base = sourcefile.parent.parent.parent / "restricted_figures"
+        self.comparison_base = sourcefile.parent.parent.parent / "comparison_figures"
         template = f"Figure_{number}_{letter}*.png"
 
         self.expected_images = set(path.name for path in self.full_base.glob(template))
@@ -339,7 +340,11 @@ class Figure:
             restricted = self.restricted_base / imagename
             full = self.full_base / imagename
 
-            make_mosaic(restricted, full, Path("comp-" + restricted.name))
+            make_mosaic(
+                restricted,
+                full,
+                self.comparison_base / ("comp-" + restricted.name)
+            )
 
             if not restricted.is_file():
                 if not full.is_file():
