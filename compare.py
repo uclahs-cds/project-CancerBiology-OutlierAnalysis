@@ -16,6 +16,7 @@ import colors
 
 class MissingVariable(Exception):
     """Simple class to declare that variables not defined by a datafile."""
+
     def __init__(self, variable: str, datafile: str):
         self.variable = variable
         self.datafile = datafile
@@ -26,6 +27,7 @@ class MissingVariable(Exception):
 
 class ExecutionError(Exception):
     """Simple class to indicate an error during execution."""
+
     def __init__(self, error: str):
         self.error = error
 
@@ -35,6 +37,7 @@ class ExecutionError(Exception):
 
 class MismatchedPlot(Exception):
     """Indicate that a plot changes when the data source is changed."""
+
     def __init__(self, image_name):
         self.image_name = image_name
 
@@ -88,7 +91,13 @@ def make_mosaic(restricted: Path, full: Path, output: Path):
 
     assert reference.is_file()
 
-    ref_dims = subprocess.check_output(["magick", "identify", "-format", "%h:%w", reference]).decode("utf-8")
+    ref_dims = subprocess.check_output([
+        "magick",
+        "identify",
+        "-format",
+        "%h:%w",
+        reference,
+    ]).decode("utf-8")
     ref_height, ref_width = (int(item) for item in ref_dims.split(":"))
 
     with tempfile.NamedTemporaryFile() as diffimage:
@@ -107,24 +116,38 @@ def make_mosaic(restricted: Path, full: Path, output: Path):
                 full,
                 diffimage.name,
                 "+append",
-                output.with_stem(output.stem + "-diff")
+                output.with_stem(output.stem + "-diff"),
             ])
 
         elif restricted.is_file():
             restricted_args = [restricted, "-resize", f"x{ref_height}"]
             full_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:yellow", ")"]
         elif full.is_file():
-            restricted_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:gray", ")"]
+            restricted_args = [
+                "(",
+                "-size",
+                f"{ref_width}x{ref_height}",
+                "xc:gray",
+                ")",
+            ]
             full_args = [full, "-resize", f"x{ref_height}"]
         else:
-            restricted_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:gray", ")"]
+            restricted_args = [
+                "(",
+                "-size",
+                f"{ref_width}x{ref_height}",
+                "xc:gray",
+                ")",
+            ]
             full_args = ["(", "-size", f"{ref_width}x{ref_height}", "xc:yellow", ")"]
 
         subprocess.check_call([
             "magick",
             *restricted_args,
             *full_args,
-            reference, "+append", output,
+            reference,
+            "+append",
+            output,
         ])
 
 
@@ -257,7 +280,6 @@ class Figure:
                 if match := re.match(r"^\s*([^#\n]+?)\s*<-", line):
                     self.defined_symbols.add(simplify_symbol(match.group(1).strip()))
 
-
     def validate_full(self):
         """Validate the full dataset."""
         if not self.full_dataset:
@@ -298,14 +320,17 @@ class Figure:
         # Third level - are there modified variables from the restricted
         # dataset?
         bad_symbols = [
-            (variable, usage) for (variable, usage) in self.variables[self.restricted_dataset].items()
+            (variable, usage)
+            for (variable, usage) in self.variables[self.restricted_dataset].items()
             if usage >= Usage.REDUNDANT
         ]
 
         bad_symbols.sort(key=lambda x: x[1])
 
         if bad_symbols:
-            raise ValidationError("Variables misused in restricted dataset: %s" % bad_symbols)
+            raise ValidationError(
+                "Variables misused in restricted dataset: %s" % bad_symbols
+            )
 
     def validate_images(self):
         """Validate both images."""
@@ -326,15 +351,17 @@ class Figure:
             if not full.is_file():
                 raise ValidationError(f"Full {imagename} doesn't exist")
 
-            pixel_difference = int(float(
-                subprocess.run(
-                    ["compare", "-metric", "AE", restricted, full, "NULL:"],
-                    capture_output=True,
-                    check=False,
+            pixel_difference = int(
+                float(
+                    subprocess.run(
+                        ["compare", "-metric", "AE", restricted, full, "NULL:"],
+                        capture_output=True,
+                        check=False,
+                    )
+                    .stderr.decode("utf-8")
+                    .strip()
                 )
-                .stderr.decode("utf-8")
-                .strip()
-            ))
+            )
 
             if pixel_difference:
                 raise MismatchedPlot(imagename)
