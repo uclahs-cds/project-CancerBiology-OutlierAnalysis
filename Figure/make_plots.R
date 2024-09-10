@@ -2,16 +2,7 @@
 # invisible(loadNamespace(library(logger)));
 library(BoutrosLab.utilities);
 
-# Set up logging code
-# logger::log_threshold(DEBUG);
-# logger::log_appender(logger::appender_file('plotting.log'));
-# logger::log_errors();
-# logger::log_warnings();
-# logger::log_messages();
-
 message("Starting up");
-
-# logger::log_info('Starting up');
 
 # Upgrade all warnings to errors
 options(warn = 2);
