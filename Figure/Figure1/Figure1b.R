@@ -233,6 +233,9 @@ patient.sizes <- ifelse(all.gene.outlier.status == 1, 0.9, 0.75);
 
 ### DATA ANALYSIS ###############################################################
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure1b')));
+
 # Create the strip plot
 stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
     formula = as.numeric(value) ~ order,

@@ -109,6 +109,9 @@ text.pvalue.tumor.na <- display.statistical.result(
     symbol = ' = '
     );
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure2k')));
+
 # Create boxplot
 tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = value ~ sample,

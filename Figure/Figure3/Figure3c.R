@@ -40,6 +40,9 @@ legend.col <- list(
         )
     );
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure3c')));
+
 # Generate the heatmap
 heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     x = t(heat.df.rev),

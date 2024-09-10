@@ -802,29 +802,15 @@ dot.multi.lumb <- create.multipanelplot(
     top.padding = 2,
     right.padding = 0
     );
-dot.multi.lumb
 
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the multi plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_2_e.pdf'),
-    width = 6.9, 
-    height = 5.7
-    );
-dot.multi.lumb;
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_2_e.png'),
-    width = 6.9, 
+# Save the plot as a PNG
+BoutrosLab.plotting.general::write.plot(
+    trellis.object = multi.gene,
+    filename = file.path(output.directory, 'Figure_2_e.png'),
+    width = 6.9,
     height = 5.7,
-    unit = 'in', 
-    res = 1200
-    );
-dot.multi.lumb;
-dev.off();
-
-
-
+    size.units = 'in',
+    resolution = 1200
+);
