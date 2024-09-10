@@ -13,7 +13,7 @@ gene.dependency.breast.t <- t(gene.dependency.breast);
 gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
 rownames(gene.dependency.breast.t.num.match) <- rownames(gene.dependency.breast.t);
 colnames(gene.dependency.breast.t.num.match) <- colnames(gene.dependency.breast.t);
-gene.dependency.breast.t.num.match <- gene.dependency.breast.t.num[
+gene.dependency.breast.t.num.match <- gene.dependency.breast.t.num.match[
     , colnames(fpkm.tumor.symbol.filter.ccle)
     ];
 
@@ -39,7 +39,7 @@ for (i in 1:nrow(ccle.sample.outlier.status.na)) {
     outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, which(ccle.sample.outlier.status.na[i,] == 1), drop = FALSE];
     non.outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, -(which(ccle.sample.outlier.status.na[i,] == 1))];
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
-    quantile.value <- ecdf_obj(outlier.gene);
+    quantile.value <- ecdf.obj(outlier.gene);
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
     quantile.value <- ecdf.obj(outlier.gene);
     quantile.value <- t(data.frame(quantile.value));
@@ -49,7 +49,7 @@ for (i in 1:nrow(ccle.sample.outlier.status.na)) {
     
     outlier.gene.dependency.score.05[[i]] <- outlier.gene;
     nonoutlier.gene.dependency.score.05[[i]] <- non.outlier.gene;
-}
+    }
 
 
 # Calculate gene dependency score differences

@@ -25,7 +25,7 @@ ccle.overlap.outlier.05.five.tissue <- data.frame(cbind(
     brca = outlier.patient.tag.01.brca.sum.overlap,
     meta = outlier.patient.tag.01.meta.sum.overlap,
     ispy = outlier.patient.tag.01.ispy.sum.overlap,
-    matador = outlier.patient.tag.01.metador.sum.overlap,
+    matador = outlier.patient.tag.01.matador.sum.overlap,
     icgc = outlier.patient.tag.01.icgc.sum.overlap
     ));
 rownames(ccle.overlap.outlier.05.five.tissue) <- ccle.sample.outlier.status.fdr.05.five.symbol;
@@ -94,10 +94,10 @@ main.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     colour.centering.value = 0,
     at = seq(-5, 5, 0.001),
     colourkey.cex = 1,
-    covariate.legend = legend.sample,
-    legend.side = 'right',
-    legend.title.just = 'left',
-    legend.cex = 1,
+    # covariate.legend = legend.sample,
+    # legend.side = 'right',
+    # legend.title.just = 'left',
+    # legend.cex = 1,
     resolution = 1000
     );  
 
@@ -149,7 +149,7 @@ legend.sample.grob <- BoutrosLab.plotting.general:::legend.grob(
             height = 3
             ),
         legend = list(
-            colours = c(brca.col, meta.col, ispy.col, matador.col, ccle.col),
+            colours = five.col,
             title = expression(underline('Datasets')),
             labels = c('TCGA-BRCA', 'METABRIC', 'I-SPY2', 'MATADOR', 'ICGC'),
             size = 2,
@@ -159,7 +159,7 @@ legend.sample.grob <- BoutrosLab.plotting.general:::legend.grob(
             padding.text = 2
             ),
         legend = list(
-            colours = c(white),
+            colours = c('white'),
             title = expression(underline('Status')),
             labels = c('Outlier'),
             size = 2,
@@ -195,7 +195,7 @@ heat.all <- BoutrosLab.plotting.general:::create.multiplot(
     xlab.cex = 1.1,
     xaxis.rot = 90,
     xaxis.tck = 0,
-    legend = list(bottom = list(fun = legend.sample.grob)),
+    legend = list(right = list(fun = legend.sample.grob)),
     print.new.legend = TRUE,
     resolution = 500
     );

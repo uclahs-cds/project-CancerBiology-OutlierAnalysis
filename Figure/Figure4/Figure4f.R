@@ -13,10 +13,10 @@ gene.dependency.diff.matrix.05.overlap.minus.05.order <- gene.dependency.diff.ma
 
 # Prepare data for box plot
 dependency.score.05.overlap.minus.05 <- gene.dependency.breast.t.num.match.05.na[
-    rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order), 
+    as.numeric(rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order)), 
     ];
 outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[
-    rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order), 
+    as.numeric(rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order)), 
     ];
 
 # Create gene name box

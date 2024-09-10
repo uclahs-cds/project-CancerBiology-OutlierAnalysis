@@ -231,18 +231,22 @@ odds.ratios.luma <- list(
     brca = brca.luma.odds.ratio.unlist[names(results.luma$brca$filtered)][common.genes.luma],
     icgc = icgc.luma.odds.ratio.unlist[names(results.luma$icgc$filtered)][common.genes.luma]
     );
+odds.ratios.luma.df <- do.call(rbind, odds.ratios.luma);
+
 
 p.values.luma <- list(
     meta = meta.luma.p.unlist[names(results.luma$meta$filtered)][common.genes.luma],
     brca = brca.luma.p.unlist[names(results.luma$brca$filtered)][common.genes.luma],
     icgc = icgc.luma.p.unlist[names(results.luma$icgc$filtered)][common.genes.luma]
     );
+p.values.luma.df <- do.call(rbind, p.values.luma);
 
 confidence.intervals.luma <- list(
     meta = meta.luma.ci.df[names(results.luma$meta$filtered),][common.genes.luma,],
     brca = brca.luma.ci.df[names(results.luma$brca$filtered),][common.genes.luma,],
     icgc = icgc.luma.ci.df[names(results.luma$icgc$filtered), ][match(common.genes.luma, rownames(icgc.luma.ci.df[names(results.luma$icgc$filtered), ])), ]
     );
+confidence.intervals.luma.df <- do.call(rbind, confidence.intervals.luma);
 
 
 ln.odds.se.luma <- lapply(names(odds.ratios.luma), function(name) {
@@ -274,7 +278,7 @@ rownames(final.results.luma) <- common.genes.luma;
 
 # Filter significant results
 significant.genes.luma <- rownames(final.results.luma)[final.results.luma[,"p.value"] < 0.05];
-
+final.results.luma <- data.frame(final.results.luma);
 
 
 
@@ -330,9 +334,9 @@ spot.colour.function <- function(x) {
     }
 
 dot.each <- create.dotmap(
-    x = t(log2(odds.ratios.luma)),
+    x = log2(odds.ratios.luma.df),
     # top.padding = 4,
-    main = expression('Association with the driver.pseudo gene mutation'),
+    main = expression('Association with the driver gene mutation'),
     main.cex = 1.4,
     yaxis.cex = 1.2,
     # yaxis.rot = 90,
@@ -392,7 +396,7 @@ dot.each <- create.dotmap(
     pch = 21,
     pch.border.col = "white",
     # add the background
-    bg.data = t(-log10(p.values.luma)),
+    bg.data = -log10(p.values.luma.df),
     # add a colourkey
     colourkey = FALSE,
     colourkey.cex = 0.95,
@@ -563,6 +567,18 @@ calculate.ln.odds.and.se <- function(odds.ratio, ci) {
 
 ### 2. Luminal B
 
+
+brca.mutation.driver.list.gene.vector.data.convert.mis.lumb.brca <- 
+    brca.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca)];
+
+meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta <- 
+    meta.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta)];
+
+icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc <- 
+    icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc)];
+
+
+
 datasets.lumb <- list(
     icgc = icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc,
     meta = meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta,
@@ -597,18 +613,21 @@ odds.ratios.lumb <- list(
     brca = brca.lumb.odds.ratio.unlist[names(results.lumb$brca$filtered)][common.genes.lumb],
     icgc = icgc.lumb.odds.ratio.unlist[names(results.lumb$icgc$filtered)][common.genes.lumb]
     );
+odds.ratios.lumb.df <- do.call(rbind, odds.ratios.lumb);
 
 p.values.lumb <- list(
     meta = meta.lumb.p.unlist[names(results.lumb$meta$filtered)][common.genes.lumb],
     brca = brca.lumb.p.unlist[names(results.lumb$brca$filtered)][common.genes.lumb],
     icgc = icgc.lumb.p.unlist[names(results.lumb$icgc$filtered)][common.genes.lumb]
     );
+p.values.lumb.df <- do.call(rbind, p.values.lumb);
 
 confidence.intervals.lumb <- list(
     meta = meta.lumb.ci.df[names(results.lumb$meta$filtered),][match(common.genes.lumb, rownames(meta.lumb.ci.df[names(results.lumb$meta$filtered), ])), ],
     brca = brca.lumb.ci.df[names(results.lumb$brca$filtered),][match(common.genes.lumb, rownames(brca.lumb.ci.df[names(results.lumb$brca$filtered), ])), ],
     icgc = icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ][match(common.genes.lumb, rownames(icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ])), ]
     );
+confidence.intervals.lumb.df <- do.call(rbind, confidence.intervals.lumb);
 
 
 ln.odds.se.lumb <- lapply(names(odds.ratios.lumb), function(name) {
@@ -640,7 +659,7 @@ rownames(final.results.lumb) <- common.genes.lumb;
 
 # Filter significant results
 significant.genes.lumb <- rownames(final.results.lumb)[final.results.lumb[,"p.value"] < 0.05];
-
+final.results.lumb <- data.frame(final.results.lumb);
 
 
 
@@ -651,9 +670,9 @@ significant.genes.lumb <- rownames(final.results.lumb)[final.results.lumb[,"p.va
 
 
 dot.each <- create.dotmap(
-    x = t(log2(odds.ratios.lumb)),
+    x = log2(odds.ratios.lumb.df),
     # top.padding = 4,
-    main = expression('Association with the driver.pseudo gene mutation'),
+    main = expression('Association with the driver gene mutation'),
     main.cex = 1.4,
     yaxis.cex = 1.2,
     # yaxis.rot = 90,
@@ -713,7 +732,7 @@ dot.each <- create.dotmap(
     pch = 21,
     pch.border.col = "white",
     # add the background
-    bg.data = t(-log10(p.values.lumb)),
+    bg.data = -log10(p.values.lumb.df),
     # add a colourkey
     colourkey = FALSE,
     colourkey.cex = 0.95,
