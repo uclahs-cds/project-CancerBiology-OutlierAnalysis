@@ -138,13 +138,13 @@ if (!dir.exists(dev.dir)) {
 
 make.plots.twice(
     c(
-        # 'Figure/Figure1/Figure1b.R',  # MISSING VARIABLE FROM RESTRICTED
-        # 'Figure/Figure1/Figure1c.R',  # GOOD
-        # 'Figure/Figure1/Figure1d.R',  # GOOD
-        # 'Figure/Figure1/Figure1e.R',  # GOOD
-        'Figure/Figure1/Figure1fg.R'
-        # 'Figure/Figure1/Figure1h.R',  # NO PLOTTING CODE
-        # 'Figure/Figure1/Figure1i.R'   # GOOD
+        # 'Figure1/Figure1b.R',  # MISSING VARIABLE FROM RESTRICTED
+        # 'Figure1/Figure1c.R',  # GOOD
+        # 'Figure1/Figure1d.R',  # GOOD
+        # 'Figure1/Figure1e.R',  # GOOD
+        'Figure1/Figure1fg.R'
+        # 'Figure1/Figure1h.R',  # NO PLOTTING CODE
+        # 'Figure1/Figure1i.R'   # GOOD
     ),
     file.path(dev.dir, '2024-08-27_metabric_tcga_ispy_matador_icgc.RData'),
     file.path(data.dir, '2024-08-27_Figure1.rda')
@@ -152,10 +152,10 @@ make.plots.twice(
 
 # make.plots.twice(
 #     c(
-#         'Figure/Figure2/Figure2a.R',  # GOOD
-#         'Figure/Figure2/Figure2b.R',  # GOOD
-#         'Figure/Figure2/Figure2c.R',  # GOOD
-#         'Figure/Figure2/Figure2d.R'   # GOOD
+#         'Figure2/Figure2a.R',  # GOOD
+#         'Figure2/Figure2b.R',  # GOOD
+#         'Figure2/Figure2c.R',  # GOOD
+#         'Figure2/Figure2d.R'   # GOOD
 #     ),
 #     file.path(dev.dir, '2024-08-27_cnv_all_brca_meta_icgc.RData'),
 #     file.path(data.dir, '2024-08-23_Figure2a-d.rda')
@@ -163,8 +163,8 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        'Figure/Figure2/Figure2e.R'
-        # 'Figure/Figure2/Figure2f.R'   # GOOD
+        'Figure2/Figure2e.R'
+        # 'Figure2/Figure2f.R'   # GOOD
     ),
     file.path(dev.dir, '2024-05-05_driver_gene.RData'),
     file.path(data.dir, '2024-08-24_Figure2ef_drivergene.rda')
@@ -172,11 +172,11 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        # 'Figure/Figure2/Figure2h.R',  # GOOD
-        # 'Figure/Figure2/Figure2i.R',  # GOOD
-        # 'Figure/Figure2/Figure2j.R',  # GOOD
-        'Figure/Figure2/Figure2k.R'  # THIS ONE THROWS SO MANY ERRORS
-        # 'Figure/Figure2/Figure2l.R'   # GOOD FOR RESTRICTED - MIGHT HAVE COLOR DIFFERENCES
+        # 'Figure2/Figure2h.R',  # GOOD
+        # 'Figure2/Figure2i.R',  # GOOD
+        # 'Figure2/Figure2j.R',  # GOOD
+        'Figure2/Figure2k.R'  # THIS ONE THROWS SO MANY ERRORS
+        # 'Figure2/Figure2l.R'   # GOOD FOR RESTRICTED - MIGHT HAVE COLOR DIFFERENCES
     ),
     file.path(dev.dir, '2024-08-26_meta_brca_methylation_merge.RData'),
     file.path(data.dir, '2024-08-26_Figure2h-l_input.rda')
@@ -184,10 +184,10 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        'Figure/Figure3/Figure3a.R',    # MISSING VARIABLE FROM RESTRICTED
-        'Figure/Figure3/Figure3b.R',    # MISSING VARIABLE FROM RESTRICTED
-        'Figure/Figure3/Figure3c.R',    # DIFFERS BETWEEN DATASETS
-        'Figure/Figure3/Figure3d.R'     # MISSING VARIABLE FOR BOTH
+        'Figure3/Figure3a.R',    # MISSING VARIABLE FROM RESTRICTED
+        'Figure3/Figure3b.R',    # MISSING VARIABLE FROM RESTRICTED
+        'Figure3/Figure3c.R',    # DIFFERS BETWEEN DATASETS
+        'Figure3/Figure3d.R'     # MISSING VARIABLE FOR BOTH
     ),
     file.path(dev.dir, '2024-02-20_brca.RData'),
     file.path(data.dir, '2024-08-28_Figure3a-d.rda')
@@ -195,20 +195,20 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        # 'Figure/Figure4/Figure4a.R',    # GOOD
-        # 'Figure/Figure4/Figure4b.R',    # GOOD
-        'Figure/Figure4/Figure4c.R',    # DIFFERS BETWEEN DATASETS
-        'Figure/Figure4/Figure4d.R',    # MISSING VARIABLE FROM RESTRICTED
-        # 'Figure/Figure4/Figure4e.R',    # GOOD
-        # 'Figure/Figure4/Figure4f.R',    # WORKS FOR RESTRICTED
-        # 'Figure/Figure4/Figure4g.R',    # WORKS FOR RESTRICTED
-        'Figure/Figure4/Figure4h.R',    # MISSING VARIABLE FROM BOTH
-        # 'Figure/Figure4/Figure4i.R',    # GOOD
-        'Figure/Figure4/Figure4j.R',    # ORIGINAL DATASETS MISLABELED?
-        'Figure/Figure4/Figure4k.R',    # MISSING VARIABLE FROM RESTRICTED, SCALING DIFFERENCE?
-        'Figure/Figure4/Figure4l.R',    # VERY DIFFERENT DATA LABEL
-        'Figure/Figure4/Figure4m.R'    # MISSING VARIABLE FROM FULL, ERROR IN RESTRICTED
-        # 'Figure/Figure4/Figure4n.R'     # GOOD
+        # 'Figure4/Figure4a.R',    # GOOD
+        # 'Figure4/Figure4b.R',    # GOOD
+        'Figure4/Figure4c.R',    # DIFFERS BETWEEN DATASETS
+        'Figure4/Figure4d.R',    # MISSING VARIABLE FROM RESTRICTED
+        # 'Figure4/Figure4e.R',    # GOOD
+        # 'Figure4/Figure4f.R',    # WORKS FOR RESTRICTED
+        # 'Figure4/Figure4g.R',    # WORKS FOR RESTRICTED
+        'Figure4/Figure4h.R',    # MISSING VARIABLE FROM BOTH
+        # 'Figure4/Figure4i.R',    # GOOD
+        'Figure4/Figure4j.R',    # ORIGINAL DATASETS MISLABELED?
+        'Figure4/Figure4k.R',    # MISSING VARIABLE FROM RESTRICTED, SCALING DIFFERENCE?
+        'Figure4/Figure4l.R',    # VERY DIFFERENT DATA LABEL
+        'Figure4/Figure4m.R'    # MISSING VARIABLE FROM FULL, ERROR IN RESTRICTED
+        # 'Figure4/Figure4n.R'     # GOOD
     ),
     file.path(dev.dir, '2024-09-01_ccle.RData'),
     file.path(data.dir, '2024-09-05_Figure4.rda')
