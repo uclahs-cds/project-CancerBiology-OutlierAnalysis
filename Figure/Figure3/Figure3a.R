@@ -124,7 +124,6 @@ key.protein.na <- list(
     y = 0.95
     );
 
-key.protein.na <- key.protien.na;
 
 
 cptac.box <- BoutrosLab.plotting.general::create.boxplot(
