@@ -1,7 +1,7 @@
 ### CNA ANALYSIS ##########################################################
 # This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data. 
 
-
+library(BoutrosLab.plotting.general);
 
 ### 1. METABRIC
 # Convert lists to numeric vectors and calculate medians for meta data
@@ -466,7 +466,7 @@ pdf(
     width = 10.4, 
     height = 4.5
     );
-multi.gene;
+print(multi.gene);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -481,7 +481,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-multi.gene;
+print(multi.gene);
 dev.off();
 
 
