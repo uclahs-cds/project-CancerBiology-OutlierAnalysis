@@ -1,4 +1,4 @@
-## deletion_analysis.R #################################################################
+## create_cumulative_plot.R ############################################################
 # Description
 # create cumulative plot to show the permutation test results
 
@@ -7,6 +7,7 @@
 # 0.01		2024-09-04	jlivingstone	initial code
 
 ### PREAMBLE ###########################################################################
+library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities)
 
 setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/enhancer_analysis/permutation')

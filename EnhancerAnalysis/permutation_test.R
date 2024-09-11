@@ -228,7 +228,7 @@ save(
 	simulated.set,
 	file = generate.filename(
 		'outlier',
-		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_simulated_sets', placeholder, 'bkpt_padding_1000_overlap'),
+		paste0('seeds_', opt$seed.start, '_', opt$seed.end, '_simulated_sets_', placeholder, 'bkpt_padding_1000_overlap'),
 		'rda'
 		)
 	)
