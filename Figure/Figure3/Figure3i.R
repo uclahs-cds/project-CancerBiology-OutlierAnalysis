@@ -153,23 +153,12 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
 
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the segment plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_3_i.pdf'),
-    width = 5, 
-    height = 3.8
-    );
-merge.surv.seg.log;
-dev.off();
-
 # Save the segment plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_3_i.png'),
-    width = 5, 
+write.plot(
+    trellis.object = merge.surv.seg.log,
+    filename = file.path(output.directory, 'Figure_3_i.png'),
+    width = 5,
     height = 3.8,
-    unit = 'in', 
-    res = 1200
+    size.units = 'in',
+    resolution = 1200
     );
-merge.surv.seg.log;
-dev.off();
-

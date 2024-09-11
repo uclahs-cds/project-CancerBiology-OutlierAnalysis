@@ -661,24 +661,12 @@ dot.multi <- create.multipanelplot(
 
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the multi plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_3_e.pdf'),
-    width = 4.5, 
-    height = 5.6
-    );
-dot.multi;
-dev.off();
-
 # Save the multi plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_3_e.png'),
-    width = 4.5, 
+write.plot(
+    trellis.object = dot.multi,
+    filename = file.path(output.directory, 'Figure_3_e.png'),
+    width = 4.5,
     height = 5.6,
-    unit = 'in', 
-    res = 1200
+    size.units = 'in',
+    resolution = 1200
     );
-dot.multi;
-dev.off();
-
-

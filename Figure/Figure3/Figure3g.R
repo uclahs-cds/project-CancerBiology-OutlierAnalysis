@@ -129,28 +129,12 @@ km.os.group.combine;
 
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-# Save the km plot as a PDF
-pdf(
-    file = file.path(output.directory, 'Figure_3_g.pdf'),
-    width = 7.5, 
-    height = 7
-    );
-km.os.group.combine;
-dev.off();
-
 # Save the km plot as a PNG
-png(
-    file = file.path(output.directory, 'Figure_3_g.png'),
-    width = 7.5, 
+write.plot(
+    trellis.object = km.os.group.combine,
+    filename = file.path(output.directory, 'Figure_3_g.png'),
+    width = 7.5,
     height = 7,
-    unit = 'in', 
-    res = 1200
+    size.units = 'in',
+    resolution = 1200
     );
-km.os.group.combine;
-dev.off();
-
-
-
-
-
-

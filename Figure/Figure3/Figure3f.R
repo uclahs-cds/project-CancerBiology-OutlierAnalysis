@@ -347,26 +347,12 @@ multi.gene;
 
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-
-# Save the multi plot as a PDF
-pdf(
-    filename = file.path(output.directory, 'Figure_3_f.pdf'),
-    width = 7, 
-    height = 5
-    );
-multi.gene;
-dev.off();
-
 # Save the multi plot as a PNG
-png(
+write.plot(
+    trellis.object = multi.gene,
     filename = file.path(output.directory, 'Figure_3_f.png'),
-    width = 7, 
+    width = 7,
     height = 5,
-    unit = 'in', 
-    res = 1200
+    size.units = 'in',
+    resolution = 1200
     );
-multi.gene;
-dev.off();
-
-
-
