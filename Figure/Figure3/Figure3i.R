@@ -26,7 +26,7 @@ os.group.combine <- na.omit(os.group.combine);
 os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine);
 cox.rf.group.assumption.sub <- cox.zph(os.model.subtype);
 
-summary_cox.sub <-summary(os.model.subtype);
+summary_cox.sub <- summary(os.model.subtype);
 
 all.data.combine <- data.frame(
     mean = as.numeric(summary_cox.sub$conf.int[1]),
@@ -125,7 +125,7 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
     centers = log2(combine.surv.data.meta.rev$mean),
     main = NULL,
     ylab.label = expression('Subtype'),
-    yaxis.lab = combine.surv.data.rev$Features,
+    yaxis.lab = combine.surv.data.meta.rev$Features,
     yaxis.fontface = 1,
     xlab.label = expression('Hazard Ratio'),
     xlab.cex = 1.3,

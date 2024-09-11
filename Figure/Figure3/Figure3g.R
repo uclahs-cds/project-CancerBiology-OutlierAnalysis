@@ -4,8 +4,10 @@
 # includes Kaplan-Meier survival plots among different patient groups.
 # Date: 2024-08-15
 
+library(BoutrosLab.plotting.survival)
 
 ### 1. TCGA-BRCA 
+brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
 os.data.brca <- data.frame(cbind(
     status = substr(brca.clinic.order$Overall.Survival.Status, 1, 1),
     os = brca.clinic.order$Overall.Survival..Months.,
@@ -47,6 +49,7 @@ os.group.brca <- na.omit(os.group.brca);
 
 
 ### 2. METABRIC Data Preparation
+outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
 os.data.meta <- data.frame(cbind(
     status = substr(meta.clinic.5.order.combine$Overall.Survival.Status, 1, 1),
     os = meta.clinic.5.order.combine$Overall.Survival..Months.,
@@ -94,8 +97,6 @@ os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = "LumA");
 os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% "NC"),];
 os.group.combine <- na.omit(os.group.combine);
 
-
-
 ### 4. Kaplan-Meier Survival Analysis
 km.os.group.combine <- create.km.plot(
     survival.object = Surv(os.group.combine$os, as.numeric(os.group.combine$status)),
@@ -120,9 +121,9 @@ km.os.group.combine <- create.km.plot(
     ylab.axis.padding = 2,
     risk.label.fontface = 1,
     left.padding = 5.5,
-    key.groups.labels = c("Non-outlier patients","Outlier patients"),
+    key.groups.labels = c("Outlier patients", "Non-outlier patients"),
     key.groups.cex = 1,
-    line.colours = c('red3', 'dodgerblue3')
+    line.colours = rev(c('red3', 'dodgerblue3'))
     );
 km.os.group.combine;
 
