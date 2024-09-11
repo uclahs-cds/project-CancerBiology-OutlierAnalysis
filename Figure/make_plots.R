@@ -179,10 +179,10 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        'Figure3/Figure3a.R',    # MISSING VARIABLE FROM RESTRICTED
-        'Figure3/Figure3b.R',    # MISSING VARIABLE FROM RESTRICTED
-        'Figure3/Figure3c.R',    # DIFFERS BETWEEN DATASETS
-        'Figure3/Figure3d.R'     # MISSING VARIABLE FOR BOTH
+        # 'Figure3/Figure3a.R',    # GOOD
+        # 'Figure3/Figure3b.R',    # GOOD
+        # 'Figure3/Figure3c.R',    # GOOD
+        'Figure3/Figure3d.R'     # MISSING VARIABLE, DEFINED in 3b
     ),
     file.path(dev.dir, '2024-02-20_brca.RData'),
     file.path(data.dir, '2024-09-10_Figure3a-d.rda')
