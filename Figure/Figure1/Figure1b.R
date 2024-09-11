@@ -305,7 +305,7 @@ pdf(
     width = 4.7, 
     height = 5.3
     );
-stripplot.gene.z.scores;
+print(stripplot.gene.z.scores);
 dev.off();
 
 # Save the plot as a PNG
@@ -320,5 +320,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-stripplot.gene.z.scores;
+print(stripplot.gene.z.scores);
 dev.off();
