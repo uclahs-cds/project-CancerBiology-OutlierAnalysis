@@ -174,9 +174,9 @@ class Figure:
             flags=re.VERBOSE,
         )
 
-        figure_start_re = re.compile(r"^.*33;1m(Figure/Figure[^.]+\.R)")
+        figure_start_re = re.compile(r"^.*33;1m(Figure[^.]+\.R)")
         source_start_re = re.compile(r"^.*32;1mSourcing ([^.]+\.\w+)")
-        problem_re = re.compile(r"^.*31;1mProblem with (Figure/Figure[^.]+\.R) !")
+        problem_re = re.compile(r"^.*31;1mProblem with (Figure[^.]+\.R) !")
 
         current_figure_lines = []
 
@@ -217,7 +217,12 @@ class Figure:
                 if active_figure not in figures:
                     figures[active_figure] = cls(Path(active_figure))
 
-                assert active_source not in figures[active_figure].errors
+                try:
+                    assert active_source not in figures[active_figure].errors
+                except AssertionError:
+                    print(active_source)
+                    print(active_figure)
+                    raise
                 figures[active_figure].errors[active_source] = current_figure_lines[:]
                 continue
 
