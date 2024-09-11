@@ -7,8 +7,10 @@
 
 
 ### 1. CPTAC example
-i <- 'IGF1R';
-i <- 'CLU';
+
+# Two inputs: IGF1R, CLU - run separately
+do.plot.3d <- function(i, filename) {
+
 # Extract matching protein data for a specific gene (i)
 brca.protein.cptac.outlier.match <- brca.protein.cptac[,colnames(brca.protein.cptac) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)];
 brca.protein.cptac.outlier.match.i <- brca.protein.cptac.outlier.match[i, ];
@@ -98,39 +100,22 @@ cptac.gene.scatter <- create.scatterplot(
         ),
     );
 
-
-
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'scatter_cptac', 
-        'pdf'
-        ), 
-    width = 6, 
-    height = 6
-    );
-cptac.gene.scatter;
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'scatter_cptac', 
-        'png'
-        ), 
-    width = 6, 
+# Save the plot as a PNG
+write.plot(
+    trellis.object = cptac.gene.scatter,
+    filename = filename,
+    width = 6,
     height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-cptac.gene.scatter;
-dev.off();
+    size.units = 'in',
+    resolution = 1200
+);
 
+}
 
+output.directory <- get0('output.directory', ifnotfound = 'figures');
 
+do.plot.3d('IGF1R', file.path(output.directory, 'Figure_3_d_IGR1R.png'));
+do.plot.3d('CLU', file.path(output.directory, 'Figure_3_d_CLU.png'));
 
 ### 2. RPPA example
 i <- 'NRAS';
@@ -228,7 +213,7 @@ output.directory <- get0('output.directory', ifnotfound = 'figures');
 # Save the plot as a PNG
 write.plot(
     trellis.object = rppa.gene.scatter,
-    filename = file.path(output.directory, 'Figure_3_d.png'),
+    filename = file.path(output.directory, 'Figure_3_d_NRAS.png'),
     width = 6,
     height = 6,
     size.units = 'in',
