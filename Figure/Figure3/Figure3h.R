@@ -7,6 +7,18 @@
 library(BoutrosLab.plotting.survival);
 
 
+### 3. Combine TCGA-BRCA and METABRIC Datasets
+os.group.combine <- data.frame(rbind(
+    os.group.brca,
+    os.group.meta
+    ));
+
+
+os.group.combine$pam50 <- factor(os.group.combine$pam50);
+os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = "LumA");
+os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% "NC"),];
+os.group.combine <- na.omit(os.group.combine);
+os.group.combine$pam50 <- factor(os.group.combine$pam50);
 
 
 
