@@ -28,7 +28,7 @@ rownames(brca.protein.cptac.zscore) <- sapply(
     );
 
 # Outlier symbol
-outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca), 'Symbol'];
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
 
 # Protein CPTAC z-score list
 protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);

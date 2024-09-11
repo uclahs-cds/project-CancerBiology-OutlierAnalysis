@@ -22,7 +22,7 @@ library(BoutrosLab.plotting.general);
 #     );
 
 # Outlier symbol
-outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca), 'Symbol'];
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
 
 # Protein gene list from antibody data
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, "/"));
