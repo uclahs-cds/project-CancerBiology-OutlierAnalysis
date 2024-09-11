@@ -133,10 +133,48 @@ dev.off();
 
 
 ### 2. RPPA example
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
+protein.gene <- unlist(strsplit(protein.antibody$gene_name, "/"));
+
+# Outlier genes with protein data
+outlier.protein.gene <- outlier.symbol[outlier.symbol %in% protein.gene];
+protein.antibody.outlier <- NULL;
+
+for (i in 1:nrow(protein.antibody)) {
+    if (sum(unlist(strsplit(protein.antibody$gene_name[i], "/")) %in% outlier.protein.gene) > 0) {
+        protein.antibody.outlier <- rbind(protein.antibody.outlier, protein.antibody[i, ]);
+        }
+    }
+
+protein.antibody.outlier.id <- rownames(protein.antibody.outlier);
+brca.protein.outlier <- brca.protein[protein.antibody.outlier.id, 5:ncol(brca.protein)];
+brca.protein.outlier.match <- brca.protein.outlier[
+    , 
+    colnames(brca.protein.outlier) %in% colnames(outlier.patient.tag.01.brca)
+    ];
+
+
+# Exclude phosphorylated protein
+protein.antibody.outlier.no.p <- protein.antibody.outlier[
+    -(grep('_p', protein.antibody.outlier$peptide_target)), 
+    ];
+
+protein.antibody.outlier.id.no.p <- rownames(protein.antibody.outlier.no.p);
+brca.protein.outlier.no.p <- brca.protein[protein.antibody.outlier.id.no.p, 5:ncol(brca.protein)];
+brca.protein.outlier.match.no.p <- brca.protein.outlier.no.p[
+    , 
+    colnames(brca.protein.outlier.no.p) %in% colnames(outlier.patient.tag.01.brca)
+    ];
+
+outlier.patient.tag.01.brca.protein.match.no.p <- outlier.patient.tag.01.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% unique(protein.antibody.outlier.no.p$gene_name)], 
+    colnames(brca.protein.outlier.match.no.p)
+    ];
+
 i <- 'NRAS';
 # Extract i protein data from the matched dataset
 brca.protein.outlier.match.i <- brca.protein.outlier.match[
-    rownames(protein.antibody.outlier)[protein.antibody.outlier$gene.name == i], 
+    rownames(protein.antibody.outlier)[protein.antibody.outlier$gene_name == i], 
     ];
 
 # Match corresponding FPKM data for i
@@ -219,9 +257,9 @@ rppa.gene.scatter <- BoutrosLab.plotting.general::create.scatterplot(
             x = 0.03,
             y = 0.95,
             corner = c(0, 1)
+            )
         )
-    )
-);
+    );
 
 
 # Save the scatter plot as a PDF
