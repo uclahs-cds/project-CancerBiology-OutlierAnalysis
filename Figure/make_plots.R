@@ -100,11 +100,11 @@ save.multiple.plots <- function(datafiles, subfiles, output.directory = 'figures
 # Generate the full set of plots twice - once with the original dataset, once
 # with the restricted dataset for plotting.
 make.plots.twice <- function(figure.files, full.dataset, restricted.dataset) {
-    save.multiple.plots(
-        full.dataset,
-        figure.files,
-        'full_figures'
-    );
+    # save.multiple.plots(
+    #     full.dataset,
+    #     figure.files,
+    #     'full_figures'
+    # );
 
     save.multiple.plots(
         restricted.dataset,
@@ -127,24 +127,27 @@ if (!dir.exists(dev.dir)) {
     dev.dir <- 'untracked_data/outlier';
 }
 
+if (FALSE) {
 make.plots.twice(
     c(
-        'Figure1/Figure1b.R',  # MISSING VARIABLE FROM RESTRICTED
+        'Figure1/Figure1b.R',  # GOOD
         'Figure1/Figure1c.R',  # GOOD
         'Figure1/Figure1d.R',  # GOOD
         'Figure1/Figure1e.R',  # GOOD
-        'Figure1/Figure1fg.R'
-        'Figure1/Figure1h.R',  # NO PLOTTING CODE
+        'Figure1/Figure1fg.R', # ALMOST
         'Figure1/Figure1i.R'   # GOOD
     ),
     file.path(dev.dir, '2024-08-27_metabric_tcga_ispy_matador_icgc.RData'),
-    file.path(data.dir, '2024-08-27_Figure1.rda')
+    file.path(data.dir, '2024-09-10_Figure1.rda')
 );
+}
 
+
+if (FALSE) {
 make.plots.twice(
     c(
         'Figure2/Figure2a.R',  # GOOD
-        'Figure2/Figure2b.R',  # GOOD
+        'Figure2/Figure2b.R',  # GOOD, BUT AXIS PROBLEM
         'Figure2/Figure2c.R',  # GOOD
         'Figure2/Figure2d.R'   # GOOD
     ),
@@ -154,24 +157,25 @@ make.plots.twice(
 
 make.plots.twice(
     c(
-        'Figure2/Figure2e.R',
+        'Figure2/Figure2e.R',  # INCOMPLETE?
         'Figure2/Figure2f.R'   # GOOD
     ),
     file.path(dev.dir, '2024-05-05_driver_gene.RData'),
-    file.path(data.dir, '2024-08-24_Figure2ef_drivergene.rda')
+    file.path(data.dir, '2024-09-10_Figure2ef_drivergene.rda')
 );
 
 make.plots.twice(
     c(
         'Figure2/Figure2h.R',  # GOOD
         'Figure2/Figure2i.R',  # GOOD
-        'Figure2/Figure2j.R',  # GOOD
-        'Figure2/Figure2k.R'  # THIS ONE THROWS SO MANY ERRORS
+        'Figure2/Figure2j.R',  # INVERTED?
+        'Figure2/Figure2k.R',  # THIS ONE THROWS SO MANY ERRORS
         'Figure2/Figure2l.R'   # GOOD FOR RESTRICTED - MIGHT HAVE COLOR DIFFERENCES
     ),
     file.path(dev.dir, '2024-08-26_meta_brca_methylation_merge.RData'),
     file.path(data.dir, '2024-08-26_Figure2h-l_input.rda')
 );
+}
 
 make.plots.twice(
     c(
@@ -181,13 +185,26 @@ make.plots.twice(
         'Figure3/Figure3d.R'     # MISSING VARIABLE FOR BOTH
     ),
     file.path(dev.dir, '2024-02-20_brca.RData'),
-    file.path(data.dir, '2024-08-28_Figure3a-d.rda')
+    file.path(data.dir, '2024-09-10_Figure3a-d.rda')
 );
 
 make.plots.twice(
     c(
+        'Figure3/Figure3e.R',
+        'Figure3/Figure3f.R',
+        'Figure3/Figure3g.R',
+        'Figure3/Figure3h.R',
+        'Figure3/Figure3i.R'
+    ),
+    file.path(dev.dir, '2024-02-20_brca.RData'),
+    file.path(data.dir, '2024-08-28_Figure3e-i.rda')
+);
+
+if (FALSE) {
+make.plots.twice(
+    c(
         'Figure4/Figure4a.R',    # GOOD
-        'Figure4/Figure4b.R',    # GOOD
+        'Figure4/Figure4b.R',    # NUMBER IN LEGEND IS DIFFERENT
         'Figure4/Figure4c.R',    # DIFFERS BETWEEN DATASETS
         'Figure4/Figure4d.R',    # MISSING VARIABLE FROM RESTRICTED
         'Figure4/Figure4e.R',    # GOOD
@@ -202,5 +219,6 @@ make.plots.twice(
         'Figure4/Figure4n.R'     # GOOD
     ),
     file.path(dev.dir, '2024-09-01_ccle.RData'),
-    file.path(data.dir, '2024-09-05_Figure4.rda')
+    file.path(data.dir, '2024-09-10_Figure4.rda')
 );
+}
