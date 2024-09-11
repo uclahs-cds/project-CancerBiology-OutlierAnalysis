@@ -159,7 +159,7 @@ pdf(
     width = 3.7, 
     height = 5
     );
-tumor.normal.box.plot;
+print(tumor.normal.box.plot);
 dev.off();
 
 # Save the box plot as a PNG
@@ -174,7 +174,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-tumor.normal.box.plot;
+print(tumor.normal.box.plot);
 dev.off();
 
 

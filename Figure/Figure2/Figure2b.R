@@ -117,7 +117,7 @@ pdf(
     width = 4.5, 
     height = 5
     );
-i.fpkm.merge.data.order.quan.unequal.three.dot;
+print(i.fpkm.merge.data.order.quan.unequal.three.dot);
 dev.off();
 
 # Save the bar plot as a PNG
@@ -132,7 +132,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-i.fpkm.merge.data.order.quan.unequal.three.dot;
+print(i.fpkm.merge.data.order.quan.unequal.three.dot);
 dev.off();
 
 

@@ -150,7 +150,7 @@ pdf(
     width = 6, 
     height = 4.5
     );
-heat.out;
+print(heat.out);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -165,6 +165,6 @@ png(
     unit = 'in', 
     res = 1200
     );
-heat.out;
+print(heat.out);
 dev.off();
 

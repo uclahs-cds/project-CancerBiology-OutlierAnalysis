@@ -232,7 +232,7 @@ pdf(
     width = 6, 
     height = 5.5
     );
-mutation.density;
+print(mutation.density);
 dev.off();
 
 # Save the density plot as a PNG
@@ -247,7 +247,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-mutation.density;
+print(mutation.density);
 dev.off();
 
 

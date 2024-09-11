@@ -226,7 +226,7 @@ pdf(
     width = 7.5, 
     height = 8.5
     );
-i.heat;
+print(i.heat);
 dev.off();
 
 # Save the heatmap as a PNG
@@ -241,6 +241,6 @@ png(
     unit = 'in', 
     res = 1200
     );
-i.heat;
+print(i.heat);
 dev.off();
 
