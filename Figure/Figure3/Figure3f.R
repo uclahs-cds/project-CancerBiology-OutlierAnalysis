@@ -23,7 +23,7 @@ rownames(brca.clinic.order.data.num) <- colnames(brca.outlier.patient.tag.01.t.p
 
 brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
 subtype.total.outlier.num.brca <- data.frame(cbind(subtype = brca.clinic.order.data.num,
-                                              outlier = brca.outlier.patient.tag.01.t.p.order));
+                                              outlier = brca.outlier.patient.tag.01.t.p.order.sum));
 colnames(subtype.total.outlier.num.brca) <- c("subtype", "outlier");
 subtype.total.outlier.num.1.brca <- subtype.total.outlier.num.brca; 
 subtype.total.outlier.num.1.brca$outlier[subtype.total.outlier.num.1.brca$outlier > 0] <- 1;
@@ -55,7 +55,7 @@ subtype.5.meta.status <- subtype.5.meta.status[match(c('Basal', 'Her2', 'LumA', 
 
 
 # 3. ICGC BRCA-EU
-icgc.clinic.subtype <- read.delim2(file = '/Users/jyhan/Library/Mobile\ Documents/com~apple~CloudDocs/Documents/1.Project/ICGC-2016/nature17676-s3/ICGC_subtype.csv', sep =',');
+# icgc.clinic.subtype <- read.delim2(file = '/Users/jyhan/Library/Mobile\ Documents/com~apple~CloudDocs/Documents/1.Project/ICGC-2016/nature17676-s3/ICGC_subtype.csv', sep =',');
 icgc.clinic.subtype.order <- icgc.clinic.subtype[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic.subtype$sample),];
 
 icgc.clinic.subtype.order.data <- data.frame(as.character(icgc.clinic.subtype.order$subtype));
@@ -68,21 +68,21 @@ icgc.clinic.subtype.order.data[icgc.clinic.subtype.order.data$as.character.icgc.
 icgc.clinic.subtype.order.data.num <- data.frame(as.numeric(icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype.));
 
 outlier.patient.tag.01.sum.icgc <- apply(outlier.patient.tag.01.icgc, 2, sum);
-subtype.total.outlier.num.icgc <- data.frame(cbind(subtype = icgc.clinic.order.data.num,
+subtype.total.outlier.num.icgc <- data.frame(cbind(subtype = icgc.clinic.subtype.order.data.num,
                                               outlier = outlier.patient.tag.01.sum.icgc));
 colnames(subtype.total.outlier.num.icgc) <- c("subtype", "outlier");
 
 subtype.total.outlier.num.1.icgc <- subtype.total.outlier.num.icgc; 
 subtype.total.outlier.num.1.icgc$outlier[subtype.total.outlier.num.1.icgc$outlier > 0] <- 1;
 outlier.subtype.icgc.status <- data.frame(table(subtype.total.outlier.num.1.icgc));
-total.subtype <- icgc.clinic.subtype.order.data$as.character.icgc.clinic.order.subtype.;
+total.subtype <- icgc.clinic.subtype.order.data[,1];
 total.subtype <- total.subtype[total.subtype != ""]
 subtype.icgc.status <- data.frame(table(total.subtype));
 
 
 # 4. I-SPY2
-ispy.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/ISPY/clinical/1-s2.0-S1535610822002161-mmc3.csv', header = TRUE, stringsAsFactors = F, sep = ',');
-rownames(ispy.clinic) <- paste('X', ispy.clinic$Patient.Identifier, sep = '');
+# ispy.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/ISPY/clinical/1-s2.0-S1535610822002161-mmc3.csv', header = TRUE, stringsAsFactors = F, sep = ',');
+# rownames(ispy.clinic) <- paste('X', ispy.clinic$Patient.Identifier, sep = '');
 ispy.clinic.order <- ispy.clinic[colnames(outlier.patient.tag.01.ispy),];
 
 ispy.clinic.order.data <- data.frame(ispy.clinic.order$PAM50.Subtype);
@@ -93,7 +93,7 @@ ispy.clinic.order.data[ispy.clinic.order.data$ispy.clinic.order.PAM50.Subtype ==
 ispy.clinic.order.data[ispy.clinic.order.data$ispy.clinic.order.PAM50.Subtype == 'LumB',] <- 4;
 ispy.clinic.order.data[ispy.clinic.order.data$ispy.clinic.order.PAM50.Subtype == 'Normal',] <- 5;
 ispy.clinic.order.data.num <- data.frame(as.numeric(ispy.clinic.order.data$ispy.clinic.order.PAM50.Subtype));
-rownames(ispy.clinic.order.data.num) <- colnames(outlier.patient.tag.01);
+rownames(ispy.clinic.order.data.num) <- colnames(outlier.patient.tag.01.ispy);
 
 outlier.patient.tag.01.sum.ispy <- apply(outlier.patient.tag.01.ispy, 2, sum);
 subtype.total.outlier.num.ispy <- data.frame(cbind(subtype = ispy.clinic.order.data.num,
@@ -106,28 +106,10 @@ subtype.ispy.status <- data.frame(table(ispy.clinic.order$PAM50.Subtype));
 
 
 # 5. MATADOR
-metador.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/METADOR/metador_drug.csv', header = TRUE, stringsAsFactors = F, sep = ',');
-colnames(metador.clinic) <- c("sample", "drug");
-metador.clinic.order <- metador.clinic[match(colnames(outlier.patient.tag.01.matador), metador.clinic$sample),]
-
-metador.clinic.order.data <- data.frame(metador.clinic.order$PAM50.Subtype);
-metador.clinic.order.data[is.na(metador.clinic.order.data$metador.clinic.order.PAM50.Subtype),] <- 6;
-metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Basal',] <- 1;
-metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Her2',] <- 2;
-metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'LumA',] <- 3;
-metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'LumB',] <- 4;
-metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Normal',] <- 5;
-metador.clinic.order.data.num <- data.frame(as.numeric(metador.clinic.order.data$metador.clinic.order.PAM50.Subtype));
-rownames(metador.clinic.order.data.num) <- colnames(outlier.patient.tag.01.matador);
-
-outlier.patient.tag.01.sum.matador <- apply(outlier.patient.tag.01.matador, 2, sum);
-subtype.total.outlier.num.matador <- data.frame(cbind(subtype = metador.clinic.order.data.num,
-                                              outlier = outlier.patient.tag.01.sum.matador));
-colnames(subtype.total.outlier.num.matador) <- c("subtype", "outlier");
 subtype.total.outlier.num.1.matador <- subtype.total.outlier.num.matador; 
 subtype.total.outlier.num.1.matador$outlier[subtype.total.outlier.num.1.matador$outlier > 0] <- 1;
 outlier.subtype.matador.status <- data.frame(table(subtype.total.outlier.num.1.matador));
-subtype.matador.status <- data.frame(table(metador.clinic.order$PAM50.Subtype));
+subtype.matador.status <- data.frame(table(subtype.total.outlier.num.matador$subtype));
 
 
 
@@ -142,8 +124,8 @@ perform.fisher.test <- function(total.patients, total.outliers, subtype.freq, ou
                 total.patients - total.outliers - subtype.freq + outlier.freq
                 ), 
             nrow=2), 
-        alternative="two.sided")$p.value;
-    return(list(p.value = fisher.test.result$p.value, odd.ratio = fisher.test.result$estimate, ci = fisher.test.result$conf.int))
+        alternative="two.sided")
+    list(p.value = fisher.test.result$p.value, odd.ratio = fisher.test.result$estimate, ci = fisher.test.result$conf.int)
     }
 
 # Function to perform subtype analysis for each dataset
@@ -200,19 +182,19 @@ perform.meta.analysis <- function(ln.odd.list, se.odd.list) {
 
 # Perform Fisher's test for each dataset and subtype
 # TCGA-BRCA analysis
-brca.results <- perform.subtype.analysis(subtype.total.outlier.num.brca, subtype.brca.status$Freq, outlier.subtype.brca.status$Freq);
+brca.results <- perform.subtype.analysis(subtype.total.outlier.num.brca, subtype.brca.status$Freq, outlier.subtype.brca.status[outlier.subtype.brca.status$outlier ==1,]$Freq);
 
 # METABRIC analysis
-meta.results <- perform.subtype.analysis(subtype.5.total.outlier.num.meta, subtype.5.meta.status$Freq, outlier.subtype.5.meta.status$Freq);
+meta.results <- perform.subtype.analysis(subtype.5.total.outlier.num.meta, subtype.5.meta.status$Freq, outlier.subtype.5.meta.status[outlier.subtype.5.meta.status$outlier ==1,]$Freq);
 
 # I-SPY2 analysis
-ispy.results <- perform.subtype.analysis(subtype.total.outlier.num.ispy, subtype.ispy.status$Freq, outlier.subtype.ispy.status$Freq);
+ispy.results <- perform.subtype.analysis(subtype.total.outlier.num.ispy, subtype.ispy.status$Freq, outlier.subtype.ispy.status[outlier.subtype.ispy.status$outlier ==1,]$Freq);
 
 # MATADOR analysis
-matador.results <- perform.subtype.analysis(subtype.total.outlier.num.matador, subtype.matador.status$Freq, outlier.subtype.matador.status$Freq);
+matador.results <- perform.subtype.analysis(subtype.total.outlier.num.matador, subtype.matador.status$Freq, outlier.subtype.matador.status[outlier.subtype.matador.status$outlier ==1,]$Freq);
 
 # ICGC analysis
-icgc.results <- perform.subtype.analysis(subtype.total.outlier.num.icgc, subtype.icgc.status$Freq, outlier.subtype.icgc.status$Freq);
+icgc.results <- perform.subtype.analysis(subtype.total.outlier.num.icgc, subtype.icgc.status$Freq, outlier.subtype.icgc.status[outlier.subtype.icgc.status$outlier ==1,]$Freq);
 
 
 all.odd.subtype <- cbind(
@@ -272,19 +254,19 @@ odd.heat <- create.heatmap(
 
 
 ln.odd.list <- list(
-    ln(brca.results$odd.ratio),
-    ln(meta.results$odd.ratio),
-    ln(ispy.results$odd.ratio),
-    ln(matador.results$odd.ratio),
-    ln(icgc.results$odd.ratio)
+    log(brca.results$odd.ratio),
+    log(meta.results$odd.ratio),
+    log(ispy.results$odd.ratio),
+    log(matador.results$odd.ratio),
+    log(icgc.results$odd.ratio)
     );
 
 se.odd.list <- list(
-    (ln(brca.results$ci[,2])-ln(brca.results$ci[,1])) / 3.92,
-    (ln(meta.results$ci[,2])-ln(meta.results$ci[,1])) / 3.92,
-    (ln(ispy.results$ci[,2])-ln(ispy.results$ci[,1])) / 3.92,
-    (ln(matador.results$ci[,2])-ln(matador.results$ci[,1])) / 3.92,
-    (ln(icgc.results$ci[,2])-ln(icgc.results$ci[,1])) / 3.92
+    (log(brca.results$ci[,2])-log(brca.results$ci[,1])) / 3.92,
+    (log(meta.results$ci[,2])-log(meta.results$ci[,1])) / 3.92,
+    (log(ispy.results$ci[,2])-log(ispy.results$ci[,1])) / 3.92,
+    (log(matador.results$ci[,2])-log(matador.results$ci[,1])) / 3.92,
+    (log(icgc.results$ci[,2])-log(icgc.results$ci[,1])) / 3.92
     );
 
 # Perform meta-analysis
@@ -317,12 +299,27 @@ metafor.all.segplot <- BoutrosLab.plotting.general::create.segplot(
     data = metafor.chr.odd.ci.p.data.label.rev,
     centers = log2(metafor.chr.odd.ci.p.data.label.rev$odd),
     segments.col = dot.colours,
+    main.cex = 0,
+    yaxis.fontface = 1,
+    xlab.cex = 1.3,
+    xlab.label = expression('Odds Ratio'),
+    ylab.cex = 0,
+    yaxis.cex = 0,
+    xaxis.cex = 1,
+    xaxis.lab = c(0, 0.25, 0.5, 1, 2, 4),
+    xaxis.fontface = 1,
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     abline.v = 0,
     abline.lty = 3,
     add.rectangle = TRUE,
     xleft.rectangle = -3,
     xright.rectangle = 13,
+    ybottom.rectangle = seq(1.5, 23.5, 2),
+    ytop.rectangle = seq(2.5, 24.5, 2),
+    # set rectangle colour
     col.rectangle = "grey",
+    # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     disable.factor.sorting = TRUE
     );

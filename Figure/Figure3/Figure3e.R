@@ -22,7 +22,7 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
         data <- data[data$pam50 == subtype, ]
         }
     
-    stages <- sort(unique(data$stage.convert));
+    stages <- stages <- c(1, 2, 3);
     p.values <- numeric();
     odd.ratios <- numeric();
     ci.intervals <- matrix(nrow = 0, ncol = 2);
@@ -47,11 +47,11 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
 
 
 
-brca.clinic <- read.csv(
-    file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/brca_tcga_pan_can_atlas_2018_clinical_data.csv', 
-    header = TRUE, 
-    stringsAsFactors = F, 
-    sep = ',');
+# brca.clinic <- read.csv(
+#     file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/brca_tcga_pan_can_atlas_2018_clinical_data.csv', 
+#     header = TRUE, 
+#     stringsAsFactors = F, 
+#     sep = ',');
 
 
 brca.sample.clinic <- gsub("-", ".", brca.clinic$Patient.ID, fixed = TRUE);
@@ -83,7 +83,7 @@ os.data.stage.pseudo.brca$status <- as.numeric(os.data.stage.pseudo.brca$status)
 os.data.stage.pseudo.brca$os <- as.numeric(os.data.stage.pseudo.brca$os);
 os.data.stage.pseudo.brca$patient <- as.numeric(os.data.stage.pseudo.brca$patient);
 os.data.stage.pseudo.brca$age <- as.numeric(os.data.stage.pseudo.brca$age);
-
+os.data.stage.pseudo.brca <- na.omit(os.data.stage.pseudo.brca);
 
 # All BRCA
 all.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca);
@@ -133,16 +133,16 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.brca <- normal.results$p.value
 ### 2. METABRIC
 outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
 
-meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
-meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
+# meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
+# meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
+# 
+# # get subtype info from other clinical dataset
+# meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
+# meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
+# rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
+# meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
 
-# get subtype info from other clinical dataset
-meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
-meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
-rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
-meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
-
-meta.clinic.5.order.combine <- meta.clinic.order;
+# meta.clinic.5.order.combine <- meta.clinic.order;
 meta.clinic.5.order.combine$pam50 <- meta.clinic.5.order$Pam50Subtype;
 
 
@@ -151,7 +151,7 @@ perform.fisher.test.meta <- function(data, subtype = NULL) {
         data <- data[data$pam50 == subtype, ];
         }
     
-    stages <- sort(unique(data$stage));
+    stages <- c(1, 2, 3);
     p.values <- numeric();
     odd.ratios <- numeric();
     ci.intervals <- matrix(nrow = 0, ncol = 2);
@@ -239,11 +239,11 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.meta <- normal.meta.results$p.
 
 
 
-### 3. ICGC BRCA-EU
-icgc.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Supplementary.Table.1 CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv', header = T, sep =',');
-icgc.clinic.order <- icgc.clinic[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic$sample),];
-colnames(icgc.clinic) <- icgc.clinic[1,];
-icgc.clinic <- icgc.clinic[-1,];
+# ### 3. ICGC BRCA-EU
+# icgc.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Supplementary.Table.1 CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv', header = T, sep =',');
+# icgc.clinic.order <- icgc.clinic[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic$sample),];
+# colnames(icgc.clinic) <- icgc.clinic[1,];
+# icgc.clinic <- icgc.clinic[-1,];
 icgc.sample.num <- substr(icgc.clinic$sample_name, 3, nchar(icgc.clinic$sample_name));
 
 # Prepare ICGC sample numbers
@@ -307,16 +307,16 @@ perform.fisher.test.icgc <- function(data, subtype = NULL) {
         data <- data[data$subtype == subtype, ];
         }
     
-    stages <- sort(unique(data$stage));
+    stages <- c(1, 2, 3);
     p.values <- numeric();
     odd.ratios <- numeric();
     ci.intervals <- matrix(nrow = 0, ncol = 2);
     
     for (i in stages[-1]) {
-        table.1 <- sum(data$patient == 0 & data$stage == stages[1]);
-        table.2 <- sum(data$patient == 0 & data$stage == i);
-        table.3 <- sum(data$patient > 0 & data$stage == stages[1]);
-        table.4 <- sum(data$patient > 0 & data$stage == i);
+        table.1 <- sum(data$outlier == 0 & data$stage == stages[1]);
+        table.2 <- sum(data$outlier == 0 & data$stage == i);
+        table.3 <- sum(data$outlier > 0 & data$stage == stages[1]);
+        table.4 <- sum(data$outlier > 0 & data$stage == i);
         
         fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = "two.sided");
         
@@ -486,6 +486,16 @@ normal.results <- perform.meta.analysis(
     list(ln.odd.brca.normal$se.odd, ln.odd.meta.normal$se.odd)
     );
 
+
+# 6. All datasets
+ln.odd.brca <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.brca, p.value.stage.pseudo.ci.sub.t1.brca);
+ln.odd.meta <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.meta, p.value.stage.pseudo.ci.sub.t1.meta);
+ln.odd.icgc <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.icgc, p.value.stage.pseudo.ci.sub.t1.icgc);
+
+all.results <- perform.meta.analysis(
+    list(ln.odd.brca$ln.odd, ln.odd.meta$ln.odd, ln.odd.icgc$ln.odd),
+    list(ln.odd.brca$se.odd, ln.odd.meta$se.odd, ln.odd.icgc$se.odd)
+    );
 # Combine the results for heatmap generation
 metafor.stage.pseudo.odd.ci.p.data.each.subtype.odd.t1.no3 <- data.frame(
     basal = basal.results$data$odd[1:2],
@@ -502,6 +512,12 @@ metafor.stage.pseudo.odd.ci.p.data.each.subtype.fdr.t1.no3 <- data.frame(
     lumb = lumb.results$fdr[1:2],
     normal = normal.results$fdr[1:2]
     );
+
+metafor.stage.pseudo.odd.ci.p.data.t1 <- data.frame(
+    odd = all.results$data$odd[1:2],
+    p.value = all.results$data$p.value[1:2]
+    );
+
 
 # Plotting the results
 background.cutoff <- 2;
