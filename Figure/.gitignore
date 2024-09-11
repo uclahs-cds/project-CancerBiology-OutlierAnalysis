@@ -1,0 +1,7 @@
+untracked_data/
+full_figures/
+reference_figures/
+restricted_figures/
+comparison_figures/
+execution_errors.json
+missing_variables.json
