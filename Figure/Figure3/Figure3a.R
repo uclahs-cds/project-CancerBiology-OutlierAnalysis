@@ -22,107 +22,107 @@ library(BoutrosLab.plotting.general);
 #     );
 
 
-# rownames(brca.protein.cptac.zscore) <- sapply(
-#     strsplit(rownames(brca.protein.cptac.zscore), "|", fixed = TRUE), 
-#     function(x) x[1]
-#     );
-# 
-# # Outlier symbol
-# outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca), 'Symbol'];
-# 
-# # Protein CPTAC z-score list
-# protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
-# 
-# # Outlier genes with protein CPTAC z-score data
-# outlier.protein.cptac.zscore.gene <- outlier.symbol[outlier.symbol %in% protein.cptac.zscore.gene];
-# 
-# brca.protein.cptac.zscore.outlier.match <- brca.protein.cptac.zscore[
-#     , 
-#     colnames(brca.protein.cptac.zscore) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)
-#     ];
-# 
-# outlier.patient.tag.01.brca.protein.cptac.zscore.match <- outlier.patient.tag.01.brca[
-#     rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% unique(outlier.protein.cptac.zscore.gene)], 
-#     substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% colnames(brca.protein.cptac.zscore)
-#     ];
-# 
-# # Only outlier gene's FPKM
-# fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[
-#     rownames(outlier.gene.fdr.01.brca), 
-#     ];
-# 
-# outlier.protein.cptac.zscore.list <- list();
-# non.outlier.protein.cptac.zscore.list <- list();
-# target.gene.cptac.zscore.list <- NULL;
-# 
-# for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
-#     target.gene.name.protein <- brca.protein.cptac.zscore.outlier.match[
-#         rownames(brca.protein.cptac.zscore.outlier.match) %in% outlier.protein.cptac.zscore.gene[i], 
-#         ];
-#     row.name.target <- rownames(fpkm.tumor.symbol.filter.brca.outlier)[
-#         fpkm.tumor.symbol.filter.brca.outlier$Symbol %in% outlier.protein.cptac.zscore.gene[i]
-#         ];
-#     target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
-#         outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 1
-#         ];
-#     non.target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
-#         outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 0
-#         ];
-#     target.gene.cptac.zscore.list <- c(target.gene.cptac.zscore.list, outlier.protein.cptac.zscore.gene[i]);
-#     outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(target.col, 1, 15)];
-#     non.outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(non.target.col, 1, 15)];
-#     }
-# 
-# outlier.protein.cptac.zscore.value <- as.numeric(unlist(outlier.protein.cptac.zscore.list));
-# non.outlier.protein.cptac.zscore.value <- as.numeric(unlist(non.outlier.protein.cptac.zscore.list));
-# 
-# # Box plot - compare the values between patients
-# # Exclude the genes with no outlier patient info
-# 
-# names(outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gene;
-# outlier.protein.cptac.list.no.p.na <- na.omit(unlist(outlier.protein.cptac.zscore.list));
-# names(non.outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gene;
-# non.outlier.protein.cptac.list.no.p.na <- non.outlier.protein.cptac.zscore.list[names(outlier.protein.cptac.list.no.p.na)];
-# 
-# protein.cptac.na.value <- data.frame(
-#     protein.cptac.na.value = c(
-#         as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)), 
-#         as.numeric(unlist(outlier.protein.cptac.list.no.p.na))
-#         )
-#     );
-# 
-# protein.cptac.na.value.box <- data.frame(
-#     cbind(
-#         protein.cptac.na.value$protein.cptac.na.value, 
-#         c(rep('non', length(as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)))), 
-#           rep('out', length(as.numeric(unlist(outlier.protein.cptac.list.no.p.na)))))
-#         )
-#     );
-# 
-# colnames(protein.cptac.na.value.box) <- c('protein.cptac.value', 'status');
-# protein.cptac.na.value.box[, 1] <- as.numeric(protein.cptac.na.value.box[, 1]);
-# 
-# wilcox.result.protein.na <- wilcox.test(
-#     as.numeric(unlist(outlier.protein.cptac.list.no.p.na)),
-#     as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)),
-#     alternative = "two.sided", 
-#     conf.int = TRUE
-#     );
-# 
-# text.pvalue.protein.na <- display.statistical.result(
-#     x = wilcox.result.protein.na$p.value,
-#     statistic.type = 'p',
-#     symbol = ' = '
-#     );
-# 
-# key.protein.na <- list(
-#     text = list(
-#         lab = text.pvalue.protein.na, 
-#         cex = 1
-#         ),
-#     x = 0.25,
-#     y = 0.95
-#     );
+rownames(brca.protein.cptac.zscore) <- sapply(
+    strsplit(rownames(brca.protein.cptac.zscore), "|", fixed = TRUE), 
+    function(x) x[1]
+    );
+
+# Outlier symbol
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
+
+# Protein CPTAC z-score list
+protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
+
+# Outlier genes with protein CPTAC z-score data
+outlier.protein.cptac.zscore.gene <- outlier.symbol[outlier.symbol %in% protein.cptac.zscore.gene];
+
+brca.protein.cptac.zscore.outlier.match <- brca.protein.cptac.zscore[
+    , 
+    colnames(brca.protein.cptac.zscore) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)
+    ];
+
+outlier.patient.tag.01.brca.protein.cptac.zscore.match <- outlier.patient.tag.01.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% unique(outlier.protein.cptac.zscore.gene)], 
+    substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% colnames(brca.protein.cptac.zscore)
+    ];
+
+# Only outlier gene's FPKM
+fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[
+    rownames(outlier.gene.fdr.01.brca), 
+    ];
+
+outlier.protein.cptac.zscore.list <- list();
+non.outlier.protein.cptac.zscore.list <- list();
+target.gene.cptac.zscore.list <- NULL;
+
+for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
+    target.gene.name.protein <- brca.protein.cptac.zscore.outlier.match[
+        rownames(brca.protein.cptac.zscore.outlier.match) %in% outlier.protein.cptac.zscore.gene[i], 
+        ];
+    row.name.target <- rownames(fpkm.tumor.symbol.filter.brca.outlier)[
+        fpkm.tumor.symbol.filter.brca.outlier$Symbol %in% outlier.protein.cptac.zscore.gene[i]
+        ];
+    target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
+        outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 1
+        ];
+    non.target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
+        outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 0
+        ];
+    target.gene.cptac.zscore.list <- c(target.gene.cptac.zscore.list, outlier.protein.cptac.zscore.gene[i]);
+    outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(target.col, 1, 15)];
+    non.outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(non.target.col, 1, 15)];
+    }
+
+outlier.protein.cptac.zscore.value <- as.numeric(unlist(outlier.protein.cptac.zscore.list));
+non.outlier.protein.cptac.zscore.value <- as.numeric(unlist(non.outlier.protein.cptac.zscore.list));
+
+# Box plot - compare the values between patients
+# Exclude the genes with no outlier patient info
+
+names(outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gene;
+outlier.protein.cptac.list.no.p.na <- na.omit(unlist(outlier.protein.cptac.zscore.list));
+names(non.outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gene;
+non.outlier.protein.cptac.list.no.p.na <- non.outlier.protein.cptac.zscore.list[names(outlier.protein.cptac.list.no.p.na)];
+
+protein.cptac.na.value <- data.frame(
+    protein.cptac.na.value = c(
+        as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)), 
+        as.numeric(unlist(outlier.protein.cptac.list.no.p.na))
+        )
+    );
+
+protein.cptac.na.value.box <- data.frame(
+    cbind(
+        protein.cptac.na.value$protein.cptac.na.value, 
+        c(rep('non', length(as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)))), 
+          rep('out', length(as.numeric(unlist(outlier.protein.cptac.list.no.p.na)))))
+        )
+    );
+
+colnames(protein.cptac.na.value.box) <- c('protein.cptac.value', 'status');
+protein.cptac.na.value.box[, 1] <- as.numeric(protein.cptac.na.value.box[, 1]);
+
+wilcox.result.protein.na <- wilcox.test(
+    as.numeric(unlist(outlier.protein.cptac.list.no.p.na)),
+    as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)),
+    alternative = "two.sided", 
+    conf.int = TRUE
+    );
+
+text.pvalue.protein.na <- display.statistical.result(
+    x = wilcox.result.protein.na$p.value,
+    statistic.type = 'p',
+    symbol = ' = '
+    );
+
+key.protein.na <- list(
+    text = list(
+        lab = text.pvalue.protein.na, 
+        cex = 1
+        ),
+    x = 0.25,
+    y = 0.95
+    );
 
 key.protein.na <- key.protien.na;
 

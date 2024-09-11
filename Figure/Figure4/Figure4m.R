@@ -13,6 +13,8 @@ drug.target <- depmap.drug.info.match.sanger.dup[depmap.drug.info.match.sanger.d
 
 # Get IC50 z-score values for the selected gene
 ic50.value.i <- sanger.drug.match.dup.zscore[match(drug.target$Drug.Name, rownames(sanger.drug.match.dup.zscore)), colnames(patient.status), drop =FALSE];
+#remove duplicated row
+ic50.value.i <- ic50.value.i[c(1, 3, 4),];
 
 # Create a data frame for plotting
 i.drug.box <- data.frame(
@@ -36,7 +38,7 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     main = expression('Gene effect score of outlier genes'),
     outlier = TRUE,
     add.stripplot = TRUE,
-    jitter.factor = 10,
+    # jitter.factor = 10,
     main.cex = 1.5,
     xlab.label = NULL,
     xlab.cex = 0,
@@ -44,14 +46,15 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     ylab.cex = 1.3,
     yaxis.cex = 1.1,
     xaxis.cex = 1.1,
-    xaxis.lab = i.drug,
+    xaxis.lab = rownames(ic50.value.i),
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.tck = c(0.2,0),
     xaxis.tck = c(0.2,0),
     xaxis.rot = 90,
-    ylimits = c(-1.7,2.5),
-    yat = seq(-2,3,1),
+    # ylimits = c(-1.7,2.5),
+    ylimits = c(-2.05, 3.3),
+    yat = seq(-2, 3, 1),
     sample.order = "none",
     points.pch = 16,
     points.cex = 1,

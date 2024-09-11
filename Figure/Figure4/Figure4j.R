@@ -30,7 +30,7 @@ effect.05.box$status <- as.numeric(effect.05.box$status);
 
 
 
-gene.five.cas.rnai <- c('MECOM', 'FGFR2', 'FOXP4', 'WIPF2');
+gene.five.cas.rnai <- c('FGFR2', 'FOXP4', 'MECOM', 'WIPF2');
 rnai.05.box.4 <- rnai.05.box[rnai.05.box$gene %in% gene.five.cas.rnai,];
 rnai.05.box.4$label <- rep('RNAi', nrow(rnai.05.box.4));
 effect.05.box.4 <- effect.05.box[effect.05.box$gene %in% gene.five.cas.rnai,];
@@ -52,17 +52,17 @@ dot.colours[rnai.effect.05.box.4.order$status == 1] <- 'dodgerblue2';
 
 key <- list(
     text = list(
-        lab = 'MECOM', 
+        lab = 'FGFR2', 
         cex = 1
         ), 
     x = 0.05,
     y = 0.93,
     text = list(
-        lab = 'FGFR2', 
+        lab = 'FOXP4', 
         cex = 1
         ), 
     text = list(
-        lab = 'FOXP4', 
+        lab = 'MECOM', 
         cex = 1
         ), 
     x = 0.9,
@@ -93,7 +93,7 @@ cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
     # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     main.cex = 1.5,
-    xaxis.lab = rep(c('Cas-CRISPR', 'RNAi'), 4),
+    xaxis.lab = rep(c('CRISPR', 'RNAi'), 4),
     xlab.label = NULL,
     xlab.cex = 0,
     ylab.label = expression('Gene effect score'),
@@ -140,7 +140,7 @@ output.directory <- get0('output.directory', ifnotfound = 'figures');
 write.plot(
     trellis.object = cas.rnai.example.box,
     filename = file.path(output.directory, 'Figure_4_j.png'),
-    width = 5,
+    width = 4.5,
     height = 6.5,
     size.units = 'in',
     resolution = 1200
