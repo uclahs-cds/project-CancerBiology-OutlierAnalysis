@@ -196,6 +196,81 @@
       ],
       "Hash": "70c07b8aaecca8b49b0ffd2a86b7ecfe"
     },
+    "BoutrosLab.plotting.survival": {
+      "Package": "BoutrosLab.plotting.survival",
+      "Version": "3.0.10",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "package-BoutrosLab-plotting-survival",
+      "RemoteRef": "main",
+      "RemoteSha": "e7c3f6fab186f709a3e125a2340cd6fdec639759",
+      "Requirements": [
+        "BoutrosLab.plotting.general",
+        "BoutrosLab.prognosticsignature.general",
+        "BoutrosLab.statistics.general",
+        "BoutrosLab.statistics.survival",
+        "BoutrosLab.utilities",
+        "R",
+        "lattice",
+        "survival"
+      ],
+      "Hash": "08e29597f3ca369751f344742c896a7d"
+    },
+    "BoutrosLab.prognosticsignature.general": {
+      "Package": "BoutrosLab.prognosticsignature.general",
+      "Version": "1.3.13",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "public-R-BoutrosLab-prognosticsignature-general",
+      "RemoteRef": "master",
+      "RemoteSha": "a4bf879b1599e5d592064dc1cbf9636e4884f02a",
+      "Requirements": [
+        "BoutrosLab.statistics.survival",
+        "R",
+        "survival"
+      ],
+      "Hash": "051bfb7399eede7bdd80d30f6489aec8"
+    },
+    "BoutrosLab.statistics.general": {
+      "Package": "BoutrosLab.statistics.general",
+      "Version": "2.1.3",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "public-R-BoutrosLab-statistics-general",
+      "RemoteRef": "main",
+      "RemoteSha": "73d116df30410ec7bb01380a627ce7b80f8aed69",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "b37f32cdcee6b99d820f555082e61e8d"
+    },
+    "BoutrosLab.statistics.survival": {
+      "Package": "BoutrosLab.statistics.survival",
+      "Version": "0.4.20",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "package-BoutrosLab-statistics-survival",
+      "RemoteRef": "main",
+      "RemoteSha": "29e8176418c7c1b9740382beb42dfd456b3ffacb",
+      "Requirements": [
+        "R",
+        "data.table",
+        "doParallel",
+        "parallel",
+        "rbenchmark",
+        "stringr",
+        "survival"
+      ],
+      "Hash": "be068584b3ad60f9157817b5d87db4f7"
+    },
     "BoutrosLab.utilities": {
       "Package": "BoutrosLab.utilities",
       "Version": "1.9.10",
@@ -833,6 +908,17 @@
       ],
       "Hash": "8f27335f2bcff4d6035edcc82d7d46de"
     },
+    "data.table": {
+      "Package": "data.table",
+      "Version": "1.16.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "methods"
+      ],
+      "Hash": "fb24e05d4a91d8b1c7ff8e284bde834a"
+    },
     "dbplyr": {
       "Package": "dbplyr",
       "Version": "2.5.0",
@@ -883,6 +969,20 @@
         "utils"
       ],
       "Hash": "b18a9cf3c003977b0cc49d5e76ebe48d"
+    },
+    "doParallel": {
+      "Package": "doParallel",
+      "Version": "1.0.17",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "foreach",
+        "iterators",
+        "parallel",
+        "utils"
+      ],
+      "Hash": "451e5edf411987991ab6a5410c45011f"
     },
     "dplyr": {
       "Package": "dplyr",
@@ -951,6 +1051,19 @@
         "R"
       ],
       "Hash": "192053c276525c8495ccfd523aa8f2d1"
+    },
+    "foreach": {
+      "Package": "foreach",
+      "Version": "1.5.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "codetools",
+        "iterators",
+        "utils"
+      ],
+      "Hash": "618609b42c9406731ead03adf5379850"
     },
     "formatR": {
       "Package": "formatR",
@@ -1094,6 +1207,17 @@
         "deldir"
       ],
       "Hash": "824328a500468b76e61402b2cb3033df"
+    },
+    "iterators": {
+      "Package": "iterators",
+      "Version": "1.0.14",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "utils"
+      ],
+      "Hash": "8954069286b4b2b0d023d1b288dce978"
     },
     "jpeg": {
       "Package": "jpeg",
@@ -1447,6 +1571,13 @@
       ],
       "Hash": "5e3c5dc0b071b21fa128676560dbe94d"
     },
+    "rbenchmark": {
+      "Package": "rbenchmark",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "ee3d5d435f751a88bc69091c51111bd8"
+    },
     "renv": {
       "Package": "renv",
       "Version": "1.0.0",
@@ -1572,6 +1703,22 @@
         "vctrs"
       ],
       "Hash": "960e2ae9e09656611e0b8214ad543207"
+    },
+    "survival": {
+      "Package": "survival",
+      "Version": "3.7-0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "Matrix",
+        "R",
+        "graphics",
+        "methods",
+        "splines",
+        "stats",
+        "utils"
+      ],
+      "Hash": "5aaa9cbaf4aba20f8e06fdea1850a398"
     },
     "sys": {
       "Package": "sys",

@@ -7,6 +7,7 @@
 
 # Load required libraries
 library(metafor);
+library(survival);
 
 
 
