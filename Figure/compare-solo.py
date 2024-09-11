@@ -253,13 +253,6 @@ class Figure:
         if not self.restricted_dataset:
             raise ValidationError("Restricted dataset not parsed")
 
-        if self.restricted_dataset in self.errors:
-            error_lines = "\n".join(self.errors[self.restricted_dataset])
-            if undefined_match := re.search(r"object '([^']+)' not found", error_lines):
-                raise MissingVariable(undefined_match.group(1), self.restricted_dataset)
-
-            raise ExecutionError(error_lines)
-
         for imagename in sorted(self.expected_images):
             restricted = self.restricted_base / imagename
 
@@ -270,6 +263,13 @@ class Figure:
                 restricted,
                 self.comparison_base / ("comp-" + restricted.name)
             )
+
+        if self.restricted_dataset in self.errors:
+            error_lines = "\n".join(self.errors[self.restricted_dataset])
+            if undefined_match := re.search(r"object '([^']+)' not found", error_lines):
+                raise MissingVariable(undefined_match.group(1), self.restricted_dataset)
+
+            raise ExecutionError(error_lines)
 
         # Third level - are there modified variables from the restricted
         # dataset?

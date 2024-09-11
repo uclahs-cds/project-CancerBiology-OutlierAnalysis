@@ -116,7 +116,7 @@ write.plot(
 
 output.directory <- get0('output.directory', ifnotfound = 'figures');
 
-do.plot.3d('IGF1R', file.path(output.directory, 'Figure_3_d_IGR1R.png'));
+do.plot.3d('IGF1R', file.path(output.directory, 'Figure_3_d_IGF1R.png'));
 do.plot.3d('CLU', file.path(output.directory, 'Figure_3_d_CLU.png'));
 
 ### 2. RPPA example
