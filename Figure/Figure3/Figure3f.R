@@ -55,7 +55,7 @@ subtype.5.meta.status <- subtype.5.meta.status[match(c('Basal', 'Her2', 'LumA', 
 
 
 # 3. ICGC BRCA-EU
-icgc.clinic.subtype <- read.delim2(file = '/Users/jyhan/Library/Mobile\ Documents/com~apple~CloudDocs/Documents/1.Project/ICGC-2016/nature17676-s3/ICGC_subtype.csv', sep =',');
+# icgc.clinic.subtype <- read.delim2(file = '/Users/jyhan/Library/Mobile\ Documents/com~apple~CloudDocs/Documents/1.Project/ICGC-2016/nature17676-s3/ICGC_subtype.csv', sep =',');
 icgc.clinic.subtype.order <- icgc.clinic.subtype[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic.subtype$sample),];
 
 icgc.clinic.subtype.order.data <- data.frame(as.character(icgc.clinic.subtype.order$subtype));
@@ -81,7 +81,7 @@ subtype.icgc.status <- data.frame(table(total.subtype));
 
 
 # 4. I-SPY2
-ispy.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/ISPY/clinical/1-s2.0-S1535610822002161-mmc3.csv', header = TRUE, stringsAsFactors = F, sep = ',');
+# ispy.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/ISPY/clinical/1-s2.0-S1535610822002161-mmc3.csv', header = TRUE, stringsAsFactors = F, sep = ',');
 rownames(ispy.clinic) <- paste('X', ispy.clinic$Patient.Identifier, sep = '');
 ispy.clinic.order <- ispy.clinic[colnames(outlier.patient.tag.01.ispy),];
 
@@ -106,7 +106,7 @@ subtype.ispy.status <- data.frame(table(ispy.clinic.order$PAM50.Subtype));
 
 
 # 5. MATADOR
-metador.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/METADOR/metador_drug.csv', header = TRUE, stringsAsFactors = F, sep = ',');
+# metador.clinic <-  read.csv(file = '/Users/jee/Documents/1.Project/METADOR/metador_drug.csv', header = TRUE, stringsAsFactors = F, sep = ',');
 colnames(metador.clinic) <- c("sample", "drug");
 metador.clinic.order <- metador.clinic[match(colnames(outlier.patient.tag.01.matador), metador.clinic$sample),]
 

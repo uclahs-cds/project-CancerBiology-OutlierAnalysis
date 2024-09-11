@@ -47,11 +47,11 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
 
 
 
-brca.clinic <- read.csv(
-    file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/brca_tcga_pan_can_atlas_2018_clinical_data.csv', 
-    header = TRUE, 
-    stringsAsFactors = F, 
-    sep = ',');
+# brca.clinic <- read.csv(
+#     file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/brca_tcga_pan_can_atlas_2018_clinical_data.csv', 
+#     header = TRUE, 
+#     stringsAsFactors = F, 
+#     sep = ',');
 
 
 brca.sample.clinic <- gsub("-", ".", brca.clinic$Patient.ID, fixed = TRUE);
@@ -131,19 +131,19 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.brca <- normal.results$p.value
 
 
 ### 2. METABRIC
-outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
-
-meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
-meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
-
-# get subtype info from other clinical dataset
-meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
-meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
-rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
-meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
-
-meta.clinic.5.order.combine <- meta.clinic.order;
-meta.clinic.5.order.combine$pam50 <- meta.clinic.5.order$Pam50Subtype;
+# outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
+# 
+# meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
+# meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
+# 
+# # get subtype info from other clinical dataset
+# meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
+# meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
+# rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
+# meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
+# 
+# meta.clinic.5.order.combine <- meta.clinic.order;
+# meta.clinic.5.order.combine$pam50 <- meta.clinic.5.order$Pam50Subtype;
 
 
 perform.fisher.test.meta <- function(data, subtype = NULL) {
@@ -240,7 +240,7 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.meta <- normal.meta.results$p.
 
 
 ### 3. ICGC BRCA-EU
-icgc.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Supplementary.Table.1 CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv', header = T, sep =',');
+# icgc.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Supplementary.Table.1 CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv', header = T, sep =',');
 icgc.clinic.order <- icgc.clinic[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic$sample),];
 colnames(icgc.clinic) <- icgc.clinic[1,];
 icgc.clinic <- icgc.clinic[-1,];
