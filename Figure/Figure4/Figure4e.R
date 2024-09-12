@@ -135,7 +135,7 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
 
 save.outlier.figure(
     gene.scatter.05.minus.overlap.label,
-    c('gene', 'depdendency', 'diff', 'scatter'),
+    c('gene', 'dependency', 'diff', 'scatter'),
     width = 6,
     height = 5
     );

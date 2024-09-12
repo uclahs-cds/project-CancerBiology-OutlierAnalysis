@@ -151,7 +151,7 @@ tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     tumor.normal.box.plot,
-    c('merge', 'tumour', 'normal', 'me'),
+    c('merge', 'tumour', 'normal', 'me', 'box'),
     width = 3.7,
     height = 5
     );

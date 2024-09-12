@@ -218,7 +218,7 @@ i.heat  <- BoutrosLab.plotting.general:::create.multiplot(
 
 save.outlier.figure(
     i.heat,
-    c('heatmap', 'me'),
+    c(i, 'heatmap', 'me'),
     width = 7.5,
     height = 8.5
     );
