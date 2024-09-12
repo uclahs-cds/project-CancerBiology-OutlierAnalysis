@@ -163,7 +163,7 @@ pdf(
     width = 11, 
     height = 4.5
     );
-outlier.manhattan;
+print(outlier.manhattan);
 dev.off();
 
 # Save the manhattan plot as a PNG
@@ -178,7 +178,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-outlier.manhattan;
+print(outlier.manhattan);
 dev.off();
 
 

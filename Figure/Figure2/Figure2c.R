@@ -278,19 +278,6 @@ cna.multi <- create.multiplot(
     xlab.to.xaxis.padding = -1, 
     right.padding = 3,     
     bottom.padding = 10,
-    yaxis.fontface = 1,
-    plot.layout = c(1, 2),
-    main.key.padding = 3,
-    panel.heights = c(0.12, 1),
-    ylab.padding = 1,
-    y.spacing = -0.7,
-    main.cex = 1.6,
-    xaxis.cex = 0,
-    xaxis.lab = NULL,
-    xlab.padding = -10, 
-    xlab.to.xaxis.padding = -1, 
-    right.padding = 3,     
-    bottom.padding = 10,
     # Setting groups
     legend = list(
         bottom = list(
@@ -337,7 +324,7 @@ pdf(
     width = 10.4, 
     height = 4.5
     );
-cna.multi;
+print(cna.multi);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -352,7 +339,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-cna.multi;
+print(cna.multi);
 dev.off();
 
 

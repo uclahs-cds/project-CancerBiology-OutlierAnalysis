@@ -686,7 +686,7 @@ pdf(
     width = 4.5, 
     height = 5.6
     );
-dot.multi;
+print(dot.multi);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -701,7 +701,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-dot.multi;
+print(dot.multi);
 dev.off();
 
 

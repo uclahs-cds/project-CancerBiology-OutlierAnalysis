@@ -136,7 +136,7 @@ pdf(
     width = 5.5, 
     height = 5
     );
-five.outlier.gene.sum;
+print(five.outlier.gene.sum);
 dev.off();
 
 # Save the histogram as a PNG
@@ -151,5 +151,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-five.outlier.gene.sum;
+print(five.outlier.gene.sum);
 dev.off();

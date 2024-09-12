@@ -3,6 +3,7 @@
 # in CCLE. 
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
 
 # Filter for FDR < 0.05 and match gene names
@@ -130,7 +131,7 @@ pdf(
     width = 6, 
     height = 5
     );
-gene.scatter.05.minus.overlap.label;
+print(gene.scatter.05.minus.overlap.label);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -145,9 +146,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-gene.scatter.05.minus.overlap.label;
+print(gene.scatter.05.minus.overlap.label);
 dev.off();
-
-
-
-

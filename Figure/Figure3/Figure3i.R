@@ -162,7 +162,7 @@ pdf(
     width = 5, 
     height = 3.8
     );
-merge.surv.seg.log;
+print(merge.surv.seg.log);
 dev.off();
 
 # Save the segment plot as a PNG
@@ -177,6 +177,6 @@ png(
     unit = 'in', 
     res = 1200
     );
-merge.surv.seg.log;
+print(merge.surv.seg.log);
 dev.off();
 

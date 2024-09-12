@@ -145,7 +145,7 @@ pdf(
     width = 5, 
     height = 5
     );
-cor.scatter.effect.cas.rnai;
+print(cor.scatter.effect.cas.rnai);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -160,8 +160,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-cor.scatter.effect.cas.rnai;
+print(cor.scatter.effect.cas.rnai);
 dev.off();
-
-
-

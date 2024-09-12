@@ -254,7 +254,7 @@ pdf(
     width = 6, 
     height = 4.8
     );
-me.merge.scatter;
+print(me.merge.scatter);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -269,5 +269,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-me.merge.scatter;
+print(me.merge.scatter);
 dev.off();

@@ -137,7 +137,7 @@ pdf(
     width = 4.3, 
     height = 5.3
     );
-five.outlier.patient.violin;
+print(five.outlier.patient.violin);
 dev.off();
 
 # Save the violin plot as a PNG
@@ -152,5 +152,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-five.outlier.patient.violin;
+print(five.outlier.patient.violin);
 dev.off();

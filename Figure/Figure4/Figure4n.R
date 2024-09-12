@@ -82,7 +82,7 @@ pdf(
     width = 3.8, 
     height = 6
     );
-rnai.cas.effect.box.plot;
+print(rnai.cas.effect.box.plot);
 dev.off();
 
 # Save the box plot as a PNG
@@ -97,5 +97,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-rnai.cas.effect.box.plot;
+print(rnai.cas.effect.box.plot);
 dev.off();

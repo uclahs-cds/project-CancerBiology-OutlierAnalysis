@@ -203,7 +203,7 @@ pdf(
     width = 3.5, 
     height = 6.5
     );
-rppa.box;
+print(rppa.box);
 dev.off();
 
 # Save the box plot as a PNG
@@ -218,7 +218,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-rppa.box;
+print(rppa.box);
 dev.off();
 
 

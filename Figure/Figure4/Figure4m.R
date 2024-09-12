@@ -75,7 +75,7 @@ pdf(
     width = 5, 
     height = 6
     );
-i.drug.box.plot;
+print(i.drug.box.plot);
 dev.off();
 
 # Save the box plot as a PNG
@@ -90,7 +90,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-i.drug.box.plot;
+print(i.drug.box.plot);
 dev.off();
-
-

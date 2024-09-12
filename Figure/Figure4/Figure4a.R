@@ -213,7 +213,7 @@ pdf(
     width = 7.5, 
     height = 8.15
     );
-heat.all;
+print(heat.all);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -228,5 +228,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-heat.all;
+print(heat.all);
 dev.off();

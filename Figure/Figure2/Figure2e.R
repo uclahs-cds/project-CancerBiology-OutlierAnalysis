@@ -478,7 +478,7 @@ pdf(
     width = 6.9, 
     height = 5.7
     );
-dot.multi.luma;
+print(dot.multi.luma);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -493,7 +493,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-dot.multi.luma;
+print(dot.multi.luma);
 dev.off();
 
 
@@ -848,7 +848,7 @@ pdf(
     width = 6.9, 
     height = 5.7
     );
-dot.multi.lumb;
+print(dot.multi.lumb);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -863,7 +863,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-dot.multi.lumb;
+print(dot.multi.lumb);
 dev.off();
 
 

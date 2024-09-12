@@ -11,9 +11,7 @@ library(BoutrosLab.plotting.general);
 
 
 # Two example genes: NGF, LRP4 - run separately
-i <- 'NGF';
-i <- 'LRP4';
-
+do.plot.2i <- function(i) {
 
 i.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[
     i, 
@@ -182,7 +180,7 @@ pdf(
     width = 6, 
     height = 6
     );
-scatter.i;
+print(scatter.i);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -197,6 +195,10 @@ png(
     unit = 'in', 
     res = 1200
     );
-scatter.i;
+print(scatter.i);
 dev.off();
 
+}
+
+do.plot.2i('NGF');
+do.plot.2i('LRP4');

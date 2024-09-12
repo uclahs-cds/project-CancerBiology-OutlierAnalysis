@@ -1389,7 +1389,7 @@ pdf(
     width = 5, 
     height = 6.5
     );
-metafor.multi.chr.smd.5;
+print(metafor.multi.chr.smd.5);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -1404,5 +1404,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-metafor.multi.chr.smd.5;
+print(metafor.multi.chr.smd.5);
 dev.off();

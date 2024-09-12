@@ -215,7 +215,7 @@ pdf(
     width = 5.5, 
     height = 5
     );
-scatter.smooth.line;
+print(scatter.smooth.line);
 dev.off();
 
 # Save the plot as a PNG
@@ -230,5 +230,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-scatter.smooth.line;
+print(scatter.smooth.line);
 dev.off();
