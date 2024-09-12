@@ -316,7 +316,7 @@ pdf(
     width = 4, 
     height = 6
     );
-zscore.box.sanger;
+print(zscore.box.sanger);
 dev.off();
 
 # Save the box plot as a PNG
@@ -331,6 +331,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-zscore.box.sanger;
+print(zscore.box.sanger);
 dev.off();
-

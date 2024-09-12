@@ -77,7 +77,7 @@ pdf(
     width = 6, 
     height = 6
     );
-rnai.05.box.plot;
+print(rnai.05.box.plot);
 dev.off();
 
 # Save the box plot as a PNG
@@ -92,9 +92,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-rnai.05.box.plot;
+print(rnai.05.box.plot);
 dev.off();
-
-
-
-

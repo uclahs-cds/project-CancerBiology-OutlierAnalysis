@@ -3,6 +3,31 @@
 # effect scores (RNAi and CRISPR-Cas) for a specific gene (e.g., FOXP4).
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
+
+gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5,];
+gene.effect.diff.matrix.05.overlap.minus.05.order <- gene.effect.diff.matrix.05.overlap.minus.05[order(gene.effect.diff.matrix.05.overlap.minus.05$diff),];
+
+
+effect.score.05.overlap.minus.05 <- cas.effect.breast.05.na[rownames(gene.effect.diff.matrix.05.overlap.minus.05.order),];
+outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[rownames(gene.effect.diff.matrix.05.overlap.minus.05.order),];
+
+gene.name.box.05 <- NULL;
+for (i in 1:nrow(outlier.status.05.overlap.minus.05)) {
+    gene.name <- rep(sub("\\..*", "", rownames(effect.score.05.overlap.minus.05))[i], ncol(effect.score.05.overlap.minus.05));
+    gene.name.box.05 <- c(gene.name.box.05, gene.name);
+    }
+
+
+
+effect.05.box <- data.frame(cbind(
+    score = as.numeric(unlist(t(effect.score.05.overlap.minus.05))),
+    gene = gene.name.box.05,
+    status = as.numeric(unlist(t(outlier.status.05.overlap.minus.05)))
+    ));
+effect.05.box$score <- as.numeric(effect.05.box$score);
+effect.05.box$status <- as.numeric(effect.05.box$status);
+
 
 i <-'FOXP4';
 
@@ -217,7 +242,7 @@ pdf(
     width = 9, 
     height = 12
     );
-multi.gene.protein.bar;
+print(multi.gene.protein.bar);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -232,6 +257,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-multi.gene.protein.bar;
+print(multi.gene.protein.bar);
 dev.off();
-

@@ -4,6 +4,7 @@
 # Date: 2024-08-16
 #################################################################################
 
+library(BoutrosLab.plotting.general);
 
 
 protein.info.breast.num.symbol <- gsub(".*\\|([^|]+)_.*", "\\1", rownames(protein.info.breast.num));
@@ -174,7 +175,7 @@ pdf(
     width = 3.5, 
     height = 6.5
     );
-ccle.protein.box;
+print(ccle.protein.box);
 dev.off();
 
 # Save the box plot as a PNG
@@ -189,7 +190,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-ccle.protein.box;
+print(ccle.protein.box);
 dev.off();
 
 

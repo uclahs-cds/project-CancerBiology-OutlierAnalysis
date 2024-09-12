@@ -126,7 +126,7 @@ pdf(
     width = 6, 
     height = 5
     );
-dependency.05.box.plot;
+print(dependency.05.box.plot);
 dev.off();
 
 # Save the box plot as a PNG
@@ -141,10 +141,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-dependency.05.box.plot;
+print(dependency.05.box.plot);
 dev.off();
-
-
-
-
-

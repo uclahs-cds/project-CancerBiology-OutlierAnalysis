@@ -4,10 +4,7 @@
 # between outlier and non-outlier samples.
 # Date: 2024-08-16
 
-
-
-
-
+library(BoutrosLab.plotting.general);
 
 gene.dependency.breast.t <- t(gene.dependency.breast);
 gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
@@ -145,7 +142,7 @@ pdf(
     width = 6, 
     height = 5
     );
-gene.scatter.05.minus.overlap.label;
+print(gene.scatter.05.minus.overlap.label);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -160,8 +157,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-gene.scatter.05.minus.overlap.label;
+print(gene.scatter.05.minus.overlap.label);
 dev.off();
-
-
-

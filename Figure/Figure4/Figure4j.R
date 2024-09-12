@@ -144,7 +144,7 @@ pdf(
     width = 4.5, 
     height = 6.5
     );
-cas.rnai.example.box;
+print(cas.rnai.example.box);
 dev.off();
 
 # Save the box plot as a PNG
@@ -159,9 +159,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-cas.rnai.example.box;
+print(cas.rnai.example.box);
 dev.off();
-
-
-
-

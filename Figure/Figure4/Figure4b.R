@@ -3,6 +3,7 @@
 # datasets.
 # Date: 2024-08-16
 
+library(BoutrosLab.plotting.general);
 
 # Outlier patient number
 outlier.patient.tag.sum.05 <- apply(ccle.sample.outlier.status, 2, sum);
@@ -119,7 +120,7 @@ pdf(
     width = 5, 
     height = 5
     );
-outlier.number.density;
+print(outlier.number.density);
 dev.off();
 
 # Save the density plot as a PNG
@@ -134,7 +135,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-outlier.number.density;
+print(outlier.number.density);
 dev.off();
 
 
