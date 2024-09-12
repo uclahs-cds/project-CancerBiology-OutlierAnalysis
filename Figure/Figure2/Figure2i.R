@@ -8,6 +8,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 
 # Two example genes: NGF, LRP4 - run separately
@@ -169,35 +171,13 @@ scatter.i <- create.scatterplot(
     );
 scatter.i
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 6, 
-    height = 6
-    );
-print(scatter.i);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'scatter', 
-        'png'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    scatter.i,
+    c(i, 'scatter'),
+    width = 6,
     height = 6,
-    unit = 'in', 
-    res = 1200
+    depth = 1
     );
-print(scatter.i);
-dev.off();
-
 }
 
 do.plot.2i('NGF');

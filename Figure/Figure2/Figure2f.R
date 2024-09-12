@@ -4,6 +4,8 @@
 # comparing mutated and non-mutated PIK3CA cases.
 # Date: 2024-08-14
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### DESCRIPTION #################################################################
 # The script processes data for the number of outlier genes per patient across 
 # Luminal A and Luminal B breast cancer subtypes. It compares mutated and 
@@ -220,34 +222,9 @@ mutation.density <- BoutrosLab.plotting.general::create.scatterplot(
     );
 
 
-
-
-# Save the density plot as a PDF
-pdf(
-    file = generate.filename(
-        'PIK3CA_mutation_luma_lumb', 
-        'scatter_density', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    mutation.density,
+    c('PIK3CA', 'mutation', 'luma', 'lumb', 'scatter', 'density'),
+    width = 6,
     height = 5.5
     );
-print(mutation.density);
-dev.off();
-
-# Save the density plot as a PNG
-png(
-    file = generate.filename(
-        'PIK3CA_mutation_luma_lumb', 
-        'scatter_density', 
-        'png'
-        ), 
-    width = 6, 
-    height = 5.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(mutation.density);
-dev.off();
-
-

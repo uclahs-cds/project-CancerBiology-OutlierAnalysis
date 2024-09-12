@@ -2,6 +2,8 @@
 # This script processes and merges DNA methylation data. 
 # Date: 2024-08-14
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 
 
@@ -243,31 +245,9 @@ me.merge.scatter <- create.scatterplot(
     abline.lty = 3
     );
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        'methylation_diff_merge', 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    me.merge.scatter,
+    c('methylation', 'diff', 'merge', 'scatter'),
+    width = 6,
     height = 4.8
     );
-print(me.merge.scatter);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        'methylation_diff_merge', 
-        'scatter', 
-        'png'
-        ), 
-    width = 6, 
-    height = 4.8,
-    unit = 'in', 
-    res = 1200
-    );
-print(me.merge.scatter);
-dev.off();

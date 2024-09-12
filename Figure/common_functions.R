@@ -1,5 +1,5 @@
 
-save.outlier.figure <- function(plot.object, name.segments, width, height) {
+save.outlier.figure <- function(plot.object, name.segments, width, height, depth = 0) {
     # Find or create an output folder with the current PID and datestamp
     output.dir <- paste('figures', format(Sys.time(), '%Y%m%dT%H%M%S'), Sys.getpid(), sep = '-');
     existing.dirs <- Sys.glob(paste0('figures-*-', Sys.getpid()));
@@ -14,7 +14,7 @@ save.outlier.figure <- function(plot.object, name.segments, width, height) {
     }
 
     # Get the basename of the file calling this function
-    sourcing.filename <- tools::file_path_sans_ext(basename(parent.frame(3)$ofile));
+    sourcing.filename <- tools::file_path_sans_ext(basename(parent.frame(3 + depth * 2)$ofile));
 
     save.basename <- file.path(output.dir, paste(c(sourcing.filename, name.segments), sep = '_', collapse = '_'));
 

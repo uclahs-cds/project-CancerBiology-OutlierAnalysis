@@ -7,6 +7,7 @@
 library(stats);
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
 ### (DELETE) - Below analysis probably will take a while. I also included the intermediate variable such as percent.beta.out.out.500, percent.beta.non.out.500 and so on. 
@@ -140,31 +141,9 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     );  
 
 
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        'merge_me_quantile', 
-        'heatmap', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    heat.out,
+    c('merge', 'me', 'quantile', 'heatmap'),
+    width = 6,
     height = 4.5
     );
-print(heat.out);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        'merge_me_quantile', 
-        'heatmap', 
-        'png'
-        ), 
-    width = 6, 
-    height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(heat.out);
-dev.off();
-

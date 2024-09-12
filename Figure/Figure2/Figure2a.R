@@ -3,6 +3,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### 1. METABRIC
 # Convert lists to numeric vectors and calculate medians for meta data
 meta.outlier.cnv <- as.numeric(
@@ -455,33 +457,9 @@ multi.gene <- create.multipanelplot(
 
 multi.gene;
 
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'CNA', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 10.4, 
+save.outlier.figure(
+    multi.gene,
+    c('CNA', 'multipanel'),
+    width = 10.4,
     height = 4.5
     );
-print(multi.gene);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'CNA', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 10.4, 
-    height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(multi.gene);
-dev.off();
-
-

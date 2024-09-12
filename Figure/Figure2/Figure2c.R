@@ -9,6 +9,7 @@
 library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
 
@@ -311,36 +312,9 @@ cna.multi <- create.multiplot(
     resolution = 500
     );
 
-
-
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'CNA_chr10', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 10.4, 
+save.outlier.figure(
+    cna.multi,
+    c('CNA', 'chr10', 'multipanel'),
+    width = 10.4,
     height = 4.5
     );
-print(cna.multi);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'CNA_chr10', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 10.4, 
-    height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(cna.multi);
-dev.off();
-
-
-

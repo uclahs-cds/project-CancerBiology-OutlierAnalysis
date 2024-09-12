@@ -6,6 +6,7 @@ library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
 library(metafor);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
 prepare.data <- function(row, outlier) {
@@ -468,37 +469,12 @@ dot.multi.luma <- create.multipanelplot(
     )
 dot.multi.luma
 
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'drivergene_luma', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 6.9, 
+save.outlier.figure(
+    dot.multi.luma,
+    c('drivergene', 'luma', 'multipanel'),
+    width = 6.9,
     height = 5.7
     );
-print(dot.multi.luma);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'drivergene_luma', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 6.9, 
-    height = 5.7,
-    unit = 'in', 
-    res = 1200
-    );
-print(dot.multi.luma);
-dev.off();
-
-
-
-
 
 ### 2. Luminal B
 # 1. TCGA-BRCA
@@ -838,33 +814,9 @@ dot.multi.lumb <- create.multipanelplot(
     );
 dot.multi.lumb
 
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'drivergene_lumb', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 6.9, 
+save.outlier.figure(
+    dot.multi.lumb,
+    c('drivergene', 'lumb', 'multipanel'),
+    width = 6.9,
     height = 5.7
     );
-print(dot.multi.lumb);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'drivergene_lumb', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 6.9, 
-    height = 5.7,
-    unit = 'in', 
-    res = 1200
-    );
-print(dot.multi.lumb);
-dev.off();
-
-
-
