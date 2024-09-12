@@ -139,7 +139,7 @@ pdf(
     width = 7.5, 
     height = 7
     );
-km.os.group.combine;
+print(km.os.group.combine);
 dev.off();
 
 # Save the km plot as a PNG
@@ -154,11 +154,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-km.os.group.combine;
+print(km.os.group.combine);
 dev.off();
-
-
-
-
-
-

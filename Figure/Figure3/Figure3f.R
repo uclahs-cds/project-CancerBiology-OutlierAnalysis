@@ -352,7 +352,7 @@ pdf(
     width = 7, 
     height = 5
     );
-multi.gene;
+print(multi.gene);
 dev.off();
 
 # Save the multi plot as a PNG
@@ -367,7 +367,7 @@ png(
     unit = 'in', 
     res = 1200
     );
-multi.gene;
+print(multi.gene);
 dev.off();
 
 
