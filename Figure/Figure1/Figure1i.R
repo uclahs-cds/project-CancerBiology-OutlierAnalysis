@@ -11,6 +11,9 @@ library(dplyr)
 library(tidyr)
 library(poolr)
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
+
 outlier.gene.fdr.all.icgc.symbol <- outlier.gene.fdr.all.icgc;
 outlier.gene.fdr.all.icgc.symbol$Symbol <- fpkm.data.icgc$Name[as.numeric(outlier.gene.fdr.all.icgc.symbol$gene)];
 
@@ -153,33 +156,9 @@ outlier.manhattan <- create.manhattanplot(
     );
 
 
-# Save the manhattan plot as a PDF
-pdf(
-    file = generate.filename(
-        'combine_outlier', 
-        'manhattan', 
-        'pdf'
-        ), 
-    width = 11, 
+save.outlier.figure(
+    outlier.manhattan,
+    c('combine_outlier', 'manhattan'),
+    width = 11,
     height = 4.5
     );
-print(outlier.manhattan);
-dev.off();
-
-# Save the manhattan plot as a PNG
-png(
-    file = generate.filename(
-        'combine_outlier', 
-        'manhattan', 
-        'png'
-        ), 
-    width = 11, 
-    height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(outlier.manhattan);
-dev.off();
-
-
-

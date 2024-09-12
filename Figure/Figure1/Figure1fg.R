@@ -4,6 +4,7 @@
 
 
 library(metafor);
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 ### DATA PREPARATION ############################################################
 
@@ -1378,31 +1379,9 @@ metafor.multi.chr.smd.5 <- create.multipanelplot(
 
 metafor.multi.chr.smd.5;
 
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'metafor.multi.chr.smd.5', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 5, 
+save.outlier.figure(
+    metafor.multi.chr.smd.5,
+    c('metafor.multi.chr.smd.5', 'multipanel'),
+    width = 5,
     height = 6.5
     );
-print(metafor.multi.chr.smd.5);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'metafor.multi.chr.smd.5', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 5, 
-    height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(metafor.multi.chr.smd.5);
-dev.off();

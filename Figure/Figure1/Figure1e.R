@@ -9,6 +9,8 @@
 # multiple datasets. It then combines the data into a single data frame and creates 
 # a violin plot to compare the distributions of outlier genes per patient.
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### PREAMBLE ####################################################################
 # Create data frames for each dataset representing the number of outlier genes per patient
 outlier.patient.tag.01.brca.gene.per.patient.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
@@ -126,31 +128,9 @@ five.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
 five.outlier.patient.violin;
 
 ### OUTPUT ######################################################################
-
-# Save the violin plot as a PDF
-pdf(
-    file = generate.filename(
-        '5_patient_number', 
-        'violin', 
-        'pdf'
-        ), 
-    width = 4.3, 
+save.outlier.figure(
+    five.outlier.patient.violin,
+    c('5_patient_number', 'violin'),
+    width = 4.3,
     height = 5.3
     );
-print(five.outlier.patient.violin);
-dev.off();
-
-# Save the violin plot as a PNG
-png(
-    file = generate.filename(
-        '5_patient_number', 
-        'violin', 
-        'png'
-        ), 
-    width = 4.3, 
-    height = 5.3, 
-    unit = 'in', 
-    res = 1200
-    );
-print(five.outlier.patient.violin);
-dev.off();
