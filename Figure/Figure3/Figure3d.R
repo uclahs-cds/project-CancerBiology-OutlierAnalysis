@@ -5,10 +5,13 @@
 # This code is linked with the analysis in Figure 3a and b.
 # Date: 2024-08-14
 
+library(BoutrosLab.plotting.general);
+
 
 ### 1. CPTAC example
-i <- 'IGF1R';
-i <- 'CLU';
+# Two inputs: IGF1R, CLU - run separately
+do.plot.3d <- function(i) {
+
 # Extract matching protein data for a specific gene (i)
 brca.protein.cptac.outlier.match <- brca.protein.cptac[,colnames(brca.protein.cptac) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)];
 brca.protein.cptac.outlier.match.i <- brca.protein.cptac.outlier.match[i, ];
@@ -111,7 +114,7 @@ pdf(
     width = 6, 
     height = 6
     );
-cptac.gene.scatter;
+print(cptac.gene.scatter);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -126,11 +129,13 @@ png(
     unit = 'in', 
     res = 1200
     );
-cptac.gene.scatter;
+print(cptac.gene.scatter);
 dev.off();
+}
 
 
-
+do.plot.3d('IGF1R');
+do.plot.3d('CLU');
 
 ### 2. RPPA example
 outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
@@ -272,7 +277,7 @@ pdf(
     width = 6, 
     height = 6
     );
-rppa.gene.scatter;
+print(rppa.gene.scatter);
 dev.off();
 
 # Save the scatter plot as a PNG
@@ -287,8 +292,5 @@ png(
     unit = 'in', 
     res = 1200
     );
-rppa.gene.scatter;
+print(rppa.gene.scatter);
 dev.off();
-
-
-
