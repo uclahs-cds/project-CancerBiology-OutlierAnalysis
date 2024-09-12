@@ -21,7 +21,7 @@ save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures'
     data.env.name <- attr(attach(datafile), 'name');
 
     for (figure.file in subfiles) {
-        message(figure.file);
+        message(ansi.yellow(figure.file));
         # create.histogram resets warn to 0, so continually set it back
         options(warn = 1);
 

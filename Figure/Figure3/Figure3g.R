@@ -6,6 +6,8 @@
 
 library(BoutrosLab.plotting.survival)
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### 1. TCGA-BRCA 
 brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
 os.data.brca <- data.frame(cbind(
@@ -127,32 +129,9 @@ km.os.group.combine <- create.km.plot(
     );
 km.os.group.combine;
 
-
-
-# Save the km plot as a PDF
-pdf(
-    file = generate.filename(
-        'os_merge', 
-        'km', 
-        'pdf'
-        ), 
-    width = 7.5, 
+save.outlier.figure(
+    km.os.group.combine,
+    c('os', 'merge', 'km'),
+    width = 7.5,
     height = 7
     );
-print(km.os.group.combine);
-dev.off();
-
-# Save the km plot as a PNG
-png(
-    file = generate.filename(
-        'os_merge', 
-        'km', 
-        'png'
-        ), 
-    width = 7.5, 
-    height = 7,
-    unit = 'in', 
-    res = 1200
-    );
-print(km.os.group.combine);
-dev.off();

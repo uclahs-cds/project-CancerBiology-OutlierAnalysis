@@ -8,6 +8,7 @@
 library(metafor);
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
 # 1. TCGA-BRCA
@@ -341,34 +342,9 @@ multi.gene <- create.multipanelplot(
 
 multi.gene;
 
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'subtype', 
-        'multi', 
-        'pdf'
-        ), 
-    width = 7, 
+save.outlier.figure(
+    multi.gene,
+    c('subtype', 'multi'),
+    width = 7,
     height = 5
     );
-print(multi.gene);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'subtype', 
-        'multi', 
-        'png'
-        ), 
-    width = 7, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(multi.gene);
-dev.off();
-
-
-

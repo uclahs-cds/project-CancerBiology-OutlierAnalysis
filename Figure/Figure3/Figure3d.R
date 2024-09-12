@@ -7,6 +7,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 ### 1. CPTAC example
 # Two inputs: IGF1R, CLU - run separately
@@ -102,35 +104,13 @@ cptac.gene.scatter <- create.scatterplot(
     );
 
 
-
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'scatter_cptac', 
-        'pdf'
-        ), 
-    width = 6, 
-    height = 6
-    );
-print(cptac.gene.scatter);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'scatter_cptac', 
-        'png'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    cptac.gene.scatter,
+    c(i, 'scatter', 'cptac'),
+    width = 6,
     height = 6,
-    unit = 'in', 
-    res = 1200
+    depth = 1
     );
-print(cptac.gene.scatter);
-dev.off();
 }
 
 
@@ -266,31 +246,9 @@ rppa.gene.scatter <- BoutrosLab.plotting.general::create.scatterplot(
         )
     );
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'scatter_rppa', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    rppa.gene.scatter,
+    c(i, 'scatter', 'rppa'),
+    width = 6,
     height = 6
     );
-print(rppa.gene.scatter);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'scatter_rppa', 
-        'png'
-        ), 
-    width = 6, 
-    height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-print(rppa.gene.scatter);
-dev.off();

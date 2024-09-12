@@ -6,6 +6,8 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 # Haven't uploaded yet. These are included as variables.
 # # Load TCGA-BRCA RPPA data
 # brca.protein <- read.delim2(
@@ -192,35 +194,9 @@ rppa.box <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'rppa', 
-        'box', 
-        'pdf'
-        ), 
-    width = 3.5, 
+save.outlier.figure(
+    rppa.box,
+    c('rppa', 'box'),
+    width = 3.5,
     height = 6.5
     );
-print(rppa.box);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'rppa', 
-        'box', 
-        'png'
-        ), 
-    width = 3.5, 
-    height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(rppa.box);
-dev.off();
-
-
- 
-    

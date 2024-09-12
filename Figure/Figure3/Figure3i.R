@@ -8,6 +8,8 @@
 # Load required libraries
 library(metafor);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 
 # Combine two datasets
@@ -152,31 +154,9 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
     );
 
 
-# Save the segment plot as a PDF
-pdf(
-    file = generate.filename(
-        'survival_subtype', 
-        'segment', 
-        'pdf'
-        ), 
-    width = 5, 
+save.outlier.figure(
+    merge.surv.seg.log,
+    c('survival', 'subtype', 'segment'),
+    width = 5,
     height = 3.8
     );
-print(merge.surv.seg.log);
-dev.off();
-
-# Save the segment plot as a PNG
-png(
-    file = generate.filename(
-        'survival_subtype', 
-        'segment', 
-        'png'
-        ), 
-    width = 5, 
-    height = 3.8,
-    unit = 'in', 
-    res = 1200
-    );
-print(merge.surv.seg.log);
-dev.off();
-

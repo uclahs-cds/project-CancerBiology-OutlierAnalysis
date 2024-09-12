@@ -7,6 +7,8 @@
 # Load required libraries
 library(metafor);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### 1. TCGA-BRCA
 convert.stage <- function(stage) {
     result <- rep(NA, length(stage));
@@ -675,33 +677,9 @@ dot.multi <- create.multipanelplot(
     );
 
 
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'tumour_stage', 
-        'multipanel', 
-        'pdf'
-        ), 
-    width = 4.5, 
+save.outlier.figure(
+    dot.multi,
+    c('tumour', 'stage', 'multipanel'),
+    width = 4.5,
     height = 5.6
     );
-print(dot.multi);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'tumour_stage', 
-        'multipanel', 
-        'png'
-        ), 
-    width = 4.5, 
-    height = 5.6,
-    unit = 'in', 
-    res = 1200
-    );
-print(dot.multi);
-dev.off();
-
-

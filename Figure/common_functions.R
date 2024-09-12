@@ -14,7 +14,7 @@ save.outlier.figure <- function(plot.object, name.segments, width, height, depth
     }
 
     # Get the basename of the file calling this function
-    sourcing.filename <- tools::file_path_sans_ext(basename(parent.frame(3 + depth * 2)$ofile));
+    sourcing.filename <- tools::file_path_sans_ext(basename(parent.frame(3 + depth)$ofile));
 
     save.basename <- file.path(output.dir, paste(c(sourcing.filename, name.segments), sep = '_', collapse = '_'));
 
