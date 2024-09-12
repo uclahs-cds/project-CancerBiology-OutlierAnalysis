@@ -1,8 +1,8 @@
 
 save.outlier.figure <- function(plot.object, name.segments, width, height, depth = 0) {
     # Find or create an output folder with the current PID and datestamp
-    output.dir <- paste('figures', format(Sys.time(), '%Y%m%dT%H%M%S'), Sys.getpid(), sep = '-');
-    existing.dirs <- Sys.glob(paste0('figures-*-', Sys.getpid()));
+    output.dir <- paste('outfigures', format(Sys.time(), '%Y%m%dT%H%M%S'), Sys.getpid(), sep = '-');
+    existing.dirs <- Sys.glob(paste0('outfigures-*-', Sys.getpid()));
 
     if (length(existing.dirs) >= 2) {
         print(existing.dirs);
