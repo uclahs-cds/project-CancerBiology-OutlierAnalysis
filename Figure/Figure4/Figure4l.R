@@ -258,6 +258,9 @@ key <-list(
     x =0.25,
     y =0.95);
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4l')));
+
 # Create Z-score boxplot
 zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
     formula = value ~ status,

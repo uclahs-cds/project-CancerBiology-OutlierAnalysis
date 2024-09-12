@@ -81,6 +81,9 @@ dependency.05.box.part.4 <- dependency.05.box.part[!(
 dot.colours <- rep('grey70', nrow(dependency.05.box.part.4));
 dot.colours[dependency.05.box.part.4$status == 1] <- 'red2';
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4f')));
+
 # Create the box plot
 dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ gene,

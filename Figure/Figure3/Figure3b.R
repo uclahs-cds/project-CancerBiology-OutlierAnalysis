@@ -157,6 +157,9 @@ key.protein.na <- list(
     y = 0.95
     );
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure3b')));
+
 rppa.box <- BoutrosLab.plotting.general::create.boxplot(
     formula = protein.value ~ status,
     data = protein.na.value.box,

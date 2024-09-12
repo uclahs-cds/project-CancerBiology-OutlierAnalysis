@@ -34,6 +34,9 @@ dot.colours <- vector(length= nrow(rnai.cas.effect.score.drug.gene.1));
 dot.colours <- rep('grey70', nrow(rnai.cas.effect.score.drug.gene.1));
 dot.colours[rnai.cas.effect.score.drug.gene.1$status == 1] <- 'dodgerblue3';
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4n')));
+
 # Create the boxplot
 rnai.cas.effect.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ group,

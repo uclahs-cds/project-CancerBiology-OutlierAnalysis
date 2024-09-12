@@ -33,6 +33,9 @@ i.drug.box <- data.frame(
 dot.colours <- rep('grey70', nrow(i.drug.box));
 dot.colours[i.drug.box$status ==1] <- 'green4';
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4m')));
+
 # Generate the boxplot
 i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ group,

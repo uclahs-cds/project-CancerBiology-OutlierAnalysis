@@ -76,8 +76,9 @@ key <- list(
     x = 0.9,
     y = 0.93
     );
-    
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4j')));
 
 cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
     formula = as.numeric(score) ~ order,

@@ -115,6 +115,9 @@ key.protien.na.all <- list(
     y = 0.95
     );
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4d')));
+
 ccle.protein.box.all <- BoutrosLab.plotting.general::create.boxplot(
     formula = protein.ccle.value ~ status,
     data = protein.ccle.na.value.box.all,

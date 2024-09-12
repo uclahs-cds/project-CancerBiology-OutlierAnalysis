@@ -32,6 +32,9 @@ dot.colours <- vector(length = nrow(rnai.05.box));
 dot.colours <- rep('grey70', nrow(rnai.05.box));
 dot.colours[rnai.05.box$status == 1]<- 'dodgerblue2';
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4h')));
+
 rnai.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ gene,
     data = rnai.05.box,

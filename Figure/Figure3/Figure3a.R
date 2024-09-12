@@ -126,7 +126,8 @@ key.protein.na <- list(
     y = 0.95
     );
 
-
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure3a')));
 
 cptac.box <- BoutrosLab.plotting.general::create.boxplot(
     formula = protein.cptac.value ~ status,
