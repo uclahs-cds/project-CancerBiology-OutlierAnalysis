@@ -5,6 +5,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 # Filter for FDR < 0.05 and match gene names
 ccle.sample.outlier.status.overlap.row <- ccle.sample.outlier.status[
@@ -120,31 +122,9 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
     );
 
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        'gene_dependency_diff_rnai', 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    gene.scatter.05.minus.overlap.label,
+    c('gene', 'dependency', 'diff', 'rnai', 'scatter'),
+    width = 6,
     height = 5
     );
-print(gene.scatter.05.minus.overlap.label);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        'gene_dependency_diff_rnai', 
-        'scatter', 
-        'png'
-        ), 
-    width = 6, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(gene.scatter.05.minus.overlap.label);
-dev.off();

@@ -4,6 +4,7 @@
 # ICGC BRCA-EU.
 # Date: 2024-08-16
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
 # sample outlier status
@@ -201,32 +202,9 @@ heat.all <- BoutrosLab.plotting.general:::create.multiplot(
     );
 
 
-
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'multi', 
-        'pdf'
-        ), 
-    width = 7.5, 
+save.outlier.figure(
+    heat.all,
+    c('CCLE', 'outlier', 'multi'),
+    width = 7.5,
     height = 8.15
     );
-print(heat.all);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'multi', 
-        'png'
-        ), 
-    width = 7.5, 
-    height = 8.15,
-    unit = 'in', 
-    res = 1200
-    );
-print(heat.all);
-dev.off();

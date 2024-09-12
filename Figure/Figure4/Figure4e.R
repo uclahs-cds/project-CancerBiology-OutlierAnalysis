@@ -6,6 +6,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 gene.dependency.breast.t <- t(gene.dependency.breast);
 gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
 rownames(gene.dependency.breast.t.num.match) <- rownames(gene.dependency.breast.t);
@@ -131,31 +133,9 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
     );
 
 
-
-# Save the scatter plot as a PDF
-pdf(
-    file = generate.filename(
-        'gene_dependency_diff', 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    gene.scatter.05.minus.overlap.label,
+    c('gene', 'depdendency', 'diff', 'scatter'),
+    width = 6,
     height = 5
     );
-print(gene.scatter.05.minus.overlap.label);
-dev.off();
-
-# Save the scatter plot as a PNG
-png(
-    file = generate.filename(
-        'gene_dependency_diff', 
-        'scatter', 
-        'png'
-        ), 
-    width = 6, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(gene.scatter.05.minus.overlap.label);
-dev.off();

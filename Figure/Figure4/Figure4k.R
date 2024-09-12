@@ -5,6 +5,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5,];
 gene.effect.diff.matrix.05.overlap.minus.05.order <- gene.effect.diff.matrix.05.overlap.minus.05[order(gene.effect.diff.matrix.05.overlap.minus.05$diff),];
 
@@ -230,32 +232,9 @@ multi.gene.protein.bar <- create.multipanelplot(
     right.legend.padding = 0
     );
 
-
-
-# Save the multi plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'multi_bar', 
-        'pdf'
-        ), 
-    width = 9, 
+save.outlier.figure(
+    multi.gene.protein.bar,
+    c(i, 'multi', 'bar'),
+    width = 9,
     height = 12
     );
-print(multi.gene.protein.bar);
-dev.off();
-
-# Save the multi plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'multi_bar', 
-        'png'
-        ), 
-    width = 9, 
-    height = 12,
-    unit = 'in', 
-    res = 1200
-    );
-print(multi.gene.protein.bar);
-dev.off();

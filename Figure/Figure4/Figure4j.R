@@ -3,6 +3,8 @@
 # Cas-CRISPR datasets, focusing on four specific genes: MECOM, FGFR2, FOXP4, WIPF2.
 # Date: 2024-08-16
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5,];
 gene.effect.diff.matrix.05.overlap.minus.05.order <- gene.effect.diff.matrix.05.overlap.minus.05[order(gene.effect.diff.matrix.05.overlap.minus.05$diff),];
@@ -132,32 +134,9 @@ cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
 cas.rnai.example.box;
 
 
-
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'cas_rnai_example', 
-        'box', 
-        'pdf'
-        ), 
-    width = 4.5, 
+save.outlier.figure(
+    cas.rnai.example.box,
+    c('cas', 'rnai', 'example', 'box'),
+    width = 4.5,
     height = 6.5
     );
-print(cas.rnai.example.box);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'cas_rnai_example', 
-        'box', 
-        'png'
-        ), 
-    width = 4.5, 
-    height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(cas.rnai.example.box);
-dev.off();

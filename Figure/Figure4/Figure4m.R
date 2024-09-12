@@ -3,6 +3,8 @@
 # response in outlier vs non-outlier samples.
 # Date: 2024-08-16
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 i <- 'SYK';
 
 drug.target <- sanger.zscore.drug.breast.match.info.df[sanger.zscore.drug.breast.match.info.df$repurposing_target %in% i,]$Drug.Name;
@@ -64,31 +66,9 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.25
     );
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'box_drug', 
-        'pdf'
-        ), 
-    width = 5, 
+save.outlier.figure(
+    i.drug.box.plot,
+    c(i, 'box', 'drug'),
+    width = 5,
     height = 6
     );
-print(i.drug.box.plot);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'box_drug', 
-        'png'
-        ), 
-    width = 5, 
-    height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-print(i.drug.box.plot);
-dev.off();

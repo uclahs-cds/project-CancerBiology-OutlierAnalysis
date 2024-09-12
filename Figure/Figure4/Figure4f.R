@@ -2,6 +2,8 @@
 # Gene dependency score of example outlier genes. 
 # Date: 2024-08-16
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 # Filter for genes with dependency score difference > 0.5
 gene.dependency.diff.matrix.05.overlap.minus.05 <- gene.dependency.diff.matrix.05.overlap[
@@ -115,31 +117,9 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'gene_dependency_example', 
-        'box', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    dependency.05.box.plot,
+    c('gene', 'dependency', 'example', 'box'),
+    width = 6,
     height = 5
     );
-print(dependency.05.box.plot);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'gene_dependency_example', 
-        'box', 
-        'png'
-        ), 
-    width = 6, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(dependency.05.box.plot);
-dev.off();

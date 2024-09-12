@@ -3,7 +3,7 @@
 # and RNAi for the gene SYK.
 # Date: 2024-08-16
 
-
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 i <-'SYK';
 
@@ -71,31 +71,9 @@ rnai.cas.effect.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.25
     );
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'box_cas_rnai', 
-        'pdf'
-        ), 
-    width = 3.8, 
+save.outlier.figure(
+    rnai.cas.effect.box.plot,
+    c(i, 'box', 'cas', 'rnai'),
+    width = 3.8,
     height = 6
     );
-print(rnai.cas.effect.box.plot);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'box_cas_rnai', 
-        'png'
-        ), 
-    width = 3.8, 
-    height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-print(rnai.cas.effect.box.plot);
-dev.off();

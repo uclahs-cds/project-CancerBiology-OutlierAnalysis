@@ -5,6 +5,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 # Outlier patient number
 outlier.patient.tag.sum.05 <- apply(ccle.sample.outlier.status, 2, sum);
 outlier.patient.sum <- apply(ccle.sample.outlier.status, 1, sum);
@@ -108,34 +110,9 @@ outlier.number.density <- create.densityplot(
     );
 
 
-
-
-# Save the density plot as a PDF
-pdf(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'density', 
-        'pdf'
-        ), 
-    width = 5, 
+save.outlier.figure(
+    outlier.number.density,
+    c('CCLE', 'outlier', 'density'),
+    width = 5,
     height = 5
     );
-print(outlier.number.density);
-dev.off();
-
-# Save the density plot as a PNG
-png(
-    file = generate.filename(
-        'CCLE_outlier', 
-        'density', 
-        'png'
-        ), 
-    width = 5, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(outlier.number.density);
-dev.off();
-
-

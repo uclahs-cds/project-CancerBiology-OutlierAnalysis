@@ -3,6 +3,8 @@
 # in CCLE. 
 # Date: 2024-08-16
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 # Score of the overlap outliers
 gene.rnai.diff.matrix.05.overlap.minus.05 <- gene.rnai.diff.matrix.05.overlap[gene.rnai.diff.matrix.05.overlap$diff < -0.4,];
@@ -64,33 +66,9 @@ rnai.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha =0.25
     );
 
-
-
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'gene_effect_example_rnai', 
-        'box', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    rnai.05.box.plot,
+    c('gene', 'effect', 'example', 'rnai', 'box'),
+    width = 6,
     height = 6
     );
-print(rnai.05.box.plot);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'gene_effect_example_rnai', 
-        'box', 
-        'png'
-        ), 
-    width = 6, 
-    height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-print(rnai.05.box.plot);
-dev.off();
