@@ -19,13 +19,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 ### DATA PREPARATION ############################################################
 
-five.data.outlier.symbol <- unique(
-    c(metabric.outlier.symbol, 
-      brca.outlier.symbol, 
-      matador.outlier.symbol, 
-      ispy.outlier.symbol, 
-      icgc.outlier.symbol)
-    );
 five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol); 
 # Remove NA values from 'five.data.outlier.symbol'
 
