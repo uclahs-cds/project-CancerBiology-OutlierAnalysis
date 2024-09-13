@@ -69,9 +69,6 @@ icgc.clinic.subtype.order.data[icgc.clinic.subtype.order.data$as.character.icgc.
 icgc.clinic.subtype.order.data.num <- data.frame(as.numeric(icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype.));
 
 outlier.patient.tag.01.sum.icgc <- apply(outlier.patient.tag.01.icgc, 2, sum);
-subtype.total.outlier.num.icgc <- data.frame(cbind(subtype = icgc.clinic.subtype.order.data.num,
-                                              outlier = outlier.patient.tag.01.sum.icgc));
-colnames(subtype.total.outlier.num.icgc) <- c("subtype", "outlier");
 
 subtype.total.outlier.num.1.icgc <- subtype.total.outlier.num.icgc; 
 subtype.total.outlier.num.1.icgc$outlier[subtype.total.outlier.num.1.icgc$outlier > 0] <- 1;

@@ -18,7 +18,6 @@ ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[rownames(ccle.o
 ccle.sample.outlier.status.overlap.na <- ccle.sample.outlier.status.overlap[
     match(rownames(gene.rnai.breast.t.num.match.05.na), gsub("\\..*$","", rownames(ccle.sample.outlier.status.overlap))),];
 ccle.sample.outlier.status.overlap.na <- ccle.sample.outlier.status.overlap.na[, colnames(gene.rnai.breast.t.num.match.05.na)];
-ccle.sample.outlier.status.overlap.na.rnai <- ccle.sample.outlier.status.overlap.na[, colnames(gene.rnai.breast.t.num.match.05.na)];
 rownames(gene.rnai.breast.t.num.match.05.na)<- rownames(ccle.sample.outlier.status.overlap.na);
 
 # Sum and filter out genes with no outliers
@@ -78,7 +77,6 @@ rownames(gene.rnai.diff.matrix.05)<- rownames(outlier.gene.rnai.score.05.mean);
 
 # Set colors for the scatter plot
 
-gene.rnai.diff.matrix.05.overlap <- gene.rnai.diff.matrix.05[gene.rnai.diff.matrix.05$symbol %in% five.data.outlier.symbol,];
 interesting.points <- gene.rnai.diff.matrix.05.overlap$diff < -0.5;
 text.x <- na.omit(gene.rnai.diff.matrix.05.overlap$non[interesting.points]);
 text.y <- na.omit(gene.rnai.diff.matrix.05.overlap$out[interesting.points]);

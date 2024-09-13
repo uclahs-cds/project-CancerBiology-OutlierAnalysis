@@ -5,6 +5,7 @@
 
 
 # Load required libraries
+library(BoutrosLab.plotting.general);
 library(metafor);
 
 source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
