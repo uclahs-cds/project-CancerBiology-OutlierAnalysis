@@ -8,6 +8,8 @@ import tempfile
 
 from pathlib import Path
 
+import colors
+
 
 def compare(original: Path, updated: Path, diff_folder: Path):
     """Compare the plots in two folders."""
@@ -21,15 +23,14 @@ def compare(original: Path, updated: Path, diff_folder: Path):
     }
 
     with tempfile.TemporaryDirectory() as tempdir:
-        for key in sorted(original_pngs.keys() | updated_pngs.keys()):
+        all_keys = original_pngs.keys() | updated_pngs.keys()
+        for key in sorted(all_keys, key=lambda x: updated_pngs.get(x, Path("AA")).name):
             if key not in original_pngs:
-                print("ONLY IN UPDATED:")
-                print("\t", updated_pngs[key])
+                print(colors.red("ONLY IN UPDATED:"), updated_pngs[key].name)
                 continue
 
             if key not in updated_pngs:
-                print("ONLY IN ORIGINAL:")
-                print("\t", original_pngs[key])
+                print(colors.red("ONLY IN ORIGINAL:"), original_pngs[key].name)
                 continue
 
             diff_image = Path(tempdir) / key
@@ -61,6 +62,8 @@ def compare(original: Path, updated: Path, diff_folder: Path):
                 print("\t", updated_pngs[key].name)
                 diff_folder.mkdir(exist_ok=True)
                 diff_image.rename(diff_folder / key)
+
+            print(colors.faint(f"Matching: {updated_pngs[key].name}"))
 
 
 if __name__ == "__main__":
