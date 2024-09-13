@@ -13,30 +13,103 @@ ansi.green <- function(str) {
 ansi.red <- function(str) {
     paste('\x1b[31;1m', str, '\x1b[0m', sep = '');
     }
+ansi.magenta <- function(str) {
+    paste('\x1b[35;1m', str, '\x1b[0m', sep = '');
+    }
+
+# write.env.json <- function(file.name, target.env) {
+#     result.list <- mget(ls(target.env, all.names = TRUE), envir = target.env);
+# 
+#     json.filename <- paste0(
+#         tools::file_path_sans_ext(basename(file.name)),
+#         '.json'
+#         );
+# 
+#     write(
+#         x = rjson::toJSON(result.list, indent = 2),
+#         file = json.filename
+#         )
+#     }
 
 save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures') {
     dir.create(output.directory, showWarnings = FALSE);
 
-    message(ansi.green(paste('Sourcing', datafile)));
-    data.env.name <- attr(attach(datafile), 'name');
+    message(ansi.green(paste('Loading', datafile, 'into new environment')));
+    data.env <- new.env();
+    load(datafile, envir = data.env);
 
-    for (figure.file in subfiles) {
+    result <- list(
+        datafile = datafile,
+        variables = ls(data.env),
+        figures = vector(mode = 'list', length = length(subfiles)));
+
+    for (figure.index in seq_along(subfiles)) {
+        figure.file <- subfiles[figure.index];
         message(ansi.yellow(figure.file));
         # create.histogram resets warn to 0, so continually set it back
         options(warn = 1);
 
+        accessed.vars <- new.env(parent = emptyenv());
+
+        plot.env <- new.env(parent = data.env);
+        plot.sub.env <- new.env(parent = plot.env);
+
+        track.access <- function(name) {
+            makeActiveBinding(
+                name,
+                function(value) {
+                    if (missing(value)) {
+                        # assign(name, get(name, envir = plot.env), envir = accessed.vars)
+                        assign(name, 'ACCESSED', envir = accessed.vars)
+                        get(name, envir = plot.env)
+                        } else {
+                        assign(name, value, envir = plot.env)
+                        }
+                    },
+                plot.sub.env
+                )
+            }
+
+        for (var in ls(data.env)) { track.access(var) }
+
         if (inherits(
-            try(source(figure.file, local = new.env(), echo = FALSE)),
+            try(source(figure.file, local = plot.sub.env, echo = FALSE)),
             'try-error'
             )) {
             message(ansi.red(paste('Problem with', figure.file, '!')));
             }
+
+        for (variable.name in ls(plot.env)) {
+            if (exists(variable.name, data.env)) {
+                if (digest::digest(get(variable.name, data.env)) == digest::digest(get(variable.name, plot.env))) {
+                    assign(variable.name, 'REDUNDANT', envir = accessed.vars);
+                    } else {
+                    assign(variable.name, paste0('CHANGED:', digest::digest(get(variable.name, envir = plot.env))), envir = accessed.vars);
+                    }
+                }
+            }
+
+        for (variable.name in ls(plot.sub.env)) {
+            if (!exists(variable.name, accessed.vars)) {
+                # message(paste('Assigned variable', variable.name));
+                assign(variable.name, paste0('DEFINED:', digest::digest(get(variable.name, envir = plot.sub.env))), envir = accessed.vars);
+                }
+            }
+
+
+        result$figures[[figure.index]] <- mget(ls(accessed.vars, all.names = TRUE), envir = accessed.vars);
+        names(result$figures)[figure.index] <- tools::file_path_sans_ext(basename(figure.file));
         }
 
-    message(ansi.green(paste('Detaching', data.env.name)));
-    detach(data.env.name, character.only = TRUE);
-    }
+    write(
+        x = rjson::toJSON(result, indent = 2),
+        file = paste0(
+            tools::file_path_sans_ext(basename(datafile)),
+            '.json'
+            )
+        )
 
+    }
 # Use the original data on the cluster, falling back to the copied local data
 
 # The processed / subsetted data intended for plotting
