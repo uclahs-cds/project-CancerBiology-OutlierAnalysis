@@ -62,19 +62,6 @@ non.outlier.sample.me.two.unlist.mean.500 <- lapply(
         }
     );
 
-# Change y-axis: mean(outliers) - mean(non-outliers)
-mean.beta.merge.two.500 <- apply(
-    two.outlier.promoter.symbol.sample.match.merge.filter.500,
-    1,
-    function(x) {
-        mean(na.omit(as.numeric(x)));
-        }
-    );
-
-minus.beta.merge.two.500 <- as.numeric(
-    outlier.sample.me.two.unlist.mean.500
-    ) - as.numeric(non.outlier.sample.me.two.unlist.mean.500);
-
 # Delta beta > 0.2
 dot.colours <- vector(
     length = length(mean.minus.ma.merge.two.500$minus.beta)
@@ -97,8 +84,6 @@ p.me <- wilcox.test(
 
 p.value.com <- sprintf('%.1e', p.me$p.value);
 p.value.parts.com <- strsplit(p.value.com, split = 'e')[[1]];
-base.com <- as.numeric(p.value.parts.com[1]);
-exponent.com <- as.numeric(p.value.parts.com[2]);
 
 text.pvalue <- display.statistical.result(
     x = p.me$p.value,

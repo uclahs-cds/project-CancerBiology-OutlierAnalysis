@@ -35,14 +35,6 @@ i.patient <- outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.br
     rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol == i],
     ];
 
-i.me.mean <- apply(
-    i.me[, 1:ncol(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca)],
-    1,
-    function(x) {
-        mean(na.omit(x));
-        }
-    );
-
 i.me.patient <- i.me[, which(i.patient == 1), drop = FALSE];
 i.me.patient.non <- i.me[, which(i.patient == 0), drop = FALSE];
 
@@ -64,14 +56,11 @@ i.me.patient.non.mean <- apply(
         }
     );
 
-# names(i.me.patient) <- names(i.me.mean);
 promoters.i <- promoters.info[[i]];
 
 
 
 promoters.i.order <- promoters.i[order(promoters.i$pos), ];
-i.me.mean.order <- i.me.patient[rownames(promoters.i[order(promoters.i$pos), 1:7]), , drop = FALSE];
-i.me.patient.order <- i.me.patient.non.mean[rownames(promoters.i[order(promoters.i$pos), 1:7])];
 
 fpkm.i <- fpkm.tumor.symbol.filter.brca[
     fpkm.tumor.symbol.filter.brca$Symbol == i, ,
@@ -90,8 +79,6 @@ fpkm.i.order <- fpkm.i.order[
     drop = FALSE
     ];
 
-i.me.order <- i.me[, colnames(fpkm.i.order)];
-
 # Location
 promoters.i.order <- promoters.i[order(promoters.i$pos), ];
 
@@ -99,10 +86,6 @@ promoters.i.order <- promoters.i[order(promoters.i$pos), ];
 i.me.beta.order <- i.me.patient[
     rownames(promoters.i.order[order(promoters.i.order$pos), 1:7]), ,
     drop = FALSE
-    ];
-
-i.me.beta.order.non <- i.me.patient.non.mean[
-    rownames(promoters.i.order[order(promoters.i.order$pos), 1:7])
     ];
 
 i.me.beta.order.normal <- i.me.patient.normal[

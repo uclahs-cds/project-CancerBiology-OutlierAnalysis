@@ -21,9 +21,6 @@ for (i in 1:length(outlier.protein.cptac.list.no.p.na)) {
     percent.protein.cptac.quantile <- rbind(percent.protein.cptac.quantile, all.value);
     }
 
-# Calculate the mean of quantiles
-percent.protein.cptac.quantile.mean <- apply(percent.protein.cptac.quantile, 2, mean);
-
 # Prepare data for heatmap
 heat.df <- t(data.frame(percent.protein.cptac.quantile));
 rownames(heat.df) <- c('Outliers', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100');

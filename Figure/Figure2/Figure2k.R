@@ -21,11 +21,6 @@ non.outlier.sample.me.two.unlist.mean.500 <- lapply(non.outlier.sample.me.two.50
     mean(na.omit(as.numeric(x)))
     });
 
-mean.beta.merge.two.500 <- apply(two.outlier.promoter.symbol.sample.match.merge.filter.500, 1, function(x) {
-    mean(na.omit(as.numeric(x)))
-    });
-minus.beta.merge.two.500 <- as.numeric(outlier.sample.me.two.unlist.mean.500) - as.numeric(non.outlier.sample.me.two.unlist.mean.500);
-
 two.out.non.tumor.normal.gene.500 <- mean.minus.ma.merge.two.500$Symbol[mean.minus.ma.merge.two.500$Symbol %in% rownames(normal.tumor.beta.comparison.two.minus.order.500)];
 
 

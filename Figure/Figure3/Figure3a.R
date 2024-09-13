@@ -49,9 +49,6 @@ for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
     non.outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(non.target.col, 1, 15)];
     }
 
-outlier.protein.cptac.zscore.value <- as.numeric(unlist(outlier.protein.cptac.zscore.list));
-non.outlier.protein.cptac.zscore.value <- as.numeric(unlist(non.outlier.protein.cptac.zscore.list));
-
 # Box plot - compare the values between patients
 # Exclude the genes with no outlier patient info
 

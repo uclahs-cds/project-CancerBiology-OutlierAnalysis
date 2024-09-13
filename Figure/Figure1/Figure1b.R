@@ -18,10 +18,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
 
-my.unused.value <- 10;
-my.used.value <- 15;
-my.used.value;
-
 for (i in genes) {
     # Extract data for the specified gene across different datasets
     metador.i <- fpkm.tumor.symbol.filter.metador.symbol[

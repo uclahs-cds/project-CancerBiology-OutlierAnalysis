@@ -248,7 +248,6 @@ confidence.intervals.luma <- list(
     brca = brca.luma.ci.df[names(results.luma$brca$filtered), ][common.genes.luma, ],
     icgc = icgc.luma.ci.df[names(results.luma$icgc$filtered), ][match(common.genes.luma, rownames(icgc.luma.ci.df[names(results.luma$icgc$filtered), ])), ]
     );
-confidence.intervals.luma.df <- do.call(rbind, confidence.intervals.luma);
 
 
 ln.odds.se.luma <- lapply(names(odds.ratios.luma), function(name) {
@@ -279,7 +278,6 @@ colnames(final.results.luma) <- c('odds.ratio', 'ci.lower', 'ci.upper', 'p.value
 rownames(final.results.luma) <- common.genes.luma;
 
 # Filter significant results
-significant.genes.luma <- rownames(final.results.luma)[final.results.luma[, 'p.value'] < 0.05];
 final.results.luma <- data.frame(final.results.luma);
 
 
@@ -636,7 +634,6 @@ confidence.intervals.lumb <- list(
     brca = brca.lumb.ci.df[names(results.lumb$brca$filtered), ][match(common.genes.lumb, rownames(brca.lumb.ci.df[names(results.lumb$brca$filtered), ])), ],
     icgc = icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ][match(common.genes.lumb, rownames(icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ])), ]
     );
-confidence.intervals.lumb.df <- do.call(rbind, confidence.intervals.lumb);
 
 
 ln.odds.se.lumb <- lapply(names(odds.ratios.lumb), function(name) {
@@ -667,7 +664,6 @@ colnames(final.results.lumb) <- c('odds.ratio', 'ci.lower', 'ci.upper', 'p.value
 rownames(final.results.lumb) <- common.genes.lumb;
 
 # Filter significant results
-significant.genes.lumb <- rownames(final.results.lumb)[final.results.lumb[, 'p.value'] < 0.05];
 final.results.lumb <- data.frame(final.results.lumb);
 
 

@@ -16,14 +16,6 @@ gene.dependency.breast.t.num.match <- gene.dependency.breast.t.num.match[
     , colnames(fpkm.tumor.symbol.filter.ccle)
     ];
 
-# Filter for FDR < 0.05
-ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[
-    rownames(ccle.outlier.rank.fdr.05),
-    ];
-gene.dependency.breast.t.num.match.05 <- gene.dependency.breast.t.num.match[
-    rownames(ccle.outlier.rank.fdr.05),
-    ];
-
 ccle.sample.outlier.status.na <- ccle.sample.outlier.status[rownames(gene.dependency.breast.t.num.match.05.na), ];
 
 
@@ -62,18 +54,6 @@ nonoutlier.gene.dependency.score.05.mean <- data.frame(
 rownames(outlier.gene.dependency.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
 rownames(nonoutlier.gene.dependency.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
 
-p.dependency.05 <- wilcox.test(
-    outlier.gene.dependency.score.05.mean$dependency,
-    nonoutlier.gene.dependency.score.05.mean$dependency,
-    alternative = 'two.sided', conf.int = TRUE
-    );
-
-gene.dependency.diff.matrix.05 <- data.frame(
-    out = outlier.gene.dependency.score.05.mean$dependency,
-    non = nonoutlier.gene.dependency.score.05.mean$dependency,
-    diff = outlier.gene.dependency.score.05.mean$dependency - nonoutlier.gene.dependency.score.05.mean$dependency,
-    symbol = sub('\\..*', '', rownames(outlier.gene.dependency.score.05.mean))
-    );
 
 # Filter overlapping genes
 

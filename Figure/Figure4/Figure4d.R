@@ -77,12 +77,6 @@ for (i in 1:nrow(protein.info.breast.num.match.all.uni.gene.sample)) {
     non.outlier.protein.ccle.zscore.list.all[[i]] <- protein.info.breast.num.match.all.uni.gene.sample[i, non.target.col];
     }
 
-outlier.protein.ccle.zscore.value.all <- as.numeric(unlist(outlier.protein.ccle.zscore.list.all));
-non.outlier.protein.ccle.zscore.value.all <- as.numeric(unlist(non.outlier.protein.ccle.zscore.list.all));
-
-
-
-
 
 # box plot - compare the values between patients
 # - excluding the genes having no outlier patient info

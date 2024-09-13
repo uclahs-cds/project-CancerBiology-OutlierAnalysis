@@ -28,10 +28,6 @@ meta.non.outlier.median <- lapply(
         }
     );
 
-# Convert the lists of medians to vectors
-meta.outlier.median.unlist <- unlist(meta.outlier.median);
-meta.non.outlier.median.unlist <- unlist(meta.non.outlier.median);
-
 # Combine outlier and non-outlier values into a single data frame
 meta.gis.value <- data.frame(new.gis.value = c(meta.non.outlier.cnv, meta.outlier.cnv));
 meta.gis.box <- data.frame(
@@ -81,9 +77,6 @@ brca.non.outlier.median <- lapply(
         }
     );
 
-brca.outlier.median.unlist <- unlist(brca.outlier.median);
-brca.non.outlier.median.unlist <- unlist(brca.non.outlier.median);
-
 brca.gis.value <- data.frame(new.gis.value = c(brca.non.outlier.cnv, brca.outlier.cnv));
 brca.gis.box <- data.frame(
     cbind(
@@ -128,9 +121,6 @@ icgc.non.outlier.median <- lapply(
         median(na.omit(as.numeric(x)))
         }
     );
-
-icgc.outlier.median.unlist <- unlist(icgc.outlier.median);
-icgc.non.outlier.median.unlist <- unlist(icgc.non.outlier.median);
 
 icgc.gis.value <- data.frame(new.gis.value = c(icgc.non.outlier.cnv, icgc.outlier.cnv));
 icgc.gis.box <- data.frame(
@@ -221,12 +211,6 @@ for (i in 1:5) {
 
 # Prepare data for visualization (stacked bar plot)
 
-metafor.cnv.odd.all.df <- data.frame(
-    group = c('a', 'b', 'c', 'd', 'e'), # Group labels
-    sample = rep('a', 5), # Sample labels
-    odd = metafor.cnv.odd.all # Odds ratios from the meta-analysis
-    );
-
 # Adjust p-values for multiple testing using the Benjamini-Hochberg method (FDR)
 metafor.cnv.p.all.fdr <- p.adjust(metafor.cnv.p.all, method = 'BH');
 
@@ -286,10 +270,7 @@ metafor.cnv.odd.all.df.fraction.non <- data.frame(
     odd = all.weighted.mean[1:5]
     );
 
-col.pal <- colorspace::diverging_hcl(9, 'Blue-Red 3')[c(1, 2, 5, 8, 9)];
-col.pal <- colorspace::diverging_hcl(21, 'Blue-Red 3')[c(1, 4, 11, 18, 21)];
 cnv.col.ramp.5.bar <- c('#2166AC', '#90B2D5', 'white', '#D88B95', '#B2182B')
-cnv.col.ramp.5 <- c('#2166AC', '#90B2D5', 'grey60', '#D88B95', '#B2182B')
 
 non.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     formula = group ~ odd,

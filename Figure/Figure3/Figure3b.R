@@ -68,9 +68,6 @@ for (i in 1:nrow(brca.protein.outlier.match)) {
     non.outlier.protein.list[[i]] <- brca.protein.outlier.match[i, non.target.col];
     }
 
-outlier.protein.value <- as.numeric(unlist(outlier.protein.list));
-non.outlier.protein.value <- as.numeric(unlist(non.outlier.protein.list));
-
 # Exclude phosphorylated protein
 protein.antibody.outlier.no.p <- protein.antibody.outlier[
     -(grep('_p', protein.antibody.outlier$peptide_target)),
@@ -104,13 +101,8 @@ for (i in 1:nrow(brca.protein.outlier.match.no.p)) {
     non.outlier.protein.list.no.p[[i]] <- brca.protein.outlier.match.no.p[i, non.target.col];
     }
 
-outlier.protein.value.no.p <- as.numeric(unlist(outlier.protein.list.no.p));
-non.outlier.protein.value.no.p <- as.numeric(unlist(non.outlier.protein.list.no.p));
-
 # Box plot
 # Exclude genes with no outlier patient info
-outlier.protein.value.no.p <- as.numeric(unlist(outlier.protein.list.no.p));
-non.outlier.protein.value.no.p <- as.numeric(unlist(non.outlier.protein.list.no.p));
 
 names(outlier.protein.list.no.p) <- rownames(brca.protein.outlier.match.no.p);
 outlier.protein.list.no.p.na <- na.omit(unlist(outlier.protein.list.no.p));

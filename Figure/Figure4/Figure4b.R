@@ -15,23 +15,18 @@ outlier.patient.sum <- data.frame(table(outlier.patient.sum));
 colnames(outlier.patient.sum) <- c('outlier.num', 'number');
 
 # 1. TCGA-BRCA
-outlier.patient.tag.01.brca.patient.per.gene.sum <- apply(outlier.patient.tag.01.brca, 1, sum);
 outlier.patient.tag.01.brca.gene.per.patient.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 
 # 2. METABRIC
-outlier.patient.tag.01.meta.patient.per.gene.sum <- apply(outlier.patient.tag.01.meta, 1, sum);
 outlier.patient.tag.01.meta.gene.per.patient.sum <- apply(outlier.patient.tag.01.meta, 2, sum);
 
 # 3. ISPY
-outlier.patient.tag.01.ispy.patient.per.gene.sum <- apply(outlier.patient.tag.01.ispy, 1, sum);
 outlier.patient.tag.01.ispy.gene.per.patient.sum <- apply(outlier.patient.tag.01.ispy, 2, sum);
 
 # 4. METADOR
-outlier.patient.tag.01.metador.patient.per.gene.sum <- apply(outlier.patient.tag.01.metador, 1, sum);
 outlier.patient.tag.01.metador.gene.per.patient.sum <- apply(outlier.patient.tag.01.metador, 2, sum);
 
 # 5. ICGC BRCA-EU
-outlier.patient.tag.01.icgc.patient.per.gene.sum <- apply(outlier.patient.tag.01.icgc, 1, sum);
 outlier.patient.tag.01.icgc.gene.per.patient.sum <- apply(outlier.patient.tag.01.icgc, 2, sum);
 
 # Number of outlier genes per patient
@@ -53,11 +48,6 @@ outlier.patient.tag.sum.05.data <- data.frame(
 outlier.patient.number.violin.ccle.tissue <- rbind(outlier.patient.tag.sum.05.data, outlier.patient.number.violin.tissue);
 outlier.patient.number.violin.ccle.tissue.log <- outlier.patient.number.violin.ccle.tissue;
 outlier.patient.number.violin.ccle.tissue.log$out <- log2(outlier.patient.number.violin.ccle.tissue.log$out + 1);
-
-# Make the density plot from 0
-x <- log2(outlier.patient.tag.sum.05.data$out + 1);
-y <- log2(outlier.patient.number.violin.tissue$out + 1);
-
 
 data <- list(
     x = log2(outlier.patient.tag.sum.05.data$out + 1),

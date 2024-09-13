@@ -30,7 +30,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 # Data matching
 sanger.drug.match <- sanger.drug[sanger.drug$ARXSPAN_ID %in% colnames(ccle.sample.outlier.status.overlap.na), ];
-sanger.drug.match.name.unique <- unique(sanger.drug.match$DRUG_NAME);
 
 # Separate and clean data
 sanger.drug.match.dup <- separate_rows(sanger.drug.match, DRUG_NAME, sep = ', ');
@@ -44,22 +43,11 @@ sanger.drug.info.dup <- data.frame(sanger.drug.info.dup);
 
 # Filter CCLE and tissue-specific data
 fdr.05.symbol <- sub('\\..*', '', rownames(ccle.outlier.rank.fdr.05));
-sanger.drug.info.dup.ccle <- sanger.drug.info.name.dup[sanger.drug.info.name.dup$merged.target.sanger.depmap %in% fdr.05.symbol, ];
-sanger.drug.info.dup.tissue <- sanger.drug.info.name.dup[sanger.drug.info.name.dup$merged.target.sanger.depmap %in% five.data.outlier.symbol, ];
-
-# Get more drug tartet data from depmap data
-depmap.drug.info.match.sanger <- depmap.drug.info[depmap.drug.info$Drug.Name %in% unique(sanger.drug.match.dup$DRUG_NAME), ];
 
 # Define functions to check capitalization
-is_first_letter_capital <- function(word) {
-    return(grepl('^[A-Z]', word));
-    };
-
 contains_lowercase <- function(word) {
     return(grepl('[a-z]', word));
     };
-
-capital_status <- sapply(sanger.drug.info.name.dup$merged.target.sanger.depmap, contains_lowercase);
 
 # Data matching and merging
 sanger_upper_drug_names <- toupper(sanger.drug.info.name$DRUG_NAME);
@@ -76,8 +64,6 @@ for (i in 1:nrow(sanger.drug.info.name)) {
         );
     };
 
-merged.target.sanger.depmap <- paste(sanger.drug.info.name$TARGET, sanger.drug.info.name$depmap.drug.target, sep = ', ');
-
 # Process IC50 and Z-score data
 sanger.drug.match.dup.ic50 <- dcast(sanger.drug.match.dup, DRUG_NAME ~ ARXSPAN_ID, value.var = 'IC50_PUBLISHED', fun.aggregate = mean);
 rownames(sanger.drug.match.dup.ic50) <- sanger.drug.match.dup.ic50$DRUG_NAME;
@@ -88,7 +74,6 @@ sanger.drug.match.dup$Z_SCORE_PUBLISHED <- as.numeric(sanger.drug.match.dup$Z_SC
 # Process sample outlier data
 ccle.sample.outlier.status.overlap.na.samger.match <- ccle.sample.outlier.status.overlap.na[, colnames(sanger.drug.match.dup.ic50)];
 rownames(ccle.sample.outlier.status.overlap.na.samger.match) <- unlist(sapply(rownames(ccle.sample.outlier.status.overlap.na.samger.match), function(x) sub('\\..*', '', x)));
-ccle.sample.outlier.status.overlap.na.samger.match.dup.sum <- apply(ccle.sample.outlier.status.overlap.na.samger.match, 1, sum);
 
 # Process breast cancer related data
 sanger.drug.breast.match.out <- list();
@@ -143,21 +128,6 @@ sanger.drug.breast.match.mean.df <- data.frame(
     );
 sanger.drug.breast.match.mean.df <- cbind(sanger.drug.breast.match.mean.df, sanger.drug.breast.match.info.df);
 
-# Group and summarize by repurposing target
-sanger.drug.breast.match.mean.df.merge <- sanger.drug.breast.match.mean.df %>%
-    group_by(repurposing_target) %>%
-    summarise(
-        out_avg = mean(out),
-        non_avg = mean(non),
-        minus_avg = mean(minus),
-        screen_first = first(screen),
-        dose_first = first(dose),
-        Drug_Name_first = first(Drug.Name),
-        MOA_first = first(MOA),
-        IDs_first = first(IDs),
-        Synonyms_first = first(Synonyms),
-        .groups = 'drop'
-        );
 
 # Z-score analysis for matched breast cancer data
 sanger.zscore.drug.breast.match.out <- list();
@@ -168,7 +138,6 @@ sanger.zscore.drug.breast.match.info <- list();
 
 ccle.sample.outlier.status.overlap.na.samger.match <- ccle.sample.outlier.status.overlap.na[, colnames(sanger.drug.match.dup.ic50)];
 rownames(ccle.sample.outlier.status.overlap.na.samger.match) <- unlist(sapply(rownames(ccle.sample.outlier.status.overlap.na.samger.match), function(x) sub('\\..*', '', x)));
-ccle.sample.outlier.status.overlap.na.samger.match.dup.sum <- apply(ccle.sample.outlier.status.overlap.na.samger.match, 1, sum);
 
 
 for (i in 1:nrow(ccle.sample.outlier.status.overlap.na.samger.match.dup.filter)) {

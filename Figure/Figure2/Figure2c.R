@@ -29,11 +29,6 @@ brca.out.sample <- colnames(outlier.patient.tag.01.brca.cnv.match)[
         ] == 1
     ];
 
-# Filtering data for outlier patient samples in chromosome 10
-brca.cnv.chr.new.gis.fpkm.order.match.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , substr(brca.out.sample, 1, 15)
-    ];
-
 # Extracting non-outlier patient samples for FGFR2
 brca.non.out.sample <- colnames(outlier.patient.tag.01.brca.cnv.match)[
     outlier.patient.tag.01.brca.cnv.match[
@@ -66,9 +61,6 @@ meta.out.sample <- colnames(outlier.patient.tag.01.meta.cnv.match)[
             ]),
         ] == 1
     ];
-
-# Filtering data for outlier patient samples in chromosome 10
-meta.cnv.chr.new.gis.fpkm.order.match.chr10.out <- meta.cnv.chr.new.gis.fpkm.order.match.chr10[, substr(na.omit(meta.out.sample), 1, 15)];
 
 # Extracting non-outlier patient samples for FGFR2
 meta.non.out.sample <- colnames(outlier.patient.tag.01.meta.cnv.match)[
@@ -112,28 +104,10 @@ icgc.out.sample <- colnames(outlier.patient.tag.01.icgc)[
         ] == 1
     ];
 
-# Filtering data for outlier patient samples in chromosome 10
-icgc.cnv.chr.new.gis.fpkm.order.match.chr.out <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
-    , icgc.out.sample
-    ];
-
-# Extracting non-outlier patient samples for FGFR2 in ICGC data
-icgc.non.out.sample <- colnames(outlier.patient.tag.01.icgc)[
-    outlier.patient.tag.01.icgc[
-        rownames(fpkm.data.icgc)[
-            fpkm.data.icgc$Name %in% 'FGFR2'
-            ],
-        ] == 0
-    ];
-
 # Filtering data for non-outlier patient samples in chromosome 10
 icgc.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <- icgc.cnv.chr.new.gis.fpkm.order.match.chr10[
     , !(colnames(icgc.cnv.chr.new.gis.fpkm.order.match.chr10) %in% icgc.out.sample)
     ];
-
-
-
-
 
 # 1. Outlier Data
 brca.chr10.out <- brca.cnv.chr.new.gis.fpkm.order.match.chr10[
@@ -210,13 +184,10 @@ sample.chr10.non <- c(
     rep('icgc', ncol(icgc.chr10.non.out.match))
     );
 
-all.chr10.non.out.match.median <- apply(all.chr10.non.out.match, 1, median);
-
 ### CLUSTERING AND ORDERING
 distance.matrix.t.all.chr10.non.out.match <- dist(t(all.chr10.non.out.match), method = 'euclidean');
 fit.t.all.chr10.non.out.match <- hclust(distance.matrix.t.all.chr10.non.out.match, method = 'ward.D2');
 all.chr10.non.out.match.order <- all.chr10.non.out.match[, fit.t.all.chr10.non.out.match$order];
-sample.chr10.non.order <- sample.chr10.non[fit.t.all.chr10.non.out.match$order];
 
 ### HEATMAP
 chr10.out <- create.heatmap(

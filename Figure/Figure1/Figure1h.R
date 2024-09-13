@@ -50,14 +50,6 @@ combined.df <- icgc.all.fdr %>%
     full_join(metador.all.fdr %>% rename(fdr.metador = fdr.metador), by = 'Symbol') %>%
     full_join(brca.all.fdr %>% rename(fdr.brca = fdr.brca), by = 'Symbol');
 
-all.fdr.df <- combined.df[, c(1, 3, 4, 5, 6, 2)];
-
-
-combine.fisher.fdr.all <- apply(all.fdr.df[, 1:5], 1, function(x) {
-    fisher(na.omit(x))$p;
-    });
-
-
 icgc.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.icgc.esembl.all.symbol[, c('obs.p.value', 'Symbol')];
 ispy.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.ispy.esembl.all.symbol[, c('new.p.value', 'Symbol')];
 meta.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.order.meta.symbol[, c('new.p.value', 'Symbol')];

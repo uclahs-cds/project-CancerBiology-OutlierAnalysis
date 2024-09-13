@@ -49,9 +49,6 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
     }
 
 
-brca.sample.clinic <- gsub('-', '.', brca.clinic$Patient.ID, fixed = TRUE);
-brca.clinic.sort <- brca.clinic[order(brca.clinic$Subtype), ];
-
 brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
 
 os.data.stage.pseudo.brca <- data.frame(
@@ -80,45 +77,33 @@ os.data.stage.pseudo.brca <- na.omit(os.data.stage.pseudo.brca);
 
 # All BRCA
 all.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca);
-p.value.outlier.stage.pseudo.fisher.t1.brca <- all.results$p.values;
 p.value.stage.pseudo.odd.sub.t1.brca <- all.results$odd.ratios;
 p.value.stage.pseudo.ci.sub.t1.brca <- all.results$ci.intervals;
-p.value.outlier.stage.pseudo.fisher.fdr.t1.brca <- all.results$p.values.fdr;
 
 # Basal
 basal.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'Basal');
-p.value.outlier.stage.pseudo.basal.fisher.t1.brca <- basal.results$p.values;
 p.value.stage.pseudo.basal.odd.sub.t1.brca <- basal.results$odd.ratios;
 p.value.stage.pseudo.basal.ci.sub.t1.brca <- basal.results$ci.intervals;
-p.value.outlier.stage.pseudo.basal.fisher.fdr.t1.brca <- basal.results$p.values.fdr;
 
 # Her2
 her2.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'Her2');
-p.value.outlier.stage.pseudo.her2.fisher.t1.brca <- her2.results$p.values;
 p.value.stage.pseudo.her2.odd.sub.t1.brca <- her2.results$odd.ratios;
 p.value.stage.pseudo.her2.ci.sub.t1.brca <- her2.results$ci.intervals;
-p.value.outlier.stage.pseudo.her2.fisher.fdr.t1.brca <- her2.results$p.values.fdr;
 
 # LumA
 luma.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'LumA');
-p.value.outlier.stage.pseudo.luma.fisher.t1.brca <- luma.results$p.values;
 p.value.stage.pseudo.luma.odd.sub.t1.brca <- luma.results$odd.ratios;
 p.value.stage.pseudo.luma.ci.sub.t1.brca <- luma.results$ci.intervals;
-p.value.outlier.stage.pseudo.luma.fisher.fdr.t1.brca <- luma.results$p.values.fdr;
 
 # LumB
 lumb.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'LumB');
-p.value.outlier.stage.pseudo.lumb.fisher.t1.brca <- lumb.results$p.values;
 p.value.stage.pseudo.lumb.odd.sub.t1.brca <- lumb.results$odd.ratios;
 p.value.stage.pseudo.lumb.ci.sub.t1.brca <- lumb.results$ci.intervals;
-p.value.outlier.stage.pseudo.lumb.fisher.fdr.t1.brca <- lumb.results$p.values.fdr;
 
 # Normal
 normal.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'Normal');
-p.value.outlier.stage.pseudo.normal.fisher.t1.brca <- normal.results$p.values;
 p.value.stage.pseudo.normal.odd.sub.t1.brca <- normal.results$odd.ratios;
 p.value.stage.pseudo.normal.ci.sub.t1.brca <- normal.results$ci.intervals;
-p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.brca <- normal.results$p.values.fdr;
 
 
 
@@ -184,45 +169,33 @@ os.data.stage.pseudo.meta.stage <- os.data.stage.pseudo.meta.stage[2:5, ];
 
 # Metabric - All subtypes
 meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta);
-p.value.outlier.stage.pseudo.fisher.t1.meta <- meta.results$p.values;
 p.value.stage.pseudo.odd.sub.t1.meta <- meta.results$odd.ratios;
 p.value.stage.pseudo.ci.sub.t1.meta <- meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.fisher.fdr.t1.meta <- meta.results$p.values.fdr;
 
 # Basal subtype
 basal.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'Basal');
-p.value.outlier.stage.pseudo.basal.fisher.t1.meta <- basal.meta.results$p.values;
 p.value.stage.pseudo.basal.odd.sub.t1.meta <- basal.meta.results$odd.ratios;
 p.value.stage.pseudo.basal.ci.sub.t1.meta <- basal.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.basal.fisher.fdr.t1.meta <- basal.meta.results$p.values.fdr;
 
 # Her2 subtype
 her2.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'Her2');
-p.value.outlier.stage.pseudo.her2.fisher.t1.meta <- her2.meta.results$p.values;
 p.value.stage.pseudo.her2.odd.sub.t1.meta <- her2.meta.results$odd.ratios;
 p.value.stage.pseudo.her2.ci.sub.t1.meta <- her2.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.her2.fisher.fdr.t1.meta <- her2.meta.results$p.values.fdr;
 
 # Luminal A subtype
 luma.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'LumA');
-p.value.outlier.stage.pseudo.luma.fisher.t1.meta <- luma.meta.results$p.values;
 p.value.stage.pseudo.luma.odd.sub.t1.meta <- luma.meta.results$odd.ratios;
 p.value.stage.pseudo.luma.ci.sub.t1.meta <- luma.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.luma.fisher.fdr.t1.meta <- luma.meta.results$p.values.fdr;
 
 # Luminal B subtype
 lumb.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'LumB');
-p.value.outlier.stage.pseudo.lumb.fisher.t1.meta <- lumb.meta.results$p.values;
 p.value.stage.pseudo.lumb.odd.sub.t1.meta <- lumb.meta.results$odd.ratios;
 p.value.stage.pseudo.lumb.ci.sub.t1.meta <- lumb.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.lumb.fisher.fdr.t1.meta <- lumb.meta.results$p.values.fdr;
 
 # Normal subtype
 normal.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'Normal');
-p.value.outlier.stage.pseudo.normal.fisher.t1.meta <- normal.meta.results$p.values;
 p.value.stage.pseudo.normal.odd.sub.t1.meta <- normal.meta.results$odd.ratios;
 p.value.stage.pseudo.normal.ci.sub.t1.meta <- normal.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.meta <- normal.meta.results$p.values.fdr;
 
 
 
@@ -320,45 +293,29 @@ os.data.stage.pseudo.icgc <- na.omit(os.data.stage.pseudo.icgc);
 
 # All ICGC
 all.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc);
-p.value.outlier.stage.pseudo.fisher.t1.icgc <- all.results.icgc$p.values;
 p.value.stage.pseudo.odd.sub.t1.icgc <- all.results.icgc$odd.ratios;
 p.value.stage.pseudo.ci.sub.t1.icgc <- all.results.icgc$ci.intervals;
-p.value.outlier.stage.pseudo.fisher.fdr.t1.icgc <- all.results.icgc$p.values.fdr;
 
 # Basal
 basal.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 1);
-p.value.outlier.stage.pseudo.basal.fisher.t1.icgc <- basal.results.icgc$p.values;
 p.value.stage.pseudo.basal.odd.sub.t1.icgc <- basal.results.icgc$odd.ratios;
 p.value.stage.pseudo.basal.ci.sub.t1.icgc <- basal.results.icgc$ci.intervals;
-p.value.outlier.stage.pseudo.basal.fisher.fdr.t1.icgc <- basal.results.icgc$p.values.fdr;
 
 # Her2
 her2.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 2);
-p.value.outlier.stage.pseudo.her2.fisher.t1.icgc <- her2.results.icgc$p.values;
-p.value.stage.pseudo.her2.odd.sub.t1.icgc <- her2.results.icgc$odd.ratios;
-p.value.stage.pseudo.her2.ci.sub.t1.icgc <- her2.results.icgc$ci.intervals;
-p.value.outlier.stage.pseudo.her2.fisher.fdr.t1.icgc <- her2.results.icgc$p.values.fdr;
 
 # Lum A
 luma.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 3);
-p.value.outlier.stage.pseudo.luma.fisher.t1.icgc <- luma.results.icgc$p.values;
 p.value.stage.pseudo.luma.odd.sub.t1.icgc <- luma.results.icgc$odd.ratios;
 p.value.stage.pseudo.luma.ci.sub.t1.icgc <- luma.results.icgc$ci.intervals;
-p.value.outlier.stage.pseudo.luma.fisher.fdr.t1.icgc <- luma.results.icgc$p.values.fdr;
 
 # Lum B
 lumb.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 4);
-p.value.outlier.stage.pseudo.lumb.fisher.t1.icgc <- lumb.results.icgc$p.values;
 p.value.stage.pseudo.lumb.odd.sub.t1.icgc <- lumb.results.icgc$odd.ratios;
 p.value.stage.pseudo.lumb.ci.sub.t1.icgc <- lumb.results.icgc$ci.intervals;
-p.value.outlier.stage.pseudo.lumb.fisher.fdr.t1.icgc <- lumb.results.icgc$p.values.fdr;
 
 # Normal
 normal.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 5);
-p.value.outlier.stage.pseudo.normal.fisher.t1.icgc <- normal.results.icgc$p.values;
-p.value.stage.pseudo.normal.odd.sub.t1.icgc <- normal.results.icgc$odd.ratios;
-p.value.stage.pseudo.normal.ci.sub.t1.icgc <- normal.results.icgc$ci.intervals;
-p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.icgc <- normal.results.icgc$p.values.fdr;
 
 
 

@@ -83,9 +83,6 @@ all.gene.location <- rbind(
 all.gene.location.filter <- all.gene.location[!grepl('^CHR', all.gene.location$chromosome_name), ]
 all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ]
 
-
-chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'MT', 'X', 'Y');
-
 all.gene.location.filter.nodup.order <- all.gene.location.filter.nodup[match(names(combine.fisher.pvalue.all.fdr.sort.log), all.gene.location.filter.nodup$hgnc_symbol), ];
 
 all.gene.location.filter.nodup.order$chromosome_name[all.gene.location.filter.nodup.order$chromosome_name == 'X'] <- 23;

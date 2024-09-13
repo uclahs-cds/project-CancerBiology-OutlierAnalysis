@@ -9,9 +9,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 
 # Filter for FDR < 0.05 and match gene names
-ccle.sample.outlier.status.overlap.row <- ccle.sample.outlier.status[
-    rownames(ccle.outlier.rank.fdr.05),
-    ];
 gene.rnai.breast.t.num.match.05 <- rnai.effect.breast[
     rownames(rnai.effect.breast) %in% gsub('\\..*$', '', rownames(ccle.outlier.rank.fdr.05)),
     ];
@@ -65,13 +62,6 @@ nonoutlier.gene.rnai.score.05.mean <- sapply(nonoutlier.gene.rnai.score.05, func
     });
 nonoutlier.gene.rnai.score.05.mean <- data.frame(rnai = nonoutlier.gene.rnai.score.05.mean);
 rownames(nonoutlier.gene.rnai.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
-
-# Perform Wilcoxon test on RNAi scores
-p.rnai.05 <- wilcox.test(
-    outlier.gene.rnai.score.05.mean$rnai,
-    nonoutlier.gene.rnai.score.05.mean$rnai,
-    alternative = 'two.sided', conf.int = TRUE
-    );
 
 # Create difference matrix for RNAi scores
 gene.rnai.diff.matrix.05 <- data.frame(

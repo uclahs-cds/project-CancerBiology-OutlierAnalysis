@@ -70,9 +70,6 @@ icgc.clinic.subtype.order.data[icgc.clinic.subtype.order.data$as.character.icgc.
 icgc.clinic.subtype.order.data[icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype. == 'LumA', ] <- 3;
 icgc.clinic.subtype.order.data[icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype. == 'LumB', ] <- 4;
 icgc.clinic.subtype.order.data[icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype. == 'Normal', ] <- 5;
-icgc.clinic.subtype.order.data.num <- data.frame(as.numeric(icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype.));
-
-outlier.patient.tag.01.sum.icgc <- apply(outlier.patient.tag.01.icgc, 2, sum);
 
 subtype.total.outlier.num.1.icgc <- subtype.total.outlier.num.icgc;
 subtype.total.outlier.num.1.icgc$outlier[subtype.total.outlier.num.1.icgc$outlier > 0] <- 1;
@@ -212,15 +209,6 @@ all.odd.subtype <- cbind(
 all.odd.subtype.table <- as.table(all.odd.subtype);
 rownames(all.odd.subtype.table) <- c('Basal', 'Her2', 'LumA', 'LumB', 'Normal');
 all.odd.subtype.table <- all.odd.subtype.table[order(all.odd.subtype.table[, 1], decreasing = TRUE), ]
-
-# Adjusted p-values (FDR) for each dataset
-all.fdr.subtype <- cbind(
-    brca.results$fdr,
-    meta.results$fdr,
-    ispy.results$fdr,
-    matador.results$fdr,
-    icgc.results$fdr
-    );
 
 # Create heatmap
 odd.heat <- create.heatmap(

@@ -9,8 +9,6 @@ library(BoutrosLab.plotting.general);
 source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
-protein.info.breast.num.symbol <- gsub('.*\\|([^|]+)_.*', '\\1', rownames(protein.info.breast.num));
-
 ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
 ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
 
@@ -78,12 +76,6 @@ for (i in 1:nrow(protein.info.breast.num.match.05.uni.gene.sample)) {
     outlier.protein.ccle.zscore.list[[i]] <- protein.info.breast.num.match.05.uni.gene.sample[i, target.col];
     non.outlier.protein.ccle.zscore.list[[i]] <- protein.info.breast.num.match.05.uni.gene.sample[i, non.target.col];
     }
-
-outlier.protein.ccle.zscore.value <- as.numeric(unlist(outlier.protein.ccle.zscore.list));
-non.outlier.protein.ccle.zscore.value <- as.numeric(unlist(non.outlier.protein.ccle.zscore.list));
-
-
-
 
 
 # box plot - compare the values between patients

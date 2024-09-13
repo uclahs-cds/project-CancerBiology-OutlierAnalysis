@@ -83,14 +83,6 @@ rownames(outlier.patient.all.five.01) <- five.data.outlier.symbol.na;
 
 
 # Calculate the sum of outlier genes per patient and per gene
-outlier.patient.all.five.01.sum <- apply(
-    outlier.patient.all.five.01,
-    1,
-    function(x) {
-        sum(na.omit(x))
-        }
-    );
-
 outlier.patient.all.five.01.sum.gene <- apply(
     outlier.patient.all.five.01,
     2,

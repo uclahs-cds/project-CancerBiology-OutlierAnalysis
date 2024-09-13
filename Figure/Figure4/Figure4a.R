@@ -61,8 +61,6 @@ ccle.mean.zscore.outlier.fdr.05.five.t.p.order[ccle.mean.zscore.outlier.fdr.05.f
 
 # Row/col color - show the outlier status
 ccle.sample.outlier.status.fdr.05.five.match <- ccle.sample.outlier.status.fdr.05.five[match(rownames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order), rownames(ccle.sample.outlier.status.fdr.05.five)), match(colnames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order), colnames(ccle.sample.outlier.status.fdr.05.five))];
-ccle.sample.outlier.status.fdr.05.five.match.row.sum <- rowSums(ccle.sample.outlier.status.fdr.05.five.match);
-ccle.sample.outlier.status.fdr.05.five.match.col.sum <- rowSums(ccle.sample.outlier.status.fdr.05.five.match);
 
 main.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     x = t(ccle.mean.zscore.outlier.fdr.05.five.t.p.order),

@@ -8,9 +8,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 # Get gene effect score from Cas-CRISPR dataset
 
-ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05), ];
-cas.effect.breast.05 <- cas.effect.breast[rownames(ccle.outlier.rank.fdr.05), ];
-
 effect.quantile.05 <- list();
 outlier.gene.effect.score.05 <- list();
 nonoutlier.gene.effect.score.05 <- list();
@@ -44,9 +41,6 @@ nonoutlier.gene.effect.score.05.mean <- sapply(nonoutlier.gene.effect.score.05, 
     });
 nonoutlier.gene.effect.score.05.mean <- data.frame(effect = nonoutlier.gene.effect.score.05.mean);
 rownames(nonoutlier.gene.effect.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
-
-
-p.effect.05 <- wilcox.test(outlier.gene.effect.score.05.mean$effect, nonoutlier.gene.effect.score.05.mean$effect, alternative = 'two.sided', conf.int = TRUE);
 
 gene.effect.diff.matrix.05 <- data.frame(
     out = outlier.gene.effect.score.05.mean$effect,

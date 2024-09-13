@@ -23,33 +23,6 @@ do.plot.2i <- function(i) {
         i,
         ];
 
-    i.me.mean <- mean(
-        as.numeric(i.me),
-        na.rm = TRUE
-        );
-
-    i.me.patient <- i.me[
-        ,
-        i.patient == 1,
-        drop = FALSE
-        ];
-
-    i.me.patient.non <- i.me[
-        ,
-        i.patient == 0,
-        drop = FALSE
-        ];
-
-    i.me.patient.non.mean <- mean(
-        as.numeric(i.me.patient.non),
-        na.rm = TRUE
-        );
-
-    i.me.patient.mean <- mean(
-        as.numeric(i.me.patient),
-        na.rm = TRUE
-        );
-
     # FPKM data processing
     fpkm.i.brca <- fpkm.tumor.symbol.filter.brca[
         fpkm.tumor.symbol.filter.brca$Symbol %in% i,
