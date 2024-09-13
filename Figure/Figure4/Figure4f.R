@@ -1,5 +1,5 @@
 ### HISTORY #####################################################################
-# Gene dependency score of example outlier genes. 
+# Gene dependency score of example outlier genes.
 # Date: 2024-08-16
 
 source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
@@ -7,26 +7,26 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 # Filter for genes with dependency score difference > 0.5
 gene.dependency.diff.matrix.05.overlap.minus.05 <- gene.dependency.diff.matrix.05.overlap[
-    gene.dependency.diff.matrix.05.overlap$diff > 0.5, 
+    gene.dependency.diff.matrix.05.overlap$diff > 0.5,
     ];
 gene.dependency.diff.matrix.05.overlap.minus.05.order <- gene.dependency.diff.matrix.05.overlap.minus.05[
-    order(gene.dependency.diff.matrix.05.overlap.minus.05$diff), 
+    order(gene.dependency.diff.matrix.05.overlap.minus.05$diff),
     ];
 
 # Prepare data for box plot
 dependency.score.05.overlap.minus.05 <- gene.dependency.breast.t.num.match.05.na[
-    as.numeric(rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order)), 
+    as.numeric(rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order)),
     ];
 outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[
-    as.numeric(rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order)), 
+    as.numeric(rownames(gene.dependency.diff.matrix.05.overlap.minus.05.order)),
     ];
 
 # Create gene name box
 gene.name.box.05 <- NULL;
 for (i in 1:nrow(outlier.status.05.overlap.minus.05)) {
-    gene.name <- rep(sub("\\..*", "", rownames(dependency.score.05.overlap.minus.05))[i], ncol(dependency.score.05.overlap.minus.05));
+    gene.name <- rep(sub('\\..*', '', rownames(dependency.score.05.overlap.minus.05))[i], ncol(dependency.score.05.overlap.minus.05));
     gene.name.box.05 <- c(gene.name.box.05, gene.name);
-}
+    }
 
 # Combine dependency score and outlier status into a data frame
 dependency.05.box <- data.frame(
@@ -46,13 +46,13 @@ dependency.05.box.part <- dependency.05.box[!(
 
 # Add specific genes to the box plot data
 gene.dependency.diff.matrix.05.overlap.plus.05 <- gene.dependency.diff.matrix.05.overlap[
-    gene.dependency.diff.matrix.05.overlap$symbol %in% c('TACC3', 'CCT2'), 
+    gene.dependency.diff.matrix.05.overlap$symbol %in% c('TACC3', 'CCT2'),
     ];
 dependency.score.05.overlap.plus.05 <- gene.dependency.breast.t.num.match.05.na[
-    rownames(gene.dependency.diff.matrix.05.overlap.plus.05), 
+    rownames(gene.dependency.diff.matrix.05.overlap.plus.05),
     ];
 outlier.status.05.overlap.plus.05 <- ccle.sample.outlier.status.overlap.na[
-    rownames(gene.dependency.diff.matrix.05.overlap.plus.05), 
+    rownames(gene.dependency.diff.matrix.05.overlap.plus.05),
     ];
 dependency.05.box.plus <- data.frame(
     cbind(
@@ -60,7 +60,7 @@ dependency.05.box.plus <- data.frame(
         gene = c(
             rep(gene.dependency.diff.matrix.05.overlap.plus.05$symbol[1], ncol(dependency.score.05.overlap.minus.05)),
             rep(gene.dependency.diff.matrix.05.overlap.plus.05$symbol[2], ncol(dependency.score.05.overlap.minus.05))
-        ),
+            ),
         status = as.numeric(unlist(t(outlier.status.05.overlap.plus.05)))
         )
     );
@@ -96,7 +96,7 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     xright.rectangle = seq(1.5, 15.5, 2),
     ybottom.rectangle = -3,
     ytop.rectangle = 5,
-    col.rectangle = "grey",
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     main.cex = 1.5,
     xlab.label = NULL,
@@ -110,7 +110,7 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
     xaxis.rot = 90,
-    sample.order = "increasing",
+    sample.order = 'increasing',
     points.pch = 16,
     points.cex = 1,
     points.col = dot.colours,

@@ -1,6 +1,6 @@
 ### HISTORY #####################################################################
-# This script performs a meta-meta analysis to combine hazard ratios 
-# across different breast cancer subtypes (e.g., Basal, Her2, LuminalA, LuminalB, Normal) 
+# This script performs a meta-meta analysis to combine hazard ratios
+# across different breast cancer subtypes (e.g., Basal, Her2, LuminalA, LuminalB, Normal)
 # Date: 2024-08-15
 
 
@@ -15,12 +15,13 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 # Combine two datasets
 os.group.combine <- data.frame(rbind(
     os.group.brca,
-    os.group.meta));
+    os.group.meta
+    ));
 
 
 os.group.combine$pam50 <- as.factor(os.group.combine$pam50);
-os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = "LumA");
-os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% "NC"),];
+os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = 'LumA');
+os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% 'NC'), ];
 os.group.combine$pam50 <- factor(os.group.combine$pam50);
 os.group.combine <- na.omit(os.group.combine);
 
@@ -28,42 +29,42 @@ os.group.combine <- na.omit(os.group.combine);
 os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine);
 cox.rf.group.assumption.sub <- cox.zph(os.model.subtype);
 
-summary_cox.sub <- summary(os.model.subtype);
+summary.cox.sub <- summary(os.model.subtype);
 
 all.data.combine <- data.frame(
-    mean = as.numeric(summary_cox.sub$conf.int[1]),
-    lower = as.numeric(summary_cox.sub$conf.int[3]),
-    upper = as.numeric(summary_cox.sub$conf.int[4]),
+    mean = as.numeric(summary.cox.sub$conf.int[1]),
+    lower = as.numeric(summary.cox.sub$conf.int[3]),
+    upper = as.numeric(summary.cox.sub$conf.int[4]),
     Features = 'Outlier patients',
-    number = paste(as.character(sum(os.group.combine[,'patient'] == 2)), '/', as.character(length(os.group.combine[,'patient'])), sep = ''),
+    number = paste(as.character(sum(os.group.combine[, 'patient'] == 2)), '/', as.character(length(os.group.combine[, 'patient'])), sep = ''),
     # log2HR = as.character(round(log2(as.numeric(summary_cox$conf.int[1])), digits = 2)),
-    HR = as.character(round(as.numeric(summary_cox.sub$conf.int[1]), digits = 2)),
-    Pvalue = as.character(round(as.numeric(summary_cox.sub$coefficients[5]), digits = 4)),
+    HR = as.character(round(as.numeric(summary.cox.sub$conf.int[1]), digits = 2)),
+    Pvalue = as.character(round(as.numeric(summary.cox.sub$coefficients[5]), digits = 4)),
     event = paste(as.character(sum(os.group.combine[os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[, 'status'] == 1)), sep = ''),
-    assumption = as.character(round(cox.rf.group.assumption.sub$table[1,3], digits = 3))
+    assumption = as.character(round(cox.rf.group.assumption.sub$table[1, 3], digits = 3))
     );
 
 
 input.subtype <- c('Basal', 'Her2', 'LumA', 'LumB', 'Normal')
 
 for (i in input.subtype) {
-    os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine[os.group.combine$pam50 == i,]);
+    os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine[os.group.combine$pam50 == i, ]);
     cox.rf.group.assumption.sub <- cox.zph(os.model.subtype);
-    summary_cox.sub <- summary(os.model.subtype);
-    
+    summary.cox.sub <- summary(os.model.subtype);
+
     data <- data.frame(
-        mean = as.numeric(summary_cox.sub$conf.int[1]),
-        lower = as.numeric(summary_cox.sub$conf.int[3]),
-        upper = as.numeric(summary_cox.sub$conf.int[4]),
+        mean = as.numeric(summary.cox.sub$conf.int[1]),
+        lower = as.numeric(summary.cox.sub$conf.int[3]),
+        upper = as.numeric(summary.cox.sub$conf.int[4]),
         Features = 'Outlier patients',
-        number = paste(as.character(sum(os.group.combine[os.group.combine$pam50 == i,'patient'] == 2)), '/', as.character(length(os.group.combine[os.group.combine$pam50 == i,'patient'])), sep = ''),
-        HR = as.character(round(as.numeric(summary_cox.sub$conf.int[1]), digits = 2)),
-        Pvalue = as.character(round(as.numeric(summary_cox.sub$coefficients[5]), digits = 3)),
+        number = paste(as.character(sum(os.group.combine[os.group.combine$pam50 == i, 'patient'] == 2)), '/', as.character(length(os.group.combine[os.group.combine$pam50 == i, 'patient'])), sep = ''),
+        HR = as.character(round(as.numeric(summary.cox.sub$conf.int[1]), digits = 2)),
+        Pvalue = as.character(round(as.numeric(summary.cox.sub$coefficients[5]), digits = 3)),
         event = paste(as.character(sum(os.group.combine[os.group.combine$pam50 == i & os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[os.group.combine$pam50 == i, 'status'] == 1)), sep = ''),
-        assumption = as.character(round(cox.rf.group.assumption.sub$table[1,3], digits = 3))
+        assumption = as.character(round(cox.rf.group.assumption.sub$table[1, 3], digits = 3))
         );
-    
-    data.name <- paste(i, ".data.combine", sep = '');
+
+    data.name <- paste(i, '.data.combine', sep = '');
     assign(data.name, data);
     }
 
@@ -85,7 +86,7 @@ ln.hr.combine.surv.data.subtype <- log(combine.surv.data.subtype$mean);
 se.hr.combine.surv.data.subtype <- (log(combine.surv.data.subtype$upper) - log(combine.surv.data.subtype$lower)) / 3.92;
 
 # Perform meta-meta analysis
-res.meta.meta.all.combine.cox <- rma.uni(yi = ln.hr.combine.surv.data.subtype, sei = se.hr.combine.surv.data.subtype, method = "DL");
+res.meta.meta.all.combine.cox <- rma.uni(yi = ln.hr.combine.surv.data.subtype, sei = se.hr.combine.surv.data.subtype, method = 'DL');
 res.meta.meta.all.combine <- summary(res.meta.meta.all.combine.cox);
 
 
@@ -94,7 +95,7 @@ all.data.combine.meta <- data.frame(
     lower = exp(as.numeric(res.meta.meta.all.combine$ci.lb)),
     upper = exp(as.numeric(res.meta.meta.all.combine$ci.ub)),
     Features = 'Outlier patients',
-    number = paste(as.character(sum(os.group.combine[,'patient'] == 2)), '/', as.character(length(os.group.combine[,'patient'])), sep = ''),
+    number = paste(as.character(sum(os.group.combine[, 'patient'] == 2)), '/', as.character(length(os.group.combine[, 'patient'])), sep = ''),
     HR = as.character(round(exp(as.numeric(res.meta.meta.all.combine$beta)), digits = 2)),
     Pvalue = as.character(round(as.numeric(res.meta.meta.all.combine$pval), digits = 4)),
     event = paste(as.character(sum(os.group.combine[os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[, 'status'] == 1)), sep = ''),
@@ -148,7 +149,7 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
     xright.rectangle = 4,
     ybottom.rectangle = seq(1.5, 23.5, 2),
     ytop.rectangle = seq(2.5, 24.5, 2),
-    col.rectangle = "grey",
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     disable.factor.sorting = TRUE
     );

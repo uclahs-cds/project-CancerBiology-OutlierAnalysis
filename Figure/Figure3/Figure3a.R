@@ -1,6 +1,6 @@
 ### HISTORY #####################################################################
-# This script analyzes protein abundance data (z-scores) for outlier and 
-# non-outlier genes in the TCGA-BRCA dataset using CPTAC data. 
+# This script analyzes protein abundance data (z-scores) for outlier and
+# non-outlier genes in the TCGA-BRCA dataset using CPTAC data.
 # Date: 2024-08-14
 
 # Load necessary library
@@ -18,13 +18,13 @@ protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
 outlier.protein.cptac.zscore.gene <- outlier.symbol[outlier.symbol %in% protein.cptac.zscore.gene];
 
 brca.protein.cptac.zscore.outlier.match <- brca.protein.cptac.zscore[
-    , 
+    ,
     colnames(brca.protein.cptac.zscore) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)
     ];
 
 # Only outlier gene's FPKM
 fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[
-    rownames(outlier.gene.fdr.01.brca), 
+    rownames(outlier.gene.fdr.01.brca),
     ];
 
 outlier.protein.cptac.zscore.list <- list();
@@ -33,7 +33,7 @@ target.gene.cptac.zscore.list <- NULL;
 
 for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
     target.gene.name.protein <- brca.protein.cptac.zscore.outlier.match[
-        rownames(brca.protein.cptac.zscore.outlier.match) %in% outlier.protein.cptac.zscore.gene[i], 
+        rownames(brca.protein.cptac.zscore.outlier.match) %in% outlier.protein.cptac.zscore.gene[i],
         ];
     row.name.target <- rownames(fpkm.tumor.symbol.filter.brca.outlier)[
         fpkm.tumor.symbol.filter.brca.outlier$Symbol %in% outlier.protein.cptac.zscore.gene[i]
@@ -60,16 +60,18 @@ names(non.outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gen
 
 protein.cptac.na.value <- data.frame(
     protein.cptac.na.value = c(
-        as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)), 
+        as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)),
         as.numeric(unlist(outlier.protein.cptac.list.no.p.na))
         )
     );
 
 protein.cptac.na.value.box <- data.frame(
     cbind(
-        protein.cptac.na.value$protein.cptac.na.value, 
-        c(rep('non', length(as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)))), 
-          rep('out', length(as.numeric(unlist(outlier.protein.cptac.list.no.p.na)))))
+        protein.cptac.na.value$protein.cptac.na.value,
+        c(
+            rep('non', length(as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)))),
+            rep('out', length(as.numeric(unlist(outlier.protein.cptac.list.no.p.na))))
+            )
         )
     );
 
@@ -79,7 +81,7 @@ protein.cptac.na.value.box[, 1] <- as.numeric(protein.cptac.na.value.box[, 1]);
 wilcox.result.protein.na <- wilcox.test(
     as.numeric(unlist(outlier.protein.cptac.list.no.p.na)),
     as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)),
-    alternative = "two.sided", 
+    alternative = 'two.sided',
     conf.int = TRUE
     );
 
@@ -91,7 +93,7 @@ text.pvalue.protein.na <- display.statistical.result(
 
 key.protein.na <- list(
     text = list(
-        lab = text.pvalue.protein.na, 
+        lab = text.pvalue.protein.na,
         cex = 1
         ),
     x = 0.25,
@@ -130,7 +132,7 @@ cptac.box <- BoutrosLab.plotting.general::create.boxplot(
     xright.rectangle = c(4, 5),
     ybottom.rectangle = -6,
     ytop.rectangle = 10,
-    col.rectangle = "grey",
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     lwd = 1.2,
     col = c('red2', 'dodgerblue3'),

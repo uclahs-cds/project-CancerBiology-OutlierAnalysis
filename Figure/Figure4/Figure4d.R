@@ -1,5 +1,5 @@
 ### HISTORY #####################################################################
-# This script analyzes the protein abundance of all outlier genes identified in CCLE. 
+# This script analyzes the protein abundance of all outlier genes identified in CCLE.
 # Date: 2024-08-16
 
 library(BoutrosLab.plotting.general);
@@ -7,7 +7,7 @@ library(BoutrosLab.plotting.general);
 source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 # All CCLE outlier genes
-protein.info.breast.num.match.all <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% sub("\\..*", "", rownames(ccle.outlier.rank.fdr.05)),];
+protein.info.breast.num.match.all <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% sub('\\..*', '', rownames(ccle.outlier.rank.fdr.05)), ];
 
 
 # Use the mean of the duplicated gene and patient
@@ -16,11 +16,12 @@ uni.gene.protein.all <- unique(rownames(protein.info.breast.num.match.all));
 protein.info.breast.num.match.all.uni <- NULL;
 for (i in 1:length(uni.gene.protein.all)) {
     if (1 == sum(rownames(protein.info.breast.num.match.all) %in% uni.gene.protein.all[i])) {
-        dup.gene.protein.num.mean <- protein.info.breast.num.match.all[rownames(protein.info.breast.num.match.all) %in% uni.gene.protein.all[i],];
-        }
-    else {
-        dup.gene.protein.num <- protein.info.breast.num.match.all[rownames(protein.info.breast.num.match.all) %in% uni.gene.protein.all[i],];
-        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 2, function(x) {mean(na.omit(x))});
+        dup.gene.protein.num.mean <- protein.info.breast.num.match.all[rownames(protein.info.breast.num.match.all) %in% uni.gene.protein.all[i], ];
+        } else {
+        dup.gene.protein.num <- protein.info.breast.num.match.all[rownames(protein.info.breast.num.match.all) %in% uni.gene.protein.all[i], ];
+        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 2, function(x) {
+            mean(na.omit(x))
+            });
         }
     protein.info.breast.num.match.all.uni <- rbind(protein.info.breast.num.match.all.uni, dup.gene.protein.num.mean);
     }
@@ -31,11 +32,12 @@ uni.sample.protein.all <- unique(colnames(protein.info.breast.num.match.all));
 protein.info.breast.num.match.all.uni.gene.sample <- NULL;
 for (i in 1:length(uni.sample.protein.all)) {
     if (1 == sum(colnames(protein.info.breast.num.match.all) %in% uni.sample.protein.all[i])) {
-        dup.gene.protein.num.mean <- protein.info.breast.num.match.all.uni[,colnames(protein.info.breast.num.match.all) %in% uni.sample.protein.all[i]];
-        }
-    else {
-        dup.gene.protein.num <- protein.info.breast.num.match.all.uni[,colnames(protein.info.breast.num.match.all) %in% uni.sample.protein.all[i]];
-        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 1, function(x) {mean(na.omit(x))});
+        dup.gene.protein.num.mean <- protein.info.breast.num.match.all.uni[, colnames(protein.info.breast.num.match.all) %in% uni.sample.protein.all[i]];
+        } else {
+        dup.gene.protein.num <- protein.info.breast.num.match.all.uni[, colnames(protein.info.breast.num.match.all) %in% uni.sample.protein.all[i]];
+        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 1, function(x) {
+            mean(na.omit(x))
+            });
         }
     protein.info.breast.num.match.all.uni.gene.sample <- cbind(protein.info.breast.num.match.all.uni.gene.sample, dup.gene.protein.num.mean);
     }
@@ -45,15 +47,15 @@ colnames(protein.info.breast.num.match.all.uni.gene.sample) <- uni.sample.protei
 
 
 # only outlier gene's fpkm
-fpkm.tumor.symbol.filter.ccle.outlier.all <- fpkm.tumor.symbol.filter.ccle[ sub("\\..*", "", rownames(fpkm.tumor.symbol.filter.ccle)) %in% rownames(protein.info.breast.num.match.all.uni.gene.sample), colnames(protein.info.breast.num.match.all.uni.gene.sample)];
+fpkm.tumor.symbol.filter.ccle.outlier.all <- fpkm.tumor.symbol.filter.ccle[sub('\\..*', '', rownames(fpkm.tumor.symbol.filter.ccle)) %in% rownames(protein.info.breast.num.match.all.uni.gene.sample), colnames(protein.info.breast.num.match.all.uni.gene.sample)];
 
 # only outlier gene's status
 sample.outlier.all.protein.match.all <- ccle.sample.outlier.status[rownames(fpkm.tumor.symbol.filter.ccle.outlier.all), colnames(protein.info.breast.num.match.all.uni.gene.sample)];
 
 
-rownames(fpkm.tumor.symbol.filter.ccle.outlier.all) <- sub("\\..*", "", rownames(fpkm.tumor.symbol.filter.ccle.outlier.all));
+rownames(fpkm.tumor.symbol.filter.ccle.outlier.all) <- sub('\\..*', '', rownames(fpkm.tumor.symbol.filter.ccle.outlier.all));
 
-rownames(sample.outlier.all.protein.match.all) <- sub("\\..*", "", rownames(sample.outlier.all.protein.match.all));
+rownames(sample.outlier.all.protein.match.all) <- sub('\\..*', '', rownames(sample.outlier.all.protein.match.all));
 
 
 
@@ -63,16 +65,16 @@ target.gene.ccle.zscore.list.all <- NULL;
 for (i in 1:nrow(protein.info.breast.num.match.all.uni.gene.sample)) {
     # protein target name
     target.gene.name.protein <- rownames(protein.info.breast.num.match.all.uni.gene.sample)[i];
-    
+
     # outlier patient column
-    target.col <- colnames(sample.outlier.all.protein.match.all)[sample.outlier.all.protein.match.all[target.gene.name.protein,] == 1];
-    non.target.col <- colnames(sample.outlier.all.protein.match.all)[sample.outlier.all.protein.match.all[target.gene.name.protein,] == 0];
-    
-    # 
-    
+    target.col <- colnames(sample.outlier.all.protein.match.all)[sample.outlier.all.protein.match.all[target.gene.name.protein, ] == 1];
+    non.target.col <- colnames(sample.outlier.all.protein.match.all)[sample.outlier.all.protein.match.all[target.gene.name.protein, ] == 0];
+
+    #
+
     target.gene.ccle.zscore.list.all <- c(target.gene.ccle.zscore.list.all, target.gene.name.protein);
-    outlier.protein.ccle.zscore.list.all[[i]] <- protein.info.breast.num.match.all.uni.gene.sample[i,target.col];
-    non.outlier.protein.ccle.zscore.list.all[[i]] <- protein.info.breast.num.match.all.uni.gene.sample[i,non.target.col];
+    outlier.protein.ccle.zscore.list.all[[i]] <- protein.info.breast.num.match.all.uni.gene.sample[i, target.col];
+    non.outlier.protein.ccle.zscore.list.all[[i]] <- protein.info.breast.num.match.all.uni.gene.sample[i, non.target.col];
     }
 
 outlier.protein.ccle.zscore.value.all <- as.numeric(unlist(outlier.protein.ccle.zscore.list.all));
@@ -93,11 +95,12 @@ non.outlier.protein.ccle.list.no.p.na.all <- non.outlier.protein.ccle.zscore.lis
 protein.ccle.na.value.all <- data.frame(protein.ccle.na.value = c(as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na.all)), as.numeric(unlist(outlier.protein.ccle.list.no.p.na.all))));
 protein.ccle.na.value.box.all <- data.frame(cbind(protein.ccle.na.value.all$protein.ccle.na.value, c(rep('non', length(as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na.all)))), rep('out', length(as.numeric(unlist(outlier.protein.ccle.list.no.p.na.all)))))));
 colnames(protein.ccle.na.value.box.all) <- c('protein.ccle.value', 'status');
-protein.ccle.na.value.box.all[,1] <- as.numeric(protein.ccle.na.value.box.all[,1]);
+protein.ccle.na.value.box.all[, 1] <- as.numeric(protein.ccle.na.value.box.all[, 1]);
 
 wilcox.result.protien.na.all <- wilcox.test(as.numeric(unlist(outlier.protein.ccle.list.no.p.na.all)),
-                                     as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na.all)),
-                                     alternative = "two.sided", conf.int = TRUE);
+    as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na.all)),
+    alternative = 'two.sided', conf.int = TRUE
+    );
 
 
 text.pvalue.protien.na.all <- display.statistical.result(
@@ -108,7 +111,7 @@ text.pvalue.protien.na.all <- display.statistical.result(
 
 key.protien.na.all <- list(
     text = list(
-        lab = text.pvalue.protien.na.all, 
+        lab = text.pvalue.protien.na.all,
         cex = 1
         ),
     x = 0.25,
@@ -150,11 +153,11 @@ ccle.protein.box.all <- BoutrosLab.plotting.general::create.boxplot(
     points.col = 'grey60',
     add.rectangle = TRUE,
     xleft.rectangle = c(1.5, 4),
-    xright.rectangle =c(4, 5),
+    xright.rectangle = c(4, 5),
     ybottom.rectangle = -6,
     ytop.rectangle = 10,
     # set rectangle colour
-    col.rectangle = "grey",
+    col.rectangle = 'grey',
     # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     lwd = 1.2,

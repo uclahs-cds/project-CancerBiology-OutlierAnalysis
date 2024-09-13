@@ -1,6 +1,6 @@
 ### HISTORY #####################################################################
-# This script generates a heatmap to visualize the quantiles of protein 
-# abundance for outlier genes using TCGA-BRCA CPTAC data. 
+# This script generates a heatmap to visualize the quantiles of protein
+# abundance for outlier genes using TCGA-BRCA CPTAC data.
 # This code is linked with the analysis in Figure 3a.
 # Date: 2024-08-14
 
@@ -12,7 +12,7 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 # Calculate quantiles of protein abundance for outlier genes
 percent.protein.cptac.quantile <- NULL;
-for (i in 1:length(outlier.protein.cptac.list.no.p.na)) { 
+for (i in 1:length(outlier.protein.cptac.list.no.p.na)) {
     unequal.quan <- rev(seq(0, 0.9, 0.1));
     value.vector <- na.omit(as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na[i])));
     non.value <- quantile(value.vector, p = unequal.quan);
@@ -32,11 +32,11 @@ heat.df.rev <- heat.df[rev(seq(nrow(heat.df))), ];
 # Define legend for the heatmap
 legend.col <- list(
     legend = list(
-        colours = c("black", "white", "#b2182b"),
-        title = expression(underline('z-score')), 
+        colours = c('black', 'white', '#b2182b'),
+        title = expression(underline('z-score')),
         labels = c(-3, 0, 3),
         size = 3,
-        label.cex = 1, 
+        label.cex = 1,
         continuous = TRUE,
         height = 3
         )
@@ -46,11 +46,11 @@ legend.col <- list(
 heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     x = t(heat.df.rev),
     clustering.method = 'none',
-    colour.scheme = c("black", "white", "#b2182b"), 
+    colour.scheme = c('black', 'white', '#b2182b'),
     col.colour = 'white',
-    grid.row = FALSE, 
-    grid.col = TRUE, 
-    yaxis.tck = 0, 
+    grid.row = FALSE,
+    grid.col = TRUE,
+    yaxis.tck = 0,
     xaxis.tck = 0,
     xaxis.lab = NULL,
     yaxis.lab = rev(c('Outliers', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100')),
@@ -68,7 +68,7 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     legend.cex = 1,
     colourkey.cex = 1.3,
     print.colour.key = FALSE
-    );  
+    );
 
 
 save.outlier.figure(

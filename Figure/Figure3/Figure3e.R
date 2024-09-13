@@ -1,6 +1,6 @@
 ### HISTORY #####################################################################
-# This script performs meta-analysis to compare the tumour stages across 
-# multiple breast cancer subtypes. 
+# This script performs meta-analysis to compare the tumour stages across
+# multiple breast cancer subtypes.
 # Date: 2024-08-15
 
 
@@ -13,10 +13,10 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 ### 1. TCGA-BRCA
 convert.stage <- function(stage) {
     result <- rep(NA, length(stage));
-    result[stage %in% c("STAGE I", "STAGE IA", "STAGE IB")] <- 1;
-    result[stage %in% c("STAGE II", "STAGE IIA", "STAGE IIB")] <- 2;
-    result[stage %in% c("STAGE III", "STAGE IIIA", "STAGE IIIB", "STAGE IIIC")] <- 3;
-    result[stage == "STAGE IV"] <- 4;
+    result[stage %in% c('STAGE I', 'STAGE IA', 'STAGE IB')] <- 1;
+    result[stage %in% c('STAGE II', 'STAGE IIA', 'STAGE IIB')] <- 2;
+    result[stage %in% c('STAGE III', 'STAGE IIIA', 'STAGE IIIB', 'STAGE IIIC')] <- 3;
+    result[stage == 'STAGE IV'] <- 4;
     return(result);
     }
 
@@ -24,33 +24,33 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
     if (!is.null(subtype)) {
         data <- data[data$pam50 == subtype, ]
         }
-    
+
     stages <- stages <- c(1, 2, 3);
     p.values <- numeric();
     odd.ratios <- numeric();
     ci.intervals <- matrix(nrow = 0, ncol = 2);
-    
+
     for (i in stages[-1]) {
         table.1 <- sum(data$patient == 0 & data$stage.convert == stages[1]);
         table.2 <- sum(data$patient == 0 & data$stage.convert == i);
         table.3 <- sum(data$patient > 0 & data$stage.convert == stages[1]);
         table.4 <- sum(data$patient > 0 & data$stage.convert == i);
-        
-        fisher.result <- fisher.test(matrix(c(table.1+1, table.2+1, table.3+1, table.4+1), nrow=2), alternative="two.sided");
-        
+
+        fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = 'two.sided');
+
         p.values <- c(p.values, fisher.result$p.value);
         odd.ratios <- c(odd.ratios, fisher.result$estimate);
         ci.intervals <- rbind(ci.intervals, fisher.result$conf.int);
         }
-    
+
     p.values.fdr <- p.adjust(p.values, method = 'BH');
-    
+
     return(list(p.values = p.values, odd.ratios = odd.ratios, ci.intervals = ci.intervals, p.values.fdr = p.values.fdr));
     }
 
 
-brca.sample.clinic <- gsub("-", ".", brca.clinic$Patient.ID, fixed = TRUE);
-brca.clinic.sort <- brca.clinic[order(brca.clinic$Subtype),];
+brca.sample.clinic <- gsub('-', '.', brca.clinic$Patient.ID, fixed = TRUE);
+brca.clinic.sort <- brca.clinic[order(brca.clinic$Subtype), ];
 
 brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
 
@@ -61,7 +61,7 @@ os.data.stage.pseudo.brca <- data.frame(
     pam50 = brca.clinic.order$Subtype,
     age = brca.clinic.order$Diagnosis.Age,
     stage = brca.clinic.order$Neoplasm.Disease.Stage.American.Joint.Committee.on.Cancer.Code
-);
+    );
 
 os.data.stage.pseudo.brca$pam50 <- as.character(os.data.stage.pseudo.brca$pam50);
 os.data.stage.pseudo.brca$pam50[os.data.stage.pseudo.brca$pam50 == 'BRCA_Basal'] <- 'Basal';
@@ -86,35 +86,35 @@ p.value.stage.pseudo.ci.sub.t1.brca <- all.results$ci.intervals;
 p.value.outlier.stage.pseudo.fisher.fdr.t1.brca <- all.results$p.values.fdr;
 
 # Basal
-basal.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, "Basal");
+basal.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'Basal');
 p.value.outlier.stage.pseudo.basal.fisher.t1.brca <- basal.results$p.values;
 p.value.stage.pseudo.basal.odd.sub.t1.brca <- basal.results$odd.ratios;
 p.value.stage.pseudo.basal.ci.sub.t1.brca <- basal.results$ci.intervals;
 p.value.outlier.stage.pseudo.basal.fisher.fdr.t1.brca <- basal.results$p.values.fdr;
 
 # Her2
-her2.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, "Her2");
+her2.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'Her2');
 p.value.outlier.stage.pseudo.her2.fisher.t1.brca <- her2.results$p.values;
 p.value.stage.pseudo.her2.odd.sub.t1.brca <- her2.results$odd.ratios;
 p.value.stage.pseudo.her2.ci.sub.t1.brca <- her2.results$ci.intervals;
 p.value.outlier.stage.pseudo.her2.fisher.fdr.t1.brca <- her2.results$p.values.fdr;
 
 # LumA
-luma.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, "LumA");
+luma.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'LumA');
 p.value.outlier.stage.pseudo.luma.fisher.t1.brca <- luma.results$p.values;
 p.value.stage.pseudo.luma.odd.sub.t1.brca <- luma.results$odd.ratios;
 p.value.stage.pseudo.luma.ci.sub.t1.brca <- luma.results$ci.intervals;
 p.value.outlier.stage.pseudo.luma.fisher.fdr.t1.brca <- luma.results$p.values.fdr;
 
 # LumB
-lumb.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, "LumB");
+lumb.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'LumB');
 p.value.outlier.stage.pseudo.lumb.fisher.t1.brca <- lumb.results$p.values;
 p.value.stage.pseudo.lumb.odd.sub.t1.brca <- lumb.results$odd.ratios;
 p.value.stage.pseudo.lumb.ci.sub.t1.brca <- lumb.results$ci.intervals;
 p.value.outlier.stage.pseudo.lumb.fisher.fdr.t1.brca <- lumb.results$p.values.fdr;
 
 # Normal
-normal.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, "Normal");
+normal.results <- perform.fisher.test.brca(os.data.stage.pseudo.brca, 'Normal');
 p.value.outlier.stage.pseudo.normal.fisher.t1.brca <- normal.results$p.values;
 p.value.stage.pseudo.normal.odd.sub.t1.brca <- normal.results$odd.ratios;
 p.value.stage.pseudo.normal.ci.sub.t1.brca <- normal.results$ci.intervals;
@@ -128,7 +128,7 @@ outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
 
 # meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
 # meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
-# 
+#
 # # get subtype info from other clinical dataset
 # meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
 # meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
@@ -139,27 +139,27 @@ perform.fisher.test.meta <- function(data, subtype = NULL) {
     if (!is.null(subtype)) {
         data <- data[data$pam50 == subtype, ];
         }
-    
+
     stages <- c(1, 2, 3);
     p.values <- numeric();
     odd.ratios <- numeric();
     ci.intervals <- matrix(nrow = 0, ncol = 2);
-    
+
     for (i in stages[-1]) {
         table.1 <- sum(data$patient == 0 & data$stage == stages[1]);
         table.2 <- sum(data$patient == 0 & data$stage == i);
         table.3 <- sum(data$patient > 0 & data$stage == stages[1]);
         table.4 <- sum(data$patient > 0 & data$stage == i);
-        
-        fisher.result <- fisher.test(matrix(c(table.1+1, table.2+1, table.3+1, table.4+1), nrow=2), alternative="two.sided")
-        
+
+        fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = 'two.sided')
+
         p.values <- c(p.values, fisher.result$p.value);
         odd.ratios <- c(odd.ratios, fisher.result$estimate);
         ci.intervals <- rbind(ci.intervals, fisher.result$conf.int);
         }
-    
+
     p.values.fdr <- p.adjust(p.values, method = 'BH');
-    
+
     return(list(p.values = p.values, odd.ratios = odd.ratios, ci.intervals = ci.intervals, p.values.fdr = p.values.fdr));
     }
 
@@ -173,13 +173,13 @@ os.data.stage.pseudo.meta <- data.frame(
     stage = meta.clinic.5.order$stage
     );
 
-os.data.stage.pseudo.meta[,1] <- as.numeric(os.data.stage.pseudo.meta[,1]);
-os.data.stage.pseudo.meta[,2] <- as.numeric(os.data.stage.pseudo.meta[,2]);
-os.data.stage.pseudo.meta[,3] <- as.numeric(os.data.stage.pseudo.meta[,3]);
-os.data.stage.pseudo.meta[,5] <- as.numeric(os.data.stage.pseudo.meta[,5]);
+os.data.stage.pseudo.meta[, 1] <- as.numeric(os.data.stage.pseudo.meta[, 1]);
+os.data.stage.pseudo.meta[, 2] <- as.numeric(os.data.stage.pseudo.meta[, 2]);
+os.data.stage.pseudo.meta[, 3] <- as.numeric(os.data.stage.pseudo.meta[, 3]);
+os.data.stage.pseudo.meta[, 5] <- as.numeric(os.data.stage.pseudo.meta[, 5]);
 
 os.data.stage.pseudo.meta.stage <- data.frame(table(os.data.stage.pseudo.meta$stage));
-os.data.stage.pseudo.meta.stage <- os.data.stage.pseudo.meta.stage[2:5,];
+os.data.stage.pseudo.meta.stage <- os.data.stage.pseudo.meta.stage[2:5, ];
 
 
 # Metabric - All subtypes
@@ -190,35 +190,35 @@ p.value.stage.pseudo.ci.sub.t1.meta <- meta.results$ci.intervals;
 p.value.outlier.stage.pseudo.fisher.fdr.t1.meta <- meta.results$p.values.fdr;
 
 # Basal subtype
-basal.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, "Basal");
+basal.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'Basal');
 p.value.outlier.stage.pseudo.basal.fisher.t1.meta <- basal.meta.results$p.values;
 p.value.stage.pseudo.basal.odd.sub.t1.meta <- basal.meta.results$odd.ratios;
 p.value.stage.pseudo.basal.ci.sub.t1.meta <- basal.meta.results$ci.intervals;
 p.value.outlier.stage.pseudo.basal.fisher.fdr.t1.meta <- basal.meta.results$p.values.fdr;
 
 # Her2 subtype
-her2.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, "Her2");
+her2.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'Her2');
 p.value.outlier.stage.pseudo.her2.fisher.t1.meta <- her2.meta.results$p.values;
 p.value.stage.pseudo.her2.odd.sub.t1.meta <- her2.meta.results$odd.ratios;
 p.value.stage.pseudo.her2.ci.sub.t1.meta <- her2.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.her2.fisher.fdr.t1.meta <- her2.meta.results$p.values.fdr;   
+p.value.outlier.stage.pseudo.her2.fisher.fdr.t1.meta <- her2.meta.results$p.values.fdr;
 
 # Luminal A subtype
-luma.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, "LumA");
+luma.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'LumA');
 p.value.outlier.stage.pseudo.luma.fisher.t1.meta <- luma.meta.results$p.values;
 p.value.stage.pseudo.luma.odd.sub.t1.meta <- luma.meta.results$odd.ratios;
 p.value.stage.pseudo.luma.ci.sub.t1.meta <- luma.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.luma.fisher.fdr.t1.meta <- luma.meta.results$p.values.fdr;   
+p.value.outlier.stage.pseudo.luma.fisher.fdr.t1.meta <- luma.meta.results$p.values.fdr;
 
 # Luminal B subtype
-lumb.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, "LumB");
+lumb.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'LumB');
 p.value.outlier.stage.pseudo.lumb.fisher.t1.meta <- lumb.meta.results$p.values;
 p.value.stage.pseudo.lumb.odd.sub.t1.meta <- lumb.meta.results$odd.ratios;
 p.value.stage.pseudo.lumb.ci.sub.t1.meta <- lumb.meta.results$ci.intervals;
-p.value.outlier.stage.pseudo.lumb.fisher.fdr.t1.meta <- lumb.meta.results$p.values.fdr;   
+p.value.outlier.stage.pseudo.lumb.fisher.fdr.t1.meta <- lumb.meta.results$p.values.fdr;
 
 # Normal subtype
-normal.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, "Normal");
+normal.meta.results <- perform.fisher.test.meta(os.data.stage.pseudo.meta, 'Normal');
 p.value.outlier.stage.pseudo.normal.fisher.t1.meta <- normal.meta.results$p.values;
 p.value.stage.pseudo.normal.odd.sub.t1.meta <- normal.meta.results$odd.ratios;
 p.value.stage.pseudo.normal.ci.sub.t1.meta <- normal.meta.results$ci.intervals;
@@ -236,9 +236,9 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.meta <- normal.meta.results$p.
 icgc.sample.num <- substr(icgc.clinic$sample_name, 3, nchar(icgc.clinic$sample_name));
 
 # Prepare ICGC sample numbers
-icgc.sample.num.nra <- gsub("PR(\\d+)a(\\.RNA|\\.2)?", "\\1", colnames(outlier.patient.tag.01.icgc));
-icgc.sample.num.nra <- gsub("PR(\\d+)b(\\.RNA|\\.2)?", "\\1", icgc.sample.num.nra);
-icgc.sample.num.nra <- gsub("PR(\\d+)c(\\.RNA|\\.2)?", "\\1", icgc.sample.num.nra);
+icgc.sample.num.nra <- gsub('PR(\\d+)a(\\.RNA|\\.2)?', '\\1', colnames(outlier.patient.tag.01.icgc));
+icgc.sample.num.nra <- gsub('PR(\\d+)b(\\.RNA|\\.2)?', '\\1', icgc.sample.num.nra);
+icgc.sample.num.nra <- gsub('PR(\\d+)c(\\.RNA|\\.2)?', '\\1', icgc.sample.num.nra);
 
 icgc.clinic.all.order <- icgc.clinic[match(icgc.sample.num.nra, icgc.sample.num), ];
 rownames(icgc.clinic.all.order) <- colnames(outlier.patient.tag.01.icgc);
@@ -253,40 +253,32 @@ for (i in 1:nrow(icgc.clinic.all.order.x)) {
     T <- icgc.clinic.all.order.x$T_stage[i];
     N <- icgc.clinic.all.order.x$N_stage[i];
     M <- icgc.clinic.all.order.x$M_stage[i];
-    
+
     if (is.na(T) | is.na(N) | is.na(M)) {
         next;
         }
-    
+
     stage <- NA;
     if (T == 'Tis' && N == 'N0' && M == 'M0') {
         stage <- 0;
-        } 
-    else if ((T == 'T1' && N == 'N0' && M == 'M0') || (T %in% c('T0', 'T1') && N == 'N1mi' && M == 'M0')) {
+        } else if ((T == 'T1' && N == 'N0' && M == 'M0') || (T %in% c('T0', 'T1') && N == 'N1mi' && M == 'M0')) {
         stage <- 1;
-        } 
-    else if ((T == 'T0' && N == 'N1' && M == 'M0') || (T == 'T1' && N == 'N1' && M == 'M0') || (T == 'T2' && N == 'N0' && M == 'M0')) {
+        } else if ((T == 'T0' && N == 'N1' && M == 'M0') || (T == 'T1' && N == 'N1' && M == 'M0') || (T == 'T2' && N == 'N0' && M == 'M0')) {
         stage <- 2;
-        } 
-    else if ((T == 'T2' && N == 'N1' && M == 'M0') || (T == 'T3' && N == 'N0' && M == 'M0')) {
+        } else if ((T == 'T2' && N == 'N1' && M == 'M0') || (T == 'T3' && N == 'N0' && M == 'M0')) {
         stage <- 2;
-        } 
-    else if ((T %in% c('T0', 'T1', 'T2', 'T3') && N == 'N2' && M == 'M0') || (T == 'T3' && N == 'N1' && M == 'M0')) {
+        } else if ((T %in% c('T0', 'T1', 'T2', 'T3') && N == 'N2' && M == 'M0') || (T == 'T3' && N == 'N1' && M == 'M0')) {
         stage <- 3;
-        } 
-    else if (T == 'T4' && (N %in% c('N0', 'N1', 'N2')) && M == 'M0') {
+        } else if (T == 'T4' && (N %in% c('N0', 'N1', 'N2')) && M == 'M0') {
         stage <- 3
-        } 
-    else if ((T %in% c('T0', 'T1', 'T2', 'T3', 'T4') && N == 'N3' && M == 'M0')) {
+        } else if ((T %in% c('T0', 'T1', 'T2', 'T3', 'T4') && N == 'N3' && M == 'M0')) {
         stage <- 3
-        } 
-    else if (M %in% c('M1', 'M2')) {
+        } else if (M %in% c('M1', 'M2')) {
         stage <- 4
-        } 
-    else {
-        stage <- NA  # Set stage as NA if none of the conditions match
+        } else {
+        stage <- NA # Set stage as NA if none of the conditions match
         }
-    
+
     icgc.stage.convert.new.x[i] <- stage
     }
 
@@ -295,34 +287,35 @@ perform.fisher.test.icgc <- function(data, subtype = NULL) {
     if (!is.null(subtype)) {
         data <- data[data$subtype == subtype, ];
         }
-    
+
     stages <- c(1, 2, 3);
     p.values <- numeric();
     odd.ratios <- numeric();
     ci.intervals <- matrix(nrow = 0, ncol = 2);
-    
+
     for (i in stages[-1]) {
         table.1 <- sum(data$outlier == 0 & data$stage == stages[1]);
         table.2 <- sum(data$outlier == 0 & data$stage == i);
         table.3 <- sum(data$outlier > 0 & data$stage == stages[1]);
         table.4 <- sum(data$outlier > 0 & data$stage == i);
-        
-        fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = "two.sided");
-        
+
+        fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = 'two.sided');
+
         p.values <- c(p.values, fisher.result$p.value);
         odd.ratios <- c(odd.ratios, fisher.result$estimate);
         ci.intervals <- rbind(ci.intervals, fisher.result$conf.int);
         }
-    
+
     p.values.fdr <- p.adjust(p.values, method = 'BH');
-    
+
     return(list(p.values = p.values, odd.ratios = odd.ratios, ci.intervals = ci.intervals, p.values.fdr = p.values.fdr));
     }
 
 
 # Data preparation
 os.data.stage.pseudo.icgc <- data.frame(cbind(subtype.total.outlier.num.icgc,
-                                        stage = icgc.stage.convert.new.x));
+    stage = icgc.stage.convert.new.x
+    ));
 os.data.stage.pseudo.icgc <- na.omit(os.data.stage.pseudo.icgc);
 
 # All ICGC
@@ -375,27 +368,27 @@ p.value.outlier.stage.pseudo.normal.fisher.fdr.t1.icgc <- normal.results.icgc$p.
 # Calculate log odds and standard error
 calculate.ln.odd.se <- function(odd, ci) {
     ln.odd <- log(odd);
-    se.odd <- (log(ci[,2]) - log(ci[,1])) / 3.92;
+    se.odd <- (log(ci[, 2]) - log(ci[, 1])) / 3.92;
     return(list(ln.odd = ln.odd, se.odd = se.odd));
     }
 
 # Perform meta-analysis using metafor
 perform.meta.analysis <- function(ln.odd, se.odd) {
     stage.pseudo.odd.se.t1 <- list();
-    
+
     for (i in 1:length(ln.odd[[1]])) {
         chr.odd <- sapply(ln.odd, function(x) x[i]);
         chr.se <- sapply(se.odd, function(x) x[i]);
         chr.all <- data.frame(chr.odd, chr.se);
         stage.pseudo.odd.se.t1[[i]] <- chr.all;
         }
-    
+
     metafor.stage.pseudo.odd.ci.p.t1 <- NULL;
-    
+
     for (i in 1:length(stage.pseudo.odd.se.t1)) {
         chr.odd.se.sample <- stage.pseudo.odd.se.t1[[i]];
         chr.odd.se.sample.inf <- chr.odd.se.sample[!is.infinite(chr.odd.se.sample$chr.odd) & !is.infinite(chr.odd.se.sample$chr.se), ];
-        
+
         if (nrow(chr.odd.se.sample.inf) > 1) {
             metafor.chr <- rma.uni(yi = chr.odd, sei = chr.se, data = chr.odd.se.sample.inf, method = 'DL');
             metafor.chr.odd <- exp(metafor.chr$beta);
@@ -403,23 +396,22 @@ perform.meta.analysis <- function(ln.odd, se.odd) {
             metafor.chr.upper <- exp(metafor.chr$ci.ub);
             metafor.chr.p <- metafor.chr$pval;
             metafor.all <- c(metafor.chr.odd, metafor.chr.lower, metafor.chr.upper, metafor.chr.p);
-            } 
-        else {
+            } else {
             metafor.all <- c(NA, NA, NA, NA);
             }
-        
+
         metafor.stage.pseudo.odd.ci.p.t1 <- rbind(metafor.stage.pseudo.odd.ci.p.t1, metafor.all);
         }
-    
+
     metafor.stage.pseudo.odd.ci.p.data.t1 <- data.frame(
-        p.value = metafor.stage.pseudo.odd.ci.p.t1[,4],
-        odd = metafor.stage.pseudo.odd.ci.p.t1[,1],
-        ci.min = metafor.stage.pseudo.odd.ci.p.t1[,2],
-        ci.max = metafor.stage.pseudo.odd.ci.p.t1[,3]
+        p.value = metafor.stage.pseudo.odd.ci.p.t1[, 4],
+        odd = metafor.stage.pseudo.odd.ci.p.t1[, 1],
+        ci.min = metafor.stage.pseudo.odd.ci.p.t1[, 2],
+        ci.max = metafor.stage.pseudo.odd.ci.p.t1[, 3]
         );
-    
+
     metafor.stage.pseudo.odd.ci.p.data.fdr.t1 <- p.adjust(metafor.stage.pseudo.odd.ci.p.data.t1$p.value, method = 'BH');
-    
+
     return(list(
         data = metafor.stage.pseudo.odd.ci.p.data.t1,
         fdr = metafor.stage.pseudo.odd.ci.p.data.fdr.t1
@@ -517,11 +509,9 @@ colourkey.labels <- sapply(
     FUN = function(x) {
         if (x == 0) {
             return(expression('10'^'0'));
-            } 
-        else if (x != background.cutoff) {
+            } else if (x != background.cutoff) {
             return(as.expression(bquote('10'^-.(as.character(x)))));
-            } 
-        else {
+            } else {
             return(as.expression(bquote('<10'^-.(as.character(x)))));
             }
         }
@@ -535,7 +525,7 @@ legend <- legend.grob(
             colours = c('white', 'black'),
             total.colours = 100,
             labels = colourkey.labels,
-            cex = 0.9, 
+            cex = 0.9,
             at = seq(0, 100, length.out = length(colourkey.labels)),
             height = 3
             )
@@ -548,11 +538,13 @@ legend <- legend.grob(
     );
 
 # Spot size and color functions
-spot.size.function <- function(x) { 0.1 + (1.5 * abs(x)); }
+spot.size.function <- function(x) {
+    0.1 + (1.5 * abs(x));
+    }
 spot.colour.function <- function(x) {
-    colours <- rep("white", length(x));
-    colours[sign(x) == -1] <- default.colours(2, palette.type = "dotmap")[1]; 
-    colours[sign(x) == 1] <- default.colours(2, palette.type = "dotmap")[2]; 
+    colours <- rep('white', length(x));
+    colours[sign(x) == -1] <- default.colours(2, palette.type = 'dotmap')[1];
+    colours[sign(x) == 1] <- default.colours(2, palette.type = 'dotmap')[2];
     return(colours);
     }
 
@@ -589,29 +581,29 @@ dot.each <- create.dotmap(
         inside = list(fun = legend, x = 1.07, y = 0)
         ),
     key = list(
-        space = "right",
+        space = 'right',
         points = list(
             cex = spot.size.function(seq(-2, 2, 1)),
             col = spot.colour.function(seq(-2, 2, 1)),
             pch = 19
             ),
         text = list(
-            lab = c("0.25", "0.5", "1", "2", "4"),
+            lab = c('0.25', '0.5', '1', '2', '4'),
             cex = 1,
             adj = 1,
-            fontface = "bold"
+            fontface = 'bold'
             ),
         padding.text = 8
         ),
     key.top = 1,
     right.padding = 2,
     pch = 21,
-    pch.border.col = "white",
+    pch.border.col = 'white',
     bg.data = t(-log10(metafor.stage.pseudo.odd.ci.p.data.each.subtype.fdr.t1.no3)),
     colourkey = FALSE,
     colourkey.cex = 0.95,
     bg.alpha = 1,
-    colour.scheme = c("white", "black"),
+    colour.scheme = c('white', 'black'),
     at = seq(0, 2, 0.01),
     row.colour = 'white',
     col.colour = 'white',
@@ -637,11 +629,11 @@ dot.all <- create.dotmap(
     key.top = 1,
     right.padding = 2,
     pch = 21,
-    pch.border.col = "white",
-    bg.data = t(-log10(p.adjust(metafor.stage.pseudo.odd.ci.p.data.t1[1:2,]$p.value, method = 'BH'))),
+    pch.border.col = 'white',
+    bg.data = t(-log10(p.adjust(metafor.stage.pseudo.odd.ci.p.data.t1[1:2, ]$p.value, method = 'BH'))),
     colourkey = FALSE,
     bg.alpha = 1,
-    colour.scheme = c("white", "black"),
+    colour.scheme = c('white', 'black'),
     at = seq(0, 2, 0.01),
     row.colour = 'white',
     col.colour = 'white',
@@ -656,7 +648,7 @@ dot.multi <- create.multipanelplot(
     layout.width = 1,
     layout.skip = c(FALSE, FALSE),
     plot.objects.heights = c(9.5, 5),
-    x.spacing = -1, 
+    x.spacing = -1,
     y.spacing = -10,
     bottom.padding = 0,
     top.padding = 2,

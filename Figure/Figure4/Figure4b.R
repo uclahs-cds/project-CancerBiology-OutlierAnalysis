@@ -36,43 +36,48 @@ outlier.patient.tag.01.icgc.gene.per.patient.sum <- apply(outlier.patient.tag.01
 
 # Number of outlier genes per patient
 outlier.patient.number.violin.tissue <- data.frame(
-    out = c(outlier.patient.tag.01.brca.gene.per.patient.sum, 
-            outlier.patient.tag.01.meta.gene.per.patient.sum, 
-            outlier.patient.tag.01.ispy.gene.per.patient.sum, 
-            outlier.patient.tag.01.metador.gene.per.patient.sum,
-            outlier.patient.tag.01.icgc.gene.per.patient.sum),
+    out = c(
+        outlier.patient.tag.01.brca.gene.per.patient.sum,
+        outlier.patient.tag.01.meta.gene.per.patient.sum,
+        outlier.patient.tag.01.ispy.gene.per.patient.sum,
+        outlier.patient.tag.01.metador.gene.per.patient.sum,
+        outlier.patient.tag.01.icgc.gene.per.patient.sum
+        ),
     strip = 'tissue'
     );
 
 outlier.patient.tag.sum.05.data <- data.frame(
-    out = outlier.patient.tag.sum.05,        
-    strip = rep('outliers', length(outlier.patient.tag.sum.05)));
+    out = outlier.patient.tag.sum.05,
+    strip = rep('outliers', length(outlier.patient.tag.sum.05))
+    );
 outlier.patient.number.violin.ccle.tissue <- rbind(outlier.patient.tag.sum.05.data, outlier.patient.number.violin.tissue);
 outlier.patient.number.violin.ccle.tissue.log <- outlier.patient.number.violin.ccle.tissue;
 outlier.patient.number.violin.ccle.tissue.log$out <- log2(outlier.patient.number.violin.ccle.tissue.log$out + 1);
 
 # Make the density plot from 0
-x = log2(outlier.patient.tag.sum.05.data$out + 1);
-y = log2(outlier.patient.number.violin.tissue$out + 1);
+x <- log2(outlier.patient.tag.sum.05.data$out + 1);
+y <- log2(outlier.patient.number.violin.tissue$out + 1);
 
 
-data <- list(x = log2(outlier.patient.tag.sum.05.data$out + 1),
-             y = log2(outlier.patient.number.violin.tissue$out + 1));
+data <- list(
+    x = log2(outlier.patient.tag.sum.05.data$out + 1),
+    y = log2(outlier.patient.number.violin.tissue$out + 1)
+    );
 
 ccle.col <- grDevices::adjustcolor(c('mediumpurple'), alpha.f = 0.7);
 
 outlier.number.density <- create.densityplot(
     x = data,
-    lty = c("solid", "solid"),
+    lty = c('solid', 'solid'),
     main = expression('Number of outlier genes per sample'),
     main.cex = 1.5,
     ylab.label = expression('Density'),
     xlab.label = expression('Number of outlier genes'),
-    xaxis.lab = c(expression('2'^'0'),expression('2'^'2'),expression('2'^'4'),expression('2'^'6'),expression('2'^'8'),expression('2'^'10')),
+    xaxis.lab = c(expression('2'^'0'), expression('2'^'2'), expression('2'^'4'), expression('2'^'6'), expression('2'^'8'), expression('2'^'10')),
     xat = c(0, 2, 4, 6, 8, 10),
     xlimits = c(-2, 10),
-    yaxis.tck = c(0.2,0),
-    xaxis.tck = c(0.2,0),
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     xaxis.cex = 1,
     yaxis.cex = 1,
     xaxis.fontface = 1,
@@ -98,7 +103,7 @@ outlier.number.density <- create.densityplot(
                     text = list(
                         lab = c('CCLE (n = 45)', 'All patients (n = 4592)')
                         ),
-                    padding.text = c(0,5,0),
+                    padding.text = c(0, 5, 0),
                     cex = 1
                     )
                 ),

@@ -1,5 +1,5 @@
 ### HISTORY #####################################################################
-# This script analyzes the protein abundance of outlier genes identified in CCLE 
+# This script analyzes the protein abundance of outlier genes identified in CCLE
 # overlapped with tissue datasets.
 # Date: 2024-08-16
 #################################################################################
@@ -9,12 +9,12 @@ library(BoutrosLab.plotting.general);
 source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
-protein.info.breast.num.symbol <- gsub(".*\\|([^|]+)_.*", "\\1", rownames(protein.info.breast.num));
+protein.info.breast.num.symbol <- gsub('.*\\|([^|]+)_.*', '\\1', rownames(protein.info.breast.num));
 
-ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub("\\..*", "", rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol,];
-ccle.sample.outlier.status.fdr.05.five.symbol <- sub("\\..*", "", rownames(ccle.sample.outlier.status.fdr.05.five));
+ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
+ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
 
-protein.info.breast.num.match.05 <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% ccle.sample.outlier.status.fdr.05.five.symbol,];
+protein.info.breast.num.match.05 <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% ccle.sample.outlier.status.fdr.05.five.symbol, ];
 
 # Use the mean of the duplicated gene and patient
 #   - duplicated gene
@@ -22,11 +22,12 @@ uni.gene.protein <- unique(rownames(protein.info.breast.num.match.05));
 protein.info.breast.num.match.05.uni <- NULL;
 for (i in 1:length(uni.gene.protein)) {
     if (1 == sum(rownames(protein.info.breast.num.match.05) %in% uni.gene.protein[i])) {
-        dup.gene.protein.num.mean <- protein.info.breast.num.match.05[rownames(protein.info.breast.num.match.05) %in% uni.gene.protein[i],];
-        }
-    else {
-        dup.gene.protein.num <- protein.info.breast.num.match.05[rownames(protein.info.breast.num.match.05) %in% uni.gene.protein[i],];
-        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 2, function(x) {mean(na.omit(x))});
+        dup.gene.protein.num.mean <- protein.info.breast.num.match.05[rownames(protein.info.breast.num.match.05) %in% uni.gene.protein[i], ];
+        } else {
+        dup.gene.protein.num <- protein.info.breast.num.match.05[rownames(protein.info.breast.num.match.05) %in% uni.gene.protein[i], ];
+        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 2, function(x) {
+            mean(na.omit(x))
+            });
         }
     protein.info.breast.num.match.05.uni <- rbind(protein.info.breast.num.match.05.uni, dup.gene.protein.num.mean);
     }
@@ -37,11 +38,12 @@ uni.sample.protein <- unique(colnames(protein.info.breast.num.match.05));
 protein.info.breast.num.match.05.uni.gene.sample <- NULL;
 for (i in 1:length(uni.sample.protein)) {
     if (1 == sum(colnames(protein.info.breast.num.match.05) %in% uni.sample.protein[i])) {
-        dup.gene.protein.num.mean <- protein.info.breast.num.match.05.uni[,colnames(protein.info.breast.num.match.05) %in% uni.sample.protein[i]];
-        }
-    else {
-        dup.gene.protein.num <- protein.info.breast.num.match.05.uni[,colnames(protein.info.breast.num.match.05) %in% uni.sample.protein[i]];
-        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 1, function(x) {mean(na.omit(x))});
+        dup.gene.protein.num.mean <- protein.info.breast.num.match.05.uni[, colnames(protein.info.breast.num.match.05) %in% uni.sample.protein[i]];
+        } else {
+        dup.gene.protein.num <- protein.info.breast.num.match.05.uni[, colnames(protein.info.breast.num.match.05) %in% uni.sample.protein[i]];
+        dup.gene.protein.num.mean <- apply(dup.gene.protein.num, 1, function(x) {
+            mean(na.omit(x))
+            });
         }
     protein.info.breast.num.match.05.uni.gene.sample <- cbind(protein.info.breast.num.match.05.uni.gene.sample, dup.gene.protein.num.mean);
     }
@@ -50,13 +52,13 @@ colnames(protein.info.breast.num.match.05.uni.gene.sample) <- uni.sample.protein
 
 
 # only outlier gene's fpkm
-fpkm.tumor.symbol.filter.ccle.outlier <- fpkm.tumor.symbol.filter.ccle[ sub("\\..*", "", rownames(fpkm.tumor.symbol.filter.ccle)) %in% rownames(protein.info.breast.num.match.05.uni.gene.sample), colnames(protein.info.breast.num.match.05.uni.gene.sample)];
+fpkm.tumor.symbol.filter.ccle.outlier <- fpkm.tumor.symbol.filter.ccle[sub('\\..*', '', rownames(fpkm.tumor.symbol.filter.ccle)) %in% rownames(protein.info.breast.num.match.05.uni.gene.sample), colnames(protein.info.breast.num.match.05.uni.gene.sample)];
 
 # only outlier gene's status
 ccle.sample.outlier.status.protein.match <- ccle.sample.outlier.status[rownames(fpkm.tumor.symbol.filter.ccle.outlier), colnames(protein.info.breast.num.match.05.uni.gene.sample)];
 
-rownames(fpkm.tumor.symbol.filter.ccle.outlier) <- sub("\\..*", "", rownames(fpkm.tumor.symbol.filter.ccle.outlier));
-rownames(ccle.sample.outlier.status.protein.match) <- sub("\\..*", "", rownames(ccle.sample.outlier.status.protein.match));
+rownames(fpkm.tumor.symbol.filter.ccle.outlier) <- sub('\\..*', '', rownames(fpkm.tumor.symbol.filter.ccle.outlier));
+rownames(ccle.sample.outlier.status.protein.match) <- sub('\\..*', '', rownames(ccle.sample.outlier.status.protein.match));
 
 
 outlier.protein.ccle.zscore.list <- list();
@@ -65,16 +67,16 @@ target.gene.ccle.zscore.list <- NULL;
 for (i in 1:nrow(protein.info.breast.num.match.05.uni.gene.sample)) {
     # protein target name
     target.gene.name.protein <- rownames(protein.info.breast.num.match.05.uni.gene.sample)[i];
-    
+
     # outlier patient column
-    target.col <- colnames(ccle.sample.outlier.status.protein.match)[ccle.sample.outlier.status.protein.match[target.gene.name.protein,] == 1];
-    non.target.col <- colnames(ccle.sample.outlier.status.protein.match)[ccle.sample.outlier.status.protein.match[target.gene.name.protein,] == 0];
-    
-    # 
-    
+    target.col <- colnames(ccle.sample.outlier.status.protein.match)[ccle.sample.outlier.status.protein.match[target.gene.name.protein, ] == 1];
+    non.target.col <- colnames(ccle.sample.outlier.status.protein.match)[ccle.sample.outlier.status.protein.match[target.gene.name.protein, ] == 0];
+
+    #
+
     target.gene.ccle.zscore.list <- c(target.gene.ccle.zscore.list, target.gene.name.protein);
-    outlier.protein.ccle.zscore.list[[i]] <- protein.info.breast.num.match.05.uni.gene.sample[i,target.col];
-    non.outlier.protein.ccle.zscore.list[[i]] <- protein.info.breast.num.match.05.uni.gene.sample[i,non.target.col];
+    outlier.protein.ccle.zscore.list[[i]] <- protein.info.breast.num.match.05.uni.gene.sample[i, target.col];
+    non.outlier.protein.ccle.zscore.list[[i]] <- protein.info.breast.num.match.05.uni.gene.sample[i, non.target.col];
     }
 
 outlier.protein.ccle.zscore.value <- as.numeric(unlist(outlier.protein.ccle.zscore.list));
@@ -95,11 +97,12 @@ non.outlier.protein.ccle.list.no.p.na <- non.outlier.protein.ccle.zscore.list[na
 protein.ccle.na.value <- data.frame(protein.ccle.na.value = c(as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na)), as.numeric(unlist(outlier.protein.ccle.list.no.p.na))));
 protein.ccle.na.value.box <- data.frame(cbind(protein.ccle.na.value$protein.ccle.na.value, c(rep('non', length(as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na)))), rep('out', length(as.numeric(unlist(outlier.protein.ccle.list.no.p.na)))))));
 colnames(protein.ccle.na.value.box) <- c('protein.ccle.value', 'status');
-protein.ccle.na.value.box[,1] <- as.numeric(protein.ccle.na.value.box[,1]);
+protein.ccle.na.value.box[, 1] <- as.numeric(protein.ccle.na.value.box[, 1]);
 
 wilcox.result.protien.na <- wilcox.test(as.numeric(unlist(outlier.protein.ccle.list.no.p.na)),
-                                        as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na)),
-                                        alternative = "two.sided", conf.int = TRUE);
+    as.numeric(unlist(non.outlier.protein.ccle.list.no.p.na)),
+    alternative = 'two.sided', conf.int = TRUE
+    );
 
 
 text.pvalue.protien.na <- display.statistical.result(
@@ -110,7 +113,7 @@ text.pvalue.protien.na <- display.statistical.result(
 
 key.protien.na <- list(
     text = list(
-        lab = text.pvalue.protien.na, 
+        lab = text.pvalue.protien.na,
         cex = 1
         ),
     x = 0.25,
@@ -152,11 +155,11 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
     points.col = 'grey60',
     add.rectangle = TRUE,
     xleft.rectangle = c(1.5, 4),
-    xright.rectangle =c(4, 5),
+    xright.rectangle = c(4, 5),
     ybottom.rectangle = -6,
     ytop.rectangle = 10,
     # set rectangle colour
-    col.rectangle = "grey",
+    col.rectangle = 'grey',
     # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     lwd = 1.2,

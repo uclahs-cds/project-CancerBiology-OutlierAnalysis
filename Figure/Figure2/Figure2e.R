@@ -13,16 +13,17 @@ prepare.data <- function(row, outlier) {
     df <- data.frame(mutation = row, outlier = outlier);
     df$outlier <- as.numeric(df$outlier);
     table <- table(df)
-    
+
     if (nrow(table) == 1) {
-        odd.table <- cbind(sum(table[,2:ncol(table)]), table[,1]);
-        odd.table <- rbind(c(0, 0),
-                           odd.table) 
+        odd.table <- cbind(sum(table[, 2:ncol(table)]), table[, 1]);
+        odd.table <- rbind(
+            c(0, 0),
+            odd.table
+            )
+        } else {
+        odd.table <- t(rbind(apply(table[, 2:ncol(table)], 1, sum), table[, 1]));
         }
-    else {
-        odd.table <- t(rbind(apply(table[,2:ncol(table)], 1, sum), table[,1]));
-        }
-    
+
     odd.table <- odd.table + 1
     colnames(odd.table) <- c('out', 'non');
     return(odd.table);
@@ -30,7 +31,7 @@ prepare.data <- function(row, outlier) {
 
 
 perform.fisher.test <- function(table) {
-    test.result <- fisher.test(table, alternative = "two.sided");
+    test.result <- fisher.test(table, alternative = 'two.sided');
     return(list(
         odds.ratio = test.result$estimate,
         ci = test.result$conf.int,
@@ -44,13 +45,13 @@ calculate.odds.ratios <- function(mutation.data, outlier.data) {
         table <- prepare.data(row, outlier.data);
         return(perform.fisher.test(table));
         });
-    
+
     odds.ratio.unlist <- sapply(results, function(x) x$odds.ratio);
     ci.list <- lapply(results, function(x) x$ci);
     p.value.unlist <- sapply(results, function(x) x$p.value);
     ci.df <- t(sapply(ci.list, c));
-    colnames(ci.df) <- c("lower", "upper");
-    
+    colnames(ci.df) <- c('lower', 'upper');
+
     return(list(
         odds.ratio = odds.ratio.unlist,
         ci = ci.df,
@@ -63,18 +64,18 @@ subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlie
 outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
 meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.luma))];
 
-outlier.patient.tag.01.t.p.order.sum.luma.brca <- 
+outlier.patient.tag.01.t.p.order.sum.luma.brca <-
     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 4) == 'TCGA'];
-outlier.patient.tag.01.t.p.order.sum.luma.meta <- 
+outlier.patient.tag.01.t.p.order.sum.luma.meta <-
     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'MB'];
-outlier.patient.tag.01.t.p.order.sum.luma.icgc <- 
+outlier.patient.tag.01.t.p.order.sum.luma.icgc <-
     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'PR'];
 
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca <- 
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca <-
     meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 4) == 'TCGA'];
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta <- 
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta <-
     meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'MB'];
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <- 
+meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <-
     meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'PR'];
 
 # Lumb subtype patient
@@ -82,50 +83,50 @@ subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlie
 outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
 meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.lumb))];
 
-outlier.patient.tag.01.t.p.order.sum.lumb.brca <- 
+outlier.patient.tag.01.t.p.order.sum.lumb.brca <-
     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];
-outlier.patient.tag.01.t.p.order.sum.lumb.meta <- 
+outlier.patient.tag.01.t.p.order.sum.lumb.meta <-
     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'MB'];
-outlier.patient.tag.01.t.p.order.sum.lumb.icgc <- 
+outlier.patient.tag.01.t.p.order.sum.lumb.icgc <-
     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'PR'];
 
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca <- 
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca <-
     meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 4) == 'TCGA'];
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta <- 
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta <-
     meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'MB'];
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc <- 
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc <-
     meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'PR'];
 
 # 1. TCGA-BRCA
 brca.mutation.silent.0 <- c(as.character(brca.mutation.silent), '0');
 
 brca.mutation.driver.list.gene.vector.data.convert.mis <- brca.mutation.driver.list.gene.vector.data;
-brca.mutation.driver.list.gene.vector.data.convert.mis[!(brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0)] <- "mutation";
-brca.mutation.driver.list.gene.vector.data.convert.mis[brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0] <- "normal";
+brca.mutation.driver.list.gene.vector.data.convert.mis[!(brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0)] <- 'mutation';
+brca.mutation.driver.list.gene.vector.data.convert.mis[brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0] <- 'normal';
 
-brca.mutation.driver.list.gene.vector.data.convert.mis.luma.brca <- 
+brca.mutation.driver.list.gene.vector.data.convert.mis.luma.brca <-
     brca.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca)];
 
 # 2. METABRIC
 meta.mutation.silent.0 <- c(as.character(meta.mutation.silent), '0');
 
 meta.mutation.driver.list.gene.vector.data.convert.mis <- meta.mutation.driver.list.gene.vector.data;
-meta.mutation.driver.list.gene.vector.data.convert.mis[!(meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0)] <- "mutation";
-meta.mutation.driver.list.gene.vector.data.convert.mis[meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0] <- "normal";
+meta.mutation.driver.list.gene.vector.data.convert.mis[!(meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0)] <- 'mutation';
+meta.mutation.driver.list.gene.vector.data.convert.mis[meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0] <- 'normal';
 
-meta.mutation.driver.list.gene.vector.data.convert.mis.luma.meta <- 
+meta.mutation.driver.list.gene.vector.data.convert.mis.luma.meta <-
     meta.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta)];
 
 # 3. ICGC BRCA-EU
 icgc.mutation.silent.0 <- c(as.character(icgc.mutation.silent), '0');
 
 icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.list.gene.vector.data.mis;
-icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- "mutation";
-icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- "normal";
+icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- 'mutation';
+icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- 'normal';
 
 colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
 
-icgc.mutation.driver.list.gene.vector.data.convert.mis.luma.icgc <- 
+icgc.mutation.driver.list.gene.vector.data.convert.mis.luma.icgc <-
     icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc)];
 
 # Ensure the column names are preserved for ICGC BRCA-EU data
@@ -169,10 +170,10 @@ meta.luma.ci.df <- meta.results.luma$ci;
 meta.luma.p.unlist <- meta.results.luma$p.value;
 names(meta.luma.odds.ratio.unlist) <- mutation.driver.list.gene;
 
-    
-    
-    
-    
+
+
+
+
 
 
 
@@ -190,7 +191,7 @@ filter.genes <- function(data, threshold) {
 
 calculate.ln.odds.and.se <- function(odds.ratio, ci) {
     ln.odds <- log(odds.ratio);
-    se <- (log(ci[,2]) - log(ci[,1])) / 3.92;
+    se <- (log(ci[, 2]) - log(ci[, 1])) / 3.92;
     return(list(ln.odds = ln.odds, se = se));
     }
 
@@ -209,7 +210,7 @@ results.luma <- list();
 for (name in names(datasets.luma)) {
     binary.data <- convert.to.binary(datasets.luma[[name]]);
     sum.data <- calculate.sum(binary.data);
-    threshold <- length(get(paste0("outlier.patient.tag.01.t.p.order.sum.luma.", name))) * 0.05;
+    threshold <- length(get(paste0('outlier.patient.tag.01.t.p.order.sum.luma.', name))) * 0.05;
     results.luma[[name]] <- list(
         sum = sum.data,
         filtered = filter.genes(sum.data, threshold)
@@ -243,8 +244,8 @@ p.values.luma <- list(
 p.values.luma.df <- do.call(rbind, p.values.luma);
 
 confidence.intervals.luma <- list(
-    meta = meta.luma.ci.df[names(results.luma$meta$filtered),][common.genes.luma,],
-    brca = brca.luma.ci.df[names(results.luma$brca$filtered),][common.genes.luma,],
+    meta = meta.luma.ci.df[names(results.luma$meta$filtered), ][common.genes.luma, ],
+    brca = brca.luma.ci.df[names(results.luma$brca$filtered), ][common.genes.luma, ],
     icgc = icgc.luma.ci.df[names(results.luma$icgc$filtered), ][match(common.genes.luma, rownames(icgc.luma.ci.df[names(results.luma$icgc$filtered), ])), ]
     );
 confidence.intervals.luma.df <- do.call(rbind, confidence.intervals.luma);
@@ -261,24 +262,24 @@ meta.analysis.results.luma <- lapply(common.genes.luma, function(gene) {
     data <- data.frame(
         yi = sapply(ln.odds.se.luma, function(x) x$ln.odds[gene]),
         sei = sapply(ln.odds.se.luma, function(x) x$se[gene])
-    );
-    data <- data[!is.infinite(data$yi) & !is.infinite(data$sei),];
-    
+        );
+    data <- data[!is.infinite(data$yi) & !is.infinite(data$sei), ];
+
     if (nrow(data) > 1) {
         meta.result <- rma.uni(yi = yi, sei = sei, data = data, method = 'DL');
         return(c(exp(meta.result$beta), exp(meta.result$ci.lb), exp(meta.result$ci.ub), meta.result$pval));
-    } else {
+        } else {
         return(c(NA, NA, NA, NA));
-    };
-});
+        };
+    });
 
 # Prepare final results
 final.results.luma <- do.call(rbind, meta.analysis.results.luma);
-colnames(final.results.luma) <- c("odds.ratio", "ci.lower", "ci.upper", "p.value");
+colnames(final.results.luma) <- c('odds.ratio', 'ci.lower', 'ci.upper', 'p.value');
 rownames(final.results.luma) <- common.genes.luma;
 
 # Filter significant results
-significant.genes.luma <- rownames(final.results.luma)[final.results.luma[,"p.value"] < 0.05];
+significant.genes.luma <- rownames(final.results.luma)[final.results.luma[, 'p.value'] < 0.05];
 final.results.luma <- data.frame(final.results.luma);
 
 
@@ -293,11 +294,9 @@ colourkey.labels <- sapply(
     FUN = function(x) {
         if (x == 0) {
             return(expression('10'^'0'));
-            } 
-        else if ( x != background.cutoff) {
+            } else if (x != background.cutoff) {
             return(as.expression(bquote('10'^-.(as.character(x)))));
-            } 
-        else {
+            } else {
             return(as.expression(bquote('<10'^-.(as.character(x)))));
             }
         }
@@ -326,11 +325,13 @@ legend <- legend.grob(
 
 
 # functions to decide the spot size and colour can be included # if not, default functions will be used
-spot.size.function <- function(x) { 0.1 + (2 * abs(x)); }
+spot.size.function <- function(x) {
+    0.1 + (2 * abs(x));
+    }
 spot.colour.function <- function(x) {
-    colours <- rep("white", length(x));
-    colours[sign(x) == -1] <- default.colours(2, palette.type = "dotmap")[1]; 
-    colours[sign(x) == 1] <- default.colours(2, palette.type = "dotmap")[2]; 
+    colours <- rep('white', length(x));
+    colours[sign(x) == -1] <- default.colours(2, palette.type = 'dotmap')[1];
+    colours[sign(x) == 1] <- default.colours(2, palette.type = 'dotmap')[2];
     return(colours);
     }
 
@@ -346,48 +347,46 @@ dot.each <- create.dotmap(
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.lab = c('METABRIC', 'TCGA-BRCA', 'ICGC BRCA-EU'),
-    yaxis.tck = c(0.2,0),
-    xaxis.tck = c(0.2,0),
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     spot.size.function = spot.size.function,
     spot.colour.function = spot.colour.function,
-    
     legend = list(
-        
         inside = list(
             fun = draw.key,
             args = list(
                 key = list(
                     text = list(
-                        lab =expression('Odds Ratio'),
+                        lab = expression('Odds Ratio'),
                         cex = 1
-                    ),
+                        ),
                     padding.text = 4.5
-                )
-            ),
+                    )
+                ),
             x = 1,
             y = 1
-
             ),
-        
-        inside = list(fun = legend,
-                      x = 1.07,
-                      y = 0
-                )
-        
-            ),
+        inside = list(
+            fun = legend,
+            x = 1.07,
+            y = 0
+            )
+        ),
     key = list(
-        space = "right",
+        space = 'right',
         points = list(
             cex = spot.size.function(seq(-2, 2, 1)),
             col = spot.colour.function(seq(-2, 2, 1)),
             pch = 19
             ),
         text = list(
-                lab = c( "0.25", " 0.5", "1",
-                     "2", "4"),
+            lab = c(
+                '0.25', ' 0.5', '1',
+                '2', '4'
+                ),
             cex = 1,
             adj = 1,
-            fontface = "bold"
+            fontface = 'bold'
             ),
         padding.text = 8
         ),
@@ -395,14 +394,14 @@ dot.each <- create.dotmap(
     right.padding = 2,
     # add borders to points
     pch = 21,
-    pch.border.col = "white",
+    pch.border.col = 'white',
     # add the background
     bg.data = -log10(p.values.luma.df),
     # add a colourkey
     colourkey = FALSE,
     colourkey.cex = 0.95,
     bg.alpha = 1,
-    colour.scheme = c("white", "black"),
+    colour.scheme = c('white', 'black'),
     at = seq(0, 2, 0.01),
     row.colour = 'white',
     col.colour = 'white',
@@ -424,8 +423,8 @@ dot.all <- create.dotmap(
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.lab = c('All patients'),
-    yaxis.tck = c(0.2,0),
-    xaxis.tck = c(0.2,0),
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     spot.size.function = spot.size.function,
     spot.colour.function = spot.colour.function,
     # control spacing at top of key
@@ -433,7 +432,7 @@ dot.all <- create.dotmap(
     right.padding = 2,
     # add borders to points
     pch = 21,
-    pch.border.col = "white",
+    pch.border.col = 'white',
     # add the background
     bg.data = t(-log10(final.results.luma$p.value)),
     # add a colourkey
@@ -441,7 +440,7 @@ dot.all <- create.dotmap(
     # colourkey.cex = 0.95,
     bg.alpha = 1,
     # set colour scheme for background data
-    colour.scheme = c("white", "black"),
+    colour.scheme = c('white', 'black'),
     at = seq(0, 2, 0.01),
     row.colour = 'white',
     col.colour = 'white',
@@ -461,7 +460,7 @@ dot.multi.luma <- create.multipanelplot(
     plot.objects.heights = c(10.5, 5),
     # xlab.label = xlabel,
     # ylab.label = ylabel,
-    x.spacing = -1, 
+    x.spacing = -1,
     y.spacing = -10,
     bottom.padding = 0,
     top.padding = 2,
@@ -481,33 +480,33 @@ save.outlier.figure(
 brca.mutation.silent.0 <- c(as.character(brca.mutation.silent), '0');
 
 brca.mutation.driver.list.gene.vector.data.convert.mis <- brca.mutation.driver.list.gene.vector.data;
-brca.mutation.driver.list.gene.vector.data.convert.mis[!(brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0)] <- "mutation";
-brca.mutation.driver.list.gene.vector.data.convert.mis[brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0] <- "normal";
+brca.mutation.driver.list.gene.vector.data.convert.mis[!(brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0)] <- 'mutation';
+brca.mutation.driver.list.gene.vector.data.convert.mis[brca.mutation.driver.list.gene.vector.data.convert.mis %in% brca.mutation.silent.0] <- 'normal';
 
-brca.mutation.driver.list.gene.vector.data.convert.mis.lumb.brca <- 
+brca.mutation.driver.list.gene.vector.data.convert.mis.lumb.brca <-
     brca.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca)];
 
 # 2. METABRIC
 meta.mutation.silent.0 <- c(as.character(meta.mutation.silent), '0');
 
 meta.mutation.driver.list.gene.vector.data.convert.mis <- meta.mutation.driver.list.gene.vector.data;
-meta.mutation.driver.list.gene.vector.data.convert.mis[!(meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0)] <- "mutation";
-meta.mutation.driver.list.gene.vector.data.convert.mis[meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0] <- "normal";
+meta.mutation.driver.list.gene.vector.data.convert.mis[!(meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0)] <- 'mutation';
+meta.mutation.driver.list.gene.vector.data.convert.mis[meta.mutation.driver.list.gene.vector.data.convert.mis %in% meta.mutation.silent.0] <- 'normal';
 
-meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta <- 
+meta.mutation.driver.list.gene.vector.data.convert.mis.lumb.meta <-
     meta.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta)];
 
 # 3. ICGC BRCA-EU
 icgc.mutation.silent.0 <- c(as.character(icgc.mutation.silent), '0');
 
 icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.list.gene.vector.data.mis;
-icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- "mutation";
-icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- "normal";
+icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- 'mutation';
+icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- 'normal';
 
 # Ensure the column names are preserved for ICGC BRCA-EU data
 colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
 
-icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc <- 
+icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc <-
     icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc)];
 
 
@@ -550,10 +549,10 @@ meta.lumb.ci.df <- meta.results.lumb$ci;
 meta.lumb.p.unlist <- meta.results.lumb$p.value;
 names(meta.lumb.odds.ratio.unlist) <- mutation.driver.list.gene;
 
-    
-    
-    
-    
+
+
+
+
 
 
 
@@ -571,7 +570,7 @@ filter.genes <- function(data, threshold) {
 
 calculate.ln.odds.and.se <- function(odds.ratio, ci) {
     ln.odds <- log(odds.ratio);
-    se <- (log(ci[,2]) - log(ci[,1])) / 3.92;
+    se <- (log(ci[, 2]) - log(ci[, 1])) / 3.92;
     return(list(ln.odds = ln.odds, se = se));
     }
 
@@ -588,7 +587,7 @@ results.lumb <- list();
 for (name in names(datasets.lumb)) {
     binary.data <- convert.to.binary(datasets.lumb[[name]]);
     sum.data <- calculate.sum(binary.data);
-    threshold <- length(get(paste0("outlier.patient.tag.01.t.p.order.sum.lumb.", name))) * 0.05;
+    threshold <- length(get(paste0('outlier.patient.tag.01.t.p.order.sum.lumb.', name))) * 0.05;
     results.lumb[[name]] <- list(
         sum = sum.data,
         filtered = filter.genes(sum.data, threshold)
@@ -633,8 +632,8 @@ p.values.lumb <- list(
 p.values.lumb.df <- do.call(rbind, p.values.lumb);
 
 confidence.intervals.lumb <- list(
-    meta = meta.lumb.ci.df[names(results.lumb$meta$filtered),][match(common.genes.lumb, rownames(meta.lumb.ci.df[names(results.lumb$meta$filtered), ])), ],
-    brca = brca.lumb.ci.df[names(results.lumb$brca$filtered),][match(common.genes.lumb, rownames(brca.lumb.ci.df[names(results.lumb$brca$filtered), ])), ],
+    meta = meta.lumb.ci.df[names(results.lumb$meta$filtered), ][match(common.genes.lumb, rownames(meta.lumb.ci.df[names(results.lumb$meta$filtered), ])), ],
+    brca = brca.lumb.ci.df[names(results.lumb$brca$filtered), ][match(common.genes.lumb, rownames(brca.lumb.ci.df[names(results.lumb$brca$filtered), ])), ],
     icgc = icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ][match(common.genes.lumb, rownames(icgc.lumb.ci.df[names(results.lumb$icgc$filtered), ])), ]
     );
 confidence.intervals.lumb.df <- do.call(rbind, confidence.intervals.lumb);
@@ -651,24 +650,24 @@ meta.analysis.results.lumb <- lapply(common.genes.lumb, function(gene) {
     data <- data.frame(
         yi = sapply(ln.odds.se.lumb, function(x) x$ln.odds[gene]),
         sei = sapply(ln.odds.se.lumb, function(x) x$se[gene])
-    );
-    data <- data[!is.infinite(data$yi) & !is.infinite(data$sei),];
-    
+        );
+    data <- data[!is.infinite(data$yi) & !is.infinite(data$sei), ];
+
     if (nrow(data) > 1) {
         meta.result <- rma.uni(yi = yi, sei = sei, data = data, method = 'DL');
         return(c(exp(meta.result$beta), exp(meta.result$ci.lb), exp(meta.result$ci.ub), meta.result$pval));
-    } else {
+        } else {
         return(c(NA, NA, NA, NA));
-    };
-});
+        };
+    });
 
 # Prepare final results
 final.results.lumb <- do.call(rbind, meta.analysis.results.lumb);
-colnames(final.results.lumb) <- c("odds.ratio", "ci.lower", "ci.upper", "p.value");
+colnames(final.results.lumb) <- c('odds.ratio', 'ci.lower', 'ci.upper', 'p.value');
 rownames(final.results.lumb) <- common.genes.lumb;
 
 # Filter significant results
-significant.genes.lumb <- rownames(final.results.lumb)[final.results.lumb[,"p.value"] < 0.05];
+significant.genes.lumb <- rownames(final.results.lumb)[final.results.lumb[, 'p.value'] < 0.05];
 final.results.lumb <- data.frame(final.results.lumb);
 
 
@@ -691,48 +690,46 @@ dot.each <- create.dotmap(
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.lab = c('METABRIC', 'TCGA-BRCA', 'ICGC BRCA-EU'),
-    yaxis.tck = c(0.2,0),
-    xaxis.tck = c(0.2,0),
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     spot.size.function = spot.size.function,
     spot.colour.function = spot.colour.function,
-    
     legend = list(
-        
         inside = list(
             fun = draw.key,
             args = list(
                 key = list(
                     text = list(
-                        lab =expression('Odds Ratio'),
+                        lab = expression('Odds Ratio'),
                         cex = 1
-                    ),
+                        ),
                     padding.text = 4.5
                     )
                 ),
             x = 1,
             y = 1
-
             ),
-        
-        inside = list(fun = legend,
-                      x = 1.07,
-                      y = 0
-                    )
-        
-                ),
+        inside = list(
+            fun = legend,
+            x = 1.07,
+            y = 0
+            )
+        ),
     key = list(
-        space = "right",
+        space = 'right',
         points = list(
             cex = spot.size.function(seq(-2, 2, 1)),
             col = spot.colour.function(seq(-2, 2, 1)),
             pch = 19
             ),
         text = list(
-                lab = c( "0.25", " 0.5", "1",
-                     "2", "4"),
+            lab = c(
+                '0.25', ' 0.5', '1',
+                '2', '4'
+                ),
             cex = 1,
             adj = 1,
-            fontface = "bold"
+            fontface = 'bold'
             ),
         padding.text = 8
         ),
@@ -740,14 +737,14 @@ dot.each <- create.dotmap(
     right.padding = 2,
     # add borders to points
     pch = 21,
-    pch.border.col = "white",
+    pch.border.col = 'white',
     # add the background
     bg.data = -log10(p.values.lumb.df),
     # add a colourkey
     colourkey = FALSE,
     colourkey.cex = 0.95,
     bg.alpha = 1,
-    colour.scheme = c("white", "black"),
+    colour.scheme = c('white', 'black'),
     at = seq(0, 2, 0.01),
     row.colour = 'white',
     col.colour = 'white',
@@ -769,8 +766,8 @@ dot.all <- create.dotmap(
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.lab = c('All patients'),
-    yaxis.tck = c(0.2,0),
-    xaxis.tck = c(0.2,0),
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     spot.size.function = spot.size.function,
     spot.colour.function = spot.colour.function,
     # control spacing at top of key
@@ -778,7 +775,7 @@ dot.all <- create.dotmap(
     right.padding = 2,
     # add borders to points
     pch = 21,
-    pch.border.col = "white",
+    pch.border.col = 'white',
     # add the background
     bg.data = t(-log10(final.results.lumb$p.value)),
     # add a colourkey
@@ -786,7 +783,7 @@ dot.all <- create.dotmap(
     # colourkey.cex = 0.95,
     bg.alpha = 1,
     # set colour scheme for background data
-    colour.scheme = c("white", "black"),
+    colour.scheme = c('white', 'black'),
     at = seq(0, 2, 0.01),
     row.colour = 'white',
     col.colour = 'white',
@@ -806,7 +803,7 @@ dot.multi.lumb <- create.multipanelplot(
     plot.objects.heights = c(10.5, 5),
     # xlab.label = xlabel,
     # ylab.label = ylabel,
-    x.spacing = -1, 
+    x.spacing = -1,
     y.spacing = -10,
     bottom.padding = 0,
     top.padding = 2,
