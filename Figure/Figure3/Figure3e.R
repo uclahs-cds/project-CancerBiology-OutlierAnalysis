@@ -48,18 +48,8 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
     }
 
 
-
-# brca.clinic <- read.csv(
-#     file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/brca_tcga_pan_can_atlas_2018_clinical_data.csv', 
-#     header = TRUE, 
-#     stringsAsFactors = F, 
-#     sep = ',');
-
-
 brca.sample.clinic <- gsub("-", ".", brca.clinic$Patient.ID, fixed = TRUE);
-rownames(brca.clinic) <- brca.sample.clinic;
 brca.clinic.sort <- brca.clinic[order(brca.clinic$Subtype),];
-brca.clinic.order <- brca.clinic.sort[substr(colnames(brca.outlier.patient.tag.01.t.p.order), 1, 12),]
 
 brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
 
@@ -143,10 +133,6 @@ outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
 # meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
 # rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
 # meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
-
-# meta.clinic.5.order.combine <- meta.clinic.order;
-meta.clinic.5.order.combine$pam50 <- meta.clinic.5.order$Pam50Subtype;
-
 
 perform.fisher.test.meta <- function(data, subtype = NULL) {
     if (!is.null(subtype)) {

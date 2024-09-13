@@ -12,7 +12,6 @@ gene.rnai.diff.matrix.05.overlap.minus.05 <- na.omit(gene.rnai.diff.matrix.05.ov
 gene.rnai.diff.matrix.05.overlap.minus.05.order <- gene.rnai.diff.matrix.05.overlap.minus.05[order(gene.rnai.diff.matrix.05.overlap.minus.05$diff),];
 
 
-rnai.score.05.overlap.minus.05 <- gene.rnai.breast.t.num.match.05.na[rownames(gene.rnai.diff.matrix.05.overlap.minus.05.order),];
 outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[rownames(gene.rnai.diff.matrix.05.overlap.minus.05.order), colnames(rnai.score.05.overlap.minus.05)];
 
 gene.name.box.05 <-NULL;
@@ -21,12 +20,6 @@ for(i in 1:nrow(outlier.status.05.overlap.minus.05)){
     gene.name.box.05 <- c(gene.name.box.05, gene.name);
     }
 
-rnai.05.box <- data.frame(cbind(
-    score = as.numeric(unlist(t(rnai.score.05.overlap.minus.05))),
-    gene = gene.name.box.05,
-    status = as.numeric(unlist(t(outlier.status.05.overlap.minus.05)))));
-rnai.05.box$score <- as.numeric(rnai.05.box$score);
-rnai.05.box$status <- as.numeric(rnai.05.box$status);
 
 dot.colours <- vector(length = nrow(rnai.05.box));
 dot.colours <- rep('grey70', nrow(rnai.05.box));

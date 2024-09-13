@@ -23,10 +23,6 @@ ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[
 gene.dependency.breast.t.num.match.05 <- gene.dependency.breast.t.num.match[
     rownames(ccle.outlier.rank.fdr.05), 
     ];
-gene.dependency.breast.t.num.match.05.na <- na.omit(gene.dependency.breast.t.num.match.05);
-ccle.sample.outlier.status.overlap.na <- ccle.sample.outlier.status.overlap[
-    rownames(gene.dependency.breast.t.num.match.05.na), 
-    ];
 
 ccle.sample.outlier.status.na <- ccle.sample.outlier.status[rownames(gene.dependency.breast.t.num.match.05.na),];
 
@@ -80,9 +76,6 @@ gene.dependency.diff.matrix.05 <- data.frame(
     );
 
 # Filter overlapping genes
-gene.dependency.diff.matrix.05.overlap <- gene.dependency.diff.matrix.05[
-    gene.dependency.diff.matrix.05$symbol %in% five.data.outlier.symbol, 
-    ];
 
 # Set colors
 dot.colours <- ifelse(

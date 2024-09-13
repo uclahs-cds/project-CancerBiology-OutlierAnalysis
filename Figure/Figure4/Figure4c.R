@@ -11,9 +11,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 
 protein.info.breast.num.symbol <- gsub(".*\\|([^|]+)_.*", "\\1", rownames(protein.info.breast.num));
 
-protein.info.breast.num.match <- protein.info.breast.num[,colnames(protein.info.breast.num) %in% colnames(fpkm.tumor.symbol.filter.ccle)];
-rownames(protein.info.breast.num.match) <- protein.info.breast.num.symbol;
-
 ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub("\\..*", "", rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol,];
 ccle.sample.outlier.status.fdr.05.five.symbol <- sub("\\..*", "", rownames(ccle.sample.outlier.status.fdr.05.five));
 

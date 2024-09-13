@@ -13,34 +13,12 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 # Main analysis
 # divide into outlier and non-outlier
 
-outlier.sample.me.two.500 <- list();
-non.outlier.sample.me.two.500 <- list();
-for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
-    
-    # symbol.name <- rownames(two.outlier.promoter.symbol.sample.match.merge.filter);
-    outlier.patient.gene <- two.outlier.patient.status.merge.filter.500[i,];
-    # outlier.patient.gene.na <- na.omit(outlier.patient.gene);
-    outlier.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[i,][outlier.patient.gene == 1];
-    non.outlier.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[i,][outlier.patient.gene == 0];
-    
-    outlier.sample.me.two.500[[i]] <- outlier.me;
-    non.outlier.sample.me.two.500[[i]] <- non.outlier.me;
-    
-    }
-
-outlier.sample.me.two.unlist.500 <- as.numeric(unlist(outlier.sample.me.two.500));
-non.outlier.sample.me.two.unlist.500 <- as.numeric(unlist(non.outlier.sample.me.two.500));
-
 
 outlier.sample.me.two.unlist.mean.500 <- lapply(outlier.sample.me.two.500, function(x) {mean(na.omit(as.numeric(x)))});
 non.outlier.sample.me.two.unlist.mean.500 <- lapply(non.outlier.sample.me.two.500, function(x) {mean(na.omit(as.numeric(x)))});
 
 mean.beta.merge.two.500 <- apply(two.outlier.promoter.symbol.sample.match.merge.filter.500, 1, function(x) {mean(na.omit(as.numeric(x)))});
 minus.beta.merge.two.500 <- as.numeric(outlier.sample.me.two.unlist.mean.500) - as.numeric(non.outlier.sample.me.two.unlist.mean.500);
-mean.minus.ma.merge.two.500 <- data.frame(cbind(as.numeric(mean.beta.merge.two.500), as.numeric(minus.beta.merge.two.500), rownames(two.outlier.promoter.symbol.sample.match.merge.filter.500)));
-mean.minus.ma.merge.two.500[,1] <- as.numeric(mean.minus.ma.merge.two.500[,1]);
-mean.minus.ma.merge.two.500[,2] <- as.numeric(mean.minus.ma.merge.two.500[,2]);
-colnames(mean.minus.ma.merge.two.500) <- c('mean.beta', 'minus.beta', 'Symbol');
 
 two.out.non.tumor.normal.gene.500 <- mean.minus.ma.merge.two.500$Symbol[mean.minus.ma.merge.two.500$Symbol %in% rownames(normal.tumor.beta.comparison.two.minus.order.500)];
 

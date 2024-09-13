@@ -31,24 +31,6 @@ os.data.brca[,3] <- as.numeric(os.data.brca[,3]);
 os.data.brca[,5] <- as.numeric(os.data.brca[,5]);
 os.data.brca <- na.omit(os.data.brca);
 
-# Group patients
-os.group.brca <- os.data.brca;
-for (i in 1:nrow(os.group.brca)) {
-    if (os.group.brca[i,3] == 0) {
-        os.group.brca[i,3] <- 1;
-        } 
-    else {
-        os.group.brca[i,3] <- 2;
-        }
-    }
-
-
-os.group.brca$pam50 <- factor(os.group.brca$pam50);
-os.group.brca$pam50 <- relevel(os.group.brca$pam50, ref = "LumA");
-os.group.brca <- os.group.brca[!(os.group.brca$pam50 %in% "NC"),];
-os.group.brca <- na.omit(os.group.brca);
-
-
 
 ### 2. METABRIC Data Preparation
 outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
@@ -66,25 +48,6 @@ os.data.meta[,2] <- as.numeric(os.data.meta[,2]);
 os.data.meta[,3] <- as.numeric(os.data.meta[,3]);
 os.data.meta[,5] <- as.numeric(os.data.meta[,5]);
 os.data.meta <- na.omit(os.data.meta);
-
-# Group patients
-os.group.meta <- os.data.meta;
-for (i in 1:nrow(os.group.meta)) {
-    if (os.group.meta[i,3] == 0) {
-        os.group.meta[i,3] <- 1;
-        } 
-    else {
-        os.group.meta[i,3] <- 2;
-        }
-    }
-
-
-os.group.meta$pam50 <- factor(os.group.meta$pam50);
-os.group.meta$pam50 <- relevel(os.group.meta$pam50, ref = "LumA");
-os.group.meta <- os.group.meta[!(os.group.meta$pam50 %in% "NC"),];
-os.group.meta <- na.omit(os.group.meta);
-
-
 
 
 ### 3. Combine TCGA-BRCA and METABRIC Datasets
