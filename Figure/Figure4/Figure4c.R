@@ -6,6 +6,8 @@
 
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 protein.info.breast.num.symbol <- gsub(".*\\|([^|]+)_.*", "\\1", rownames(protein.info.breast.num));
 
@@ -118,6 +120,8 @@ key.protien.na <- list(
     y = 0.95
     );
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4c')));
 
 ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
     formula = protein.ccle.value ~ status,
@@ -164,33 +168,9 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'CCLE_outlier_protein', 
-        'box', 
-        'pdf'
-        ), 
-    width = 3.5, 
+save.outlier.figure(
+    ccle.protein.box,
+    c('CCLE', 'outlier', 'protein', 'box'),
+    width = 3.5,
     height = 6.5
     );
-print(ccle.protein.box);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'CCLE_outlier_protein', 
-        'box', 
-        'png'
-        ), 
-    width = 3.5, 
-    height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(ccle.protein.box);
-dev.off();
-
-

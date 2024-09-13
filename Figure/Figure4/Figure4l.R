@@ -8,6 +8,8 @@ library(tidyr);
 library(reshape2);
 library(dplyr);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 # # Read data files (included in the enrironment file)
 # sanger.drug <- read.delim2(
 #     file ='/CCLE/sanger/sanger-dose-response.csv', 
@@ -256,6 +258,9 @@ key <-list(
     x =0.25,
     y =0.95);
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4l')));
+
 # Create Z-score boxplot
 zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
     formula = value ~ status,
@@ -303,33 +308,9 @@ zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
     alpha =0.25
     );
 
-
-
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'sanger_drug', 
-        'box', 
-        'pdf'
-        ), 
-    width = 4, 
+save.outlier.figure(
+    zscore.box.sanger,
+    c('sanger', 'drug', 'box'),
+    width = 4,
     height = 6
     );
-print(zscore.box.sanger);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'sanger_drug', 
-        'box', 
-        'png'
-        ), 
-    width = 4, 
-    height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-print(zscore.box.sanger);
-dev.off();

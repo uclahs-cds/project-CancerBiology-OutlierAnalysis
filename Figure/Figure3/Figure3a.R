@@ -6,6 +6,8 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 # Haven't uploaded yet. These are included as variables.
 # # Load normalized data (z-score)
 # brca.protein.cptac.zscore <- read.delim2(
@@ -124,7 +126,8 @@ key.protein.na <- list(
     y = 0.95
     );
 
-
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure3a')));
 
 cptac.box <- BoutrosLab.plotting.general::create.boxplot(
     formula = protein.cptac.value ~ status,
@@ -163,34 +166,9 @@ cptac.box <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'cptac', 
-        'box', 
-        'pdf'
-        ), 
-    width = 3.5, 
+save.outlier.figure(
+    cptac.box,
+    c('cptac', 'box'),
+    width = 3.5,
     height = 6.5
     );
-print(cptac.box);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'cptac', 
-        'box', 
-        'png'
-        ), 
-    width = 3.5, 
-    height = 6.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(cptac.box);
-dev.off();
-
-
-

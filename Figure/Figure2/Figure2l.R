@@ -9,6 +9,8 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 # Check PXDNL gene
 i <- 'PXDNL';
@@ -214,33 +216,9 @@ i.heat  <- BoutrosLab.plotting.general:::create.multiplot(
     resolution = 500
     );
 
-
-
-# Save the heatmap as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'heatmap_me', 
-        'pdf'
-        ), 
-    width = 7.5, 
+save.outlier.figure(
+    i.heat,
+    c(i, 'heatmap', 'me'),
+    width = 7.5,
     height = 8.5
     );
-print(i.heat);
-dev.off();
-
-# Save the heatmap as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'heatmap_me', 
-        'png'
-        ), 
-    width = 7.5, 
-    height = 8.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(i.heat);
-dev.off();
-

@@ -12,6 +12,8 @@
 ### PREAMBLE ####################################################################
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### DATA PREPARATION ############################################################
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
@@ -233,6 +235,9 @@ patient.sizes <- ifelse(all.gene.outlier.status == 1, 0.9, 0.75);
 
 ### DATA ANALYSIS ###############################################################
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure1b')));
+
 # Create the strip plot
 stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
     formula = as.numeric(value) ~ order,
@@ -295,30 +300,9 @@ stripplot.gene.z.scores;
 
 ### OUTPUT ######################################################################
 
-# Save the plot as a PDF
-pdf(
-    file = generate.filename(
-        'six_gene', 
-        'scatter', 
-        'pdf'
-        ), 
+save.outlier.figure(
+    stripplot.gene.z.scores,
+    c('six_gene', 'scatter'),
     width = 4.7, 
     height = 5.3
     );
-print(stripplot.gene.z.scores);
-dev.off();
-
-# Save the plot as a PNG
-png(
-    file = generate.filename(
-        'six_gene', 
-        'scatter', 
-        'png'
-        ), 
-    width = 4.7, 
-    height = 5.3, 
-    unit = 'in', 
-    res = 1200
-    );
-print(stripplot.gene.z.scores);
-dev.off();

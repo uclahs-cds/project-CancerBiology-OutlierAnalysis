@@ -12,6 +12,8 @@ library(dplyr);
 library(tidyr);
 library(poolr);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 outlier.gene.fdr.all.icgc$Symbol <- fpkm.data.icgc$Name[as.numeric(outlier.gene.fdr.all.icgc$gene)];
 outlier.gene.fdr.all.ispy$Symbol <-  rownames(outlier.gene.fdr.all.ispy);

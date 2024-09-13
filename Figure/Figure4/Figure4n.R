@@ -3,7 +3,7 @@
 # and RNAi for the gene SYK.
 # Date: 2024-08-16
 
-
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 i <-'SYK';
 
@@ -33,6 +33,9 @@ rnai.cas.effect.score.drug.gene.1 <- data.frame(
 dot.colours <- vector(length= nrow(rnai.cas.effect.score.drug.gene.1));
 dot.colours <- rep('grey70', nrow(rnai.cas.effect.score.drug.gene.1));
 dot.colours[rnai.cas.effect.score.drug.gene.1$status == 1] <- 'dodgerblue3';
+
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure4n')));
 
 # Create the boxplot
 rnai.cas.effect.box.plot <- BoutrosLab.plotting.general::create.boxplot(
@@ -71,31 +74,9 @@ rnai.cas.effect.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     alpha = 0.25
     );
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'box_cas_rnai', 
-        'pdf'
-        ), 
-    width = 3.8, 
+save.outlier.figure(
+    rnai.cas.effect.box.plot,
+    c(i, 'box', 'cas', 'rnai'),
+    width = 3.8,
     height = 6
     );
-print(rnai.cas.effect.box.plot);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'box_cas_rnai', 
-        'png'
-        ), 
-    width = 3.8, 
-    height = 6,
-    unit = 'in', 
-    res = 1200
-    );
-print(rnai.cas.effect.box.plot);
-dev.off();

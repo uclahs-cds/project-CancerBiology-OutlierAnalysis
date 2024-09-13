@@ -8,6 +8,8 @@
 library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 brca.cnv.chr.new.gis.fpkm.order.match.chr6 <- brca.cnv.chr.new.gis.fpkm.order.match[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr6',];
 brca.cnv.chr.new.gis.fpkm.order.match.chr6.all.gene.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome %in% 'chr6', ];
@@ -118,31 +120,9 @@ ecdna.bar.chr6 <- create.barplot(
     );
 
 
-# Save the bar plot as a PDF
-pdf(
-    file = generate.filename(
-        'ecdna_chr6', 
-        'barplot', 
-        'pdf'
-        ), 
+save.outlier.figure(
+    ecdna.bar.chr6,
+    c('ecdna', 'chr6', 'barplot'),
     width = 8, 
     height = 3.5
     );
-print(ecdna.bar.chr6);
-dev.off();
-
-# Save the bar plot as a PNG
-png(
-    file = generate.filename(
-        'ecdna_chr6', 
-        'barplot', 
-        'png'
-        ), 
-    width = 8, 
-    height = 3.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(ecdna.bar.chr6);
-dev.off();
-

@@ -15,6 +15,8 @@
 # Load necessary libraries
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 ### DATA PREPARATION ############################################################
 
 five.data.outlier.symbol <- unique(
@@ -205,30 +207,9 @@ scatter.smooth.line;
 
 ### OUTPUT ######################################################################
 
-# Save the plot as a PDF
-pdf(
-    file = generate.filename(
-        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 
-        'scatter', 
-        'pdf'
-        ), 
-    width = 5.5, 
+save.outlier.figure(
+    scatter.smooth.line,
+    c('5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 'scatter'),
+    width = 5.5,
     height = 5
     );
-print(scatter.smooth.line);
-dev.off();
-
-# Save the plot as a PNG
-png(
-    file = generate.filename(
-        '5_patient_per_outlier_ratio_needed_patient_percent_smoothline', 
-        'scatter', 
-        'png'
-        ), 
-    width = 5.5, 
-    height = 5, 
-    unit = 'in', 
-    res = 1200
-    );
-print(scatter.smooth.line);
-dev.off();

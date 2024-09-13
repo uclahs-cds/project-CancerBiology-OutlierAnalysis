@@ -7,6 +7,7 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
 # Main analysis
@@ -109,6 +110,9 @@ text.pvalue.tumor.na <- display.statistical.result(
     symbol = ' = '
     );
 
+# Establish an arbitrary but consistent random seed for plotting consistency
+set.seed(sum(utf8ToInt('Figure2k')));
+
 # Create boxplot
 tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = value ~ sample,
@@ -148,34 +152,9 @@ tumor.normal.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     );
 
 
-
-# Save the box plot as a PDF
-pdf(
-    file = generate.filename(
-        'merge_tumour_normal_me', 
-        'box', 
-        'pdf'
-        ), 
-    width = 3.7, 
+save.outlier.figure(
+    tumor.normal.box.plot,
+    c('merge', 'tumour', 'normal', 'me', 'box'),
+    width = 3.7,
     height = 5
     );
-print(tumor.normal.box.plot);
-dev.off();
-
-# Save the box plot as a PNG
-png(
-    file = generate.filename(
-        'merge_tumour_normal_me', 
-        'box', 
-        'png'
-        ), 
-    width = 3.7, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(tumor.normal.box.plot);
-dev.off();
-
-
-

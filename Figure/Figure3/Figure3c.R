@@ -8,6 +8,8 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 # Calculate quantiles of protein abundance for outlier genes
 percent.protein.cptac.quantile <- NULL;
 for (i in 1:length(outlier.protein.cptac.list.no.p.na)) { 
@@ -69,32 +71,9 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     );  
 
 
-# Save the heatmap as a PDF
-pdf(
-    file = generate.filename(
-        'cptac', 
-        'heatmap', 
-        'pdf'
-        ), 
-    width = 6, 
+save.outlier.figure(
+    heat.out,
+    c('cptac', 'heatmap'),
+    width = 6,
     height = 4.5
     );
-print(heat.out);
-dev.off();
-
-# Save the heatmap as a PNG
-png(
-    file = generate.filename(
-        'cptac', 
-        'heatmap', 
-        'png'
-        ), 
-    width = 6, 
-    height = 4.5,
-    unit = 'in', 
-    res = 1200
-    );
-print(heat.out);
-dev.off();
-
-

@@ -8,6 +8,8 @@
 library(BoutrosLab.utilities)
 library(BoutrosLab.plotting.general)
 
+source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+
 
 i <- 'FGFR2';
 
@@ -106,33 +108,9 @@ your.points <- xyplot(i.fpkm.merge.data.order.out.three ~ c(0.9, 1, 1, 1.1, 1),
                       pch = 23, col = "black", fill = 'red2', cex = 1.3);
 i.fpkm.merge.data.order.quan.unequal.three.dot <- i.fpkm.merge.data.order.quan.unequal.three + as.layer(your.points);
 
-
-# Save the bar plot as a PDF
-pdf(
-    file = generate.filename(
-        i, 
-        'barplot', 
-        'pdf'
-        ), 
-    width = 4.5, 
+save.outlier.figure(
+    i.fpkm.merge.data.order.quan.unequal.three.dot,
+    c(i, 'barplot'),
+    width = 4.5,
     height = 5
     );
-print(i.fpkm.merge.data.order.quan.unequal.three.dot);
-dev.off();
-
-# Save the bar plot as a PNG
-png(
-    file = generate.filename(
-        i, 
-        'barplot', 
-        'png'
-        ), 
-    width = 4.5, 
-    height = 5,
-    unit = 'in', 
-    res = 1200
-    );
-print(i.fpkm.merge.data.order.quan.unequal.three.dot);
-dev.off();
-
-
