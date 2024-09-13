@@ -17,20 +17,6 @@ ansi.magenta <- function(str) {
     paste('\x1b[35;1m', str, '\x1b[0m', sep = '');
     }
 
-# write.env.json <- function(file.name, target.env) {
-#     result.list <- mget(ls(target.env, all.names = TRUE), envir = target.env);
-# 
-#     json.filename <- paste0(
-#         tools::file_path_sans_ext(basename(file.name)),
-#         '.json'
-#         );
-# 
-#     write(
-#         x = rjson::toJSON(result.list, indent = 2),
-#         file = json.filename
-#         )
-#     }
-
 save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures') {
     dir.create(output.directory, showWarnings = FALSE);
 
@@ -38,10 +24,13 @@ save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures'
     data.env <- new.env();
     load(datafile, envir = data.env);
 
-    result <- list(
-        datafile = datafile,
-        variables = ls(data.env),
-        figures = vector(mode = 'list', length = length(subfiles)));
+    result <- with(list(temp.varnames = ls(data.env)), {
+        list(
+            datafile = datafile,
+            variables = setNames(lapply(temp.varnames, function(x) digest::digest(get(x, envir = data.env))), temp.varnames),
+            figures = vector(mode = 'list', length = length(subfiles))
+            )
+        });
 
     for (figure.index in seq_along(subfiles)) {
         figure.file <- subfiles[figure.index];
@@ -59,7 +48,6 @@ save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures'
                 name,
                 function(value) {
                     if (missing(value)) {
-                        # assign(name, get(name, envir = plot.env), envir = accessed.vars)
                         assign(name, 'ACCESSED', envir = accessed.vars)
                         get(name, envir = plot.env)
                         } else {
@@ -70,7 +58,9 @@ save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures'
                 )
             }
 
-        for (var in ls(data.env)) { track.access(var) }
+        for (var in ls(data.env)) {
+            track.access(var)
+            }
 
         if (inherits(
             try(source(figure.file, local = plot.sub.env, echo = FALSE)),
@@ -90,8 +80,7 @@ save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures'
             }
 
         for (variable.name in ls(plot.sub.env)) {
-            if (!exists(variable.name, accessed.vars)) {
-                # message(paste('Assigned variable', variable.name));
+            if (!exists(variable.name, data.env)) {
                 assign(variable.name, paste0('DEFINED:', digest::digest(get(variable.name, envir = plot.sub.env))), envir = accessed.vars);
                 }
             }
@@ -108,7 +97,6 @@ save.multiple.plots <- function(subfiles, datafile, output.directory = 'figures'
             '.json'
             )
         )
-
     }
 # Use the original data on the cluster, falling back to the copied local data
 
