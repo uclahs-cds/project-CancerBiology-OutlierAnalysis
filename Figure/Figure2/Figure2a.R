@@ -14,20 +14,6 @@ meta.non.outlier.cnv <- as.numeric(
     unlist(meta.non.outlier.sample.cnv.new.gis)
     ); # Non-outlier sample CNA values
 
-# Calculate medians of CNV values for outlier and non-outlier samples
-meta.outlier.median <- lapply(
-    meta.outlier.sample.cnv.new.gis,
-    function(x) {
-        median(na.omit(as.numeric(x)))
-        }
-    );
-meta.non.outlier.median <- lapply(
-    meta.non.outlier.sample.cnv.new.gis,
-    function(x) {
-        median(na.omit(as.numeric(x)))
-        }
-    );
-
 # Combine outlier and non-outlier values into a single data frame
 meta.gis.value <- data.frame(new.gis.value = c(meta.non.outlier.cnv, meta.outlier.cnv));
 meta.gis.box <- data.frame(
@@ -64,19 +50,6 @@ brca.non.outlier.cnv <- as.numeric(
     unlist(brca.non.outlier.sample.cnv.new.gis)
     );
 
-brca.outlier.median <- lapply(
-    brca.outlier.sample.cnv.new.gis,
-    function(x) {
-        median(na.omit(as.numeric(x)))
-        }
-    );
-brca.non.outlier.median <- lapply(
-    brca.non.outlier.sample.cnv.new.gis,
-    function(x) {
-        median(na.omit(as.numeric(x)))
-        }
-    );
-
 brca.gis.value <- data.frame(new.gis.value = c(brca.non.outlier.cnv, brca.outlier.cnv));
 brca.gis.box <- data.frame(
     cbind(
@@ -107,19 +80,6 @@ icgc.outlier.cnv <- as.numeric(
     );
 icgc.non.outlier.cnv <- as.numeric(
     unlist(icgc.non.outlier.sample.cnv.new.gis)
-    );
-
-icgc.outlier.median <- lapply(
-    icgc.outlier.sample.cnv.new.gis,
-    function(x) {
-        median(na.omit(as.numeric(x)))
-        }
-    );
-icgc.non.outlier.median <- lapply(
-    icgc.non.outlier.sample.cnv.new.gis,
-    function(x) {
-        median(na.omit(as.numeric(x)))
-        }
     );
 
 icgc.gis.value <- data.frame(new.gis.value = c(icgc.non.outlier.cnv, icgc.outlier.cnv));

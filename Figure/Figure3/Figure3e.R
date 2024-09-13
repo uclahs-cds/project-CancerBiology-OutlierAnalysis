@@ -301,9 +301,6 @@ basal.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtyp
 p.value.stage.pseudo.basal.odd.sub.t1.icgc <- basal.results.icgc$odd.ratios;
 p.value.stage.pseudo.basal.ci.sub.t1.icgc <- basal.results.icgc$ci.intervals;
 
-# Her2
-her2.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 2);
-
 # Lum A
 luma.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 3);
 p.value.stage.pseudo.luma.odd.sub.t1.icgc <- luma.results.icgc$odd.ratios;
@@ -313,11 +310,6 @@ p.value.stage.pseudo.luma.ci.sub.t1.icgc <- luma.results.icgc$ci.intervals;
 lumb.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 4);
 p.value.stage.pseudo.lumb.odd.sub.t1.icgc <- lumb.results.icgc$odd.ratios;
 p.value.stage.pseudo.lumb.ci.sub.t1.icgc <- lumb.results.icgc$ci.intervals;
-
-# Normal
-normal.results.icgc <- perform.fisher.test.icgc(os.data.stage.pseudo.icgc, subtype = 5);
-
-
 
 
 

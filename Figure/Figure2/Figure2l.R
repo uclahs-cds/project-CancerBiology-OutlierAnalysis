@@ -48,14 +48,6 @@ overlap.patient <- colnames(brca.outlier.promoter.symbol.normal.match.filter.brc
 i.me.patient.normal <- i.me.normal[, overlap.patient, drop = FALSE];
 i.me.patient.non.normal <- i.me.normal[, !(colnames(i.me.normal) %in% overlap.patient), drop = FALSE];
 
-i.me.patient.non.mean <- apply(
-    i.me.patient.non,
-    1,
-    function(x) {
-        mean(na.omit(x));
-        }
-    );
-
 promoters.i <- promoters.info[[i]];
 
 

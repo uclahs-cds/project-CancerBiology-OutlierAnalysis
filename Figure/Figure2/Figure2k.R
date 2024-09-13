@@ -14,13 +14,6 @@ source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'))
 # divide into outlier and non-outlier
 
 
-outlier.sample.me.two.unlist.mean.500 <- lapply(outlier.sample.me.two.500, function(x) {
-    mean(na.omit(as.numeric(x)))
-    });
-non.outlier.sample.me.two.unlist.mean.500 <- lapply(non.outlier.sample.me.two.500, function(x) {
-    mean(na.omit(as.numeric(x)))
-    });
-
 two.out.non.tumor.normal.gene.500 <- mean.minus.ma.merge.two.500$Symbol[mean.minus.ma.merge.two.500$Symbol %in% rownames(normal.tumor.beta.comparison.two.minus.order.500)];
 
 

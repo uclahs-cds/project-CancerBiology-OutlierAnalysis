@@ -41,14 +41,6 @@ sanger.drug.info.dup <- data.frame(sanger.drug.info.dup);
 sanger.drug.info.dup <- separate_rows(sanger.drug.info.dup, TARGET, sep = ',');
 sanger.drug.info.dup <- data.frame(sanger.drug.info.dup);
 
-# Filter CCLE and tissue-specific data
-fdr.05.symbol <- sub('\\..*', '', rownames(ccle.outlier.rank.fdr.05));
-
-# Define functions to check capitalization
-contains_lowercase <- function(word) {
-    return(grepl('[a-z]', word));
-    };
-
 # Data matching and merging
 sanger_upper_drug_names <- toupper(sanger.drug.info.name$DRUG_NAME);
 sanger_upper_drug_ids <- toupper(sanger.drug.info.name$drug.name.id);

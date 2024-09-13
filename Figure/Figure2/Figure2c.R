@@ -178,11 +178,6 @@ all.chr10.non.out.match <- cbind(
     meta.chr10.non.out.match,
     icgc.chr10.non.out.match
     );
-sample.chr10.non <- c(
-    rep('brca', ncol(brca.chr10.non.out.match)),
-    rep('meta', ncol(meta.chr10.non.out.match)),
-    rep('icgc', ncol(icgc.chr10.non.out.match))
-    );
 
 ### CLUSTERING AND ORDERING
 distance.matrix.t.all.chr10.non.out.match <- dist(t(all.chr10.non.out.match), method = 'euclidean');

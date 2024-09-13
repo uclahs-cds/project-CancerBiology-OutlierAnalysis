@@ -48,20 +48,6 @@ for (i in 1:length(me.out.symbol.two.500)) {
     two.outlier.patient.status.merge.filter.list.500[[i]] <- both.target.gene;
     }
 
-outlier.sample.me.two.unlist.mean.500 <- lapply(
-    outlier.sample.me.two.500,
-    function(x) {
-        mean(na.omit(as.numeric(x)));
-        }
-    );
-
-non.outlier.sample.me.two.unlist.mean.500 <- lapply(
-    non.outlier.sample.me.two.500,
-    function(x) {
-        mean(na.omit(as.numeric(x)));
-        }
-    );
-
 # Delta beta > 0.2
 dot.colours <- vector(
     length = length(mean.minus.ma.merge.two.500$minus.beta)
@@ -81,9 +67,6 @@ p.me <- wilcox.test(
     alternative = 'two.sided',
     conf.int = TRUE
     );
-
-p.value.com <- sprintf('%.1e', p.me$p.value);
-p.value.parts.com <- strsplit(p.value.com, split = 'e')[[1]];
 
 text.pvalue <- display.statistical.result(
     x = p.me$p.value,
