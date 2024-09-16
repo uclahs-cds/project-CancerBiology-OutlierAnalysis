@@ -5,8 +5,8 @@
 # Date: 2024-08-13
 
 ### Load Required Libraries ######################################################
-library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -133,3 +133,5 @@ save.outlier.figure(
     width = 8,
     height = 3.5
     );
+
+save.session.profile(file.path('output', 'Figure2d.txt'));

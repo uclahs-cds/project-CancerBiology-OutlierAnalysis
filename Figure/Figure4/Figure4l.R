@@ -2,6 +2,8 @@
 # This script processes and analyzes drug response data from Sanger.
 # Date: 2024-08-16
 
+library(BoutrosLab.utilities);
+
 # Load required libraries
 library(BoutrosLab.plotting.general);
 library(tidyr);
@@ -303,3 +305,5 @@ save.outlier.figure(
     width = 4,
     height = 6
     );
+
+save.session.profile(file.path('output', 'Figure4l.txt'));

@@ -6,6 +6,7 @@
 
 # Load required libraries
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
@@ -618,3 +619,5 @@ save.outlier.figure(
     width = 4.5,
     height = 5.6
     );
+
+save.session.profile(file.path('output', 'Figure3e.txt'));

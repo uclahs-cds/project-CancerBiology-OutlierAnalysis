@@ -5,6 +5,7 @@
 
 # Load necessary library
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -150,3 +151,5 @@ save.outlier.figure(
     width = 3.5,
     height = 6.5
     );
+
+save.session.profile(file.path('output', 'Figure3a.txt'));

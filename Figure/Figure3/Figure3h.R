@@ -5,6 +5,7 @@
 # Date: 2024-08-15
 
 library(BoutrosLab.plotting.survival);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -69,3 +70,5 @@ save.outlier.figure(
     width = 7.5,
     height = 7
     );
+
+save.session.profile(file.path('output', 'Figure3h.txt'));

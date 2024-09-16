@@ -6,6 +6,7 @@
 # Date: 2024-08-14
 
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -159,3 +160,5 @@ do.plot.2i <- function(i) {
 
 do.plot.2i('NGF');
 do.plot.2i('LRP4');
+
+save.session.profile(file.path('output', 'Figure2i.txt'));

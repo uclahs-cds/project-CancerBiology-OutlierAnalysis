@@ -3,6 +3,8 @@
 # in CCLE.
 # Date: 2024-08-16
 
+library(BoutrosLab.utilities);
+
 # Source the helper library
 args <- commandArgs();
 source(file.path(
@@ -75,3 +77,5 @@ save.outlier.figure(
     width = 6,
     height = 6
     );
+
+save.session.profile(file.path('output', 'Figure4h.txt'));

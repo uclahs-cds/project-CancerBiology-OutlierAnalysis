@@ -6,6 +6,8 @@
 # The plot is processed through Cytoscape.
 # Date: 2024-08-23
 
+library(BoutrosLab.utilities);
+
 library(dplyr);
 library(tidyr);
 library(poolr);
@@ -119,3 +121,5 @@ write.table(
     row.names = FALSE,
     col.names = TRUE
     );
+
+save.session.profile(file.path('output', 'Figure1h.txt'));

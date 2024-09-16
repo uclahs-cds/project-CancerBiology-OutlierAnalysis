@@ -9,6 +9,8 @@
 # the outlier genes per patient and per gene, and then plots a histogram to visualize
 # the distribution of outlier genes per patient.
 
+library(BoutrosLab.utilities);
+
 # Source the helper library
 args <- commandArgs();
 source(file.path(
@@ -129,3 +131,5 @@ save.outlier.figure(
     width = 5.5,
     height = 5
     );
+
+save.session.profile(file.path('output', 'Figure1d.txt'));

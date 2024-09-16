@@ -2,8 +2,8 @@
 # Date: 2024-08-13
 
 ### PREAMBLE ###################################################################
-library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
@@ -820,3 +820,5 @@ save.outlier.figure(
     width = 6.9,
     height = 5.7
     );
+
+save.session.profile(file.path('output', 'Figure2e.txt'));

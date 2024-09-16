@@ -3,6 +3,7 @@
 # Date: 2024-08-13
 
 library(BoutrosLab.plotting.general)
+library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
@@ -1448,3 +1449,5 @@ save.outlier.figure(
     width = 5,
     height = 6.5
     );
+
+save.session.profile(file.path('output', 'Figure1fg.txt'));

@@ -3,6 +3,8 @@
 # and RNAi for the gene SYK.
 # Date: 2024-08-16
 
+library(BoutrosLab.utilities);
+
 # Source the helper library
 args <- commandArgs();
 source(file.path(
@@ -87,3 +89,5 @@ save.outlier.figure(
     width = 3.8,
     height = 6
     );
+
+save.session.profile(file.path('output', 'Figure4n.txt'));

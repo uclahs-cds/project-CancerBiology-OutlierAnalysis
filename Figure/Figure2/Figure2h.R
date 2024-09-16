@@ -3,6 +3,7 @@
 # Date: 2024-08-14
 
 library(BoutrosLab.plotting.general)
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -137,3 +138,5 @@ save.outlier.figure(
     width = 6,
     height = 4.8
     );
+
+save.session.profile(file.path('output', 'Figure2h.txt'));

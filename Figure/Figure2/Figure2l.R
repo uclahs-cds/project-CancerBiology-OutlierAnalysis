@@ -207,3 +207,5 @@ save.outlier.figure(
     width = 7.5,
     height = 8.5
     );
+
+save.session.profile(file.path('output', 'Figure2l.txt'));

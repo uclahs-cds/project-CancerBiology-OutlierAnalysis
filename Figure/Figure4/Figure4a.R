@@ -4,6 +4,8 @@
 # ICGC BRCA-EU.
 # Date: 2024-08-16
 
+library(BoutrosLab.utilities);
+
 # Source the helper library
 args <- commandArgs();
 source(file.path(
@@ -212,3 +214,5 @@ save.outlier.figure(
     width = 7.5,
     height = 8.15
     );
+
+save.session.profile(file.path('output', 'Figure4a.txt'));

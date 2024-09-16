@@ -5,6 +5,7 @@
 
 # Load required libraries
 library(BoutrosLab.plotting.survival);
+library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
@@ -165,3 +166,5 @@ save.outlier.figure(
     width = 5,
     height = 3.8
     );
+
+save.session.profile(file.path('output', 'Figure3i.txt'));

@@ -3,6 +3,8 @@
 # Cas-CRISPR datasets, focusing on four specific genes: MECOM, FGFR2, FOXP4, WIPF2.
 # Date: 2024-08-16
 
+library(BoutrosLab.utilities);
+
 # Source the helper library
 args <- commandArgs();
 source(file.path(
@@ -148,3 +150,5 @@ save.outlier.figure(
     width = 4.5,
     height = 6.5
     );
+
+save.session.profile(file.path('output', 'Figure4j.txt'));

@@ -1,5 +1,35 @@
 ### UTILITY FUNCTIONS ##############################################################################
 
+### get.outlier.data.dir ##########################################################################
+# Description:
+#
+# Return the path to the outlier data directory. The first existing value in
+# the following list is returned:
+#
+#   * $OUTLIER_DATA_DIR
+#   * /hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/
+#   * ./untracked_data/data/
+#
+# Output variables:
+#
+#   * Path to the outlier data directory
+
+get.outlier.data.dir <- function() {
+    data.dirs <- c(
+        Sys.getenv('OUTLIER_DATA_DIR'),
+        '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/',
+        './untracked_data/data/'
+        );
+
+    for (data.dir in data.dirs) {
+        if (data.dir != '' && dir.exists(data.dir)) {
+            return(data.dir);
+            }
+        }
+
+    stop('No data directory found!');
+    }
+
 ### save.outlier.figure ############################################################################
 # Description:
 #
@@ -39,34 +69,5 @@ save.outlier.figure <- function(plot.object, name.segments, width, height, outpu
         );
     print(plot.object);
     dev.off();
-    }
-
-### get.outlier.data.dir ##########################################################################
-# Description:
-#
-# Return the path to the outlier data directory. The first existing value in
-# the following list is returned:
-#
-#   * $OUTLIER_DATA_DIR
-#   * /hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/
-#   * ./untracked_data/data/
-#
-# Output variables:
-#
-#   * Path to the outlier data directory
-
-get.outlier.data.dir <- function() {
-    data.dirs <- c(
-        Sys.getenv('OUTLIER_DATA_DIR'),
-        '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/',
-        './untracked_data/data/'
-        );
-
-    for (data.dir in data.dirs) {
-        if (data.dir != '' && dir.exists(data.dir)) {
-            return(data.dir);
-            }
-        }
-
-    stop('No data directory found!');
+    return(invisible(NULL));
     }

@@ -2,6 +2,7 @@
 # This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data.
 
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -431,3 +432,5 @@ save.outlier.figure(
     width = 10.4,
     height = 4.5
     );
+
+save.session.profile(file.path('output', 'Figure2a.txt'));

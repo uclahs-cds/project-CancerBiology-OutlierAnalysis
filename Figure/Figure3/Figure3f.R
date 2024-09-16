@@ -7,6 +7,7 @@
 # Load required libraries
 library(metafor);
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 args <- commandArgs();
@@ -347,3 +348,5 @@ save.outlier.figure(
     width = 7,
     height = 5
     );
+
+save.session.profile(file.path('output', 'Figure3f.txt'));

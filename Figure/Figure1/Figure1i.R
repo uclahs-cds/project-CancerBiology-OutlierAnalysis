@@ -5,6 +5,7 @@
 # Date: 2024-08-16
 
 library(BoutrosLab.plotting.general)
+library(BoutrosLab.utilities);
 library(dplyr)
 library(tidyr)
 library(poolr)
@@ -165,3 +166,5 @@ save.outlier.figure(
     width = 11,
     height = 4.5
     );
+
+save.session.profile(file.path('output', 'Figure1i.txt'));
