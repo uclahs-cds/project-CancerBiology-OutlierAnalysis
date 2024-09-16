@@ -12,9 +12,17 @@
 ### PREAMBLE ####################################################################
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 
 ### DATA PREPARATION ############################################################
+
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
 
@@ -299,7 +307,7 @@ stripplot.gene.z.scores;
 
 save.outlier.figure(
     stripplot.gene.z.scores,
-    c('six_gene', 'scatter'),
+    c('Figure1b', 'six_gene', 'scatter'),
     width = 4.7,
     height = 5.3
     );

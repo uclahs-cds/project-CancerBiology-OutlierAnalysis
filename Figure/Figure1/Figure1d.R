@@ -9,7 +9,14 @@
 # the outlier genes per patient and per gene, and then plots a histogram to visualize
 # the distribution of outlier genes per patient.
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 
 ### PREAMBLE ####################################################################
 
@@ -118,7 +125,7 @@ five.outlier.gene.sum;
 ### OUTPUT ######################################################################
 save.outlier.figure(
     five.outlier.gene.sum,
-    c('5_patient_per_outlier_gene_number', 'histogram'),
+    c('Figure1d', '5_patient_per_outlier_gene_number', 'histogram'),
     width = 5.5,
     height = 5
     );
