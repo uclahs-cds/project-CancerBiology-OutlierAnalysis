@@ -8,7 +8,14 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 
 # Calculate quantiles of protein abundance for outlier genes
 percent.protein.cptac.quantile <- NULL;
@@ -70,7 +77,7 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
 
 save.outlier.figure(
     heat.out,
-    c('cptac', 'heatmap'),
+    c('Figure3c', 'cptac', 'heatmap'),
     width = 6,
     height = 4.5
     );

@@ -6,7 +6,14 @@
 
 library(BoutrosLab.plotting.survival);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-11_Figure3e-i.rda'));
 
 
 ### 3. Combine TCGA-BRCA and METABRIC Datasets
@@ -58,7 +65,7 @@ km.os.group.combine;
 
 save.outlier.figure(
     km.os.group.combine,
-    c(i, 'km'),
+    c('Figure3h', i, 'km'),
     width = 7.5,
     height = 7
     );

@@ -6,7 +6,14 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 
 # Haven't uploaded yet. These are included as variables.
 # # Load TCGA-BRCA RPPA data
@@ -193,7 +200,7 @@ rppa.box <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     rppa.box,
-    c('rppa', 'box'),
+    c('Figure3b', 'rppa', 'box'),
     width = 3.5,
     height = 6.5
     );

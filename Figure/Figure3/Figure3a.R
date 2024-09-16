@@ -6,7 +6,14 @@
 # Load necessary library
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 
 # Outlier symbol
 outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
@@ -139,7 +146,7 @@ cptac.box <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     cptac.box,
-    c('cptac', 'box'),
+    c('Figure3a', 'cptac', 'box'),
     width = 3.5,
     height = 6.5
     );
