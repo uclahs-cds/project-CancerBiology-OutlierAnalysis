@@ -1,6 +1,6 @@
 ### HISTORY #####################################################################
-# This script analyzes gene dependency scores for outlier genes identified in 
-# CCLE across multiple cancer datasets. It compares the gene dependency scores 
+# This script analyzes gene dependency scores for outlier genes identified in
+# CCLE across multiple cancer datasets. It compares the gene dependency scores
 # between outlier and non-outlier samples.
 # Date: 2024-08-16
 
@@ -16,27 +16,15 @@ gene.dependency.breast.t.num.match <- gene.dependency.breast.t.num.match[
     , colnames(fpkm.tumor.symbol.filter.ccle)
     ];
 
-# Filter for FDR < 0.05
-ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[
-    rownames(ccle.outlier.rank.fdr.05), 
-    ];
-gene.dependency.breast.t.num.match.05 <- gene.dependency.breast.t.num.match[
-    rownames(ccle.outlier.rank.fdr.05), 
-    ];
-gene.dependency.breast.t.num.match.05.na <- na.omit(gene.dependency.breast.t.num.match.05);
-ccle.sample.outlier.status.overlap.na <- ccle.sample.outlier.status.overlap[
-    rownames(gene.dependency.breast.t.num.match.05.na), 
-    ];
-
-ccle.sample.outlier.status.na <- ccle.sample.outlier.status[rownames(gene.dependency.breast.t.num.match.05.na),];
+ccle.sample.outlier.status.na <- ccle.sample.outlier.status[rownames(gene.dependency.breast.t.num.match.05.na), ];
 
 
 dependency.quantile.05 <- list();
 outlier.gene.dependency.score.05 <- list();
 nonoutlier.gene.dependency.score.05 <- list();
 for (i in 1:nrow(ccle.sample.outlier.status.na)) {
-    outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, which(ccle.sample.outlier.status.na[i,] == 1), drop = FALSE];
-    non.outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, -(which(ccle.sample.outlier.status.na[i,] == 1))];
+    outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, which(ccle.sample.outlier.status.na[i, ] == 1), drop = FALSE];
+    non.outlier.gene <- gene.dependency.breast.t.num.match.05.na[i, -(which(ccle.sample.outlier.status.na[i, ] == 1))];
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
     quantile.value <- ecdf.obj(outlier.gene);
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
@@ -45,7 +33,7 @@ for (i in 1:nrow(ccle.sample.outlier.status.na)) {
     colnames(quantile.value) <- colnames(outlier.gene);
     rownames(quantile.value) <- rownames(outlier.gene);
     dependency.quantile.05[[i]] <- quantile.value;
-    
+
     outlier.gene.dependency.score.05[[i]] <- outlier.gene;
     nonoutlier.gene.dependency.score.05[[i]] <- non.outlier.gene;
     }
@@ -66,23 +54,8 @@ nonoutlier.gene.dependency.score.05.mean <- data.frame(
 rownames(outlier.gene.dependency.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
 rownames(nonoutlier.gene.dependency.score.05.mean) <- rownames(ccle.sample.outlier.status.overlap.na);
 
-p.dependency.05 <- wilcox.test(
-    outlier.gene.dependency.score.05.mean$dependency, 
-    nonoutlier.gene.dependency.score.05.mean$dependency, 
-    alternative = "two.sided", conf.int = TRUE
-    );
-
-gene.dependency.diff.matrix.05 <- data.frame(
-    out = outlier.gene.dependency.score.05.mean$dependency,
-    non = nonoutlier.gene.dependency.score.05.mean$dependency,
-    diff = outlier.gene.dependency.score.05.mean$dependency - nonoutlier.gene.dependency.score.05.mean$dependency,
-    symbol = sub("\\..*", "", rownames(outlier.gene.dependency.score.05.mean))
-    );
 
 # Filter overlapping genes
-gene.dependency.diff.matrix.05.overlap <- gene.dependency.diff.matrix.05[
-    gene.dependency.diff.matrix.05$symbol %in% five.data.outlier.symbol, 
-    ];
 
 # Set colors
 dot.colours <- ifelse(

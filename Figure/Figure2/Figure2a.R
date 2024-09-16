@@ -1,5 +1,5 @@
 ### CNA ANALYSIS ##########################################################
-# This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data. 
+# This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data.
 
 library(BoutrosLab.plotting.general);
 
@@ -14,31 +14,19 @@ meta.non.outlier.cnv <- as.numeric(
     unlist(meta.non.outlier.sample.cnv.new.gis)
     ); # Non-outlier sample CNA values
 
-# Calculate medians of CNV values for outlier and non-outlier samples
-meta.outlier.median <- lapply(
-    meta.outlier.sample.cnv.new.gis, 
-    function(x) {median(na.omit(as.numeric(x)))}
-    );
-meta.non.outlier.median <- lapply(
-    meta.non.outlier.sample.cnv.new.gis, 
-    function(x) {median(na.omit(as.numeric(x)))}
-    );
-
-# Convert the lists of medians to vectors
-meta.outlier.median.unlist <- unlist(meta.outlier.median);
-meta.non.outlier.median.unlist <- unlist(meta.non.outlier.median);
-
 # Combine outlier and non-outlier values into a single data frame
 meta.gis.value <- data.frame(new.gis.value = c(meta.non.outlier.cnv, meta.outlier.cnv));
 meta.gis.box <- data.frame(
     cbind(
-        meta.gis.value$new.gis.value, 
-        c(rep('non', length(meta.non.outlier.cnv)), 
-          rep('out', length(meta.outlier.cnv)))
+        meta.gis.value$new.gis.value,
+        c(
+            rep('non', length(meta.non.outlier.cnv)),
+            rep('out', length(meta.outlier.cnv))
+            )
         )
     );
 colnames(meta.gis.box) <- c('new.gis.value', 'status');
-meta.gis.box[,1] <- as.numeric(meta.gis.box[,1]);
+meta.gis.box[, 1] <- as.numeric(meta.gis.box[, 1]);
 
 # Create frequency tables for the CNV values
 meta.gis.table.df <- data.frame(table(meta.gis.box));
@@ -62,28 +50,18 @@ brca.non.outlier.cnv <- as.numeric(
     unlist(brca.non.outlier.sample.cnv.new.gis)
     );
 
-brca.outlier.median <- lapply(
-    brca.outlier.sample.cnv.new.gis, 
-    function(x) {median(na.omit(as.numeric(x)))}
-    );
-brca.non.outlier.median <- lapply(
-    brca.non.outlier.sample.cnv.new.gis, 
-    function(x) {median(na.omit(as.numeric(x)))}
-    );
-
-brca.outlier.median.unlist <- unlist(brca.outlier.median);
-brca.non.outlier.median.unlist <- unlist(brca.non.outlier.median);
-
 brca.gis.value <- data.frame(new.gis.value = c(brca.non.outlier.cnv, brca.outlier.cnv));
 brca.gis.box <- data.frame(
     cbind(
-        brca.gis.value$new.gis.value, 
-        c(rep('non', length(brca.non.outlier.cnv)), 
-          rep('out', length(brca.outlier.cnv)))
+        brca.gis.value$new.gis.value,
+        c(
+            rep('non', length(brca.non.outlier.cnv)),
+            rep('out', length(brca.outlier.cnv))
+            )
         )
     );
 colnames(brca.gis.box) <- c('new.gis.value', 'status');
-brca.gis.box[,1] <- as.numeric(brca.gis.box[,1]);
+brca.gis.box[, 1] <- as.numeric(brca.gis.box[, 1]);
 
 brca.gis.table.df <- data.frame(table(brca.gis.box));
 brca.gis.table <- data.frame(table(brca.gis.box));
@@ -104,29 +82,19 @@ icgc.non.outlier.cnv <- as.numeric(
     unlist(icgc.non.outlier.sample.cnv.new.gis)
     );
 
-icgc.outlier.median <- lapply(
-    icgc.outlier.sample.cnv.new.gis, 
-    function(x) {median(na.omit(as.numeric(x)))}
-    );
-icgc.non.outlier.median <- lapply(
-    icgc.non.outlier.sample.cnv.new.gis, 
-    function(x) {median(na.omit(as.numeric(x)))}
-    );
-
-icgc.outlier.median.unlist <- unlist(icgc.outlier.median);
-icgc.non.outlier.median.unlist <- unlist(icgc.non.outlier.median);
-
 icgc.gis.value <- data.frame(new.gis.value = c(icgc.non.outlier.cnv, icgc.outlier.cnv));
 icgc.gis.box <- data.frame(
     cbind(
-        icgc.gis.value$new.gis.value, 
-        c(rep('non', length(icgc.non.outlier.cnv)), 
-          rep('out', length(icgc.outlier.cnv)))
+        icgc.gis.value$new.gis.value,
+        c(
+            rep('non', length(icgc.non.outlier.cnv)),
+            rep('out', length(icgc.outlier.cnv))
+            )
         )
     );
 
 colnames(icgc.gis.box) <- c('new.gis.value', 'status');
-icgc.gis.box[,1] <- as.numeric(icgc.gis.box[,1]);
+icgc.gis.box[, 1] <- as.numeric(icgc.gis.box[, 1]);
 icgc.gis.table.df <- data.frame(table(icgc.gis.box));
 icgc.gis.table <- data.frame(table(icgc.gis.box));
 
@@ -152,48 +120,48 @@ metafor.cnv.p.all <- NULL;
 for (i in 1:5) {
     # Prepare the data for meta-analysis
     data <- data.frame(
-        measure = c("OR", "OR", "OR"),  
+        measure = c('OR', 'OR', 'OR'),
         ai = c(
-            meta.gis.table.num$sample[meta.gis.table.num$status == 'out'][i], 
-            brca.gis.table.num$sample[brca.gis.table.num$status == 'out'][i], 
+            meta.gis.table.num$sample[meta.gis.table.num$status == 'out'][i],
+            brca.gis.table.num$sample[brca.gis.table.num$status == 'out'][i],
             icgc.gis.table.num$sample[icgc.gis.table.num$status == 'out'][i]
-            ),  
+            ),
         n1i = c(
-            sum(meta.gis.table.num$sample[meta.gis.table.num$status == 'out']), 
-            sum(brca.gis.table.num$sample[brca.gis.table.num$status == 'out']), 
+            sum(meta.gis.table.num$sample[meta.gis.table.num$status == 'out']),
+            sum(brca.gis.table.num$sample[brca.gis.table.num$status == 'out']),
             sum(icgc.gis.table.num$sample[icgc.gis.table.num$status == 'out'])
-            ), 
+            ),
         ci = c(
-            meta.gis.table.num$sample[meta.gis.table.num$status == 'non'][i], 
-            brca.gis.table.num$sample[brca.gis.table.num$status == 'non'][i], 
+            meta.gis.table.num$sample[meta.gis.table.num$status == 'non'][i],
+            brca.gis.table.num$sample[brca.gis.table.num$status == 'non'][i],
             icgc.gis.table.num$sample[icgc.gis.table.num$status == 'non'][i]
-            ),  
+            ),
         n2i = c(
-            sum(meta.gis.table.num$sample[meta.gis.table.num$status == 'non']), 
-            sum(brca.gis.table.num$sample[brca.gis.table.num$status == 'non']), 
+            sum(meta.gis.table.num$sample[meta.gis.table.num$status == 'non']),
+            sum(brca.gis.table.num$sample[brca.gis.table.num$status == 'non']),
             sum(icgc.gis.table.num$sample[icgc.gis.table.num$status == 'non'])
-            ) 
+            )
         );
-    
+
     # Calculate effect sizes and variances for meta-analysis
     es.data <- escalc(
-        measure = "OR",  
-        ai = ai, 
-        n1i = n1i, 
-        ci = ci, 
-        n2i = n2i, 
+        measure = 'OR',
+        ai = ai,
+        n1i = n1i,
+        ci = ci,
+        n2i = n2i,
         data = data
         );
-    
+
     # Perform the meta-analysis using a random-effects model (DerSimonian-Laird method)
-    meta.res <- rma.uni(yi, vi, data = es.data, method = "DL");
-    
+    meta.res <- rma.uni(yi, vi, data = es.data, method = 'DL');
+
     # Extract and store the results: odds ratio, confidence intervals, and p-value
     metafor.cnv.odd <- exp(meta.res$beta);
     metafor.cnv.lower <- exp(meta.res$ci.lb);
     metafor.cnv.upper <- exp(meta.res$ci.ub);
     metafor.cnv.p <- meta.res$pval;
-    
+
     # Append the results to the corresponding vectors
     metafor.cnv.odd.all <- c(metafor.cnv.odd.all, metafor.cnv.odd);
     metafor.cnv.lower.all <- c(metafor.cnv.lower.all, metafor.cnv.lower);
@@ -202,12 +170,6 @@ for (i in 1:5) {
     }
 
 # Prepare data for visualization (stacked bar plot)
-
-metafor.cnv.odd.all.df <- data.frame(
-    group = c('a', 'b', 'c', 'd', 'e'),  # Group labels
-    sample = rep('a', 5),  # Sample labels
-    odd = metafor.cnv.odd.all  # Odds ratios from the meta-analysis
-    );
 
 # Adjust p-values for multiple testing using the Benjamini-Hochberg method (FDR)
 metafor.cnv.p.all.fdr <- p.adjust(metafor.cnv.p.all, method = 'BH');
@@ -237,24 +199,24 @@ icgc.sum.vector <- rep(icgc.sum.vector, each = 2);
 all.weighted.mean <- numeric(10);
 
 # Compute weighted means for each status and GIS value combination
-for (status in c("non", "out")) {
+for (status in c('non', 'out')) {
     for (i in 1:5) {
-        gis_value <- c(-2, -1, 0, 1, 2)[i];
-        
+        gis.value <- c(-2, -1, 0, 1, 2)[i];
+
         weights <- c(
-            sum(brca.gis.table.num$sample[brca.gis.table.num$new.gis.value == gis_value & brca.gis.table.num$status == status]),
-            sum(meta.gis.table.num$sample[meta.gis.table.num$new.gis.value == gis_value & meta.gis.table.num$status == status]),
-            sum(icgc.gis.table.num$sample[icgc.gis.table.num$new.gis.value == gis_value & icgc.gis.table.num$status == status])
+            sum(brca.gis.table.num$sample[brca.gis.table.num$new.gis.value == gis.value & brca.gis.table.num$status == status]),
+            sum(meta.gis.table.num$sample[meta.gis.table.num$new.gis.value == gis.value & meta.gis.table.num$status == status]),
+            sum(icgc.gis.table.num$sample[icgc.gis.table.num$new.gis.value == gis.value & icgc.gis.table.num$status == status])
             );
-        
+
         values <- c(
-            brca.gis.table.num$Freq[brca.gis.table.num$new.gis.value == gis_value & brca.gis.table.num$status == status],
-            meta.gis.table.num$Freq[meta.gis.table.num$new.gis.value == gis_value & meta.gis.table.num$status == status],
-            icgc.gis.table.num$Freq[icgc.gis.table.num$new.gis.value == gis_value & icgc.gis.table.num$status == status]
+            brca.gis.table.num$Freq[brca.gis.table.num$new.gis.value == gis.value & brca.gis.table.num$status == status],
+            meta.gis.table.num$Freq[meta.gis.table.num$new.gis.value == gis.value & meta.gis.table.num$status == status],
+            icgc.gis.table.num$Freq[icgc.gis.table.num$new.gis.value == gis.value & icgc.gis.table.num$status == status]
             );
-        
+
         # Compute the weighted average and store it
-        index <- ifelse(status == "non", i, i + 5);
+        index <- ifelse(status == 'non', i, i + 5);
         all.weighted.mean[index] <- weighted.mean(values, weights);
         }
     }
@@ -268,10 +230,7 @@ metafor.cnv.odd.all.df.fraction.non <- data.frame(
     odd = all.weighted.mean[1:5]
     );
 
-col.pal <- colorspace::diverging_hcl(9, "Blue-Red 3")[c(1, 2, 5, 8, 9)];
-col.pal <- colorspace::diverging_hcl(21, "Blue-Red 3")[c(1, 4, 11, 18, 21)];
-cnv.col.ramp.5.bar <- c("#2166AC", "#90B2D5", "white", "#D88B95", "#B2182B")
-cnv.col.ramp.5 <- c("#2166AC", "#90B2D5", "grey60", "#D88B95", "#B2182B")
+cnv.col.ramp.5.bar <- c('#2166AC', '#90B2D5', 'white', '#D88B95', '#B2182B')
 
 non.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     formula = group ~ odd,
@@ -289,17 +248,17 @@ non.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     xlimits = c(-0.07, 0.82),
     ylab.cex = 1.3,
     xaxis.cex = 1.1,
-    yaxis.cex =0,
+    yaxis.cex = 0,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
     add.rectangle = TRUE,
     xleft.rectangle = -5,
-    xright.rectangle =10,
+    xright.rectangle = 10,
     ybottom.rectangle = c(1.5, 3.5),
-    ytop.rectangle =c(2.5, 4.5),
-    col.rectangle = "grey",
+    ytop.rectangle = c(2.5, 4.5),
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     );
 non.fraction.bar;
@@ -330,7 +289,7 @@ out.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     xlimits = c(-0.07, 0.82),
     ylab.cex = 1.3,
     xaxis.cex = 1.1,
-    yaxis.cex =0,
+    yaxis.cex = 0,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.tck = c(0.2, 0),
@@ -338,21 +297,21 @@ out.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
     # xaxis.rot = 45,
     add.rectangle = TRUE,
     xleft.rectangle = -5,
-    xright.rectangle =10,
+    xright.rectangle = 10,
     ybottom.rectangle = c(1.5, 3.5),
-    ytop.rectangle =c(2.5, 4.5),
-    col.rectangle = "grey",
+    ytop.rectangle = c(2.5, 4.5),
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     );
 out.fraction.bar;
 
-               
-               
+
+
 # 3. segment plot
 metafor.cnv.odd.ci.p.data <- data.frame(cbind(
     p.value = metafor.cnv.p.all,
     odd = metafor.cnv.odd.all,
-    ci.min = metafor.cnv.lower.all, 
+    ci.min = metafor.cnv.lower.all,
     ci.max = metafor.cnv.upper.all,
     fdr = metafor.cnv.p.all.fdr
     ));
@@ -361,7 +320,7 @@ metafor.cnv.odd.ci.p.data$label <- rev(c('a', 'b', 'c', 'd', 'e'));
 metafor.cnv.odd.ci.p.data$label <- as.factor(metafor.cnv.odd.ci.p.data$label);
 
 # Change the order from lowest to higest odds from meta analysis
-metafor.cnv.odd.ci.p.data.rev <- metafor.cnv.odd.ci.p.data[rev(1:5),];
+metafor.cnv.odd.ci.p.data.rev <- metafor.cnv.odd.ci.p.data[rev(1:5), ];
 
 metafor.all.segplot <- BoutrosLab.plotting.general::create.segplot(
     formula = label ~ log2(ci.min) + log2(ci.max),
@@ -388,7 +347,7 @@ metafor.all.segplot <- BoutrosLab.plotting.general::create.segplot(
     xright.rectangle = 13,
     ybottom.rectangle = seq(1.5, 23.5, 2),
     ytop.rectangle = seq(2.5, 24.5, 2),
-    col.rectangle = "grey",
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     disable.factor.sorting = TRUE
     );
@@ -399,7 +358,8 @@ metafor.all.segplot;
 metafor.cnv.fdr <- data.frame(
     group = rev(c('a', 'b', 'c', 'd', 'e')),
     sample = rep('a', 5),
-    odd = metafor.cnv.odd.ci.p.data$fdr);
+    odd = metafor.cnv.odd.ci.p.data$fdr
+    );
 
 fdr.bar <- BoutrosLab.plotting.general:::create.barplot(
     formula = group ~ -log10(odd),
@@ -413,11 +373,11 @@ fdr.bar <- BoutrosLab.plotting.general:::create.barplot(
     border.lwd = 1,
     ylab.label = NULL,
     xlab.cex = 1.1,
-    xlab.label = expression('-log'[10]*'(FDR)'),
+    xlab.label = expression('-log'[10] * '(FDR)'),
     xlimits = c(-1, 13),
     ylab.cex = 1.3,
     xaxis.cex = 1.1,
-    yaxis.cex =0,
+    yaxis.cex = 0,
     abline.v = 2,
     abline.lty = 3,
     abline.lwd = 1.5,
@@ -428,10 +388,10 @@ fdr.bar <- BoutrosLab.plotting.general:::create.barplot(
     # xaxis.rot = 45,
     add.rectangle = TRUE,
     xleft.rectangle = -5,
-    xright.rectangle =15,
+    xright.rectangle = 15,
     ybottom.rectangle = c(1.5, 3.5),
-    ytop.rectangle =c(2.5, 4.5),
-    col.rectangle = "grey",
+    ytop.rectangle = c(2.5, 4.5),
+    col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     );
 fdr.bar;

@@ -1,25 +1,23 @@
 ### HISTORY #####################################################################
-# This script visualizes the expression of outliers identified in CCLE across 
-# multiple datasets, overlapped with TCGA-BRCA, METABRIC, I-SPY2, MATADOR, and 
+# This script visualizes the expression of outliers identified in CCLE across
+# multiple datasets, overlapped with TCGA-BRCA, METABRIC, I-SPY2, MATADOR, and
 # ICGC BRCA-EU.
 # Date: 2024-08-16
 
 source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
 
 
-# sample outlier status
-ccle.sample.outlier.status.fdr.05 <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05),];
 # overlapped with tissue outliers
-ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub("\\..*", "", rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol,];
+ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
 
 # Tissue overlap outlier status
-ccle.sample.outlier.status.fdr.05.five.symbol <- sub("\\..*", "", rownames(ccle.sample.outlier.status.fdr.05.five));
+ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
 
-outlier.patient.tag.01.brca.sum.overlap <- brca.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, brca.outlier.symbol)]; 
-outlier.patient.tag.01.meta.sum.overlap <- metabric.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, metabric.outlier.symbol)]; 
-outlier.patient.tag.01.ispy.sum.overlap <- ispy.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, ispy.outlier.symbol)]; 
-outlier.patient.tag.01.matador.sum.overlap <- matador.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, matador.outlier.symbol)]; 
-outlier.patient.tag.01.icgc.sum.overlap <- icgc.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, icgc.outlier.symbol)]; 
+outlier.patient.tag.01.brca.sum.overlap <- brca.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, brca.outlier.symbol)];
+outlier.patient.tag.01.meta.sum.overlap <- metabric.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, metabric.outlier.symbol)];
+outlier.patient.tag.01.ispy.sum.overlap <- ispy.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, ispy.outlier.symbol)];
+outlier.patient.tag.01.matador.sum.overlap <- matador.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, matador.outlier.symbol)];
+outlier.patient.tag.01.icgc.sum.overlap <- icgc.outlier.symbol[match(ccle.sample.outlier.status.fdr.05.five.symbol, icgc.outlier.symbol)];
 
 
 ccle.overlap.outlier.05.five.tissue <- data.frame(cbind(
@@ -31,39 +29,38 @@ ccle.overlap.outlier.05.five.tissue <- data.frame(cbind(
     ));
 rownames(ccle.overlap.outlier.05.five.tissue) <- ccle.sample.outlier.status.fdr.05.five.symbol;
 
-ccle.overlap.outlier.05.five.tissue.0.1 <- apply(ccle.overlap.outlier.05.five.tissue, 1, function(x) { 
+ccle.overlap.outlier.05.five.tissue.0.1 <- apply(ccle.overlap.outlier.05.five.tissue, 1, function(x) {
     x[is.na(x)] <- 0;
-    ifelse(x > 0, 1, 0);});
+    ifelse(x > 0, 1, 0);
+    });
 ccle.overlap.outlier.05.five.tissue.0.1 <- t(ccle.overlap.outlier.05.five.tissue.0.1);
 
 
 ccle.mean.zscore <- apply(fpkm.tumor.symbol.filter.ccle, 1, scale)
 ccle.mean.zscore <- data.frame(t(ccle.mean.zscore));
 colnames(ccle.mean.zscore) <- colnames(fpkm.tumor.symbol.filter.ccle);
-ccle.mean.zscore.outlier.fdr.05.five <- ccle.mean.zscore[rownames(ccle.sample.outlier.status.fdr.05.five),];
+ccle.mean.zscore.outlier.fdr.05.five <- ccle.mean.zscore[rownames(ccle.sample.outlier.status.fdr.05.five), ];
 
-distance.matrix.t <- dist(t(ccle.mean.zscore.outlier.fdr.05.five), method = "euclidean");
-fit.t <- hclust(distance.matrix.t, method = "ward.D2");
-ccle.mean.zscore.outlier.fdr.05.five.t.order <- ccle.mean.zscore.outlier.fdr.05.five[,fit.t$order];
+distance.matrix.t <- dist(t(ccle.mean.zscore.outlier.fdr.05.five), method = 'euclidean');
+fit.t <- hclust(distance.matrix.t, method = 'ward.D2');
+ccle.mean.zscore.outlier.fdr.05.five.t.order <- ccle.mean.zscore.outlier.fdr.05.five[, fit.t$order];
 
-distance.matrix <- dist(ccle.mean.zscore.outlier.fdr.05.five.t.order, method = "euclidean");
-fit <- hclust(distance.matrix, method = "ward.D2");
-ccle.mean.zscore.outlier.fdr.05.five.t.p.order <- ccle.mean.zscore.outlier.fdr.05.five.t.order[fit$order,];
-colnames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order) <- gsub("\\.", "-", colnames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order));
+distance.matrix <- dist(ccle.mean.zscore.outlier.fdr.05.five.t.order, method = 'euclidean');
+fit <- hclust(distance.matrix, method = 'ward.D2');
+ccle.mean.zscore.outlier.fdr.05.five.t.p.order <- ccle.mean.zscore.outlier.fdr.05.five.t.order[fit$order, ];
+colnames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order) <- gsub('\\.', '-', colnames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order));
 
-ccle.overlap.outlier.05.five.tissue.0.1.order.zscore <- ccle.overlap.outlier.05.five.tissue.0.1[sub("\\..*", "", rownames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order)),];
+ccle.overlap.outlier.05.five.tissue.0.1.order.zscore <- ccle.overlap.outlier.05.five.tissue.0.1[sub('\\..*', '', rownames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order)), ];
 
 
-library("RColorBrewer");
-down.col <- brewer.pal(11,"RdBu")[11];
-up.col <- brewer.pal(11,"RdBu")[1];
+library('RColorBrewer');
+down.col <- brewer.pal(11, 'RdBu')[11];
+up.col <- brewer.pal(11, 'RdBu')[1];
 
 ccle.mean.zscore.outlier.fdr.05.five.t.p.order[ccle.mean.zscore.outlier.fdr.05.five.t.p.order > 5] <- 5;
 
 # Row/col color - show the outlier status
 ccle.sample.outlier.status.fdr.05.five.match <- ccle.sample.outlier.status.fdr.05.five[match(rownames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order), rownames(ccle.sample.outlier.status.fdr.05.five)), match(colnames(ccle.mean.zscore.outlier.fdr.05.five.t.p.order), colnames(ccle.sample.outlier.status.fdr.05.five))];
-ccle.sample.outlier.status.fdr.05.five.match.row.sum <- rowSums(ccle.sample.outlier.status.fdr.05.five.match);
-ccle.sample.outlier.status.fdr.05.five.match.col.sum <- rowSums(ccle.sample.outlier.status.fdr.05.five.match);
 
 main.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     x = t(ccle.mean.zscore.outlier.fdr.05.five.t.p.order),
@@ -85,10 +82,10 @@ main.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     xlab.cex = 1.3,
     yaxis.tck = 0,
     xaxis.tck = 0,
-    row.pos = which(t(ccle.sample.outlier.status.fdr.05.five.match) > 0, arr.ind = TRUE)[,2] + 1.5,
-    col.pos = which(t(ccle.sample.outlier.status.fdr.05.five.match) > 0, arr.ind = TRUE)[,1],
-    cell.text = rep(".", times = sum(t(ccle.sample.outlier.status.fdr.05.five.match) > 0)),
-    text.col = "white",
+    row.pos = which(t(ccle.sample.outlier.status.fdr.05.five.match) > 0, arr.ind = TRUE)[, 2] + 1.5,
+    col.pos = which(t(ccle.sample.outlier.status.fdr.05.five.match) > 0, arr.ind = TRUE)[, 1],
+    cell.text = rep('.', times = sum(t(ccle.sample.outlier.status.fdr.05.five.match) > 0)),
+    text.col = 'white',
     text.cex = 1.5,
     axes.lwd = 0.8,
     colour.scheme = c(down.col, 'white', up.col),
@@ -100,21 +97,21 @@ main.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     # legend.title.just = 'left',
     # legend.cex = 1,
     resolution = 1000
-    );  
+    );
 
 
 ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore <- data.frame(ccle.overlap.outlier.05.five.tissue.0.1.order.zscore);
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca > 0, 2, 1);  
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta > 0, 3, 1);  
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$ispy <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$ispy > 0, 4, 1);  
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador > 0, 5, 1);  
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc > 0, 6, 1);  
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca > 0, 2, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta > 0, 3, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$ispy <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$ispy > 0, 4, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador > 0, 5, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc > 0, 6, 1);
 
 five.col <- c(
-    grDevices::adjustcolor(c('firebrick3'), alpha.f = 0.7), 
-    grDevices::adjustcolor(c('deepskyblue4'), alpha.f = 0.7), 
+    grDevices::adjustcolor(c('firebrick3'), alpha.f = 0.7),
+    grDevices::adjustcolor(c('deepskyblue4'), alpha.f = 0.7),
     grDevices::adjustcolor(c('gold2'), alpha.f = 0.7),
-    grDevices::adjustcolor(c('darkgreen'), alpha.f = 0.7), 
+    grDevices::adjustcolor(c('darkgreen'), alpha.f = 0.7),
     grDevices::adjustcolor(c('mediumpurple'), alpha.f = 0.7)
     );
 all.col <- c('grey95', five.col);
@@ -122,13 +119,13 @@ all.col <- c('grey95', five.col);
 sub.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     x = t(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore),
     clustering.method = 'none',
-    colour.scheme = all.col, 
+    colour.scheme = all.col,
     total.colours = 7,
     row.colour = 'black',
     col.colour = 'black',
-    grid.row = TRUE, 
-    grid.col = TRUE, 
-    yaxis.tck = 0, 
+    grid.row = TRUE,
+    grid.col = TRUE,
+    yaxis.tck = 0,
     xaxis.tck = 0,
     xaxis.lab = c('TCGA-BRCA', 'METABRIC', 'I-SPY2', 'MATADOR', 'ICGC BRCA-EU'),
     xaxis.fontface = 1,
@@ -143,7 +140,7 @@ legend.sample.grob <- BoutrosLab.plotting.general:::legend.grob(
         legend = list(
             title = expression(underline('z-score')),
             continuous = TRUE,
-            colours = c(down.col,'white', up.col),
+            colours = c(down.col, 'white', up.col),
             total.colours = 100,
             labels = c('-5', '0', '5'),
             cex = 0.9,
@@ -176,8 +173,8 @@ legend.sample.grob <- BoutrosLab.plotting.general:::legend.grob(
 
 heat.all <- BoutrosLab.plotting.general:::create.multiplot(
     plot.objects = list(main.hetmap, sub.hetmap),
-    x.relation = "sliced",
-    y.relation = "sliced",
+    x.relation = 'sliced',
+    y.relation = 'sliced',
     main = expression('Outlier status'),
     xlab.label = expression('Cell line (CCLE)'),
     ylab.label = NULL,
