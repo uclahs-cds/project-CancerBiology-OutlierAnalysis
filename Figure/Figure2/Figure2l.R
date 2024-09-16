@@ -4,12 +4,19 @@
 # the methylation levels across these patient groups.
 # Date: 2024-08-14
 
-
-
 # Load necessary library
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
+library(metafor);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
 
 
 # Check PXDNL gene
@@ -23,8 +30,6 @@ i.me <- brca.outlier.promoter.symbol.sample.match.brca[
 i.me.normal <- brca.outlier.promoter.symbol.normal.match.filter.brca[
     brca.outlier.promoter.symbol.sample.match.brca[rownames(brca.outlier.promoter.symbol.normal.match.filter.brca), ]$Symbol == 'PXDNL',
     ];
-
-
 
 # i.me <- brca.outlier.promoter.symbol.sample.match.merge.filter[
 #     rownames(brca.outlier.promoter.symbol.sample.match.merge.filter) == i,
@@ -198,7 +203,7 @@ i.heat <- BoutrosLab.plotting.general:::create.multiplot(
 
 save.outlier.figure(
     i.heat,
-    c(i, 'heatmap', 'me'),
+    c('Figure2l', i, 'heatmap', 'me'),
     width = 7.5,
     height = 8.5
     );

@@ -24,7 +24,7 @@ def compare(original: Path, updated: Path, diff_folder: Path):
 
     with tempfile.TemporaryDirectory() as tempdir:
         all_keys = original_pngs.keys() | updated_pngs.keys()
-        for key in sorted(all_keys, key=lambda x: updated_pngs.get(x, Path("AA")).name):
+        for key in sorted(all_keys, key=lambda x: updated_pngs.get(x, Path("AA" + original_pngs[x].name)).name):
             if key not in original_pngs:
                 print(colors.red("ONLY IN UPDATED:"), updated_pngs[key].name)
                 continue

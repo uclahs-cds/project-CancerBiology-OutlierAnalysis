@@ -2,10 +2,16 @@
 # This script processes and merges DNA methylation data.
 # Date: 2024-08-14
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.plotting.general)
 
-
-
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
 
 
 # Use promoter region TSS ~ +500bp
@@ -127,7 +133,7 @@ me.merge.scatter <- create.scatterplot(
 
 save.outlier.figure(
     me.merge.scatter,
-    c('methylation', 'diff', 'merge', 'scatter'),
+    c('Figure2h', 'methylation', 'diff', 'merge', 'scatter'),
     width = 6,
     height = 4.8
     );

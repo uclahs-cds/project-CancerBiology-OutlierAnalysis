@@ -8,7 +8,14 @@
 library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 
 
 brca.cnv.chr.new.gis.fpkm.order.match.chr6 <- brca.cnv.chr.new.gis.fpkm.order.match[brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr6', ];
@@ -122,7 +129,7 @@ ecdna.bar.chr6 <- create.barplot(
 
 save.outlier.figure(
     ecdna.bar.chr6,
-    c('ecdna', 'chr6', 'barplot'),
+    c('Figure2d', 'ecdna', 'chr6', 'barplot'),
     width = 8,
     height = 3.5
     );

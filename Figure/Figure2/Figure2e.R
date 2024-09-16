@@ -6,7 +6,14 @@ library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
 library(metafor);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure2ef_drivergene.rda'));
 
 
 prepare.data <- function(row, outlier) {
@@ -468,7 +475,7 @@ dot.multi.luma
 
 save.outlier.figure(
     dot.multi.luma,
-    c('drivergene', 'luma', 'multipanel'),
+    c('Figure2e', 'drivergene', 'luma', 'multipanel'),
     width = 6.9,
     height = 5.7
     );
@@ -809,7 +816,7 @@ dot.multi.lumb
 
 save.outlier.figure(
     dot.multi.lumb,
-    c('drivergene', 'lumb', 'multipanel'),
+    c('Figure2e', 'drivergene', 'lumb', 'multipanel'),
     width = 6.9,
     height = 5.7
     );
