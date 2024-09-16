@@ -3,7 +3,16 @@
 # dependency scores.
 # Date: 2024-08-16
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.plotting.general)
+
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 
 # Get gene effect score from Cas-CRISPR dataset
@@ -129,7 +138,7 @@ cor.scatter.effect.cas.rnai <- BoutrosLab.plotting.general::create.scatterplot(
 
 save.outlier.figure(
     cor.scatter.effect.cas.rnai,
-    c('cas', 'rnai', 'cor', 'scatter'),
+    c('Figure4i', 'cas', 'rnai', 'cor', 'scatter'),
     width = 5,
     height = 5
     );

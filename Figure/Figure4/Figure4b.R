@@ -5,7 +5,14 @@
 
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 # Outlier patient number
 outlier.patient.tag.sum.05 <- apply(ccle.sample.outlier.status, 2, sum);
@@ -107,7 +114,7 @@ outlier.number.density <- create.densityplot(
 
 save.outlier.figure(
     outlier.number.density,
-    c('CCLE', 'outlier', 'density'),
+    c('Figure4b', 'CCLE', 'outlier', 'density'),
     width = 5,
     height = 5
     );

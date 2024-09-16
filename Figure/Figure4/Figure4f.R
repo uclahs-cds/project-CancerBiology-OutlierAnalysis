@@ -2,7 +2,14 @@
 # Gene dependency score of example outlier genes.
 # Date: 2024-08-16
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 
 # Filter for genes with dependency score difference > 0.5
@@ -122,7 +129,7 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     dependency.05.box.plot,
-    c('gene', 'dependency', 'example', 'box'),
+    c('Figure4f', 'gene', 'dependency', 'example', 'box'),
     width = 6,
     height = 5
     );

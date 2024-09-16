@@ -6,7 +6,14 @@
 
 library(BoutrosLab.plotting.general);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 
 ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
@@ -162,7 +169,7 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     ccle.protein.box,
-    c('CCLE', 'outlier', 'protein', 'box'),
+    c('Figure4c', 'CCLE', 'outlier', 'protein', 'box'),
     width = 3.5,
     height = 6.5
     );
