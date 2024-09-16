@@ -3,7 +3,16 @@
 # response in outlier vs non-outlier samples.
 # Date: 2024-08-16
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.utilities);
+
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 i <- 'SYK';
 
@@ -71,7 +80,9 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     i.drug.box.plot,
-    c(i, 'box', 'drug'),
+    c('Figure4m', i, 'box', 'drug'),
     width = 5,
     height = 6
     );
+
+save.session.profile(file.path('output', 'Figure4m.txt'));

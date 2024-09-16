@@ -4,7 +4,17 @@
 # comparing mutated and non-mutated PIK3CA cases.
 # Date: 2024-08-14
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.plotting.general)
+library(BoutrosLab.utilities);
+
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure2ef_drivergene.rda'));
 
 ### DESCRIPTION #################################################################
 # The script processes data for the number of outlier genes per patient across
@@ -226,7 +236,9 @@ mutation.density <- BoutrosLab.plotting.general::create.scatterplot(
 
 save.outlier.figure(
     mutation.density,
-    c('PIK3CA', 'mutation', 'luma', 'lumb', 'scatter', 'density'),
+    c('Figure2f', 'PIK3CA', 'mutation', 'luma', 'lumb', 'scatter', 'density'),
     width = 6,
     height = 5.5
     );
+
+save.session.profile(file.path('output', 'Figure2f.txt'));

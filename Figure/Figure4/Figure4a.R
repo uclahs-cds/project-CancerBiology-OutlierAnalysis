@@ -4,7 +4,16 @@
 # ICGC BRCA-EU.
 # Date: 2024-08-16
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.utilities);
+
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 
 # overlapped with tissue outliers
@@ -201,7 +210,9 @@ heat.all <- BoutrosLab.plotting.general:::create.multiplot(
 
 save.outlier.figure(
     heat.all,
-    c('CCLE', 'outlier', 'multi'),
+    c('Figure4a', 'CCLE', 'outlier', 'multi'),
     width = 7.5,
     height = 8.15
     );
+
+save.session.profile(file.path('output', 'Figure4a.txt'));

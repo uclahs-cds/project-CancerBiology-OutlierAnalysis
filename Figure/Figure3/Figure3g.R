@@ -5,8 +5,16 @@
 # Date: 2024-08-15
 
 library(BoutrosLab.plotting.survival)
+library(BoutrosLab.utilities);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-11_Figure3e-i.rda'));
 
 ### 1. TCGA-BRCA
 brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
@@ -94,7 +102,9 @@ km.os.group.combine;
 
 save.outlier.figure(
     km.os.group.combine,
-    c('os', 'merge', 'km'),
+    c('Figure3g', 'os', 'merge', 'km'),
     width = 7.5,
     height = 7
     );
+
+save.session.profile(file.path('output', 'Figure3g.txt'));

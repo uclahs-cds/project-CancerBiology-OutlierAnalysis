@@ -9,7 +9,16 @@
 # multiple datasets. It then combines the data into a single data frame and creates
 # a violin plot to compare the distributions of outlier genes per patient.
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.utilities);
+
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 
 ### PREAMBLE ####################################################################
 # Create data frames for each dataset representing the number of outlier genes per patient
@@ -130,7 +139,9 @@ five.outlier.patient.violin;
 ### OUTPUT ######################################################################
 save.outlier.figure(
     five.outlier.patient.violin,
-    c('5_patient_number', 'violin'),
+    c('Figure1e', '5_patient_number', 'violin'),
     width = 4.3,
     height = 5.3
     );
+
+save.session.profile(file.path('output', 'Figure1e.txt'));

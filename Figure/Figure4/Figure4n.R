@@ -3,7 +3,16 @@
 # and RNAi for the gene SYK.
 # Date: 2024-08-16
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+library(BoutrosLab.utilities);
+
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 i <- 'SYK';
 
@@ -76,7 +85,9 @@ rnai.cas.effect.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     rnai.cas.effect.box.plot,
-    c(i, 'box', 'cas', 'rnai'),
+    c('Figure4n', i, 'box', 'cas', 'rnai'),
     width = 3.8,
     height = 6
     );
+
+save.session.profile(file.path('output', 'Figure4n.txt'));

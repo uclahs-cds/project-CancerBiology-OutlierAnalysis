@@ -6,8 +6,16 @@
 # Date: 2024-08-14
 
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 
 
 ### 1. CPTAC example
@@ -105,10 +113,9 @@ do.plot.3d <- function(i) {
 
     save.outlier.figure(
         cptac.gene.scatter,
-        c(i, 'scatter', 'cptac'),
+        c('Figure3d', i, 'scatter', 'cptac'),
         width = 6,
-        height = 6,
-        depth = 1
+        height = 6
         );
     }
 
@@ -247,7 +254,9 @@ rppa.gene.scatter <- BoutrosLab.plotting.general::create.scatterplot(
 
 save.outlier.figure(
     rppa.gene.scatter,
-    c(i, 'scatter', 'rppa'),
+    c('Figure3d', i, 'scatter', 'rppa'),
     width = 6,
     height = 6
     );
+
+save.session.profile(file.path('output', 'Figure3d.txt'));

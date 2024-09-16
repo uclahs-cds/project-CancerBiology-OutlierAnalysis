@@ -3,8 +3,16 @@
 # Date: 2024-08-16
 
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 # All CCLE outlier genes
 protein.info.breast.num.match.all <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% sub('\\..*', '', rownames(ccle.outlier.rank.fdr.05)), ];
@@ -162,7 +170,9 @@ ccle.protein.box.all <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     ccle.protein.box.all,
-    c('CCLE', 'outlier', 'protein', 'all', 'box'),
+    c('Figure4d', 'CCLE', 'outlier', 'protein', 'all', 'box'),
     width = 3.5,
     height = 5.5
     );
+
+save.session.profile(file.path('output', 'Figure4d.txt'));

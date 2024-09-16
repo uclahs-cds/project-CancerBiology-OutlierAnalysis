@@ -5,10 +5,17 @@
 # Date: 2024-08-13
 
 ### PREAMBLE ####################################################################
-library(BoutrosLab.utilities);
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 
 
 
@@ -282,7 +289,9 @@ cna.multi <- create.multiplot(
 
 save.outlier.figure(
     cna.multi,
-    c('CNA', 'chr10', 'multipanel'),
+    c('Figure2c', 'CNA', 'chr10', 'multipanel'),
     width = 10.4,
     height = 4.5
     );
+
+save.session.profile(file.path('output', 'Figure2c.txt'));

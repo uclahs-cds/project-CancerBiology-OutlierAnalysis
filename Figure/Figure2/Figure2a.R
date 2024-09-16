@@ -2,8 +2,16 @@
 # This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data.
 
 library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
-source(file.path(dirname(dirname(parent.frame(2)$ofile)), 'common_functions.R'));
+# Source the helper library
+args <- commandArgs();
+source(file.path(
+    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
+    'common_functions.R'
+    ));
+# Load the datafile
+load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 
 ### 1. METABRIC
 # Convert lists to numeric vectors and calculate medians for meta data
@@ -230,6 +238,7 @@ metafor.cnv.odd.all.df.fraction.non <- data.frame(
     odd = all.weighted.mean[1:5]
     );
 
+cnv.col.ramp.5.seg <- c('#2166AC', '#90B2D5', 'grey60', '#D88B95', '#B2182B')
 cnv.col.ramp.5.bar <- c('#2166AC', '#90B2D5', 'white', '#D88B95', '#B2182B')
 
 non.fraction.bar <- BoutrosLab.plotting.general:::create.barplot(
@@ -419,7 +428,9 @@ multi.gene;
 
 save.outlier.figure(
     multi.gene,
-    c('CNA', 'multipanel'),
+    c('Figure2a', 'CNA', 'multipanel'),
     width = 10.4,
     height = 4.5
     );
+
+save.session.profile(file.path('output', 'Figure2a.txt'));
