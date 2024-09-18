@@ -24,32 +24,42 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
 
-for (i in genes) {
+# fpkm.tumor.symbol.filter.XXX is an RNA abundance matrix with rows of genes
+# and columns of patients. Row names are Ensembl IDs.
+
+# fpkm.tumor.symbol.filter.XXX.symbol is the same, except it has one additional
+# `Symbol` column of gene aliases.
+
+# fpkm.tumor.symbol.filter.ispy is the exception, in that the row names are the
+# gene aliases.
+
+for (gene.alias in genes) {
     # Extract data for the specified gene across different datasets
+
     metador.i <- fpkm.tumor.symbol.filter.metador.symbol[
-        fpkm.tumor.symbol.filter.metador.symbol$Symbol %in% i,
-        patient.part.metador
+        gene.alias == fpkm.tumor.symbol.filter.metador.symbol$Symbol,
+        !('Symbol' == colnames(fpkm.tumor.symbol.filter.metador.symbol))
         ];
 
     ispy.i <- fpkm.tumor.symbol.filter.ispy[
-        rownames(fpkm.tumor.symbol.filter.ispy) %in% i,
-        patient.part.ispy
+        gene.alias == rownames(fpkm.tumor.symbol.filter.ispy),
         ];
 
     meta.i <- na.omit(
         fpkm.tumor.symbol.filter.meta.symbol[
-            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i,
-            patient.part.meta
+            gene.alias == fpkm.tumor.symbol.filter.meta.symbol$Symbol,
+            !('Symbol' == colnames(fpkm.tumor.symbol.filter.meta.symbol))
             ]
         );
 
     brca.i <- fpkm.tumor.symbol.filter.brca[
-        fpkm.tumor.symbol.filter.brca$Symbol %in% i,
-        patient.part.brca
+        gene.alias == fpkm.tumor.symbol.filter.brca$Symbol,
+        !('Symbol' == colnames(fpkm.tumor.symbol.filter.brca))
         ];
 
-    icgc.i <- fpkm.tumor.symbol.filter.icgc[
-        fpkm.tumor.symbol.filter.symbol.icgc$Symbol %in% i,
+    icgc.i <- fpkm.tumor.symbol.filter.symbol.icgc[
+        gene.alias == fpkm.tumor.symbol.filter.symbol.icgc$Symbol,
+        !('Symbol' == colnames(fpkm.tumor.symbol.filter.symbol.icgc))
         ];
 
     ### OUTLIER STATUS ##############################################################
@@ -57,29 +67,29 @@ for (i in genes) {
     # Calculate the outlier status for each dataset
     outlier.status.brca <- outlier.patient.tag.01.brca[
         rownames(fpkm.tumor.symbol.filter.brca[
-            fpkm.tumor.symbol.filter.brca$Symbol %in% i,
+            fpkm.tumor.symbol.filter.brca$Symbol %in% gene.alias,
             ]),
         ];
 
     outlier.status.meta <- outlier.patient.tag.01.meta[
         rownames(fpkm.tumor.symbol.filter.meta.symbol[
-            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i,
+            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% gene.alias,
             patient.part.meta
             ]),
         ];
 
     outlier.status.ispy <- outlier.patient.tag.01.ispy[
-        gsub('.*_', '', rownames(outlier.patient.tag.01.ispy)) %in% i,
+        gsub('.*_', '', rownames(outlier.patient.tag.01.ispy)) %in% gene.alias,
         ];
 
     outlier.status.metador <- outlier.patient.tag.01.metador[
-        gsub('.*_', '', rownames(outlier.patient.tag.01.metador)) %in% i,
+        gsub('.*_', '', rownames(outlier.patient.tag.01.metador)) %in% gene.alias,
         ];
 
     outlier.status.icgc <- outlier.patient.tag.01.icgc[
         fpkm.tumor.symbol.filter.symbol.icgc[
             rownames(outlier.patient.tag.01.icgc),
-            ]$Symbol %in% i,
+            ]$Symbol %in% gene.alias,
         ];
 
     # Convert outlier statuses to numeric and handle missing values
@@ -143,17 +153,17 @@ for (i in genes) {
         );
 
     # Store the z-scores and outlier status in variables
-    gene.z.score <- paste(i, '.z.score', sep = '');
+    gene.z.score <- paste(gene.alias, '.z.score', sep = '');
     assign(gene.z.score, five.i.z);
 
-    gene.outlier.status <- paste(i, '.outlier.status', sep = '');
+    gene.outlier.status <- paste(gene.alias, '.outlier.status', sep = '');
     assign(gene.outlier.status, outlier.status.all);
 
     ### DATA FRAME PREPARATION #####################################################
 
     # Create data frames for each gene's z-scores
-    assign(paste(i, '.i.frame.z', sep = ''), data.frame(
-        sample = rep(i, length(get(gene.z.score))),
+    assign(paste(gene.alias, '.i.frame.z', sep = ''), data.frame(
+        sample = rep(gene.alias, length(get(gene.z.score))),
         value = as.numeric(get(gene.z.score))
         ));
     }

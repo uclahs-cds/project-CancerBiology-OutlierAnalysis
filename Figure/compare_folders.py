@@ -62,8 +62,8 @@ def compare(original: Path, updated: Path, diff_folder: Path):
                 print("\t", updated_pngs[key].name)
                 diff_folder.mkdir(exist_ok=True)
                 diff_image.rename(diff_folder / key)
-
-            print(colors.faint(f"Matching: {updated_pngs[key].name}"))
+            else:
+                print(colors.faint(f"Matching: {updated_pngs[key].name}"))
 
 
 if __name__ == "__main__":
