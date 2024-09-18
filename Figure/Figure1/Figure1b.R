@@ -24,25 +24,18 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
 
-# fpkm.tumor.symbol.filter.XXX is an RNA abundance matrix with rows of genes
-# and columns of patients. Row names are Ensembl IDs.
-
-# fpkm.tumor.symbol.filter.XXX.symbol is the same, except it has one additional
-# `Symbol` column of gene aliases.
-
-# fpkm.tumor.symbol.filter.ispy is the exception, in that the row names are the
-# gene aliases.
-
 for (gene.alias in genes) {
     # Extract data for the specified gene across different datasets
+
+    # fpkm.tumor.symbol.filter.XXX: RNA abundance matrix with rows of genes and
+    # columns of patients. Row names are Ensembl IDs.
+
+    # fpkm.tumor.symbol.filter.XXX.symbol is the same, except it has one
+    # additional `Symbol` column of gene aliases.
 
     metador.i <- fpkm.tumor.symbol.filter.metador.symbol[
         gene.alias == fpkm.tumor.symbol.filter.metador.symbol$Symbol,
         !('Symbol' == colnames(fpkm.tumor.symbol.filter.metador.symbol))
-        ];
-
-    ispy.i <- fpkm.tumor.symbol.filter.ispy[
-        gene.alias == rownames(fpkm.tumor.symbol.filter.ispy),
         ];
 
     meta.i <- na.omit(
@@ -57,6 +50,14 @@ for (gene.alias in genes) {
         !('Symbol' == colnames(fpkm.tumor.symbol.filter.brca))
         ];
 
+    # ispy an exception in that the row names are
+    # the gene aliases.
+    ispy.i <- fpkm.tumor.symbol.filter.ispy[
+        gene.alias == rownames(fpkm.tumor.symbol.filter.ispy),
+        ];
+
+    # fpkm.tumor.symbol.filter.symbol.icgc is also an exception in that the row
+    # names are (seemingly arbitrary) integers
     icgc.i <- fpkm.tumor.symbol.filter.symbol.icgc[
         gene.alias == fpkm.tumor.symbol.filter.symbol.icgc$Symbol,
         !('Symbol' == colnames(fpkm.tumor.symbol.filter.symbol.icgc))
@@ -64,33 +65,19 @@ for (gene.alias in genes) {
 
     ### OUTLIER STATUS ##############################################################
 
-    # Calculate the outlier status for each dataset
-    outlier.status.brca <- outlier.patient.tag.01.brca[
-        rownames(fpkm.tumor.symbol.filter.brca[
-            fpkm.tumor.symbol.filter.brca$Symbol %in% gene.alias,
-            ]),
-        ];
+    # outlier.patient.tag.01.XXX: Outlier status matrix of XXX dataset with
+    # rows of genes and columns of patients. Values are 1 for outlier events
+    # and 0 otherwise.
 
-    outlier.status.meta <- outlier.patient.tag.01.meta[
-        rownames(fpkm.tumor.symbol.filter.meta.symbol[
-            fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% gene.alias,
-            patient.part.meta
-            ]),
-        ];
+    outlier.status.brca <- outlier.patient.tag.01.brca[rownames(brca.i), ];
 
-    outlier.status.ispy <- outlier.patient.tag.01.ispy[
-        gsub('.*_', '', rownames(outlier.patient.tag.01.ispy)) %in% gene.alias,
-        ];
+    outlier.status.meta <- outlier.patient.tag.01.meta[rownames(meta.i), ];
 
-    outlier.status.metador <- outlier.patient.tag.01.metador[
-        gsub('.*_', '', rownames(outlier.patient.tag.01.metador)) %in% gene.alias,
-        ];
+    outlier.status.ispy <- outlier.patient.tag.01.ispy[rownames(ispy.i), ];
 
-    outlier.status.icgc <- outlier.patient.tag.01.icgc[
-        fpkm.tumor.symbol.filter.symbol.icgc[
-            rownames(outlier.patient.tag.01.icgc),
-            ]$Symbol %in% gene.alias,
-        ];
+    outlier.status.icgc <- outlier.patient.tag.01.icgc[rownames(icgc.i), ];
+
+    outlier.status.metador <- outlier.patient.tag.01.metador[rownames(metador.i), ];
 
     # Convert outlier statuses to numeric and handle missing values
     outlier.status.metador <- as.numeric(outlier.status.metador);
