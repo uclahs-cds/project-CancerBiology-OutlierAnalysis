@@ -6,20 +6,22 @@ import re
 import subprocess
 import tempfile
 
+from typing import Optional
+
 from pathlib import Path
 
 import colors
 
 
-def compare(original: Path, updated: Path, diff_folder: Path):
+def compare(original: Path, updated: Path, diff_folder: Path, specific: str):
     """Compare the plots in two folders."""
     original_pngs = {
         item.name.split("_", maxsplit=1)[-1]: item
-        for item in list(original.glob("*.png"))
+        for item in list(original.glob(f"{specific}*.png"))
     }
     updated_pngs = {
         item.name.split("_", maxsplit=1)[-1]: item
-        for item in list(updated.glob("*.png"))
+        for item in list(updated.glob(f"{specific}*.png"))
     }
 
     with tempfile.TemporaryDirectory() as tempdir:
@@ -71,7 +73,8 @@ if __name__ == "__main__":
     parser.add_argument("original", type=Path)
     parser.add_argument("updated", type=Path)
     parser.add_argument("--diff-dir", type=Path, default=Path("diffs"))
+    parser.add_argument("--specific", type=str, default="")
 
     args = parser.parse_args()
 
-    compare(args.original, args.updated, args.diff_dir)
+    compare(args.original, args.updated, args.diff_dir, args.specific)
