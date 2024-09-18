@@ -18,11 +18,8 @@ library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
 
