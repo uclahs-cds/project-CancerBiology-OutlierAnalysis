@@ -24,8 +24,9 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M'); # 여섯 개의 유전자
 
-for (gene.alias in genes) {
+gene.data <- lapply(seq_along(genes), function(gene.index) {
     # Extract data for the specified gene across different datasets
+    gene.alias <- genes[gene.index];
 
     # fpkm.tumor.symbol.filter.XXX: RNA abundance matrix with rows of genes and
     # columns of patients. Row names are Ensembl IDs.
@@ -68,31 +69,19 @@ for (gene.alias in genes) {
     # outlier.patient.tag.01.XXX: Outlier status matrix of XXX dataset with
     # rows of genes and columns of patients. Values are 1 for outlier events
     # and 0 otherwise.
-
-    outlier.status.brca <- outlier.patient.tag.01.brca[rownames(brca.i), ];
-
-    outlier.status.meta <- outlier.patient.tag.01.meta[rownames(meta.i), ];
-
-    outlier.status.ispy <- outlier.patient.tag.01.ispy[rownames(ispy.i), ];
-
-    outlier.status.icgc <- outlier.patient.tag.01.icgc[rownames(icgc.i), ];
-
-    outlier.status.metador <- outlier.patient.tag.01.metador[rownames(metador.i), ];
-
-    # Convert outlier statuses to numeric and handle missing values
-    outlier.status.metador <- as.numeric(outlier.status.metador);
+    outlier.status.metador <- as.numeric(outlier.patient.tag.01.metador[rownames(metador.i), ]);
     outlier.status.metador[is.na(outlier.status.metador)] <- 0;
 
-    outlier.status.ispy <- as.numeric(outlier.status.ispy);
+    outlier.status.ispy <- as.numeric(outlier.patient.tag.01.ispy[rownames(ispy.i), ]);
     outlier.status.ispy[is.na(outlier.status.ispy)] <- 0;
 
-    outlier.status.meta <- as.numeric(outlier.status.meta);
+    outlier.status.meta <- as.numeric(outlier.patient.tag.01.meta[rownames(meta.i), ]);
     outlier.status.meta[is.na(outlier.status.meta)] <- 0;
 
-    outlier.status.brca <- as.numeric(outlier.status.brca);
+    outlier.status.brca <- as.numeric(outlier.patient.tag.01.brca[rownames(brca.i), ]);
     outlier.status.brca[is.na(outlier.status.brca)] <- 0;
 
-    outlier.status.icgc <- as.numeric(outlier.status.icgc);
+    outlier.status.icgc <- as.numeric(outlier.patient.tag.01.icgc[rownames(icgc.i), ]);
     outlier.status.icgc[is.na(outlier.status.icgc)] <- 0;
 
     ### COMBINING OUTLIER STATUS ###################################################
@@ -139,94 +128,25 @@ for (gene.alias in genes) {
         as.numeric(icgc.i.z)
         );
 
-    # Store the z-scores and outlier status in variables
-    gene.z.score <- paste(gene.alias, '.z.score', sep = '');
-    assign(gene.z.score, five.i.z);
-
-    gene.outlier.status <- paste(gene.alias, '.outlier.status', sep = '');
-    assign(gene.outlier.status, outlier.status.all);
-
     ### DATA FRAME PREPARATION #####################################################
 
-    # Create data frames for each gene's z-scores
-    assign(paste(gene.alias, '.i.frame.z', sep = ''), data.frame(
-        sample = rep(gene.alias, length(get(gene.z.score))),
-        value = as.numeric(get(gene.z.score))
-        ));
-    }
+    list(
+        z.score = data.frame(
+            sample = gene.alias,
+            value = as.numeric(five.i.z),
+            order = letters[gene.index]
+            ),
+        outlier.status = outlier.status.all
+        );
+    });
 
 
 
 ### DATA FRAME PREPARATION #####################################################
 
-# Create data frames for each gene's z-scores
-# Create data frames for each gene's z-scores
-IGF2.i.frame.z <- data.frame(
-    sample = rep('IGF2', length(IGF2.z.score)),
-    value = as.numeric(IGF2.z.score)
-    );
+all.gene.z.scores.ordered <- do.call(rbind, lapply(gene.data, `[[`, 'z.score'));
 
-IGF2R.i.frame.z <- data.frame(
-    sample = rep('IGF2R', length(IGF2R.z.score)),
-    value = as.numeric(IGF2R.z.score)
-    );
-
-TMEM30A.i.frame.z <- data.frame(
-    sample = rep('TMEM30A', length(TMEM30A.z.score)),
-    value = as.numeric(TMEM30A.z.score)
-    );
-
-GAPDH.i.frame.z <- data.frame(
-    sample = rep('GAPDH', length(GAPDH.z.score)),
-    value = as.numeric(GAPDH.z.score)
-    );
-
-B2M.i.frame.z <- data.frame(
-    sample = rep('B2M', length(B2M.z.score)),
-    value = as.numeric(B2M.z.score)
-    );
-
-NRAS.i.frame.z <- data.frame(
-    sample = rep('NRAS', length(NRAS.z.score)),
-    value = as.numeric(NRAS.z.score)
-    );
-
-
-
-### COMBINING DATA #############################################################
-
-# Combine the data for all genes into a single data frame
-all.gene.z.scores <- rbind(
-    IGF2.i.frame.z,
-    TMEM30A.i.frame.z,
-    NRAS.i.frame.z,
-    IGF2R.i.frame.z,
-    GAPDH.i.frame.z,
-    B2M.i.frame.z
-    );
-
-# Add an order column to distinguish between different genes
-all.gene.z.scores.ordered <- cbind(
-    all.gene.z.scores,
-    order = c(
-        rep('a', nrow(IGF2.i.frame.z)),
-        rep('b', nrow(TMEM30A.i.frame.z)),
-        rep('c', nrow(NRAS.i.frame.z)),
-        rep('d', nrow(IGF2R.i.frame.z)),
-        rep('e', nrow(GAPDH.i.frame.z)),
-        rep('f', nrow(B2M.i.frame.z))
-        )
-    );
-
-# Combine outlier status from all genes
-all.gene.outlier.status <- c(
-    IGF2.outlier.status,
-    TMEM30A.outlier.status,
-    NRAS.outlier.status,
-    IGF2R.outlier.status,
-    GAPDH.outlier.status,
-    B2M.outlier.status
-    );
+all.gene.outlier.status <- unlist(lapply(gene.data, `[[`, 'outlier.status'))
 
 # Define point colors, shapes, and sizes based on outlier status
 patient.colors <- ifelse(all.gene.outlier.status == 1, 'red2', 'black');
