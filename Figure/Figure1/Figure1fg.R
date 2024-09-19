@@ -26,37 +26,6 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 ### 1. Chromosomal enrichment ###################################################
 
 ### 1. TCGA
-# # Get chromosomal location information for outlier genes
-# gene.list <- rownames(outlier.gene.fdr.01.brca);
-# gene.list.sub <- substr(gene.list, 1, 15);
-# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-#                      dataset = "hsapiens_gene_ensembl",
-#                      mirror = "useast");
-# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = 'ensembl_gene_id',
-#                                  values = gene.list.sub,
-#                                  mart = ensembl);
-# gene.position.brca <- gene.position;
-#
-# # Get chromosomal location information for all genes
-# fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[,patient.part.brca], 1, max);
-# gene.list <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.max.brca > 5];
-# gene.list.sub <- substr(gene.list, 1, 15);
-# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-#                                 dataset = "hsapiens_gene_ensembl",
-#                                 mirror = "useast");
-# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = 'ensembl_gene_id',
-#                                  values = gene.list.sub,
-#                                  mart = ensembl);
-#
-# gene.position.brca.all <- gene.position;
-
-
 chr.position.brca <- data.frame(as.matrix(table(gene.position.brca$chromosome_name)))
 chr.name <- c(
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
@@ -99,34 +68,6 @@ for (i in 1:25) {
 
 
 ### 2. METABIRC
-# # Get chromosomal location information for outlier genes
-# gene.list <- substr(rownames(outlier.gene.fdr.01.meta), 1, nchar(rownames(outlier.gene.fdr.01.meta))-3)
-# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-#                      dataset = "hsapiens_gene_ensembl",
-#                      mirror = "uswest");
-# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = "entrezgene_id",
-#                                  values = gene.list,
-#                                  mart = ensembl);
-# gene.position.meta <- gene.position;
-#
-# # Get chromosomal location information for all genes
-# gene.list <- substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol))-3)
-# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-#                      dataset = "hsapiens_gene_ensembl",
-#                      mirror = "uswest");
-# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = "entrezgene_id",
-#                                  values = gene.list,
-#                                  mart = ensembl);
-# gene.position.meta.all <- gene.position;
-
-
-
 chr.position.meta <- data.frame(as.matrix(table(gene.position.meta$chromosome_name)))
 chr.name <- c(
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
@@ -167,27 +108,6 @@ for (i in 1:25) {
 
 
 ### 3. ISPY
-# # Get chromosomal location information for outlier genes
-# gene.list <- rownames(outlier.gene.fdr.01.ispy);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = "hgnc_symbol",
-#                                  values = gene.list,
-#                                  mart = ensembl);
-# gene.position.ispy <- gene.position;
-#
-# # Get chromosomal location information for all genes
-# gene.list <- rownames(fpkm.tumor.symbol.filter.ispy);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = "hgnc_symbol",
-#                                  values = gene.list,
-#                                  mart = ensembl);
-# gene.position.ispy.all <- gene.position;
-
-
-
-
 chr.position.ispy <- data.frame(as.matrix(table(gene.position.ispy$chromosome_name)))
 chr.position.order.ispy <- chr.position.ispy[chr.name, , drop = FALSE];
 rownames(chr.position.order.ispy) <- chr.name;
@@ -225,33 +145,6 @@ for (i in 1:25) {
 
 
 ### 4. MATADOR
-# # Get chromosomal location information for outlier genes
-# gene.list <- rownames(outlier.gene.fdr.01.matador);
-# gene.list.sub <- substr(gene.list, 1, 15);
-# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-#                      dataset = "hsapiens_gene_ensembl",
-#                      mirror = "useast");
-# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = 'ensembl_gene_id',
-#                                  values = gene.list.sub,
-#                                  mart = ensembl);
-# gene.position.metador <- gene.position;
-
-# Get chromosomal location information for all genes
-# fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[,-ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
-# fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5,];
-# gene.list <- fpkm.tumor.symbol.filter.metador.symbol.max.filter$Symbol;
-# gene.list.sub <- substr(gene.list, 1, 15);
-# gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = 'ensembl_gene_id',
-#                                  values = gene.list.sub,
-#                                  mart = ensembl);
-# gene.position.metador.all <- gene.position;
-
-
 chr.position.metador <- data.frame(as.matrix(table(gene.position.metador$chromosome_name)))
 chr.position.order.metador <- chr.position.metador[chr.name, , drop = FALSE];
 rownames(chr.position.order.metador) <- chr.name;
@@ -1026,26 +919,6 @@ exon.box.metador$exon.content <- as.numeric(exon.box.metador$exon.content);
 
 
 # 5. ICGC
-# gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)];
-# ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-#                      dataset = "hsapiens_gene_ensembl",
-#                      mirror = "useast");
-# ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
-# gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = 'ensembl_gene_id',
-#                                  values = gene.list,
-#                                  mart = ensembl);
-# gene.position.icgc.all.entrez <- gene.position.entrez;
-#
-# gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01.icgc$gene)]
-# gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-#                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-#                                  filters = 'ensembl_gene_id',
-#                                  values = gene.list,
-#                                  mart = ensembl);
-# gene.position.icgc.entrez <- gene.position.entrez;
-
 exon.num.order.icgc <- exon.num[match(gene.position.icgc.all.entrez$entrezgene_id, names(exon.num))];
 gene.position.all.exon.icgc <- data.frame(cbind(
     gene.position.icgc.all.entrez,
