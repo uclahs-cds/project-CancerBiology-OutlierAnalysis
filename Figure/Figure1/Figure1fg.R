@@ -26,224 +26,110 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 ### 1. Chromosomal enrichment ###################################################
 
 ### 1. TCGA
-chr.position.brca <- data.frame(as.matrix(table(gene.position.brca$chromosome_name)))
-chr.name <- c(
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', 'MT', 'X', 'Y'
-    );
-chr.position.order.brca <- chr.position.brca[chr.name, , drop = FALSE];
-rownames(chr.position.order.brca) <- chr.name;
-chr.position.order.brca[is.na(chr.position.order.brca$as.matrix.table.gene.position.brca.chromosome_name..), ] <- 0;
-chr.position.outlier.brca <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.brca[, 1])));
+# Function to process chromosome data
+process_chr_data <- function(gene_data, chr_name) {
+    chr.position <- data.frame(as.matrix(table(gene_data$chromosome_name)));
+    chr.position.order <- chr.position[chr_name, , drop = FALSE]
+    rownames(chr.position.order) <- chr_name
+    chr.position.order[is.na(chr.position.order)] <- 0
+    chr.outlier <- data.frame(chr = 1:25, count = as.numeric(chr.position.order[, 1]))
+    return(chr.outlier)
+}
 
+# Function for Fisher's test and odds ratio calculations
+calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, total_outlier) {
+    p.values <- numeric(25)
+    odds_ratios <- matrix(NA, ncol = 3, nrow = 25)  # matrix for odds ratio and confidence intervals
 
-# all transcripts from BRCA data
-chr.position.brca.all <- data.frame(as.matrix(table(gene.position.brca.all$chromosome_name)))
-chr.position.order.brca.all <- chr.position.brca.all[chr.name, , drop = FALSE];
-rownames(chr.position.order.brca.all) <- chr.name;
-chr.position.order.brca.all[is.na(chr.position.order.brca.all$as.matrix.table.gene.position.brca.all.chromosome_name..), ] <- 0;
-chr.position.outlier.brca.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.brca.all[, 1])));
-
-# segment plot
-p.value.chr.brca.fisher.sub <- NULL;
-p.value.chr.brca.odd.sub <- NULL;
-for (i in 1:25) {
-    total.gene <- nrow(fpkm.tumor.symbol.filter.brca);
-    chr.gene <- chr.position.outlier.brca.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.brca) # sample size
-    chr.outlier <- chr.position.outlier.brca$count[i] # number of genes on the chromosome of interest in the sample
-    if (is.na(chr.outlier)) {
-        chr.outlier <- 0;
-        }
-
-    p.value <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')$p.value;
-    p.value.chr.brca.fisher.sub <- c(p.value.chr.brca.fisher.sub, p.value);
-
-    odd.ratio <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')
-    odd.ratio.ci <- c(odd.ratio$estimate, odd.ratio$conf.int);
-    p.value.chr.brca.odd.sub <- rbind(p.value.chr.brca.odd.sub, odd.ratio.ci);
+    for (i in 1:25) {
+        chr.gene <- chr_outlier_all$count[i]
+        chr.out <- ifelse(is.na(chr_outlier$count[i]), 0, chr_outlier$count[i])
+        
+        test_matrix <- matrix(c(chr.out, total_outlier - chr.out, 
+                                chr.gene - chr.out, 
+                                total_gene - total_outlier - chr.gene + chr.out), 
+                              nrow = 2)
+        
+        fisher_res <- fisher.test(test_matrix, alternative = 'two.sided')
+        p.values[i] <- fisher_res$p.value
+        odds_ratios[i, ] <- c(fisher_res$estimate, fisher_res$conf.int)
     }
 
+    odds_ratios <- data.frame(odds.ratio = odds_ratios[, 1], 
+                              lower = odds_ratios[, 2], 
+                              upper = odds_ratios[, 3]);
 
+    return(list(p.values = p.values, odds_ratios = odds_ratios))
+}
 
-### 2. METABIRC
-chr.position.meta <- data.frame(as.matrix(table(gene.position.meta$chromosome_name)))
-chr.name <- c(
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', 'MT', 'X', 'Y'
-    );
-chr.position.order.meta <- chr.position.meta[chr.name, , drop = FALSE];
-rownames(chr.position.order.meta) <- chr.name;
-chr.position.order.meta[is.na(chr.position.order.meta$as.matrix.table.gene.position.meta.chromosome_name..), ] <- 0;
-chr.position.outlier.meta <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.meta[, 1])));
+# Chromosome names
+chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+              '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+              '21', '22', 'MT', 'X', 'Y')
 
-chr.position.meta.all <- data.frame(as.matrix(table(gene.position.meta.all$chromosome_name)))
-chr.position.order.meta.all <- chr.position.meta.all[chr.name, , drop = FALSE];
-rownames(chr.position.order.meta.all) <- chr.name;
-chr.position.order.meta.all[is.na(chr.position.order.meta.all$as.matrix.table.gene.position.meta.all.chromosome_name..), ] <- 0;
-chr.position.outlier.meta.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.meta.all[, 1])));
+# Processing BRCA data
+chr.outlier.brca <- process_chr_data(gene.position.brca, chr.name)
+chr.outlier.brca.all <- process_chr_data(gene.position.brca.all, chr.name)
 
-# segment plot
-p.value.chr.meta.fisher.sub <- NULL;
-p.value.chr.meta.odd.sub <- NULL;
-for (i in 1:25) {
-    total.gene <- nrow(fpkm.tumor.symbol.filter.meta.symbol);
-    chr.gene <- chr.position.outlier.meta.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.meta) # sample size
-    chr.outlier <- chr.position.outlier.meta$count[i] # number of genes on the chromosome of interest in the sample
-    if (is.na(chr.outlier)) {
-        chr.outlier <- 0;
-        }
+# Fisher's test and odds ratio for BRCA
+fisher_brca_results <- calculate_fisher_odds(chr.outlier.brca, chr.outlier.brca.all, nrow(fpkm.tumor.symbol.filter.brca), nrow(outlier.gene.fdr.01.brca));
 
-    p.value <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')$p.value;
-    p.value.chr.meta.fisher.sub <- c(p.value.chr.meta.fisher.sub, p.value);
+p.value.chr.brca.fisher.sub <- fisher_brca_results$p.values
+p.value.chr.brca.odd.sub.df <- fisher_brca_results$odds_ratios
 
-    odd.ratio <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')
-    odd.ratio.ci <- c(odd.ratio$estimate, odd.ratio$conf.int);
-    p.value.chr.meta.odd.sub <- rbind(p.value.chr.meta.odd.sub, odd.ratio.ci);
-    }
+# Processing METABRIC data
+chr.outlier.meta <- process_chr_data(gene.position.meta, chr.name)
+chr.outlier.meta.all <- process_chr_data(gene.position.meta.all, chr.name)
 
+# Fisher's test and odds ratio for METABRIC
+fisher_meta_results <- calculate_fisher_odds(chr.outlier.meta, chr.outlier.meta.all, nrow(fpkm.tumor.symbol.filter.meta.symbol), nrow(outlier.gene.fdr.01.meta));
 
+p.value.chr.meta.fisher.sub <- fisher_meta_results$p.values
+p.value.chr.meta.odd.sub.df <- fisher_meta_results$odds_ratios
 
 ### 3. ISPY
-chr.position.ispy <- data.frame(as.matrix(table(gene.position.ispy$chromosome_name)))
-chr.position.order.ispy <- chr.position.ispy[chr.name, , drop = FALSE];
-rownames(chr.position.order.ispy) <- chr.name;
-chr.position.order.ispy[is.na(chr.position.order.ispy$as.matrix.table.gene.position.ispy.chromosome_name..), ] <- 0;
-chr.position.outlier.ispy <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.ispy[, 1])));
+chr.position.outlier.ispy <- process_chr_data(gene.position.ispy, chr.name)
+chr.position.outlier.ispy.all <- process_chr_data(gene.position.ispy.all, chr.name)
 
-chr.position.ispy.all <- data.frame(as.matrix(table(gene.position.ispy.all$chromosome_name)))
-chr.position.order.ispy.all <- chr.position.ispy.all[chr.name, , drop = FALSE];
-rownames(chr.position.order.ispy.all) <- chr.name;
-chr.position.order.ispy.all[is.na(chr.position.order.ispy.all$as.matrix.table.gene.position.ispy.all.chromosome_name..), ] <- 0;
-chr.position.outlier.ispy.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.ispy.all[, 1])));
+fisher_ispy_results <- calculate_fisher_odds(chr.position.outlier.ispy, chr.position.outlier.ispy.all, nrow(fpkm.tumor.symbol.filter.ispy), nrow(outlier.gene.fdr.01.ispy));
 
-
-
-# segment plot
-p.value.chr.ispy.fisher.sub <- NULL;
-p.value.chr.ispy.odd.sub <- NULL;
-for (i in 1:25) {
-    total.gene <- nrow(fpkm.tumor.symbol.filter.ispy);
-    chr.gene <- chr.position.outlier.ispy.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.ispy) # sample size
-    chr.outlier <- chr.position.outlier.ispy$count[i] # number of genes on the chromosome of interest in the sample
-    if (is.na(chr.outlier)) {
-        chr.outlier <- 0;
-        }
-
-    p.value <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')$p.value;
-    p.value.chr.ispy.fisher.sub <- c(p.value.chr.ispy.fisher.sub, p.value);
-
-    odd.ratio <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')
-    odd.ratio.ci <- c(odd.ratio$estimate, odd.ratio$conf.int);
-    p.value.chr.ispy.odd.sub <- rbind(p.value.chr.ispy.odd.sub, odd.ratio.ci);
-    }
-
-
+p.value.chr.ispy.fisher.sub <- fisher_ispy_results$p.values
+p.value.chr.ispy.odd.sub.df <- fisher_ispy_results$odds_ratios
 
 ### 4. MATADOR
-chr.position.metador <- data.frame(as.matrix(table(gene.position.metador$chromosome_name)))
-chr.position.order.metador <- chr.position.metador[chr.name, , drop = FALSE];
-rownames(chr.position.order.metador) <- chr.name;
-chr.position.order.metador[is.na(chr.position.order.metador$as.matrix.table.gene.position.metador.chromosome_name..), ] <- 0;
-chr.position.outlier.metador <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.metador[, 1])));
+chr.position.outlier.metador <- process_chr_data(gene.position.metador, chr.name)
+chr.position.outlier.metador.all <- process_chr_data(gene.position.metador.all, chr.name)
 
-chr.position.metador.all <- data.frame(as.matrix(table(gene.position.metador.all$chromosome_name)))
-chr.position.order.metador.all <- chr.position.metador.all[chr.name, , drop = FALSE];
-rownames(chr.position.order.metador.all) <- chr.name;
-chr.position.order.metador.all[is.na(chr.position.order.metador.all$as.matrix.table.gene.position.metador.all.chromosome_name..), ] <- 0;
-chr.position.outlier.metador.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.metador.all[, 1])));
+fisher_metador_results <- calculate_fisher_odds(chr.position.outlier.metador, chr.position.outlier.metador.all, nrow(fpkm.tumor.symbol.filter.metador.symbol), nrow(outlier.gene.fdr.01.matador));
 
-
-# segment plot
-p.value.chr.metador.fisher.sub <- NULL;
-p.value.chr.metador.odd.sub <- NULL;
-for (i in 1:25) {
-    total.gene <- nrow(fpkm.tumor.symbol.filter.metador.symbol);
-    chr.gene <- chr.position.outlier.metador.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.matador) # sample size
-    chr.outlier <- chr.position.outlier.metador$count[i] # number of genes on the chromosome of interest in the sample
-    if (is.na(chr.outlier)) {
-        chr.outlier <- 0;
-        }
-
-    p.value <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')$p.value;
-    p.value.chr.metador.fisher.sub <- c(p.value.chr.metador.fisher.sub, p.value);
-
-    odd.ratio <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')
-    odd.ratio.ci <- c(odd.ratio$estimate, odd.ratio$conf.int);
-    p.value.chr.metador.odd.sub <- rbind(p.value.chr.metador.odd.sub, odd.ratio.ci);
-    }
-
-
-
+p.value.chr.metador.fisher.sub <- fisher_metador_results$p.values
+p.value.chr.metador.odd.sub.df <- fisher_metador_results$odds_ratios
 
 ### 5. ICGC BRCA-EU
-gene.position.icgc.all.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(rownames(fpkm.tumor.symbol.filter.icgc))]);
-gene.position.icgc.all.chr.table <- data.frame(as.matrix(table(gene.position.icgc.all.chr)));
-chr.position.outlier.icgc.all <- gene.position.icgc.all.chr.table[chr.name, , drop = FALSE];
-chr.position.outlier.icgc.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.outlier.icgc.all[, 1])));
+gene.position.icgc.all.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(rownames(fpkm.tumor.symbol.filter.icgc))])
+chr.position.outlier.icgc.all <- process_chr_data(data.frame(chromosome_name = gene.position.icgc.all.chr), chr.name)
 
-gene.position.icgc.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01.icgc$gene)]);
-chr.position.icgc <- data.frame(as.matrix(table(gene.position.icgc.chr)))
-chr.name <- c(
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', 'MT', 'X', 'Y'
-    );
-chr.position.order.icgc <- chr.position.icgc[chr.name, , drop = FALSE];
-rownames(chr.position.order.icgc) <- chr.name;
-chr.position.order.icgc[is.na(chr.position.order.icgc$as.matrix.table.fpkm.data.icgc.chr.outlier..), ] <- 0;
-chr.position.outlier.icgc <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.icgc[, 1])));
+gene.position.icgc.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01.icgc$gene)])
+chr.position.outlier.icgc <- process_chr_data(data.frame(chromosome_name = gene.position.icgc.chr), chr.name)
 
-# segment plot
-p.value.chr.icgc.fisher.sub <- NULL;
-p.value.chr.icgc.odd.sub <- NULL;
-for (i in 1:25) {
-    total.gene <- nrow(fpkm.tumor.symbol.filter.icgc);
-    chr.gene <- chr.position.outlier.icgc.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.icgc) # sample size
-    chr.outlier <- chr.position.outlier.icgc$count[i] # number of genes on the chromosome of interest in the sample
-    if (is.na(chr.outlier)) {
-        chr.outlier <- 0;
-        }
+fisher_icgc_results <- calculate_fisher_odds(chr.position.outlier.icgc, chr.position.outlier.icgc.all, nrow(fpkm.tumor.symbol.filter.icgc), nrow(outlier.gene.fdr.01.icgc));
 
-    p.value <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')$p.value;
-    p.value.chr.icgc.fisher.sub <- c(p.value.chr.icgc.fisher.sub, p.value);
-
-    odd.ratio <- fisher.test(matrix(c(chr.outlier, total.outlier - chr.outlier, chr.gene - chr.outlier, total.gene - total.outlier - chr.gene + chr.outlier), nrow = 2), alternative = 'two.sided')
-    odd.ratio.ci <- c(odd.ratio$estimate, odd.ratio$conf.int);
-    p.value.chr.icgc.odd.sub <- rbind(p.value.chr.icgc.odd.sub, odd.ratio.ci);
-    }
-
-
-
-
-### Meta-analysis
-p.value.chr.brca.odd.sub.df <- data.frame(p.value.chr.brca.odd.sub);
-p.value.chr.meta.odd.sub.df <- data.frame(p.value.chr.meta.odd.sub);
-p.value.chr.ispy.odd.sub.df <- data.frame(p.value.chr.ispy.odd.sub);
-p.value.chr.metador.odd.sub.df <- data.frame(p.value.chr.metador.odd.sub);
-p.value.chr.icgc.odd.sub.df <- data.frame(p.value.chr.icgc.odd.sub);
+p.value.chr.icgc.fisher.sub <- fisher_icgc_results$p.values
+p.value.chr.icgc.odd.sub.df <- fisher_icgc_results$odds_ratios
 
 
 #   - use natural log
 ln.odd.brca <- log(p.value.chr.brca.odd.sub.df$odds.ratio);
-se.odd.brca <- (log(p.value.chr.brca.odd.sub.df$V3) - log(p.value.chr.brca.odd.sub.df$V2)) / 3.92;
+se.odd.brca <- (log(p.value.chr.brca.odd.sub.df$upper) - log(p.value.chr.brca.odd.sub.df$lower)) / 3.92;
 ln.odd.meta <- log(p.value.chr.meta.odd.sub.df$odds.ratio);
-se.odd.meta <- (log(p.value.chr.meta.odd.sub.df$V3) - log(p.value.chr.meta.odd.sub.df$V2)) / 3.92;
+se.odd.meta <- (log(p.value.chr.meta.odd.sub.df$upper) - log(p.value.chr.meta.odd.sub.df$lower)) / 3.92;
 ln.odd.ispy <- log(p.value.chr.ispy.odd.sub.df$odds.ratio);
-se.odd.ispy <- (log(p.value.chr.ispy.odd.sub.df$V3) - log(p.value.chr.ispy.odd.sub.df$V2)) / 3.92;
+se.odd.ispy <- (log(p.value.chr.ispy.odd.sub.df$upper) - log(p.value.chr.ispy.odd.sub.df$lower)) / 3.92;
 ln.odd.metador <- log(p.value.chr.metador.odd.sub.df$odds.ratio);
-se.odd.metador <- (log(p.value.chr.metador.odd.sub.df$V3) - log(p.value.chr.metador.odd.sub.df$V2)) / 3.92;
+se.odd.metador <- (log(p.value.chr.metador.odd.sub.df$upper) - log(p.value.chr.metador.odd.sub.df$lower)) / 3.92;
 ln.odd.icgc <- log(p.value.chr.icgc.odd.sub.df$odds.ratio);
-se.odd.icgc <- (log(p.value.chr.icgc.odd.sub.df$V3) - log(p.value.chr.icgc.odd.sub.df$V2)) / 3.92;
-
-
-
+se.odd.icgc <- (log(p.value.chr.icgc.odd.sub.df$upper) - log(p.value.chr.icgc.odd.sub.df$lower)) / 3.92;
+ 
 chr.odd.se.5 <- list();
 
 # Loop through each row of the chromosome odds ratio dataframe
@@ -1301,7 +1187,6 @@ metafor.smd.all.matrix.label.segplot.multi.5 <- BoutrosLab.plotting.general::cre
     disable.factor.sorting = TRUE
     )
 metafor.smd.all.matrix.label.segplot.multi.5;
-
 
 
 metafor.multi.chr.smd.5 <- create.multipanelplot(
