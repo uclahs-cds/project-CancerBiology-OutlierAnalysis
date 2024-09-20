@@ -1,7 +1,15 @@
-### HISTORY #####################################################################
+### HISTORY ######################################################################
 # This script processes and merges DNA methylation data.
 # Date: 2024-08-14
 
+### DESCRIPTION ##################################################################
+# This script analyzes DNA methylation data for breast cancer. It merges data 
+# from multiple sources, processes outlier statuses, and creates visualizations 
+# of DNA methylation differences between outlier and non-outlier samples. The script 
+# focuses on promoter regions (TSS ~ +500bp) and includes statistical analysis.
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities);
 

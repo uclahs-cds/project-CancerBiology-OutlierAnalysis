@@ -1,9 +1,20 @@
-### HISTORY #####################################################################
+### HISTORY ######################################################################
 # This script analyzes protein abundance data (z-scores) for outlier and
 # non-outlier genes in the TCGA-BRCA dataset using CPTAC data.
 # Date: 2024-08-14
 
-# Load necessary library
+### DESCRIPTION ##################################################################
+# This script processes and analyzes protein abundance data for outlier and 
+# non-outlier genes in breast cancer samples from the TCGA-BRCA dataset, using 
+# CPTAC (Clinical Proteomic Tumor Analysis Consortium) data. It performs the 
+# following main tasks:
+# 1. Identifies outlier genes with available protein data
+# 2. Compares protein abundance between outlier and non-outlier patients
+# 3. Performs statistical analysis (Wilcoxon test) on the differences
+# 4. Creates a boxplot visualization of the protein abundance distribution
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

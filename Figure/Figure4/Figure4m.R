@@ -1,9 +1,17 @@
-### HISTORY #####################################################################
-# This script generates a boxplot for the gene SYK, comparing z-scores of drug
-# response in outlier vs non-outlier samples.
-# Date: 2024-08-16
+### HISTORY #####################################################################  
+# This script generates a boxplot for the gene SYK, comparing z-scores of drug  
+# response in outlier vs non-outlier samples.  
+# Date: 2024-08-16  
 
-library(BoutrosLab.utilities);
+### DESCRIPTION #################################################################  
+# This script processes drug response data for the SYK gene, focusing on comparing  
+# the z-scores of drug response between outlier and non-outlier samples. It extracts  
+# IC50 z-scores for the drug targets associated with SYK, and generates a boxplot  
+# to visualize the differences in z-scores.  
+
+### PREAMBLE ####################################################################  
+# Load necessary libraries  
+library(BoutrosLab.utilities);  
 
 # Source the helper library
 args <- commandArgs();

@@ -4,8 +4,15 @@
 # The analysis corresponds to Figure 3g in the associated study.
 # Date: 2024-08-15
 
-library(BoutrosLab.plotting.survival);
-library(BoutrosLab.utilities);
+### DESCRIPTION #################################################################
+# This script processes combined survival data from TCGA-BRCA and METABRIC datasets
+# to analyze overall survival for specific PAM50 subtypes. It creates a Kaplan-Meier
+# survival plot for a selected subtype, comparing outlier and non-outlier patient groups.
+
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.survival)
+library(BoutrosLab.utilities)
 
 # Source the helper library
 args <- commandArgs();

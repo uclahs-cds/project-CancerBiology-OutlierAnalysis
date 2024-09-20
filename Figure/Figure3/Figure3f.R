@@ -1,9 +1,15 @@
-### HISTORY #####################################################################
+### HISTORY ######################################################################
 # This script performs analysis of subtype enrichment across multiple datasets
 # including TCGA-BRCA, METABRIC, I-SPY2, MATADOR, and ICGC BRCA-EU.
 # Date: 2024-08-15
 
+### DESCRIPTION ##################################################################
+# This script analyzes breast cancer subtype enrichment across multiple datasets.
+# It processes and standardizes subtype data, conducts Fisher's exact tests,
+# calculates odds ratios, performs meta-analysis, and generates visualizations
+# including heatmaps and forest plots to compare subtype enrichment across datasets.
 
+### PREAMBLE #####################################################################
 # Load required libraries
 library(metafor);
 library(BoutrosLab.plotting.general);

@@ -1,8 +1,15 @@
 ### HISTORY #####################################################################
 # This script processes methylation data to analyze outlier and non-outlier
-# genes in  outier and non-outlier patients.
+# genes in outlier and non-outlier patients.
 # Date: 2024-08-14
 
+### DESCRIPTION ##################################################################
+# This script analyzes methylation data for outlier and non-outlier genes in
+# different patient groups. It creates histograms, calculates percentages,
+# and generates a heatmap visualization of the DNA methylation patterns across
+# different gene and patient categories.
+
+### PREAMBLE #####################################################################
 # Load necessary libraries
 library(stats);
 library(BoutrosLab.plotting.general);

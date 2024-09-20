@@ -4,7 +4,11 @@
 # This code is linked with the analysis in Figure 3a.
 # Date: 2024-08-14
 
+### DESCRIPTION ##################################################################
+# This script processes CPTAC data from the TCGA-BRCA dataset to analyze protein 
+# abundance in outlier genes. 
 
+### PREAMBLE #####################################################################
 # Load necessary library
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);

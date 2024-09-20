@@ -1,4 +1,4 @@
-### CHR10_CNV_ANALYSIS ##########################################################
+### HISTORY ######################################################################
 # This script processes CNA data for chromosome 10 across multiple datasets.
 # It compares outlier and non-outlier samples, generates heatmaps, and
 # combines these plots into a single multiplot figure.

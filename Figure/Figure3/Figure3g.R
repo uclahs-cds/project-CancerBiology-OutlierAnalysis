@@ -4,7 +4,14 @@
 # includes Kaplan-Meier survival plots among different patient groups.
 # Date: 2024-08-15
 
-library(BoutrosLab.plotting.survival)
+### DESCRIPTION #################################################################
+# The script loads and processes survival data from TCGA-BRCA and METABRIC datasets,
+# combines them, and performs a Kaplan-Meier survival analysis. It creates a plot
+# comparing survival outcomes between outlier and non-outlier patient groups.
+
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.survival);
 library(BoutrosLab.utilities);
 
 # Source the helper library

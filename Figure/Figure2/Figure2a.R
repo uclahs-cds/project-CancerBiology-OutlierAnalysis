@@ -1,6 +1,15 @@
-### CNA ANALYSIS ##########################################################
-# This script performs CNA analysis for METABRIC/TCGA_BRCA/ICGC BRCA_EU data.
+### HISTORY ######################################################################
+# This script performs CNA analysis for METABRIC/TCGA-BRCA/ICGC BRCA-EU data.
+# Date: 2024-08-23
 
+### DESCRIPTION ##################################################################
+# This script conducts Copy Number Aberration (CNA) analysis across three breast 
+# cancer datasets: METABRIC, TCGA-BRCA, and ICGC BRCA-EU. It processes CNA data 
+# for outlier and non-outlier samples, performs meta-analysis, and creates 
+# visualizations to represent the results.
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

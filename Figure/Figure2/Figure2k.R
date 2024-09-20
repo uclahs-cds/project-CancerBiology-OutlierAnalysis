@@ -1,10 +1,18 @@
-### HISTORY #####################################################################
+### HISTORY ######################################################################
 # This script processes gene expression data to compare outlier and non-outlier
 # patients across tumor and normal samples. It generates a boxplot to visualize
 # the mean beta values and performs a Kruskal-Wallis test for statistical analysis.
 # Date: 2024-08-14
 
-# Load necessary library
+### DESCRIPTION ##################################################################
+# This script analyzes gene expression data, comparing outlier and non-outlier
+# patients in both tumor and normal samples. It calculates mean beta values,
+# identifies differentially methylated genes, and visualizes the results using
+# a boxplot. The script also performs a Kruskal-Wallis test for statistical
+# significance and includes data from multiple sources (METABRIC, TCGA-BRCA).
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

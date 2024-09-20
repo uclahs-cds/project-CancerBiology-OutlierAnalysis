@@ -2,6 +2,13 @@
 # This script analyzes the protein abundance of all outlier genes identified in CCLE.
 # Date: 2024-08-16
 
+### DESCRIPTION #################################################################
+# This script processes data from the Cancer Cell Line Encyclopedia (CCLE) to analyze
+# the protein abundance of all identified outlier genes. It compares the protein
+# abundance between outlier and non-outlier samples and visualizes the results
+# using a boxplot.
+
+### PREAMBLE ####################################################################
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

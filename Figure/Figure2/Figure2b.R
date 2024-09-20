@@ -1,4 +1,4 @@
-### FGFR2_ZSCORE_ANALYSIS ########################################################
+### HISTORY ######################################################################
 # This script calculates the z-scores for the expression of the FGFR2 gene across different
 # datasets. It identifies outlier and non-outlier samples and generates bar plots based on
 # the calculated z-scores.

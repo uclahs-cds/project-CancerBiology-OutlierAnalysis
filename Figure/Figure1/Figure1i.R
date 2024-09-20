@@ -4,11 +4,13 @@
 # The analysis is connected to Figure 1f,g.
 # Date: 2024-08-16
 
-library(BoutrosLab.plotting.general)
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
-library(dplyr)
-library(tidyr)
-library(poolr)
+library(dplyr);
+library(tidyr);
+library(poolr);
 
 # Source the helper library
 args <- commandArgs();

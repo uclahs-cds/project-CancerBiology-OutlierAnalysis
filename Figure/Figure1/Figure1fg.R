@@ -1,8 +1,17 @@
-### HISTORY #####################################################################
-# This script performs meta-analysis for multiple datasets across chromosomes
+### HISTORY ######################################################################
+# This script performs meta-analysis for multiple breast cancer datasets
 # Date: 2024-08-13
 
-library(BoutrosLab.plotting.general)
+### DESCRIPTION ##################################################################
+# This script conducts a comprehensive meta-analysis of gene characteristics
+# across multiple breast cancer datasets (TCGA-BRCA, METABRIC, I-SPY2, MATADOR, ICGC).
+# It analyzes chromosomal enrichment, GC content, gene length, exon number, and RNA abundance
+# of outlier genes compared to non-outlier genes. The script uses the metafor package
+# for meta-analysis and creates segment plots to visualize the results.
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 library(metafor);
 

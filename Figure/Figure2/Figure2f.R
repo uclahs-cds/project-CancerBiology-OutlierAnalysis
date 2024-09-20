@@ -4,6 +4,14 @@
 # comparing mutated and non-mutated PIK3CA cases.
 # Date: 2024-08-14
 
+### DESCRIPTION #################################################################
+# The script processes data for the number of outlier genes per patient across
+# Luminal A and Luminal B breast cancer subtypes. It compares mutated and
+# non-mutated PIK3CA cases, combining the data into a single data frame and
+# creating scatter and density plots for visualization.
+
+### PREAMBLE ####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities);
 
@@ -16,11 +24,7 @@ source(file.path(
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure2ef_drivergene.rda'));
 
-### DESCRIPTION #################################################################
-# The script processes data for the number of outlier genes per patient across
-# Luminal A and Luminal B breast cancer subtypes. It compares mutated and
-# non-mutated PIK3CA cases, combining the data into a single data frame and
-# creating scatter and density plots for visualization.
+
 
 # PIK3CA density plot
 #   1. LumA - mutated

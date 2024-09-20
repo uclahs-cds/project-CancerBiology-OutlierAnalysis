@@ -1,8 +1,19 @@
-### HISTORY #####################################################################
+### HISTORY ######################################################################
 # This script analyzes the protein expression data (RPPA) for outlier and
 # non-outlier genes in the TCGA-BRCA dataset.
 # Date: 2024-08-14
 
+### DESCRIPTION ##################################################################
+# This script processes and analyzes Reverse Phase Protein Array (RPPA) data 
+# for outlier and non-outlier genes in breast cancer samples from the TCGA-BRCA 
+# dataset. It performs the following main tasks:
+# 1. Identifies outlier genes with available RPPA data
+# 2. Processes RPPA data, excluding phosphorylated proteins
+# 3. Compares protein abundance between outlier and non-outlier patients
+# 4. Performs statistical analysis (Wilcoxon test) on the differences
+# 5. Creates a boxplot visualization of the protein abundance distribution
+
+### PREAMBLE #####################################################################
 # Load necessary library
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);

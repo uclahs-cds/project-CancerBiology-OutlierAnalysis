@@ -1,10 +1,11 @@
-### ECDNA ANALYSIS #########################################################
+### HISTORY ######################################################################
 # This script analyzes RNA abundance of genes on chromosome 6 in an outlier patient
 # with ecDNA. It calculates robust z-scores for the genes and visualizes the results
 # using a bar plot.
 # Date: 2024-08-13
 
-### Load Required Libraries ######################################################
+### PREAMBLE ####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

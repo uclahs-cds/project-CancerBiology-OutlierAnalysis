@@ -4,7 +4,16 @@
 # ICGC BRCA-EU.
 # Date: 2024-08-16
 
+### DESCRIPTION #################################################################
+# This script processes and visualizes the expression of outliers identified in 
+# the Cancer Cell Line Encyclopedia (CCLE) dataset. It compares these outliers 
+# across multiple breast cancer datasets including TCGA-BRCA, METABRIC, I-SPY2, 
+# MATADOR, and ICGC BRCA-EU. The script generates a heatmap to visualize the 
+# outlier status and expression levels across different datasets.
+
+### PREAMBLE ####################################################################
 library(BoutrosLab.utilities);
+library(RColorBrewer);
 
 # Source the helper library
 args <- commandArgs();

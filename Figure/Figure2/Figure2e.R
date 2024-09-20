@@ -1,7 +1,14 @@
-### DRIVER GENE ANALYSIS ######################################################
+### HISTORY ######################################################################
+# This script performs driver gene analysis for breast cancer subtypes.
 # Date: 2024-08-13
 
-### PREAMBLE ###################################################################
+### DESCRIPTION ##################################################################
+# This script analyzes driver gene mutations in breast cancer subtypes (Luminal A and B)
+# across multiple datasets (METABRIC, TCGA-BRCA, ICGC BRCA-EU). It calculates
+# odds ratios, performs meta-analysis, and creates visualizations of the results.
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 library(metafor);

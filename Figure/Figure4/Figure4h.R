@@ -1,9 +1,17 @@
-### HISTORY #####################################################################
-# This script analyzes RNAi gene dependency scores for outlier genes identified
-# in CCLE.
-# Date: 2024-08-16
+### HISTORY #####################################################################  
+# This script analyzes RNAi gene dependency scores for outlier genes identified  
+# in CCLE.  
+# Date: 2024-08-16  
 
-library(BoutrosLab.utilities);
+### DESCRIPTION #################################################################  
+# The script processes RNAi gene dependency scores for outliers from CCLE data.  
+# It filters out genes with a difference in RNAi score < -0.4, orders them based  
+# on the score, and prepares the data for plotting. The resulting plot shows gene  
+# effect scores for outliers, with highlighted genes that meet specific criteria.  
+
+### PREAMBLE ####################################################################  
+# Load necessary libraries  
+library(BoutrosLab.utilities);  
 
 # Source the helper library
 args <- commandArgs();

@@ -1,10 +1,16 @@
-### HISTORY #####################################################################
-# This script processes NGF and LRP4 gene expression and methylation data, and generates
+### HISTORY ######################################################################
+# This script processes NGF and LRP4 gene expression and DNA methylation data, and generates
 # a scatter plot to visualize the relationship between RNA abundance and DNA
 # methylation levels across different patients.
 # The codes are connected to Figure 2h.
 # Date: 2024-08-14
 
+### DESCRIPTION ##################################################################
+# This script analyzes the relationship between gene expression (RNA abundance) and 
+# DNA methylation for NGF and LRP4 genes. 
+
+### PREAMBLE #####################################################################
+# Load necessary libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

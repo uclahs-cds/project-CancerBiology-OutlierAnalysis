@@ -4,6 +4,12 @@
 # between outlier and non-outlier samples.
 # Date: 2024-08-16
 
+### DESCRIPTION #################################################################
+# This script processes data from the CCLE to analyze
+# gene dependency scores of identified outlier genes. It compares the scores between
+# outlier and non-outlier samples and visualizes the results using a scatter plot.
+
+### PREAMBLE ####################################################################
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 

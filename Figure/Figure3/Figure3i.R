@@ -3,6 +3,12 @@
 # across different breast cancer subtypes (e.g., Basal, Her2, LuminalA, LuminalB, Normal)
 # Date: 2024-08-15
 
+### DESCRIPTION #################################################################
+# This script combines TCGA-BRCA and METABRIC datasets, performs Cox proportional
+# hazards regression for each breast cancer subtype, and then conducts a meta-analysis
+# to combine the hazard ratios. It generates a segment plot to visualize the results.
+
+### PREAMBLE ####################################################################
 # Load required libraries
 library(BoutrosLab.plotting.survival);
 library(BoutrosLab.utilities);

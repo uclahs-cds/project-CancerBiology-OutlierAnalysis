@@ -1,9 +1,16 @@
-### HISTORY #####################################################################
+### HISTORY ######################################################################
 # This script performs meta-analysis to compare the tumour stages across
 # multiple breast cancer subtypes.
 # Date: 2024-08-15
 
+### DESCRIPTION ##################################################################
+# This script analyzes tumor stage data across different breast cancer subtypes
+# using data from TCGA-BRCA, METABRIC, and ICGC BRCA-EU datasets. It performs
+# Fisher's exact tests, calculates odds ratios, and conducts meta-analysis
+# to compare tumor stages across subtypes. The script generates visualizations
+# of the results, including dotmaps for each subtype and for all patients.
 
+### PREAMBLE #####################################################################
 # Load required libraries
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);

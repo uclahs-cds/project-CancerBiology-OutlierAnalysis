@@ -3,6 +3,13 @@
 # datasets.
 # Date: 2024-08-16
 
+### DESCRIPTION #################################################################
+# This script processes data from the Cancer Cell Line Encyclopedia (CCLE) and
+# multiple tissue datasets (TCGA-BRCA, METABRIC, I-SPY2, MATADOR, ICGC BRCA-EU)
+# to analyze and visualize the number of outlier genes per patient. It generates
+# a density plot comparing the distribution of outlier genes in CCLE and tissue samples.
+
+### PREAMBLE ####################################################################
 library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
