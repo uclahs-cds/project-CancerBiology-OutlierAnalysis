@@ -15,95 +15,59 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+source(here::here('common_functions.R'))
 
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
+# Load required data
+load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'))
 
+### DESCRIPTION #################################################################
+# The function `do.plot.2i` processes data for RNA abundance (FPKM) and DNA methylation
+# for two example genes (NGF, LRP4) and creates scatter plots for visualization.
 
+# Helper function to process FPKM data
+process.fpkm.data <- function(fpkm.brca, fpkm.meta, gene) {
+    fpkm.brca.gene <- fpkm.brca[fpkm.brca$Symbol %in% gene, -ncol(fpkm.brca), drop = FALSE]
+    fpkm.meta.gene <- fpkm.meta[fpkm.meta$Symbol %in% gene, -ncol(fpkm.meta), drop = FALSE]
 
-# Two example genes: NGF, LRP4 - run separately
-do.plot.2i <- function(i) {
-    i.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[
-        i, ,
-        drop = FALSE
-        ];
+    fpkm.combined <- c(scale(as.numeric(fpkm.brca.gene)), scale(as.numeric(fpkm.meta.gene)))
+    fpkm.df <- data.frame(t(fpkm.combined))
+    rownames(fpkm.df) <- gene
+    colnames(fpkm.df) <- c(colnames(fpkm.brca.gene), colnames(fpkm.meta.gene))
 
-    i.patient <- two.outlier.patient.status.merge.filter.500[
-        i,
-        ];
+    return(fpkm.df)
+    }
 
-    # FPKM data processing
-    fpkm.i.brca <- fpkm.tumor.symbol.filter.brca[
-        fpkm.tumor.symbol.filter.brca$Symbol %in% i,
-        -ncol(fpkm.tumor.symbol.filter.brca),
-        drop = FALSE
-        ];
+# Function to create the scatter plot for given gene
+do.plot.2i <- function(gene) {
+    # Process methylation and patient data
+    gene.methyl <- two.outlier.promoter.symbol.sample.match.merge.filter.500[gene, , drop = FALSE]
+    gene.patient <- two.outlier.patient.status.merge.filter.500[gene, ]
 
-    fpkm.i.meta <- fpkm.tumor.symbol.filter.meta.symbol[
-        fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i,
-        -ncol(fpkm.tumor.symbol.filter.meta.symbol),
-        drop = FALSE
-        ];
+    # Process FPKM data for the gene
+    fpkm.gene <- process.fpkm.data(fpkm.tumor.symbol.filter.brca, fpkm.tumor.symbol.filter.meta.symbol, gene)
+    fpkm.gene.ordered <- fpkm.gene[, colnames(two.outlier.patient.status.merge.filter.500), drop = FALSE]
+    fpkm.gene.ordered <- fpkm.gene.ordered[, order(as.numeric(fpkm.gene.ordered[1, ]), decreasing = TRUE), drop = FALSE]
 
-    fpkm.i.two <- c(
-        scale(as.numeric(fpkm.i.brca)),
-        scale(as.numeric(fpkm.i.meta))
-        );
+    # Order methylation data
+    gene.methyl.ordered <- gene.methyl[, colnames(fpkm.gene.ordered)]
 
-    fpkm.i.two.df <- t(
-        data.frame(fpkm.i.two)
-        );
+    # Prepare scatter plot data
+    scatter.data <- data.frame(fpkm = as.numeric(fpkm.gene.ordered), me = as.numeric(gene.methyl.ordered))
+    rownames(scatter.data) <- colnames(gene.methyl.ordered)
+    gene.patient.ordered <- gene.patient[colnames(gene.methyl.ordered)]
 
-    rownames(fpkm.i.two.df) <- i;
+    # Define colors for plot points
+    dot.colors <- ifelse(gene.patient.ordered == 1, 'red2', 'black')
 
-    colnames(fpkm.i.two.df) <- c(
-        colnames(fpkm.i.brca),
-        colnames(fpkm.i.meta)
-        );
+    # Reverse order for scatter plot
+    scatter.data.rev <- scatter.data[rev(seq(nrow(scatter.data))), ]
+    dot.colors.rev <- rev(dot.colors)
 
-    # # Prepare scatter plot data
-    fpkm.i.order <- fpkm.i.two.df[
-        ,
-        colnames(two.outlier.patient.status.merge.filter.500),
-        drop = FALSE
-        ];
-
-    fpkm.i.order <- fpkm.i.order[
-        ,
-        order(as.numeric(fpkm.i.order[1, ]), decreasing = TRUE),
-        drop = FALSE
-        ];
-
-    i.me.order <- i.me[
-        ,
-        colnames(fpkm.i.order)
-        ];
-
-    i.me.fpkm.scatter <- data.frame(
-        fpkm = as.numeric(fpkm.i.order),
-        me = as.numeric(i.me.order)
-        );
-
-    rownames(i.me.fpkm.scatter) <- colnames(i.me.order);
-
-    i.patient.order <- i.patient[
-        colnames(i.me.order)
-        ];
-
-    dot.colours <- ifelse(
-        i.patient.order == 1,
-        'red2',
-        'black'
-        );
-
-
-    i.me.fpkm.scatter.rev <- i.me.fpkm.scatter[rev(seq(nrow(i.me.fpkm.scatter))), ]
-    dot.colours.rev <- rev(dot.colours);
-
-    scatter.i <- create.scatterplot(
+    # Create scatter plot
+    scatter.plot <- create.scatterplot(
         formula = fpkm ~ me,
-        data = i.me.fpkm.scatter.rev,
-        col = dot.colours.rev,
+        data = scatter.data.rev,
+        col = dot.colors.rev,
         alpha = .6,
         xlimits = c(-0.06, 1.07),
         xaxis.fontface = 1,
@@ -113,22 +77,12 @@ do.plot.2i <- function(i) {
         add.grid = TRUE,
         grid.colour = 'grey80',
         cex = 0.9,
-        add.text = FALSE,
-        text.cex = 1.1,
-        text.x = i.me.fpkm.scatter[which(i.patient == 1), ]$me,
-        text.y = log2(i.me.fpkm.scatter[which(i.patient == 1), ]$fpkm),
-        text.labels = '*outlier patient',
-        text.guess.labels = TRUE,
-        text.guess.label.position = 45,
-        text.guess.radius.factor = 1.5,
-        text.fontface = 1,
-        text.col = 'red2',
+        main.cex = 1.6,
         xaxis.cex = 1,
         yaxis.cex = 1,
+        main = gene,
         xlab.cex = 1.3,
         ylab.cex = 1.3,
-        main.cex = 1.6,
-        main = i,
         ylab.label = expression(paste('RNA abundance (z-score)')),
         xlab.label = expression(paste('DNA methylation (', beta, ' value)')),
         type = c('p', 'r', 'g'),
@@ -137,8 +91,8 @@ do.plot.2i <- function(i) {
                 fun = draw.key,
                 args = list(
                     key = get.corr.key(
-                        x = i.me.fpkm.scatter$fpkm,
-                        y = i.me.fpkm.scatter$me,
+                        x = scatter.data$fpkm,
+                        y = scatter.data$me,
                         label.items = c('spearman'),
                         alpha.background = 0,
                         key.cex = 1.1
@@ -149,18 +103,20 @@ do.plot.2i <- function(i) {
                 corner = c(0, 1)
                 )
             )
-        );
-    scatter.i
+        )
 
+    # Save scatter plot
     save.outlier.figure(
-        scatter.i,
-        c('Figure2i', i, 'scatter'),
+        scatter.plot,
+        c('Figure2i', gene, 'scatter'),
         width = 6,
         height = 6
-        );
+        )
     }
 
-do.plot.2i('NGF');
-do.plot.2i('LRP4');
+# Generate scatter plots for NGF and LRP4 genes
+do.plot.2i('NGF')
+do.plot.2i('LRP4')
 
-save.session.profile(file.path('output', 'Figure2i.txt'));
+# Save session profile
+save.session.profile(file.path('output', 'Figure2i.txt'))
