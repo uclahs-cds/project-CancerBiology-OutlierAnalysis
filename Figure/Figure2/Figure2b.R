@@ -74,26 +74,39 @@ gene.data <- do.call(rbind, mapply(
 outlier.z.scores <- gene.data[gene.data$outlier.status == 1, 'z.score'];
 non.outlier.z.scores <- gene.data[gene.data$outlier.status == 0, 'z.score'];
 
-# Quantile calculation and plotting data
-# FIXME Wny are we not including the 100% quantile?
+# Quantile calculation and plotting data. This excludes the 100% quantile.
 quantiles <- seq(0, 0.9, 0.1);
 
 plot.data <- rbind(
     data.frame(
         quant = quantile(non.outlier.z.scores, p = quantiles),
-        color = 'grey10'
+        color = 'grey10',
+        border.col = 'black'
         ),
     data.frame(
-        quant = setNames(mean(outlier.z.scores), 'Outlier samples'),
-        color = 'darkred'
+        # Hide the bar for the outlier samples
+        # quant = setNames(mean(outlier.z.scores), 'Outlier samples'),
+        quant = setNames(0, 'Outlier samples'),
+        color = 'darkred',
+        border.col = 'white'
         )
     );
 
-# Add a factor column to the dataframe to control the order of the bars.
-# Reverse the order of the levels so that the outlier samples are plotted first.
+# Reverse the dataframe so that the outlier sample is plotted first
+plot.data <- plot.data[dim(plot.data)[1]:1, ];
+
+# Add a factor column to the dataframe to prevent reordering of bars.
+# Rename the quantile labels from [0%, 10%, 20%, ...] to [100, 90, 80, ...]
 plot.data$label <- ordered(
     rownames(plot.data),
-    levels = rev(rownames(plot.data))
+    levels = rownames(plot.data),
+    labels = sapply(rownames(plot.data), function(x) {
+        if (grepl('%', x)) {
+            return(as.character(100 - as.numeric(sub('%', '', x))))
+            } else {
+            return(x)
+            }
+        })
     );
 
 outlier.bar.plot <- create.barplot(
@@ -110,7 +123,7 @@ outlier.bar.plot <- create.barplot(
     ylab.cex = 1.2,
     main.cex = 1.4,
     col = plot.data$color,
-    border.col = 'black',
+    border.col = plot.data$border.col,
     border.lwd = 0.25,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
