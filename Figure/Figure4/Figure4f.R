@@ -1,16 +1,16 @@
-### HISTORY #####################################################################  
-# Gene dependency score of example outlier genes.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# Gene dependency score of example outlier genes.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# This script processes gene dependency data to compare the dependency scores of  
-# selected outlier genes. It first filters genes with a dependency score difference  
-# greater than 0.5, then orders them based on their dependency score. The script  
+### DESCRIPTION #################################################################
+# This script processes gene dependency data to compare the dependency scores of
+# selected outlier genes. It first filters genes with a dependency score difference
+# greater than 0.5, then orders them based on their dependency score. The script
 # prepares data for a box plot, combining gene dependency scores and outlier status.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.utilities);
 
 
 # Source the helper library

@@ -4,11 +4,11 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script focuses on analyzing DNA methylation patterns in the promoter region 
-# of the PXDNL gene. It compares methylation levels between outlier and non-outlier 
-# patients using TCGA-BRCA data. The script processes methylation data for tumor 
-# and normal samples, orders the data based on gene expression levels, and creates 
-# heatmaps to visualize methylation patterns across different patient groups and 
+# This script focuses on analyzing DNA methylation patterns in the promoter region
+# of the PXDNL gene. It compares methylation levels between outlier and non-outlier
+# patients using TCGA-BRCA data. The script processes methylation data for tumor
+# and normal samples, orders the data based on gene expression levels, and creates
+# heatmaps to visualize methylation patterns across different patient groups and
 # sample types.
 
 ### PREAMBLE #####################################################################

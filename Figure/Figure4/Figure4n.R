@@ -1,16 +1,16 @@
-### HISTORY #####################################################################  
-# This script generates a boxplot comparing gene effect scores between CRISPR  
-# and RNAi for the gene SYK.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script generates a boxplot comparing gene effect scores between CRISPR
+# and RNAi for the gene SYK.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# This script extracts gene effect scores for SYK from both CRISPR and RNAi datasets  
-# and compares these scores between outliers and non-outliers. 
-# The boxplot is generated to compare the gene effect scores between CRISPR and RNAi.  
+### DESCRIPTION #################################################################
+# This script extracts gene effect scores for SYK from both CRISPR and RNAi datasets
+# and compares these scores between outliers and non-outliers.
+# The boxplot is generated to compare the gene effect scores between CRISPR and RNAi.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.utilities);
 
 
 # Source the helper library

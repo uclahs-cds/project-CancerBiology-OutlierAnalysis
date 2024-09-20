@@ -6,8 +6,8 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script analyzes the relationship between gene expression (RNA abundance) and 
-# DNA methylation for NGF and LRP4 genes. 
+# This script analyzes the relationship between gene expression (RNA abundance) and
+# DNA methylation for NGF and LRP4 genes.
 
 ### PREAMBLE #####################################################################
 # Load necessary libraries

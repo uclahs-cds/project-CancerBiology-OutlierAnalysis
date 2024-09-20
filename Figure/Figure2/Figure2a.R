@@ -3,9 +3,9 @@
 # Date: 2024-08-23
 
 ### DESCRIPTION ##################################################################
-# This script conducts Copy Number Aberration (CNA) analysis across three breast 
-# cancer datasets: METABRIC, TCGA-BRCA, and ICGC BRCA-EU. It processes CNA data 
-# for outlier and non-outlier samples, performs meta-analysis, and creates 
+# This script conducts Copy Number Aberration (CNA) analysis across three breast
+# cancer datasets: METABRIC, TCGA-BRCA, and ICGC BRCA-EU. It processes CNA data
+# for outlier and non-outlier samples, performs meta-analysis, and creates
 # visualizations to represent the results.
 
 ### PREAMBLE #####################################################################

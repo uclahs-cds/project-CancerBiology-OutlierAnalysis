@@ -4,8 +4,8 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script processes and analyzes Reverse Phase Protein Array (RPPA) data 
-# for outlier and non-outlier genes in breast cancer samples from the TCGA-BRCA 
+# This script processes and analyzes Reverse Phase Protein Array (RPPA) data
+# for outlier and non-outlier genes in breast cancer samples from the TCGA-BRCA
 # dataset. It performs the following main tasks:
 # 1. Identifies outlier genes with available RPPA data
 # 2. Processes RPPA data, excluding phosphorylated proteins

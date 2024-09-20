@@ -44,19 +44,19 @@ calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, tota
     for (i in 1:25) {
         chr.gene <- chr_outlier_all$count[i]
         chr.out <- ifelse(is.na(chr_outlier$count[i]), 0, chr_outlier$count[i])
-        
-        test_matrix <- matrix(c(chr.out, total_outlier - chr.out, 
-                                chr.gene - chr.out, 
-                                total_gene - total_outlier - chr.gene + chr.out), 
+
+        test_matrix <- matrix(c(chr.out, total_outlier - chr.out,
+                                chr.gene - chr.out,
+                                total_gene - total_outlier - chr.gene + chr.out),
                               nrow = 2)
-        
+
         fisher_res <- fisher.test(test_matrix, alternative = 'two.sided')
         p.values[i] <- fisher_res$p.value
         odds_ratios[i, ] <- c(fisher_res$estimate, fisher_res$conf.int)
     }
 
-    odds_ratios <- data.frame(odds.ratio = odds_ratios[, 1], 
-                              lower = odds_ratios[, 2], 
+    odds_ratios <- data.frame(odds.ratio = odds_ratios[, 1],
+                              lower = odds_ratios[, 2],
                               upper = odds_ratios[, 3]);
 
     return(list(p.values = p.values, odds_ratios = odds_ratios))
@@ -129,7 +129,7 @@ ln.odd.metador <- log(p.value.chr.metador.odd.sub.df$odds.ratio);
 se.odd.metador <- (log(p.value.chr.metador.odd.sub.df$upper) - log(p.value.chr.metador.odd.sub.df$lower)) / 3.92;
 ln.odd.icgc <- log(p.value.chr.icgc.odd.sub.df$odds.ratio);
 se.odd.icgc <- (log(p.value.chr.icgc.odd.sub.df$upper) - log(p.value.chr.icgc.odd.sub.df$lower)) / 3.92;
- 
+
 chr.odd.se.5 <- list();
 
 # Loop through each row of the chromosome odds ratio dataframe

@@ -1,19 +1,19 @@
-### HISTORY #####################################################################  
-# This script analyzes RNAi gene dependency scores for outlier genes identified  
-# in CCLE.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script analyzes RNAi gene dependency scores for outlier genes identified
+# in CCLE.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# The script processes RNAi gene dependency scores from CCLE data. It filters genes  
-# with FDR < 0.05, matches the gene names with those in the RNAi dataset, and calculates  
-# the mean RNAi scores for outliers and non-outliers. It then computes the difference  
-# between the RNAi scores of outliers and non-outliers. The results are visualized  
-# with a scatter plot, highlighting interesting genes based on specific thresholds.  
+### DESCRIPTION #################################################################
+# The script processes RNAi gene dependency scores from CCLE data. It filters genes
+# with FDR < 0.05, matches the gene names with those in the RNAi dataset, and calculates
+# the mean RNAi scores for outliers and non-outliers. It then computes the difference
+# between the RNAi scores of outliers and non-outliers. The results are visualized
+# with a scatter plot, highlighting interesting genes based on specific thresholds.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.plotting.general);  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 source(here::here('common_functions.R'));

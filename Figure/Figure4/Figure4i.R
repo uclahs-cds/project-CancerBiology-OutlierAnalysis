@@ -1,19 +1,19 @@
-### HISTORY #####################################################################  
-# This script analyzes the correlation between Cas-CRISPR and RNAi gene  
-# dependency scores.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script analyzes the correlation between Cas-CRISPR and RNAi gene
+# dependency scores.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# This script processes Cas-CRISPR and RNAi gene dependency scores, calculating  
-# the differences in gene effect scores for outliers and non-outliers. The data  
-# is filtered and matched across both datasets. The correlation between Cas-CRISPR  
-# and RNAi gene dependency score differences is then visualized in a scatter plot,  
-# highlighting genes of interest based on specific thresholds.  
+### DESCRIPTION #################################################################
+# This script processes Cas-CRISPR and RNAi gene dependency scores, calculating
+# the differences in gene effect scores for outliers and non-outliers. The data
+# is filtered and matched across both datasets. The correlation between Cas-CRISPR
+# and RNAi gene dependency score differences is then visualized in a scatter plot,
+# highlighting genes of interest based on specific thresholds.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.plotting.general);  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 source(here::here('common_functions.R'));

@@ -1,19 +1,19 @@
-### HISTORY #####################################################################  
-# This script generates a multi-panel plot for RNA, protein, CNV, and gene  
-# effect scores (RNAi and CRISPR-Cas) for a specific gene.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script generates a multi-panel plot for RNA, protein, CNV, and gene
+# effect scores (RNAi and CRISPR-Cas) for a specific gene.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# The script processes various data types (RNA, protein, CNV, RNAi, and CRISPR-Cas)  
-# for a specific gene of interest. It creates individual plots for  
-# each data type: a barplot for RNA abundance, a barplot for protein abundance with  
-# handling for missing values, a heatmap for CNV data, and barplots for gene effect  
-# scores from RNAi and CRISPR-Cas datasets. 
+### DESCRIPTION #################################################################
+# The script processes various data types (RNA, protein, CNV, RNAi, and CRISPR-Cas)
+# for a specific gene of interest. It creates individual plots for
+# each data type: a barplot for RNA abundance, a barplot for protein abundance with
+# handling for missing values, a heatmap for CNV data, and barplots for gene effect
+# scores from RNAi and CRISPR-Cas datasets.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.plotting.general);  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.plotting.general);
+library(BoutrosLab.utilities);
 
 # Source the helper library
 source(here::here('common_functions.R'));

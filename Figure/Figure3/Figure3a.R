@@ -4,9 +4,9 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script processes and analyzes protein abundance data for outlier and 
-# non-outlier genes in breast cancer samples from the TCGA-BRCA dataset, using 
-# CPTAC (Clinical Proteomic Tumor Analysis Consortium) data. It performs the 
+# This script processes and analyzes protein abundance data for outlier and
+# non-outlier genes in breast cancer samples from the TCGA-BRCA dataset, using
+# CPTAC (Clinical Proteomic Tumor Analysis Consortium) data. It performs the
 # following main tasks:
 # 1. Identifies outlier genes with available protein data
 # 2. Compares protein abundance between outlier and non-outlier patients

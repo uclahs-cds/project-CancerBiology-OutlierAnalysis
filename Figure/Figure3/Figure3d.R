@@ -6,11 +6,11 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script analyzes the correlation between protein abundance (using CPTAC 
-# and RPPA data) and mRNA abundance (FPKM values) for outlier genes in TCGA-BRCA 
-# dataset. It processes data for specific genes, matches protein data with 
-# corresponding FPKM data, identifies outlier patients, and creates scatter plots 
-# to visualize the correlations. 
+# This script analyzes the correlation between protein abundance (using CPTAC
+# and RPPA data) and mRNA abundance (FPKM values) for outlier genes in TCGA-BRCA
+# dataset. It processes data for specific genes, matches protein data with
+# corresponding FPKM data, identifies outlier patients, and creates scatter plots
+# to visualize the correlations.
 
 ### PREAMBLE #####################################################################
 library(BoutrosLab.plotting.general);
