@@ -27,7 +27,7 @@ unique.datasets <- list(
         )
     );
 
-gene.alias <- "FGFR2"
+gene.alias <- 'FGFR2'
 
 subset.genes.and.outliers <- function(gene.dataset.name, outlier.dataset.name) {
     gene.dataset <- get(gene.dataset.name);
@@ -59,8 +59,6 @@ subset.genes.and.outliers <- function(gene.dataset.name, outlier.dataset.name) {
         gene.alias = gene.alias,
         z.score = z.score,
         outlier.status = outlier.status
-        # outlier.status = outlier.status,
-        # order = letters[gene.index]
         );
     }
 
@@ -73,31 +71,32 @@ gene.data <- do.call(rbind, mapply(
     ));
 
 # Split data into outliers and non-outliers
-outlier_z_scores <- gene.data[gene.data$outlier.status == 1, 'z.score'];
-non_outlier_z_scores <- gene.data[gene.data$outlier.status == 0, 'z.score'];
+outlier.z.scores <- gene.data[gene.data$outlier.status == 1, 'z.score'];
+non.outlier.z.scores <- gene.data[gene.data$outlier.status == 0, 'z.score'];
 
 # Quantile calculation and plotting data
 # FIXME Wny are we not including the 100% quantile?
 quantiles <- seq(0, 0.9, 0.1);
 
-plot_data <- rbind(
-        data.frame(
-            quant = quantile(non_outlier_z_scores, p = quantiles),
-            color = 'grey10'
-            ),
-        data.frame(
-            quant = setNames(mean(outlier_z_scores), 'Outlier samples'),
-            color = 'darkred'
-        ));
+plot.data <- rbind(
+    data.frame(
+        quant = quantile(non.outlier.z.scores, p = quantiles),
+        color = 'grey10'
+        ),
+    data.frame(
+        quant = setNames(mean(outlier.z.scores), 'Outlier samples'),
+        color = 'darkred'
+        )
+    );
 
 # Add a factor column to the dataframe to control the order of the bars.
 # Reverse the order of the levels so that the outlier samples are plotted first.
-plot_data$label <- ordered(
-    rownames(plot_data),
-    levels = rev(rownames(plot_data))
+plot.data$label <- ordered(
+    rownames(plot.data),
+    levels = rev(rownames(plot.data))
     );
 
-i.fpkm.merge.data.order.quan.unequal.three <- create.barplot(
+outlier.bar.plot <- create.barplot(
     formula = quant ~ label,
     main = as.expression(substitute(paste(var), list(var = gene.alias))),
     ylab.label = expression('z-score'),
@@ -110,27 +109,28 @@ i.fpkm.merge.data.order.quan.unequal.three <- create.barplot(
     xlab.cex = 1.3,
     ylab.cex = 1.2,
     main.cex = 1.4,
-    col = plot_data$color,
+    col = plot.data$color,
     border.col = 'black',
     border.lwd = 0.25,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
-    data = plot_data,
+    data = plot.data,
     ylimits = c(-12, 140)
     );
 
 # Add points to plot
-your.points <- xyplot(
-    outlier_z_scores ~ c(0.9, 1, 1, 1.1, 1),
+outlier.xyplot <- xyplot(
+    outlier.z.scores ~ c(0.9, 1, 1, 1.1, 1),
     pch = 23,
     col = 'black',
     fill = 'red2',
     cex = 1.3
     );
-i.fpkm.merge.data.order.quan.unequal.three.dot <- i.fpkm.merge.data.order.quan.unequal.three + as.layer(your.points);
+
+outlier.bar.xyplot <- outlier.bar.plot + as.layer(outlier.xyplot);
 
 save.outlier.figure(
-    i.fpkm.merge.data.order.quan.unequal.three.dot,
+    outlier.bar.xyplot,
     c('Figure2b', gene.alias, 'barplot'),
     width = 4.5,
     height = 5
