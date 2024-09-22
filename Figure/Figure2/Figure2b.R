@@ -9,91 +9,111 @@ library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities)
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 
-i <- 'FGFR2';
-
-meta.i <- fpkm.tumor.symbol.filter.meta.symbol[
-    fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i, 1:(ncol(fpkm.tumor.symbol.filter.meta.symbol) - 1)
-    ];
-brca.i <- fpkm.tumor.symbol.filter.brca[
-    fpkm.tumor.symbol.filter.brca$Symbol %in% i, 1:(ncol(fpkm.tumor.symbol.filter.brca) - 1)
-    ];
-icgc.i <- fpkm.tumor.symbol.filter.symbol.icgc[
-    fpkm.tumor.symbol.filter.symbol.icgc$Symbol %in% i, 1:(ncol(fpkm.tumor.symbol.filter.symbol.icgc) - 1)
-    ];
-
-
-outlier.status.brca <- outlier.patient.tag.01.brca[
-    rownames(fpkm.tumor.symbol.filter.brca[
-        fpkm.tumor.symbol.filter.brca$Symbol %in% i,
-        ]),
-    ];
-outlier.status.meta <- outlier.patient.tag.01.meta[
-    rownames(fpkm.tumor.symbol.filter.meta.symbol[
-        fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% i,
-        ]),
-    ];
-outlier.status.icgc <- outlier.patient.tag.01.icgc[
-    rownames(fpkm.tumor.symbol.filter.symbol.icgc[
-        fpkm.tumor.symbol.filter.symbol.icgc$Symbol %in% i,
-        ]),
-    ];
-
-# Convert outlier status to numeric and handle NAs
-outlier.status.meta <- as.numeric(outlier.status.meta);
-outlier.status.meta[is.na(outlier.status.meta)] <- 0;
-
-outlier.status.brca <- as.numeric(outlier.status.brca);
-outlier.status.brca[is.na(outlier.status.brca)] <- 0;
-
-outlier.status.icgc <- as.numeric(outlier.status.icgc);
-outlier.status.icgc[is.na(outlier.status.icgc)] <- 0;
-
-outlier.status.all.cnv <- c(outlier.status.meta, outlier.status.brca, outlier.status.icgc);
-
-### MEAN AND STANDARD DEVIATION CALCULATION
-outlier.status.brca.mean <- mean(as.numeric(brca.i)[outlier.status.brca == 0]);
-outlier.status.meta.mean <- mean(as.numeric(meta.i)[outlier.status.meta == 0]);
-outlier.status.icgc.mean <- mean(as.numeric(icgc.i)[outlier.status.icgc == 0]);
-
-outlier.status.brca.sd <- sd(as.numeric(brca.i)[outlier.status.brca == 0]);
-outlier.status.meta.sd <- sd(as.numeric(meta.i)[outlier.status.meta == 0]);
-outlier.status.icgc.sd <- sd(as.numeric(icgc.i)[outlier.status.icgc == 0]);
-
-### Z-SCORE CALCULATION
-meta.i.z <- (meta.i - outlier.status.meta.mean) / outlier.status.meta.sd;
-brca.i.z <- (brca.i - outlier.status.brca.mean) / outlier.status.brca.sd;
-icgc.i.z <- (icgc.i - outlier.status.icgc.mean) / outlier.status.icgc.sd;
-
-three.i.z <- c(as.numeric(meta.i.z), as.numeric(brca.i.z), as.numeric(icgc.i.z));
-
-i.fpkm.merge.data.order.out.three <- three.i.z[outlier.status.all.cnv %in% 1];
-i.fpkm.merge.data.order.non.three <- three.i.z[outlier.status.all.cnv %in% 0];
-
-### QUANTILE CALCULATION AND PLOTTING
-unequal.quan <- rev(seq(0, 0.9, 0.1));
-i.fpkm.merge.data.order.group.three <- quantile(i.fpkm.merge.data.order.non.three, p = unequal.quan);
-i.fpkm.merge.data.order.group.all.three <- c(mean(i.fpkm.merge.data.order.out.three), i.fpkm.merge.data.order.group.three);
-i.fpkm.merge.data.order.group.all.three <- c(0, i.fpkm.merge.data.order.group.three);
-i.fpkm.merge.data.order.group.all.df.three <- data.frame(
-    gene = i.fpkm.merge.data.order.group.all.three,
-    sample = LETTERS[1:length(i.fpkm.merge.data.order.group.all.three)]
+unique.datasets <- list(
+    gene.dataset.name = c(
+        'fpkm.tumor.symbol.filter.meta.symbol',
+        'fpkm.tumor.symbol.filter.brca',
+        'fpkm.tumor.symbol.filter.symbol.icgc'
+        ),
+    outlier.dataset.name = c(
+        'outlier.patient.tag.01.meta',
+        'outlier.patient.tag.01.brca',
+        'outlier.patient.tag.01.icgc'
+        )
     );
 
+gene.alias <- 'FGFR2'
 
-i.fpkm.merge.data.order.quan.unequal.three <- create.barplot(
-    formula = gene ~ sample,
-    main = as.expression(substitute(paste(var), list(var = i))),
+subset.genes.and.outliers <- function(gene.dataset.name, outlier.dataset.name) {
+    gene.dataset <- get(gene.dataset.name);
+    outlier.dataset <- get(outlier.dataset.name);
+
+    # Get a subset of the input gene data, eliminating all rows that don't
+    # correspond to the gene of interest (or are NA) and the Symbol column.
+    gene.subset <- gene.dataset[
+        !is.na(gene.dataset$Symbol) & gene.alias == gene.dataset$Symbol,
+        !('Symbol' == colnames(gene.dataset))
+        ];
+
+    # Get the outlier status of each patient for this gene, treating
+    # missing data as not outlying.
+    outlier.status <- as.numeric(outlier.dataset[rownames(gene.subset), ]);
+    outlier.status[is.na(outlier.status)] <- 0;
+
+    # Compute the mean and standard deviation for the non-outliers
+    non.outliers.subset <- as.numeric(gene.subset[outlier.status == 0]);
+    non.outliers.mean <- mean(non.outliers.subset);
+    non.outliers.sd <- sd(non.outliers.subset);
+
+    # Compute the z-score for all patients
+    z.score <- as.numeric((gene.subset - non.outliers.mean) / non.outliers.sd);
+
+    # Return a single-gene-single-dataset dataframe with one row per
+    # patient
+    data.frame(
+        gene.alias = gene.alias,
+        z.score = z.score,
+        outlier.status = outlier.status
+        );
+    }
+
+# Build a single-gene-all-dataset dataframe
+gene.data <- do.call(rbind, mapply(
+    subset.genes.and.outliers,
+    unique.datasets$gene.dataset.name,
+    unique.datasets$outlier.dataset.name,
+    SIMPLIFY = FALSE
+    ));
+
+# Split data into outliers and non-outliers
+outlier.z.scores <- gene.data[gene.data$outlier.status == 1, 'z.score'];
+non.outlier.z.scores <- gene.data[gene.data$outlier.status == 0, 'z.score'];
+
+# Quantile calculation and plotting data. This excludes the 100% quantile.
+quantiles <- seq(0, 0.9, 0.1);
+
+plot.data <- rbind(
+    data.frame(
+        quant = quantile(non.outlier.z.scores, p = quantiles),
+        color = 'grey10',
+        border.col = 'black'
+        ),
+    data.frame(
+        # Hide the bar for the outlier samples
+        # quant = setNames(mean(outlier.z.scores), 'Outlier samples'),
+        quant = setNames(0, 'Outlier samples'),
+        color = 'darkred',
+        border.col = 'white'
+        )
+    );
+
+# Reverse the dataframe so that the outlier sample is plotted first
+plot.data <- plot.data[dim(plot.data)[1]:1, ];
+
+# Add a factor column to the dataframe to prevent reordering of bars.
+# Rename the quantile labels from [0%, 10%, 20%, ...] to [100, 90, 80, ...]
+plot.data$label <- ordered(
+    rownames(plot.data),
+    levels = rownames(plot.data),
+    labels = sapply(rownames(plot.data), function(x) {
+        if (grepl('%', x)) {
+            return(as.character(100 - as.numeric(sub('%', '', x))))
+            } else {
+            return(x)
+            }
+        })
+    );
+
+outlier.bar.plot <- create.barplot(
+    formula = quant ~ label,
+    main = as.expression(substitute(paste(var), list(var = gene.alias))),
     ylab.label = expression('z-score'),
     xlab.label = NULL,
-    xaxis.lab = rev(c('Outlier samples', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100')),
     xaxis.rot = 90,
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
@@ -102,25 +122,29 @@ i.fpkm.merge.data.order.quan.unequal.three <- create.barplot(
     xlab.cex = 1.3,
     ylab.cex = 1.2,
     main.cex = 1.4,
-    col = c('darkred', rep('grey10', 10)),
-    border.col = 'black',
+    col = plot.data$color,
+    border.col = plot.data$border.col,
     border.lwd = 0.25,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
-    data = i.fpkm.merge.data.order.group.all.df.three,
-    sample.order = 'decreasing',
+    data = plot.data,
     ylimits = c(-12, 140)
     );
 
 # Add points to plot
-your.points <- xyplot(i.fpkm.merge.data.order.out.three ~ c(0.9, 1, 1, 1.1, 1),
-    pch = 23, col = 'black', fill = 'red2', cex = 1.3
+outlier.xyplot <- xyplot(
+    outlier.z.scores ~ c(0.9, 1, 1, 1.1, 1),
+    pch = 23,
+    col = 'black',
+    fill = 'red2',
+    cex = 1.3
     );
-i.fpkm.merge.data.order.quan.unequal.three.dot <- i.fpkm.merge.data.order.quan.unequal.three + as.layer(your.points);
+
+outlier.bar.xyplot <- outlier.bar.plot + as.layer(outlier.xyplot);
 
 save.outlier.figure(
-    i.fpkm.merge.data.order.quan.unequal.three.dot,
-    c('Figure2b', i, 'barplot'),
+    outlier.bar.xyplot,
+    c('Figure2b', gene.alias, 'barplot'),
     width = 4.5,
     height = 5
     );

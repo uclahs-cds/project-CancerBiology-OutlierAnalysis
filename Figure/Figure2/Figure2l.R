@@ -4,11 +4,11 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script focuses on analyzing DNA methylation patterns in the promoter region 
-# of the PXDNL gene. It compares methylation levels between outlier and non-outlier 
-# patients using TCGA-BRCA data. The script processes methylation data for tumor 
-# and normal samples, orders the data based on gene expression levels, and creates 
-# heatmaps to visualize methylation patterns across different patient groups and 
+# This script focuses on analyzing DNA methylation patterns in the promoter region
+# of the PXDNL gene. It compares methylation levels between outlier and non-outlier
+# patients using TCGA-BRCA data. The script processes methylation data for tumor
+# and normal samples, orders the data based on gene expression levels, and creates
+# heatmaps to visualize methylation patterns across different patient groups and
 # sample types.
 
 ### PREAMBLE #####################################################################
@@ -17,173 +17,97 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 library(metafor);
 
-# Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
+# Source helper library
+source(here::here('common_functions.R'))
 
+# Load the data file
+load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'))
 
-# Check PXDNL gene
-i <- 'PXDNL';
-i.me <- brca.outlier.promoter.symbol.sample.match.brca[
-    brca.outlier.promoter.symbol.sample.match.brca$Symbol == 'PXDNL',
-    1:ncol(brca.outlier.promoter.symbol.sample.match.brca)
-    ];
+### DESCRIPTION #################################################################
+# Function to process DNA methylation and FPKM data for the PDXNL gene and generate heatmaps.
 
+# Helper function to process and order methylation data
+process.methylation.data <- function(gene, outlier.data, normal.data, fpkm.data, tag.data) {
+    # Methylation data for outliers
+    gene.me <- outlier.data[outlier.data$Symbol == gene, !('Symbol' == colnames(outlier.data))];
+    gene.me.normal <- normal.data[rownames(gene.me), !('Symbol' == colnames(normal.data))];
 
-i.me.normal <- brca.outlier.promoter.symbol.normal.match.filter.brca[
-    brca.outlier.promoter.symbol.sample.match.brca[rownames(brca.outlier.promoter.symbol.normal.match.filter.brca), ]$Symbol == 'PXDNL',
-    ];
+    # Patient grouping
+    gene.patient <- tag.data[rownames(fpkm.data)[fpkm.data$Symbol == gene], ]
+    gene.me.patient <- gene.me[, gene.patient == 1, drop = FALSE]
+    gene.me.patient.non <- gene.me[, gene.patient == 0, drop = FALSE]
 
-# i.me <- brca.outlier.promoter.symbol.sample.match.merge.filter[
-#     rownames(brca.outlier.promoter.symbol.sample.match.merge.filter) == i,
-#     1:ncol(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca)
-#     ];
+    overlap_patient <- colnames(normal.data)[substr(colnames(normal.data), 1, 12) %in% substr(names(gene.patient)[gene.patient == 1], 1, 12)]
 
-i.patient <- outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca[
-    rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol == i],
-    ];
+    gene.me.patient_normal <- gene.me.normal[, overlap_patient, drop = FALSE]
+    gene.me.patient.non_normal <- gene.me.normal[, !colnames(gene.me.normal) %in% overlap_patient, drop = FALSE]
 
-i.me.patient <- i.me[, which(i.patient == 1), drop = FALSE];
-i.me.patient.non <- i.me[, which(i.patient == 0), drop = FALSE];
+    # Order the data by promoter position
+    gene.promoters <- promoters.info[[gene]];
+    gene.promoters.order <- rownames(gene.promoters[order(gene.promoters$pos), ]);
 
+    list(
+        gene.me.patient = gene.me.patient[gene.promoters.order, ],
+        gene.me.patient.non = gene.me.patient.non[gene.promoters.order, ],
+        gene.me.patient_normal = gene.me.patient_normal[gene.promoters.order, ],
+        gene.me.patient.non_normal = gene.me.patient.non_normal[gene.promoters.order, ]
+        )
+    }
 
-overlap.patient <- colnames(brca.outlier.promoter.symbol.normal.match.filter.brca)[
-    substr(colnames(brca.outlier.promoter.symbol.normal.match.filter.brca), 1, 12) %in%
-        substr(names(i.patient)[i.patient == 1], 1, 12)
-    ];
+# Function to create a heatmap for a given methylation data set
+create_gene_heatmap <- function(methylation_data, clustering = 'none', cluster.dimension = NULL, show.color.key = FALSE) {
+    BoutrosLab.plotting.general:::create.heatmap(
+        x = methylation_data,
+        clustering.method = clustering,
+        cluster.dimensions = cluster.dimension,
+        plot.dendrograms = FALSE,
+        colour.scheme = c('#b2182b', 'white', '#2166ac'),
+        grid.row = FALSE,
+        grid.col = FALSE,
+        yaxis.tck = 0,
+        xaxis.tck = 0,
+        yaxis.cex = 0,
+        yaxis.rot = 0,
+        ylab.cex = 0,
+        at = seq(0, 1, 0.001),
+        colourkey.cex = 1.3,
+        print.colour.key = show.color.key
+        )
+    }
 
+# Process PXDNL data
+gene <- 'PXDNL'
+methylation_data <- process.methylation.data(
+    gene = gene,
+    outlier.data = brca.outlier.promoter.symbol.sample.match.brca,
+    normal.data = brca.outlier.promoter.symbol.normal.match.filter.brca,
+    fpkm.data = fpkm.tumor.symbol.filter.brca,
+    tag.data = outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca
+    )
 
-i.me.patient.normal <- i.me.normal[, overlap.patient, drop = FALSE];
-i.me.patient.non.normal <- i.me.normal[, !(colnames(i.me.normal) %in% overlap.patient), drop = FALSE];
+# Create heatmaps for different patient groups
+heatmap.outlier <- create_gene_heatmap(t(methylation_data$gene.me.patient));
+heatmap.outlier.normal <- create_gene_heatmap(t(methylation_data$gene.me.patient_normal));
 
-promoters.i <- promoters.info[[i]];
-
-
-
-promoters.i.order <- promoters.i[order(promoters.i$pos), ];
-
-fpkm.i <- fpkm.tumor.symbol.filter.brca[
-    fpkm.tumor.symbol.filter.brca$Symbol == i, ,
-    drop = FALSE
-    ];
-
-fpkm.i.order <- fpkm.i[
-    ,
-    colnames(outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca),
-    drop = FALSE
-    ];
-
-fpkm.i.order <- fpkm.i.order[
-    ,
-    order(as.numeric(fpkm.i.order[1, ]), decreasing = TRUE),
-    drop = FALSE
-    ];
-
-# Location
-promoters.i.order <- promoters.i[order(promoters.i$pos), ];
-
-# Heatmap
-i.me.beta.order <- i.me.patient[
-    rownames(promoters.i.order[order(promoters.i.order$pos), 1:7]), ,
-    drop = FALSE
-    ];
-
-i.me.beta.order.normal <- i.me.patient.normal[
-    rownames(promoters.i.order[order(promoters.i.order$pos), 1:7]), ,
-    drop = FALSE
-    ];
-
-i.me.beta.order.non.normal <- i.me.patient.non.normal[
-    rownames(promoters.i.order[order(promoters.i.order$pos), 1:7]),
-    ];
-
-
-i.me.patient.non.order <- i.me.patient.non[
-    rownames(promoters.i.order[order(promoters.i.order$pos), 1:7]),
-    ];
-
-col.key <- c('#b2182b', 'white', '#2166ac');
-
-i.heat.out <- BoutrosLab.plotting.general:::create.heatmap(
-    x = t(i.me.beta.order),
-    clustering.method = 'none',
-    colour.scheme = col.key,
-    grid.row = FALSE,
-    grid.col = FALSE,
-    yaxis.tck = 0,
-    xaxis.tck = 0,
-    yaxis.cex = 0,
-    yaxis.rot = 0,
-    ylab.cex = 0,
-    at = seq(0, 1, 0.001),
-    colourkey.cex = 1.3,
-    print.colour.key = FALSE
+heatmap.non.outlier <- create_gene_heatmap(
+    methylation_data$gene.me.patient.non,
+    clustering = 'ward.D2',
+    cluster.dimension = 'row',
+    show.color.key = TRUE
     );
-i.heat.out.normal <- BoutrosLab.plotting.general:::create.heatmap(
-    x = t(i.me.beta.order.normal),
-    clustering.method = 'none',
-    colour.scheme = col.key,
-    grid.row = FALSE,
-    grid.col = FALSE,
-    yaxis.tck = 0,
-    xaxis.tck = 0,
-    yaxis.cex = 0,
-    yaxis.rot = 0,
-    ylab.cex = 0,
-    at = seq(0, 1, 0.001),
-    colourkey.cex = 1.3,
-    print.colour.key = FALSE
+heatmap.non.outlier.normal <- create_gene_heatmap(
+    methylation_data$gene.me.patient.non_normal,
+    clustering = 'ward.D2',
+    cluster.dimension = 'row',
+    show.color.key = TRUE
     );
 
-
-# All non-outlier patients
-i.heat.out.non <- BoutrosLab.plotting.general:::create.heatmap(
-    x = i.me.patient.non.order,
-    clustering.method = 'ward.D2',
-    cluster.dimensions = 'row',
-    plot.dendrograms = FALSE,
-    colour.scheme = col.key,
-    grid.row = FALSE,
-    grid.col = FALSE,
-    yaxis.tck = 0,
-    xaxis.tck = 0,
-    yaxis.cex = 0,
-    yaxis.rot = 0,
-    ylab.cex = 0,
-    at = seq(0, 1, 0.001),
-    colourkey.cex = 1.3,
-    print.colour.key = TRUE
-    );
-i.heat.out.non.normal <- BoutrosLab.plotting.general:::create.heatmap(
-    x = i.me.beta.order.non.normal,
-    clustering.method = 'ward.D2',
-    cluster.dimensions = 'row',
-    plot.dendrograms = FALSE,
-    colour.scheme = col.key,
-    grid.row = FALSE,
-    grid.col = FALSE,
-    yaxis.tck = 0,
-    xaxis.tck = 0,
-    yaxis.cex = 0,
-    yaxis.rot = 0,
-    ylab.cex = 0,
-    at = seq(0, 1, 0.001),
-    colourkey.cex = 1.3,
-    print.colour.key = TRUE
-    );
-
-
-
-i.heat <- BoutrosLab.plotting.general:::create.multiplot(
-    plot.objects = list(i.heat.out.non.normal, i.heat.out.non, i.heat.out.normal, i.heat.out),
+# Combine heatmaps into a multiplot
+combined_heatmap <- BoutrosLab.plotting.general:::create.multiplot(
+    plot.objects = list(heatmap.non.outlier.normal, heatmap.non.outlier, heatmap.outlier.normal, heatmap.outlier),
     x.relation = 'sliced',
     y.relation = 'sliced',
-    main = i,
+    main = gene,
     xlab.label = expression('Beta value'),
     ylab.label = c(expression('Outlier patient'), '', '', '', expression('Non-outlier patients'), '', '', '', ''),
     yaxis.fontface = 1,
@@ -194,7 +118,6 @@ i.heat <- BoutrosLab.plotting.general:::create.multiplot(
     y.spacing = -0.7,
     main.cex = 1.6,
     xaxis.cex = 0,
-    xaxis.lab = NULL,
     xlab.padding = -10,
     xlab.to.xaxis.padding = -1,
     bottom.padding = 3,
@@ -207,13 +130,15 @@ i.heat <- BoutrosLab.plotting.general:::create.multiplot(
     xaxis.tck = 0,
     xlab.key.padding = 4,
     resolution = 500
-    );
+    )
 
+# Save the heatmap plot
 save.outlier.figure(
-    i.heat,
-    c('Figure2l', i, 'heatmap', 'me'),
+    combined_heatmap,
+    c('Figure2l', gene, 'heatmap', 'me'),
     width = 7.5,
     height = 8.5
-    );
+    )
 
-save.session.profile(file.path('output', 'Figure2l.txt'));
+# Save session profile
+save.session.profile(file.path('output', 'Figure2l.txt'))

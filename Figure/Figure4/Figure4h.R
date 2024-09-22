@@ -1,24 +1,21 @@
-### HISTORY #####################################################################  
-# This script analyzes RNAi gene dependency scores for outlier genes identified  
-# in CCLE.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script analyzes RNAi gene dependency scores for outlier genes identified
+# in CCLE.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# The script processes RNAi gene dependency scores for outliers from CCLE data.  
-# It filters out genes with a difference in RNAi score < -0.4, orders them based  
-# on the score, and prepares the data for plotting. The resulting plot shows gene  
-# effect scores for outliers, with highlighted genes that meet specific criteria.  
+### DESCRIPTION #################################################################
+# The script processes RNAi gene dependency scores for outliers from CCLE data.
+# It filters out genes with a difference in RNAi score < -0.4, orders them based
+# on the score, and prepares the data for plotting. The resulting plot shows gene
+# effect scores for outliers, with highlighted genes that meet specific criteria.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.utilities);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 

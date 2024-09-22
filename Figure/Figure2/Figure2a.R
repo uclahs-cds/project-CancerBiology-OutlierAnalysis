@@ -3,9 +3,9 @@
 # Date: 2024-08-23
 
 ### DESCRIPTION ##################################################################
-# This script conducts Copy Number Aberration (CNA) analysis across three breast 
-# cancer datasets: METABRIC, TCGA-BRCA, and ICGC BRCA-EU. It processes CNA data 
-# for outlier and non-outlier samples, performs meta-analysis, and creates 
+# This script conducts Copy Number Aberration (CNA) analysis across three breast
+# cancer datasets: METABRIC, TCGA-BRCA, and ICGC BRCA-EU. It processes CNA data
+# for outlier and non-outlier samples, performs meta-analysis, and creates
 # visualizations to represent the results.
 
 ### PREAMBLE #####################################################################
@@ -14,11 +14,8 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 

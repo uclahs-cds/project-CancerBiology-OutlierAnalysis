@@ -16,195 +16,100 @@ library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure2ef_drivergene.rda'));
 
 
 
-# PIK3CA density plot
-#   1. LumA - mutated
-#   2. LumA - non-mutated
-#   3. LumB - mutated
-#   4. LumB - non-mutated
+# Helper function to subset and organize data by subtype
+process.subtype.data <- function(subtype.id) {
+    subtype.data <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == subtype.id, ];
+    outlier.patients <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.data))]
+    mutation.data <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.data))]
 
-# Luma subtype patient
-subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
-outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
-meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.luma))];
+    outlier.brca <- outlier.patients[substr(names(outlier.patients), 1, 4) == 'TCGA']
+    outlier.meta <- outlier.patients[substr(names(outlier.patients), 1, 2) == 'MB']
+    outlier.icgc <- outlier.patients[substr(names(outlier.patients), 1, 2) == 'PR']
 
-outlier.patient.tag.01.t.p.order.sum.luma.brca <-
-    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 4) == 'TCGA'];
-outlier.patient.tag.01.t.p.order.sum.luma.meta <-
-    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'MB'];
-outlier.patient.tag.01.t.p.order.sum.luma.icgc <-
-    outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 2) == 'PR'];
+    mutation.brca <- mutation.data[, substr(colnames(mutation.data), 1, 4) == 'TCGA']
+    mutation.meta <- mutation.data[, substr(colnames(mutation.data), 1, 2) == 'MB']
+    mutation.icgc <- mutation.data[, substr(colnames(mutation.data), 1, 2) == 'PR']
 
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca <-
-    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 4) == 'TCGA'];
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta <-
-    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'MB'];
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <-
-    meta.mutation.driver.list.gene.vector.data.convert.na.luma[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma), 1, 2) == 'PR'];
+    list(
+        outlier.patients.all = c(outlier.meta, outlier.brca, outlier.icgc),
+        mutation.data_all = data.frame(mutation.meta, mutation.brca, mutation.icgc)
+        )
+    }
 
-# Lumb subtype patient
-subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 4, ];
-outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.lumb))];
+# Process data for Luminal A (luma) and Luminal B (lumb)
+luma.data <- process.subtype.data(3)
+lumb.data <- process.subtype.data(4)
 
-outlier.patient.tag.01.t.p.order.sum.lumb.brca <-
-    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];
-outlier.patient.tag.01.t.p.order.sum.lumb.meta <-
-    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'MB'];
-outlier.patient.tag.01.t.p.order.sum.lumb.icgc <-
-    outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 2) == 'PR'];
+# Define mutated and non-mutated PIK3CA cases
+gene.alias <- 'PIK3CA'
+luma.mut <- luma.data$outlier.patients.all[luma.data$mutation.data_all[gene.alias, ] == 'mutation']
+luma.non <- luma.data$outlier.patients.all[luma.data$mutation.data_all[gene.alias, ] == 'normal']
+lumb.mut <- lumb.data$outlier.patients.all[lumb.data$mutation.data_all[gene.alias, ] == 'mutation']
+lumb.non <- lumb.data$outlier.patients.all[lumb.data$mutation.data_all[gene.alias, ] == 'normal']
 
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca <-
-    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 4) == 'TCGA'];
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta <-
-    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'MB'];
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc <-
-    meta.mutation.driver.list.gene.vector.data.convert.na.lumb[, substr(colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb), 1, 2) == 'PR'];
+# Perform statistical tests
+wilcox.test(luma.mut, luma.non, alternative = 'two.sided', conf.int = TRUE)
+wilcox.test(lumb.mut, lumb.non, alternative = 'two.sided', conf.int = TRUE)
 
+# Create density plots
+create.density.data <- function(values, bw.value) {
+    density.data <- density(na.omit(values), bw = bw.value, from = 0, to = max(as.numeric(values)))
+    return(as.data.frame(density.data[c('x', 'y')]))
+    }
 
-meta.mutation.driver.list.gene.vector.data.convert.na.luma.all <- data.frame(
-    meta.mutation.driver.list.gene.vector.data.convert.na.luma.meta,
-    meta.mutation.driver.list.gene.vector.data.convert.na.luma.brca,
-    meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc
-    );
+bw.value <- 0.6
+dens.luma.mut.df <- create.density.data(luma.mut, bw.value)
+dens.luma.non.df <- create.density.data(luma.non, bw.value)
+dens.lumb.mut.df <- create.density.data(lumb.mut, bw.value)
+dens.lumb.non.df <- create.density.data(lumb.non, bw.value)
 
-outlier.patient.tag.01.t.p.order.sum.luma.all <- c(
-    outlier.patient.tag.01.t.p.order.sum.luma.meta,
-    outlier.patient.tag.01.t.p.order.sum.luma.brca,
-    outlier.patient.tag.01.t.p.order.sum.luma.icgc
-    );
+# Combine density data
+combine.density <- rbind(
+    dens.luma.mut.df, dens.luma.non.df, dens.lumb.mut.df, dens.lumb.non.df
+    )
 
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all <- data.frame(
-    meta.mutation.driver.list.gene.vector.data.convert.na.lumb.meta,
-    meta.mutation.driver.list.gene.vector.data.convert.na.lumb.brca,
-    meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc
-    );
-
-outlier.patient.tag.01.t.p.order.sum.lumb.all <- c(
-    outlier.patient.tag.01.t.p.order.sum.lumb.meta,
-    outlier.patient.tag.01.t.p.order.sum.lumb.brca,
-    outlier.patient.tag.01.t.p.order.sum.lumb.icgc
-    );
-
-i <- 'PIK3CA';
-
-# Create scatter plot
-i.luma.mut <- outlier.patient.tag.01.t.p.order.sum.luma.all[meta.mutation.driver.list.gene.vector.data.convert.na.luma.all[i, ] == 'mutation'];
-i.luma.non <- outlier.patient.tag.01.t.p.order.sum.luma.all[meta.mutation.driver.list.gene.vector.data.convert.na.luma.all[i, ] == 'normal'];
-i.lumb.mut <- outlier.patient.tag.01.t.p.order.sum.lumb.all[meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all[i, ] == 'mutation'];
-i.lumb.non <- outlier.patient.tag.01.t.p.order.sum.lumb.all[meta.mutation.driver.list.gene.vector.data.convert.na.lumb.all[i, ] == 'normal'];
-
-wilcox.test(i.luma.mut, i.luma.non, alternative = 'two.sided', conf.int = TRUE);
-wilcox.test(i.lumb.mut, i.lumb.non, alternative = 'two.sided', conf.int = TRUE);
-
-bw.value <- 0.6;
-
-dens.luma.mut <- density(
-    na.omit(i.luma.mut),
-    bw = bw.value,
-    from = 0,
-    to = max(as.numeric(i.luma.mut))
-    );
-
-dens.luma.mut.df <- as.data.frame(
-    dens.luma.mut[c('x', 'y')]
-    );
-
-
-
-dens.luma.non <- density(
-    na.omit(i.luma.non),
-    bw = bw.value,
-    from = 0,
-    to = max(as.numeric(i.luma.non))
-    );
-
-dens.luma.non.df <- as.data.frame(
-    dens.luma.non[c('x', 'y')]
-    );
-
-
-
-dens.lumb.mut <- density(
-    na.omit(i.lumb.mut),
-    bw = bw.value,
-    from = 0,
-    to = max(as.numeric(i.lumb.mut))
-    );
-
-dens.lumb.mut.df <- as.data.frame(
-    dens.lumb.mut[c('x', 'y')]
-    );
-
-
-
-dens.lumb.non <- density(
-    na.omit(i.lumb.non),
-    bw = bw.value,
-    from = 0,
-    to = max(as.numeric(i.lumb.non))
-    );
-
-dens.lumb.non.df <- as.data.frame(
-    dens.lumb.non[c('x', 'y')]
-    );
-
-
-
-combine.density.scatter.old <- rbind(
-    dens.luma.mut.df,
-    dens.luma.non.df,
-    dens.lumb.mut.df,
-    dens.lumb.non.df
-    );
-
-combine.density.scatter.group.old <- cbind(
-    combine.density.scatter.old,
+combine.density.group <- cbind(
+    combine.density,
     group = c(
         rep('a', nrow(dens.luma.mut.df)),
         rep('b', nrow(dens.luma.non.df)),
         rep('c', nrow(dens.lumb.mut.df)),
         rep('d', nrow(dens.lumb.non.df))
         )
-    );
+    )
 
-
+# Create scatter plot
 mutation.density <- BoutrosLab.plotting.general::create.scatterplot(
     y ~ log2(x + 1),
-    data = combine.density.scatter.group.old,
+    data = combine.density.group,
     type = 'l',
     xlimits = c(-0.05, 6.4),
-    groups = combine.density.scatter.group.old$group,
+    groups = combine.density.group$group,
     ylab.label = expression('Density'),
     xlab.label = expression('Number of outlier genes per patient'),
     ylimits = c(-0.002, 0.45),
     yat = seq(0, 3, 0.2),
-    yaxis.tck = c(0.2, 0),
-    xaxis.tck = c(0.2, 0),
     xat = seq(0, 10, 2),
     xaxis.lab = expression(2^0, 2^2, 2^4, 2^6),
+    yaxis.tck = c(0.2, 0),
+    xaxis.tck = c(0.2, 0),
     xaxis.cex = 1,
     yaxis.cex = 1,
-    xaxis.fontface = 1,
-    yaxis.fontface = 1,
     cex = 1,
     xlab.cex = 1.3,
     ylab.cex = 1.3,
     main.cex = 1.4,
-    width = 10,
-    height = 10,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
     lwd = 3,
     lty = c('dashed', 'solid', 'dashed', 'solid'),
-    bandwidth.adjust = 0.1,
     col = c('red3', 'red3', 'dodgerblue2', 'dodgerblue2'),
     legend = list(
         inside = list(
@@ -235,14 +140,14 @@ mutation.density <- BoutrosLab.plotting.general::create.scatterplot(
             )
         ),
     main = expression('Number of outlier genes per patient')
-    );
+    )
 
-
+# Save plot and session profile
 save.outlier.figure(
     mutation.density,
     c('Figure2f', 'PIK3CA', 'mutation', 'luma', 'lumb', 'scatter', 'density'),
     width = 6,
     height = 5.5
-    );
+    )
 
-save.session.profile(file.path('output', 'Figure2f.txt'));
+save.session.profile(file.path('output', 'Figure2f.txt'))
