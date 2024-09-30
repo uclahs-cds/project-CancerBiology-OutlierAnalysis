@@ -23,6 +23,25 @@ source(file.path(
 load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 
 ### 1. METABRIC
+meta.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.patient.tag.01.meta),"Symbol"];
+meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis[na.omit(match(meta.outlier.symbol, meta.cnv.chr.new.gis$Hugo_Symbol)),];
+rownames(meta.cnv.chr.new.gis.match) <- meta.cnv.chr.new.gis.match$Hugo_Symbol;
+meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis.match[,3:ncol(meta.cnv.chr.new.gis.match)];
+meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis.match[, colnames(meta.cnv.chr.new.gis.match) %in% colnames(outlier.patient.tag.01.meta)];
+meta.outlier.symbol.match <- rownames(outlier.patient.tag.01.meta)[match(rownames(meta.cnv.chr.new.gis.match), meta.outlier.symbol)]
+outlier.patient.tag.01.meta.new.gis.match <- outlier.patient.tag.01.meta[outlier.symbol.match, match(colnames(meta.cnv.chr.new.gis.match), colnames(outlier.patient.tag.01.meta))];
+
+meta.outlier.sample.cnv.new.gis <- list();
+meta.non.outlier.sample.cnv.new.gis <- list();
+for (i in 1:nrow(meta.cnv.chr.new.gis.match)) {
+    out.patient <- colnames(outlier.patient.tag.01.meta.new.gis.match)[outlier.patient.tag.01.meta.new.gis.match[i,] == 1];
+    non.out.patient <- colnames(meta.cnv.chr.new.gis.match)[!(colnames(meta.cnv.chr.new.gis.match) %in% out.patient)];
+    outlier.sample.cnv.new.gis[[i]] <- meta.cnv.chr.new.gis.match[i, out.patient];
+    non.outlier.sample.cnv.new.gis[[i]] <- meta.cnv.chr.new.gis.match[i, non.out.patient];
+    }
+
+namesmeta.(meta.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match);
+names(meta.non.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match);
 # Convert lists to numeric vectors and calculate medians for meta data
 meta.outlier.cnv <- as.numeric(
     unlist(meta.outlier.sample.cnv.new.gis)
@@ -60,6 +79,25 @@ meta.gis.table.num$se <- sqrt(meta.gis.table.num$Freq * (1 - meta.gis.table.num$
 
 
 ### 2. TCGA-BRCA
+brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis[na.omit(match(brca.outlier.symbol, brca.cnv.chr.new.gis$Hugo_Symbol)),];
+rownames(brca.cnv.chr.new.gis.match) <- brca.cnv.chr.new.gis.match$Hugo_Symbol;
+brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis.match[,3:ncol(brca.cnv.chr.new.gis.match)];
+brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis.match[, colnames(brca.cnv.chr.new.gis.match) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)];
+brca.outlier.symbol.match <- rownames(outlier.patient.tag.01.brca)[match(rownames(brca.cnv.chr.new.gis.match), brca.outlier.symbol)]
+outlier.patient.tag.01.brca.new.gis.match <- outlier.patient.tag.01.brca[brca.outlier.symbol.match, match(colnames(brca.cnv.chr.new.gis.match), substr(colnames(outlier.patient.tag.01.brca), 1, 15))];
+
+brca.outlier.sample.cnv.new.gis <- list();
+brca.non.outlier.sample.cnv.new.gis <- list();
+for (i in 1:nrow(brca.cnv.chr.new.gis.match)) {
+    out.patient <- substr(colnames(outlier.patient.tag.01.brca.new.gis.match)[outlier.patient.tag.01.brca.new.gis.match[i,] == 1], 1, 15);
+    non.out.patient <- colnames(brca.cnv.chr.new.gis.match)[!(colnames(brca.cnv.chr.new.gis.match) %in% out.patient)];
+    outlier.sample.cnv.new.gis[[i]] <- brca.cnv.chr.new.gis.match[i, out.patient];
+    non.outlier.sample.cnv.new.gis[[i]] <- brca.cnv.chr.new.gis.match[i, non.out.patient];
+    }
+
+names(brca.outlier.sample.cnv.new.gis) <- rownames(brca.brca.cnv.chr.new.gis.match);
+names(brca.non.outlier.sample.cnv.new.gis) <- rownames(brca.brca.cnv.chr.new.gis.match);
+
 brca.outlier.cnv <- as.numeric(
     unlist(brca.outlier.sample.cnv.new.gis)
     );
@@ -92,6 +130,75 @@ brca.gis.table.num$se <- sqrt(brca.gis.table.num$Freq * (1 - brca.gis.table.num$
 
 
 ### 3. ICGC BRCA-EU
+# classify copy number using cut-off
+icgc.cnv.chr.new.gis.raw.patient.only <- icgc.cnv.chr.new.gis.raw[,4:ncol(icgc.cnv.chr.new.gis.raw)];
+icgc.cnv.chr.new.gis.new <- NULL;
+for (i in 1:ncol(icgc.cnv.chr.new.gis.raw.patient.only)) {
+    cnv.class <- as.numeric(icgc.cnv.chr.new.gis.raw.patient.only[,i]);
+    low.cut <- as.numeric(icgc.cnv.chr.new.gis.cutoff[i,]$Low);
+    high.cut <- as.numeric(icgc.cnv.chr.new.gis.cutoff[i,]$High);
+    
+    condition1 <- cnv.class >= -0.15 & cnv.class <= 0.15
+    condition2 <- cnv.class < -0.15 & cnv.class >= low.cut
+    condition3 <- cnv.class < low.cut
+    condition4 <- cnv.class > 0.15 & cnv.class <= high.cut
+    condition5 <- cnv.class > high.cut
+    
+    cnv.class[condition1] <- 0
+    cnv.class[condition2] <- -1
+    cnv.class[condition3] <- -2
+    cnv.class[condition4] <- 1
+    cnv.class[condition5] <- 2
+    
+    icgc.cnv.chr.new.gis.new <- cbind(icgc.cnv.chr.new.gis.new, cnv.class);
+    }
+
+icgc.cnv.chr.new.gis.new <- data.frame(icgc.cnv.chr.new.gis.new);
+colnames(icgc.cnv.chr.new.gis.new) <- colnames(icgc.cnv.chr.new.gis.raw.patient.only);
+icgc.cnv.chr.new.gis <- icgc.cnv.chr.new.gis.new;
+icgc.outlier.symbol <- fpkm.data.icgc$Name[as.numeric(rownames(outlier.patient.tag.01.icgc))];
+
+icgc.cnv.chr.new.gis.match <- icgc.cnv.chr.new.gis[na.omit(match(icgc.outlier.symbol, sub("\\|.*", "", icgc.cnv.chr.new.gis.raw$Gene.Symbol))),];
+rownames(icgc.cnv.chr.new.gis.match) <- sub("\\|.*", "", icgc.cnv.chr.new.gis.raw$Gene.Symbol)[na.omit(match(icgc.outlier.symbol, sub("\\|.*", "", icgc.cnv.chr.new.gis.raw$Gene.Symbol)))];
+
+col_names <- colnames(icgc.cnv.chr.new.gis.match)
+col_names <- gsub("^PD", "", col_names)
+col_names <- gsub("_2$", "", col_names)
+col_names <- gsub("a2?$", "", col_names)
+col_names <- gsub("b2?$", "", col_names)
+col_names <- gsub("c2?$", "", col_names)
+col_names.1 <- colnames(icgc.outlier.patient.tag.01)
+col_names.1 <- gsub("^PR", "", col_names.1)
+col_names.1 <- gsub(".RNA$", "", col_names.1)
+col_names.1 <- gsub(".2$", "", col_names.1)
+col_names.1 <- gsub("a2?$", "", col_names.1)
+col_names.1 <- gsub("b2?$", "", col_names.1)
+col_names.1 <- gsub("c2?$", "", col_names.1)
+col_names.1[col_names.1 %in% "7201a3"] <- "7201";
+icgc.cnv.chr.new.gis.match <- icgc.cnv.chr.new.gis.match[, col_names %in% col_names.1];
+
+col_names.2 <- colnames(icgc.cnv.chr.new.gis.match)
+col_names.2 <- gsub("^PD", "", col_names.2)
+col_names.2 <- gsub("_2$", "", col_names.2)
+col_names.2 <- gsub("a2?$", "", col_names.2)
+col_names.2 <- gsub("b2?$", "", col_names.2)
+col_names.2 <- gsub("c2?$", "", col_names.2)
+icgc.outlier.symbol.match <- rownames(outlier.patient.tag.01.icgc)[match(rownames(icgc.cnv.chr.new.gis.match), icgc.outlier.symbol)]
+
+outlier.patient.tag.01.icgc.new.gis.match <- outlier.patient.tag.01.icgc[outlier.symbol.match, match(col_names.2, col_names.1)];
+colnames(icgc.cnv.chr.new.gis.match) <- colnames(outlier.patient.tag.01.icgc.new.gis.match);
+
+icgc.outlier.sample.cnv.new.gis <- list();
+icgc.non.outlier.sample.cnv.new.gis <- list();
+for (i in 1:nrow(icgc.cnv.chr.new.gis.match)) {
+    out.patient <- substr(colnames(outlier.patient.tag.01.icgc.new.gis.match)[outlier.patient.tag.01.icgc.new.gis.match[i,] == 1], 1, 15);
+    non.out.patient <- colnames(icgc.cnv.chr.new.gis.match)[!(colnames(icgc.cnv.chr.new.gis.match) %in% out.patient)];
+    outlier.sample.cnv.new.gis[[i]] <- icgc.cnv.chr.new.gis.match[i, out.patient];
+    non.outlier.sample.cnv.new.gis[[i]] <- icgc.cnv.chr.new.gis.match[i, non.out.patient];
+    }
+names(icgc.outlier.sample.cnv.new.gis) <- rownames(icgc.cnv.chr.new.gis.match);
+names(icgc.non.outlier.sample.cnv.new.gis) <- rownames(icgc.cnv.chr.new.gis.match);
+
 icgc.outlier.cnv <- as.numeric(
     unlist(icgc.outlier.sample.cnv.new.gis)
     );

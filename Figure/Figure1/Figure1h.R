@@ -57,11 +57,11 @@ combined.df <- icgc.all.fdr %>%
     full_join(metador.all.fdr %>% rename(fdr.metador = fdr.metador), by = 'Symbol') %>%
     full_join(brca.all.fdr %>% rename(fdr.brca = fdr.brca), by = 'Symbol');
 
-icgc.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.icgc.esembl.all.symbol[, c('obs.p.value', 'Symbol')];
-ispy.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.ispy.esembl.all.symbol[, c('new.p.value', 'Symbol')];
-meta.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.order.meta.symbol[, c('new.p.value', 'Symbol')];
-metador.all.pvalue <- gene.rank.order.cosine.observed.p.value.fdr.order.metador.symbol[, c('new.p.value', 'Symbol')];
-brca.all.pvalue <- gene.rank.order.cosine.observed.p.value.1.brca.symbol[, c('new.p.value', 'Symbol')];
+icgc.all.pvalue <- outlier.gene.fdr.all.icgc[, c('obs.p.value', 'Symbol')];
+ispy.all.pvalue <- outlier.gene.fdr.all.ispy[, c('new.p.value', 'Symbol')];
+meta.all.pvalue <- outlier.gene.fdr.all.meta[, c('new.p.value', 'Symbol')];
+metador.all.pvalue <- outlier.gene.fdr.all.matador[, c('new.p.value', 'Symbol')];
+brca.all.pvalue <- outlier.gene.fdr.all.brca[, c('new.p.value', 'Symbol')];
 
 
 colnames(icgc.all.pvalue) <- c('pvalue.icgc', 'Symbol');

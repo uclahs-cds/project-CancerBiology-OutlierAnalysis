@@ -23,7 +23,6 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
 ### PREAMBLE ####################################################################
 
 five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
-# Remove NA values from 'five.data.outlier.symbol'
 
 ### 1. MATADOR
 # Find the position of "_" in Metador data row names
