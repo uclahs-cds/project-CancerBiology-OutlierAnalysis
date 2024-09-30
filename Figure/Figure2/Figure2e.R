@@ -14,11 +14,8 @@ library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure2ef_drivergene.rda'));
 

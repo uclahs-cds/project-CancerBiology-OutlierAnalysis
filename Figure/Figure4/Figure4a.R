@@ -5,10 +5,10 @@
 # Date: 2024-08-16
 
 ### DESCRIPTION #################################################################
-# This script processes and visualizes the expression of outliers identified in 
-# the Cancer Cell Line Encyclopedia (CCLE) dataset. It compares these outliers 
-# across multiple breast cancer datasets including TCGA-BRCA, METABRIC, I-SPY2, 
-# MATADOR, and ICGC BRCA-EU. The script generates a heatmap to visualize the 
+# This script processes and visualizes the expression of outliers identified in
+# the Cancer Cell Line Encyclopedia (CCLE) dataset. It compares these outliers
+# across multiple breast cancer datasets including TCGA-BRCA, METABRIC, I-SPY2,
+# MATADOR, and ICGC BRCA-EU. The script generates a heatmap to visualize the
 # outlier status and expression levels across different datasets.
 
 ### PREAMBLE ####################################################################
@@ -16,11 +16,8 @@ library(BoutrosLab.utilities);
 library(RColorBrewer);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 

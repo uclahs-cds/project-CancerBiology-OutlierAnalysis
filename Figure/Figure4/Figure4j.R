@@ -1,24 +1,21 @@
-### HISTORY #####################################################################  
-# This script compares gene effect scores of outlier genes from both RNAi and  
-# Cas-CRISPR datasets, focusing on four specific genes: MECOM, FGFR2, FOXP4, WIPF2.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script compares gene effect scores of outlier genes from both RNAi and
+# Cas-CRISPR datasets, focusing on four specific genes: MECOM, FGFR2, FOXP4, WIPF2.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# This script processes RNAi and Cas-CRISPR gene dependency data, specifically for four  
-# key outlier genes (MECOM, FGFR2, FOXP4, WIPF2). It calculates the gene effect scores  
-# for outliers and visualizes the comparison between the RNAi and Cas-CRISPR datasets  
-# using a box plot, where RNAi and Cas-CRISPR scores are grouped for each gene.  
+### DESCRIPTION #################################################################
+# This script processes RNAi and Cas-CRISPR gene dependency data, specifically for four
+# key outlier genes (MECOM, FGFR2, FOXP4, WIPF2). It calculates the gene effect scores
+# for outliers and visualizes the comparison between the RNAi and Cas-CRISPR datasets
+# using a box plot, where RNAi and Cas-CRISPR scores are grouped for each gene.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.utilities);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 

@@ -1,29 +1,26 @@
-### HISTORY #####################################################################  
-# This script processes and analyzes drug response data from Sanger.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script processes and analyzes drug response data from Sanger.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# This script processes drug response data from the Sanger dataset. It matches  
-# drug data with CCLE sample outlier status, calculates IC50 and Z-scores, and  
-# compares drug responses between outliers and non-outliers. The analysis focuses  
-# on breast cancer-related data, and the script generates summary statistics and  
-# a boxplot of Z-scores, with statistical tests performed to assess differences  
-# between outlier and non-outlier samples.  
+### DESCRIPTION #################################################################
+# This script processes drug response data from the Sanger dataset. It matches
+# drug data with CCLE sample outlier status, calculates IC50 and Z-scores, and
+# compares drug responses between outliers and non-outliers. The analysis focuses
+# on breast cancer-related data, and the script generates summary statistics and
+# a boxplot of Z-scores, with statistical tests performed to assess differences
+# between outlier and non-outlier samples.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.utilities);  
-library(BoutrosLab.plotting.general);  
-library(tidyr);  
-library(reshape2);  
-library(dplyr);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.utilities);
+library(BoutrosLab.plotting.general);
+library(tidyr);
+library(reshape2);
+library(dplyr);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 

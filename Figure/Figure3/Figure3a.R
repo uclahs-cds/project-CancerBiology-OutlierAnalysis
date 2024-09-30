@@ -4,9 +4,9 @@
 # Date: 2024-08-14
 
 ### DESCRIPTION ##################################################################
-# This script processes and analyzes protein abundance data for outlier and 
-# non-outlier genes in breast cancer samples from the TCGA-BRCA dataset, using 
-# CPTAC (Clinical Proteomic Tumor Analysis Consortium) data. It performs the 
+# This script processes and analyzes protein abundance data for outlier and
+# non-outlier genes in breast cancer samples from the TCGA-BRCA dataset, using
+# CPTAC (Clinical Proteomic Tumor Analysis Consortium) data. It performs the
 # following main tasks:
 # 1. Identifies outlier genes with available protein data
 # 2. Compares protein abundance between outlier and non-outlier patients
@@ -19,11 +19,8 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 

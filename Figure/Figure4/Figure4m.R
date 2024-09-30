@@ -1,24 +1,21 @@
-### HISTORY #####################################################################  
-# This script generates a boxplot for the gene SYK, comparing z-scores of drug  
-# response in outlier vs non-outlier samples.  
-# Date: 2024-08-16  
+### HISTORY #####################################################################
+# This script generates a boxplot for the gene SYK, comparing z-scores of drug
+# response in outlier vs non-outlier samples.
+# Date: 2024-08-16
 
-### DESCRIPTION #################################################################  
-# This script processes drug response data for the SYK gene, focusing on comparing  
-# the z-scores of drug response between outlier and non-outlier samples. It extracts  
-# IC50 z-scores for the drug targets associated with SYK, and generates a boxplot  
-# to visualize the differences in z-scores.  
+### DESCRIPTION #################################################################
+# This script processes drug response data for the SYK gene, focusing on comparing
+# the z-scores of drug response between outlier and non-outlier samples. It extracts
+# IC50 z-scores for the drug targets associated with SYK, and generates a boxplot
+# to visualize the differences in z-scores.
 
-### PREAMBLE ####################################################################  
-# Load necessary libraries  
-library(BoutrosLab.utilities);  
+### PREAMBLE ####################################################################
+# Load necessary libraries
+library(BoutrosLab.utilities);
 
 # Source the helper library
-args <- commandArgs();
-source(file.path(
-    dirname(dirname(normalizePath(sub('^--file=', '', args[grep('^--file=', args)])))),
-    'common_functions.R'
-    ));
+source(here::here('common_functions.R'));
+
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
