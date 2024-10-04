@@ -36,8 +36,10 @@ metabric.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier
 brca.outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01.brca),]$Symbol;
 pos <- which(strsplit(rownames(outlier.gene.fdr.01.matador),"")[[1]]=="_");
 matador.outlier.symbol <- substring(rownames(outlier.gene.fdr.01.matador), pos+1);
-ispy.outlier.symbol <- rownames(outlier.gene.fdr.01.icgc);
-icgc.outlier.symbol <- rownames(outlier.gene.fdr.01.icgc);
+ispy.outlier.symbol <- rownames(outlier.gene.fdr.01.ispy);
+icgc.outlier.symbol <- fpkm.tumor.symbol.filter.symbol.icgc[
+    rownames(outlier.patient.tag.01.icgc),
+    ]$Symbol;
 
 five.data.outlier.symbol <- unique(c(
     metabric.outlier.symbol, 
@@ -123,7 +125,7 @@ outlier.patient.all.five.01.sum <- apply(
     );
 
 # Calculate the fraction of the sum relative to the total number of columns
-outlier.patient.all.five.01.sum.fraction <- as.numeric(outlier.patient.all.five.01.sum) / ncol(outlier.patient.all.five.01) * 100;
+outlier.patient.all.five.01.sum.fraction <- (as.numeric(outlier.patient.all.five.01.sum) / ncol(outlier.patient.all.five.01)) * 100;
 
 # Calculate the number of patients required to observe outlier gene
 outlier.patient.all.five.01.sum.fraction.number.patient <- 100 / outlier.patient.all.five.01.sum.fraction;

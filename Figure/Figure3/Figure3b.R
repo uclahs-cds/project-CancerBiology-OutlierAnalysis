@@ -24,29 +24,11 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 
-# Haven't uploaded yet. These are included as variables.
-# # Load TCGA-BRCA RPPA data
-# brca.protein <- read.delim2(
-#     "/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Protein_Expression_Quantification.tsv",
-#     row.names = 1,
-#     header = TRUE
-#     );
-#
-# # Load RPPA antibody list
-# protein.antibody <- read.delim2(
-#     "/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/TCGA_antibodies_descriptions.gencode.v36.tsv",
-#     row.names = 1,
-#     header = TRUE
-#     );
-
-# Outlier symbol
-outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
-
 # Protein gene list from antibody data
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, '/'));
 
 # Outlier genes with protein data
-outlier.protein.gene <- outlier.symbol[outlier.symbol %in% protein.gene];
+outlier.protein.gene <- brca.outlier.symbol[brca.outlier.symbol %in% protein.gene];
 
 protein.antibody.outlier <- NULL;
 

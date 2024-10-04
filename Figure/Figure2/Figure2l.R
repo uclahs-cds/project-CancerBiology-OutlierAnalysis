@@ -82,7 +82,7 @@ methylation_data <- process.methylation.data(
     outlier.data = brca.outlier.promoter.symbol.sample.match.brca,
     normal.data = brca.outlier.promoter.symbol.normal.match.filter.brca,
     fpkm.data = fpkm.tumor.symbol.filter.brca,
-    tag.data = outlier.patient.tag.01.t.p.order.me.sample.match.gene.sum.filter.brca
+    tag.data = outlier.patient.tag.01.brca.me.match
     )
 
 # Create heatmaps for different patient groups

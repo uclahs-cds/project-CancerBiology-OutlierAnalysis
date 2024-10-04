@@ -130,7 +130,7 @@ do.plot.3d('IGF1R');
 do.plot.3d('CLU');
 
 ### 2. RPPA example
-outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
+outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca), 'Symbol'];
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, '/'));
 
 # Outlier genes with protein data

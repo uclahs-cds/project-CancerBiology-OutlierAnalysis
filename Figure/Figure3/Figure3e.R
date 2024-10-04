@@ -61,12 +61,12 @@ perform.fisher.test.brca <- function(data, subtype = NULL) {
     }
 
 
-brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
+outlier.patient.tag.01.brca.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 
 os.data.stage.pseudo.brca <- data.frame(
     status = substr(brca.clinic.order$Overall.Survival.Status, 1, 1),
     os = brca.clinic.order$Overall.Survival..Months.,
-    patient = brca.outlier.patient.tag.01.t.p.order.sum,
+    patient = outlier.patient.tag.01.brca.sum,
     pam50 = brca.clinic.order$Subtype,
     age = brca.clinic.order$Diagnosis.Age,
     stage = brca.clinic.order$Neoplasm.Disease.Stage.American.Joint.Committee.on.Cancer.Code
@@ -123,14 +123,6 @@ p.value.stage.pseudo.normal.ci.sub.t1.brca <- normal.results$ci.intervals;
 ### 2. METABRIC
 outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum)
 
-# meta.clinic.5 <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/patient_combine.txt', row.names = 1, header = T);
-# meta.clinic.5.order <- meta.clinic.5[names(outlier.patient.tag.01.meta.sum),];
-#
-# # get subtype info from other clinical dataset
-# meta.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/data_clinical_patient.txt', row.names = 1, header = T);
-# meta.clinic <- meta.clinic[5:nrow(meta.clinic),];
-# rownames(meta.clinic) <- gsub("-", ".", rownames(meta.clinic));
-# meta.clinic.order <- meta.clinic[names(outlier.patient.tag.01.meta.sum),];
 
 perform.fisher.test.meta <- function(data, subtype = NULL) {
     if (!is.null(subtype)) {
@@ -167,7 +159,7 @@ os.data.stage.pseudo.meta <- data.frame(
     patient = outlier.patient.tag.01.meta.sum,
     pam50 = meta.clinic.5.order.combine$pam50,
     age = meta.clinic.5.order.combine$Age.at.Diagnosis,
-    stage = meta.clinic.5.order$stage
+    stage = meta.clinic.5.order.combine$stage
     );
 
 os.data.stage.pseudo.meta[, 1] <- as.numeric(os.data.stage.pseudo.meta[, 1]);
@@ -214,18 +206,14 @@ p.value.stage.pseudo.normal.ci.sub.t1.meta <- normal.meta.results$ci.intervals;
 
 
 # ### 3. ICGC BRCA-EU
-# icgc.clinic <- read.delim2(file = '/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/data/Supplementary.Table.1 CLINICAL.PATHOLOGY.DATA.FREEZE.ANALYSIS.v4.032015.csv', header = T, sep =',');
-# icgc.clinic.order <- icgc.clinic[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic$sample),];
-# colnames(icgc.clinic) <- icgc.clinic[1,];
-# icgc.clinic <- icgc.clinic[-1,];
-icgc.sample.num <- substr(icgc.clinic$sample_name, 3, nchar(icgc.clinic$sample_name));
+icgc.sample.num <- substr(icgc.clinic.order$sample_name, 3, nchar(icgc.clinic.order$sample_name));
 
 # Prepare ICGC sample numbers
 icgc.sample.num.nra <- gsub('PR(\\d+)a(\\.RNA|\\.2)?', '\\1', colnames(outlier.patient.tag.01.icgc));
 icgc.sample.num.nra <- gsub('PR(\\d+)b(\\.RNA|\\.2)?', '\\1', icgc.sample.num.nra);
 icgc.sample.num.nra <- gsub('PR(\\d+)c(\\.RNA|\\.2)?', '\\1', icgc.sample.num.nra);
 
-icgc.clinic.all.order <- icgc.clinic[match(icgc.sample.num.nra, icgc.sample.num), ];
+icgc.clinic.all.order <- icgc.clinic.order[match(icgc.sample.num.nra, icgc.sample.num), ];
 rownames(icgc.clinic.all.order) <- colnames(outlier.patient.tag.01.icgc);
 
 # Stage conversion
@@ -296,6 +284,20 @@ perform.fisher.test.icgc <- function(data, subtype = NULL) {
     return(list(p.values = p.values, odd.ratios = odd.ratios, ci.intervals = ci.intervals, p.values.fdr = p.values.fdr));
     }
 
+
+icgc.clinic.order.data <- data.frame(as.character(icgc.clinic.order$subtype));
+icgc.clinic.order.data[is.na(icgc.clinic.order.data$as.character.icgc.clinic.order.subtype.),] <- 6;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Basal',] <- 1;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Her2',] <- 2;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'LumA',] <- 3;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'LumB',] <- 4;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Normal',] <- 5;
+icgc.clinic.order.data.num <- data.frame(as.numeric(icgc.clinic.order.data$as.character.icgc.clinic.order.subtype.));
+
+outlier.patient.tag.01.icgc.sum <- apply(outlier.patient.tag.01.icgc, 2, sum);
+subtype.total.outlier.num.icgc <- data.frame(cbind(subtype = icgc.clinic.order.data.num,
+                                              outlier = outlier.patient.tag.01.icgc.sum));
+colnames(subtype.total.outlier.num.icgc) <- c("subtype", "outlier");
 
 # Data preparation
 os.data.stage.pseudo.icgc <- data.frame(cbind(subtype.total.outlier.num.icgc,

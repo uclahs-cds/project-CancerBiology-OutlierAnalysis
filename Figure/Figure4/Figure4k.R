@@ -56,7 +56,7 @@ i.fpkm.data <- data.frame(
 i.fpkm.data.order <- i.fpkm.data[order(i.fpkm.data$gene, decreasing = TRUE), ];
 
 # Prepare protein abundance data
-i.protein <- protein.info.breast.num[protein.info$Gene_Symbol %in% i, match(i.fpkm.data.order$sample, colnames(protein.info.breast.num))];
+i.protein <- protein.info.breast.num[protein.info.breast.num.symbol %in% i, match(i.fpkm.data.order$sample, colnames(protein.info.breast.num))];
 
 
 # Create RNA abundance barplot

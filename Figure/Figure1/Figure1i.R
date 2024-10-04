@@ -74,7 +74,7 @@ gene.position.ispy.all.location <- gene.position.ispy.all[, 2:5];
 gene.position.meta.all.location <- gene.position.meta.all[, 2:5];
 gene.position.brca.all.location <- gene.position.brca.all[, 2:5];
 gene.position.metador.all.location <- gene.position.metador.all[, 2:5];
-gene.position.icgc.all.location <- gene.position.icgc.all[, 2:5];
+gene.position.icgc.all.location <- gene.position.icgc.all.entrez[, 2:5];
 
 all.gene.location <- rbind(
     gene.position.meta.all.location,

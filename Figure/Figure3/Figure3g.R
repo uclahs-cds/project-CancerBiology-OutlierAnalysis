@@ -21,11 +21,11 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-09-11_Figure3e-i.rda'));
 
 ### 1. TCGA-BRCA
-brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
+outlier.patient.tag.01.brca.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 os.data.brca <- data.frame(cbind(
     status = substr(brca.clinic.order$Overall.Survival.Status, 1, 1),
     os = brca.clinic.order$Overall.Survival..Months.,
-    patient = brca.outlier.patient.tag.01.t.p.order.sum,
+    patient = outlier.patient.tag.01.brca.sum,
     pam50 = brca.clinic.order$Subtype,
     age = brca.clinic.order$Diagnosis.Age
     ));
@@ -42,6 +42,30 @@ os.data.brca[, 2] <- as.numeric(os.data.brca[, 2]);
 os.data.brca[, 3] <- as.numeric(os.data.brca[, 3]);
 os.data.brca[, 5] <- as.numeric(os.data.brca[, 5]);
 os.data.brca <- na.omit(os.data.brca);
+
+
+os.group.brca <-  os.data.brca;
+
+for (i in 1:nrow(os.group.brca)){
+    if(os.group.brca[i,3]  == 0) {
+        os.group.brca[i,3] <- 1
+        } 
+    else if(os.group.brca[i,3] == 1) {
+        os.group.brca[i,3] <- 2
+        } 
+    else if(os.group.brca[i,3] == 2) {
+        os.group.brca[i,3] <- 2
+        } 
+    else {
+        os.group.brca[i,3] <- 2
+        }
+    };
+
+os.group.brca$pam50 <- as.factor(os.group.brca$pam50);
+os.group.brca$pam50 <- relevel(os.group.brca$pam50, ref = "LumA");
+os.group.brca <- os.group.brca[!(os.group.brca$pam50 %in% "NC"),];
+os.group.brca$pam50 <- factor(os.group.brca$pam50);
+os.group.brca <- na.omit(os.group.brca);
 
 
 ### 2. METABRIC Data Preparation
@@ -61,6 +85,27 @@ os.data.meta[, 3] <- as.numeric(os.data.meta[, 3]);
 os.data.meta[, 5] <- as.numeric(os.data.meta[, 5]);
 os.data.meta <- na.omit(os.data.meta);
 
+os.group.meta <-  os.data.meta;
+
+for (i in 1:nrow(os.group.meta)){
+    if(os.group.meta[i,3]  == 0) {
+        os.group.meta[i,3] <- 1
+        } 
+    else if(os.group.meta[i,3] == 1) {
+        os.group.meta[i,3] <- 2
+        } 
+    else if(os.group.meta[i,3] == 2) {
+        os.group.meta[i,3] <- 2
+        } 
+    else {
+        os.group.meta[i,3] <- 2
+        }
+    };
+
+os.group.meta$pam50 <- as.factor(os.group.meta$pam50);
+os.group.meta$pam50 <- relevel(os.group.meta$pam50, ref = "LumA");
+os.group.meta <- os.group.meta[!(os.group.meta$pam50 %in% "NC"),];
+os.group.meta$pam50 <- factor(os.group.meta$pam50);
 
 ### 3. Combine TCGA-BRCA and METABRIC Datasets
 os.group.combine <- data.frame(rbind(
@@ -98,7 +143,7 @@ km.os.group.combine <- create.km.plot(
     ylab.axis.padding = 2,
     risk.label.fontface = 1,
     left.padding = 5.5,
-    key.groups.labels = c('Outlier patients', 'Non-outlier patients'),
+    key.groups.labels = rev(c('Outlier patients', 'Non-outlier patients')),
     key.groups.cex = 1,
     line.colours = rev(c('red3', 'dodgerblue3'))
     );

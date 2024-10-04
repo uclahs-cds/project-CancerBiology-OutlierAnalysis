@@ -24,19 +24,23 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
 
-# Outlier symbol
-outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(brca.outlier.patient.tag.01.t.p.order), 'Symbol'];
 
 # Protein CPTAC z-score list
 protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
 
 # Outlier genes with protein CPTAC z-score data
-outlier.protein.cptac.zscore.gene <- outlier.symbol[outlier.symbol %in% protein.cptac.zscore.gene];
+outlier.protein.cptac.zscore.gene <- brca.outlier.symbol[brca.outlier.symbol %in% protein.cptac.zscore.gene];
 
 brca.protein.cptac.zscore.outlier.match <- brca.protein.cptac.zscore[
     ,
     colnames(brca.protein.cptac.zscore) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)
     ];
+
+outlier.patient.tag.01.brca.protein.cptac.zscore.match <- outlier.patient.tag.01.brca[
+    rownames(fpkm.tumor.symbol.filter.brca)[
+        fpkm.tumor.symbol.filter.brca$Symbol %in% unique(outlier.protein.cptac.zscore.gene)
+        ],
+    substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% colnames(brca.protein.cptac.zscore)];
 
 # Only outlier gene's FPKM
 fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[
@@ -70,6 +74,10 @@ for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
 
 names(outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gene;
 names(non.outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gene;
+
+
+outlier.protein.cptac.list.no.p.na <- na.omit(unlist(outlier.protein.cptac.zscore.list))
+non.outlier.protein.cptac.list.no.p.na <- non.outlier.protein.cptac.zscore.list[names(outlier.protein.cptac.list.no.p.na)];
 
 protein.cptac.na.value <- data.frame(
     protein.cptac.na.value = c(

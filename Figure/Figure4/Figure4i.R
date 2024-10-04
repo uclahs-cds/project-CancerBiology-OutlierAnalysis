@@ -23,6 +23,8 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 
 # Get gene effect score from Cas-CRISPR dataset
+cas.effect.breast.05 <- cas.effect.breast[rownames(ccle.outlier.rank.fdr.05),];
+cas.effect.breast.05.na <- na.omit(cas.effect.breast.05);
 
 effect.quantile.05 <- list();
 outlier.gene.effect.score.05 <- list();
@@ -65,6 +67,7 @@ gene.effect.diff.matrix.05 <- data.frame(
     symbol = sub('\\..*', '', rownames(outlier.gene.effect.score.05.mean))
     );
 rownames(gene.effect.diff.matrix.05) <- rownames(outlier.gene.effect.score.05.mean);
+gene.effect.diff.matrix.05.overlap <- gene.effect.diff.matrix.05[gene.effect.diff.matrix.05$symbol %in% five.data.outlier.symbol,];
 
 # Prepare the datasets by matching and removing NA values
 gene.rnai.diff.matrix.05.overlap.na <- na.omit(gene.rnai.diff.matrix.05.overlap);

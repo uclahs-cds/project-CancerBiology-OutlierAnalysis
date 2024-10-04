@@ -21,6 +21,91 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
 
+
+
+unequal.quan <- rev(seq(0, 0.9, 0.1));
+
+# 1. Analyze outlier probes in outlier patients
+percent.beta.out.out.500 <- NULL;
+for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
+    value.vector <- as.numeric(two.outlier.promoter.symbol.sample.match.merge.filter.500[i,]);
+    percentile <- ecdf(value.vector);
+    percent.value <- percentile(outlier.sample.me.two.500[[i]]);
+    percent.value.mean <- na.omit(percent.value);
+    percent.beta.out.out.500 <- c(percent.beta.out.out.500, percent.value.mean);
+    }
+
+# 2. Analyze outlier probes in non-outlier patients
+percent.beta.non.out.500 <- NULL;
+for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
+    value.vector <- as.numeric(two.outlier.promoter.symbol.sample.match.merge.filter.500[i,]);
+    percentile <- ecdf(value.vector);
+    percent.value <- percentile(non.outlier.sample.me.two.500[[i]]);
+    percent.value.mean <- na.omit(percent.value);
+    percent.beta.non.out.500 <- c(percent.beta.non.out.500, percent.value.mean);
+    }
+
+# 3. & 4. Analyze non-outlier probes in outlier and non-outlier patients
+two.outlier.patient.status.merge.filter.sum.500 <- apply(
+    two.outlier.patient.status.merge.filter.500, 
+    2, 
+    function(x) { sum(na.omit(as.numeric(x))); }
+    );
+
+me.non.out.symbol.two.500 <- unique(c(
+    rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500), 
+    rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500)
+    ));
+
+me.non.out.symbol.two.500 <- me.non.out.symbol.two.500[
+    !(me.non.out.symbol.two.500 %in% me.out.symbol.two.500)
+    ];
+
+brca.outlier.non.promoter.symbol.sample.match.merge.500 <- data.frame(
+    brca.outlier.non.promoter.symbol.sample.match.merge.500
+    );
+
+meta.outlier.non.promoter.symbol.sample.match.merge.500 <- data.frame(
+    meta.outlier.non.promoter.symbol.sample.match.merge.500
+    );
+
+
+percent.beta.out.non.500 <- list();
+percent.beta.non.non.500 <- list();
+
+for (i in 1:length(me.non.out.symbol.two.500)) {
+    i.symbol <- me.non.out.symbol.two.500[i];
+    value.vector.brca <- as.numeric(
+        brca.outlier.non.promoter.symbol.sample.match.merge.500[rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500) %in% i.symbol,]
+        );
+    value.vector.meta <- as.numeric(
+        meta.outlier.non.promoter.symbol.sample.match.merge.500[rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500) %in% i.symbol,]
+        );
+    
+    value.vector <- na.omit(c(value.vector.brca, value.vector.meta));
+    if (length(value.vector) == 0) {
+        percent.beta.out.non.500[[i]] <- NA;
+        percent.beta.non.non.500[[i]] <- NA;
+        }
+    else {
+        percentile <- ecdf(value.vector);
+        
+        percent.value.out.non <- percentile(
+            value.vector[two.outlier.patient.status.merge.filter.sum.500 > 0]
+            );
+        percent.beta.out.non.500[[i]] <- na.omit(percent.value.out.non);
+        
+        percent.value.non.non <- percentile(
+            value.vector[two.outlier.patient.status.merge.filter.sum.500 == 0]
+            );
+        percent.beta.non.non.500[[i]] <- na.omit(percent.value.non.non);
+        }
+    }
+
+percent.beta.out.non.500 <- unlist(percent.beta.out.non.500);
+percent.beta.non.non.500 <- unlist(percent.beta.non.non.500);
+
+
 # Create histograms and calculate percentages for each group
 breaks <- seq(0, 1, length.out = 31);
 

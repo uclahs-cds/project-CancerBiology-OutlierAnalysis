@@ -93,26 +93,9 @@ combine.surv.data.subtype <- combine.surv.data[2:6, ];
 ln.hr.combine.surv.data.subtype <- log(combine.surv.data.subtype$mean);
 se.hr.combine.surv.data.subtype <- (log(combine.surv.data.subtype$upper) - log(combine.surv.data.subtype$lower)) / 3.92;
 
-# Perform meta-meta analysis
-res.meta.meta.all.combine.cox <- rma.uni(yi = ln.hr.combine.surv.data.subtype, sei = se.hr.combine.surv.data.subtype, method = 'DL');
-res.meta.meta.all.combine <- summary(res.meta.meta.all.combine.cox);
-
-
-all.data.combine.meta <- data.frame(
-    mean = exp(as.numeric(res.meta.meta.all.combine$beta)),
-    lower = exp(as.numeric(res.meta.meta.all.combine$ci.lb)),
-    upper = exp(as.numeric(res.meta.meta.all.combine$ci.ub)),
-    Features = 'Outlier patients',
-    number = paste(as.character(sum(os.group.combine[, 'patient'] == 2)), '/', as.character(length(os.group.combine[, 'patient'])), sep = ''),
-    HR = as.character(round(exp(as.numeric(res.meta.meta.all.combine$beta)), digits = 2)),
-    Pvalue = as.character(round(as.numeric(res.meta.meta.all.combine$pval), digits = 4)),
-    event = paste(as.character(sum(os.group.combine[os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[, 'status'] == 1)), sep = ''),
-    assumption = as.character(round(cox.rf.group.assumption.sub$table[1, 3], digits = 3))
-    );
-
 
 combine.surv.data.meta <- rbind(
-    all = all.data.combine.meta,
+    all = all.data.combine,
     basal = Basal.data.combine,
     her2 = Her2.data.combine,
     luma = LumA.data.combine,

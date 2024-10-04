@@ -64,7 +64,7 @@ km.os.group.combine <- create.km.plot(
     left.padding = 5.5,
     key.groups.labels = c('Non-outlier patients', 'Outlier patients'),
     key.groups.cex = 1,
-    line.colours = c('red3', 'dodgerblue3')
+    line.colours = rev(c('red3', 'dodgerblue3'))
     );
 km.os.group.combine;
 

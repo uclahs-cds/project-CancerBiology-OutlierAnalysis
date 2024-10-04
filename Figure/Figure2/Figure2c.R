@@ -16,9 +16,25 @@ load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
 
 
 
-### DATA EXTRACTION #############################################################
+### DATA EXTRACTION ############################################################# 
 
 # 1. TCGA-BRCA
+brca.cnv.chr.new.gis.fpkm <- brca.cnv.chr.new.gis[
+    brca.cnv.chr.new.gis$Hugo_Symbol %in% 
+        fpkm.tumor.symbol.filter.brca$Symbol,
+    ];
+brca.cnv.chr.new.gis.fpkm.order <- brca.cnv.chr.new.gis.fpkm[
+    na.omit(match(brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name, 
+                  brca.cnv.chr.new.gis.fpkm$Hugo_Symbol)),
+    ];
+brca.cnv.chr.new.gis.fpkm.order.match <- brca.cnv.chr.new.gis.fpkm.order[
+    ,
+    c('Hugo_Symbol', colnames(brca.cnv.chr.new.gis.match)[
+        colnames(brca.cnv.chr.new.gis.match) %in% 
+            substr(colnames(outlier.patient.tag.01.brca), 1, 15)])
+        ];
+
+
 # Filtering data for chromosome 10
 brca.cnv.chr.new.gis.fpkm.order.match.chr10 <- brca.cnv.chr.new.gis.fpkm.order.match[
     brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',
@@ -52,6 +68,20 @@ brca.cnv.chr.new.gis.fpkm.order.match.chr10.out.non <- brca.cnv.chr.new.gis.fpkm
 
 
 # 2. METABRIC
+meta.cnv.chr.new.gis.fpkm <- meta.cnv.chr.new.gis[
+    meta.cnv.chr.new.gis$Hugo_Symbol %in% 
+        fpkm.tumor.symbol.filter.meta.symbol$Symbol,
+    ];
+meta.cnv.chr.new.gis.fpkm.order <- meta.cnv.chr.new.gis.fpkm[
+    na.omit(match(meta.cnv.chr.new.gis.fpkm.order.match.chr$gene_name, 
+                  meta.cnv.chr.new.gis.fpkm$Hugo_Symbol)),
+    ];
+meta.cnv.chr.new.gis.fpkm.order.match <- meta.cnv.chr.new.gis.fpkm.order[
+    ,
+    c('Hugo_Symbol', colnames(meta.cnv.chr.new.gis.match)[
+        colnames(meta.cnv.chr.new.gis.match) %in% 
+            substr(colnames(outlier.patient.tag.01.meta), 1, 15)])
+        ];
 # Filtering data for chromosome 10
 meta.cnv.chr.new.gis.fpkm.order.match.chr10 <- meta.cnv.chr.new.gis.fpkm.order.match[
     meta.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',

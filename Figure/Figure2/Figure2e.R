@@ -70,6 +70,49 @@ calculate.odds.ratios <- function(mutation.data, outlier.data) {
         ));
     };
 
+
+outlier.patient.tag.01.sum.patient.brca <- apply(outlier.patient.tag.01.brca, 2, sum)
+outlier.patient.tag.01.sum.patient.meta <- apply(outlier.patient.tag.01.meta, 2, sum);
+outlier.patient.tag.01.sum.patient.icgc <- apply(outlier.patient.tag.01.icgc, 2, sum);
+
+outlier.patient.tag.01.t.p.order.sum <- c(
+    outlier.patient.tag.01.sum.patient.brca, 
+    outlier.patient.tag.01.sum.patient.meta, 
+    outlier.patient.tag.01.sum.patient.icgc
+    );
+
+### Get the mutation data
+# 1. TCGA-BRCA
+brca.mutation.driver.list.gene.vector.data.convert <- brca.mutation.driver.list.gene.vector.data;
+brca.mutation.driver.list.gene.vector.data.convert[!(brca.mutation.driver.list.gene.vector.data.convert =="0")] <- "mutation";
+brca.mutation.driver.list.gene.vector.data.convert[brca.mutation.driver.list.gene.vector.data.convert =="0"] <- "normal";
+
+# 2. METABRIC
+meta.mutation.driver.list.gene.vector.data.convert <- meta.mutation.driver.list.gene.vector.data;
+meta.mutation.driver.list.gene.vector.data.convert[!(meta.mutation.driver.list.gene.vector.data.convert =="0")] <- "mutation";
+meta.mutation.driver.list.gene.vector.data.convert[meta.mutation.driver.list.gene.vector.data.convert =="0"] <- "normal";
+
+# 3. ICGC BRCA-EU
+icgc.mutation.driver.list.gene.vector.data.convert <- icgc.mutation.driver.list.gene.vector.data.mis;
+icgc.mutation.driver.list.gene.vector.data.convert[!(icgc.mutation.driver.list.gene.vector.data.convert =="0")] <- "mutation";
+icgc.mutation.driver.list.gene.vector.data.convert[icgc.mutation.driver.list.gene.vector.data.convert =="0"] <- "normal";
+icgc.mutation.driver.list.gene.vector.data.convert <- icgc.mutation.driver.list.gene.vector.data.convert[
+    match(rownames(brca.mutation.driver.list.gene.vector.data), 
+          rownames(icgc.mutation.driver.list.gene.vector.data.convert)),];
+rownames(icgc.mutation.driver.list.gene.vector.data.convert) <- rownames(brca.mutation.driver.list.gene.vector.data);
+rownames(icgc.mutation.driver.list.gene.vector.data.convert) <- rownames(brca.mutation.driver.list.gene.vector.data);
+
+meta.mutation.driver.list.gene.vector.data.convert.na <- cbind(
+    brca.mutation.driver.list.gene.vector.data.convert, 
+    meta.mutation.driver.list.gene.vector.data.convert, 
+    icgc.mutation.driver.list.gene.vector.data.convert
+    );
+meta.mutation.driver.list.gene.vector.data.convert.na <- apply(meta.mutation.driver.list.gene.vector.data.convert.na, 1, function(x) {
+      x[is.na(x)] <- "normal"
+      return(x)
+    })
+meta.mutation.driver.list.gene.vector.data.convert.na <- t(meta.mutation.driver.list.gene.vector.data.convert.na);
+
 # Luma subtype patient
 subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
 outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];

@@ -24,23 +24,6 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
-# # Read data files (included in the enrironment file)
-# sanger.drug <- read.delim2(
-#     file ='/CCLE/sanger/sanger-dose-response.csv',
-#     header =TRUE,
-#     sep =','
-#     );
-# sanger.drug.vi <- read.delim2(
-#     file ='/CCLE/sanger/sanger-viability.csv',
-#     header =TRUE,
-#     sep =','
-#     );
-# sanger.drug.info <- read.delim2(
-#     file ='/CCLE/sanger/screened_compounds_rel_8.5.csv',
-#     header =TRUE,
-#     sep =','
-#     );
-
 # Data matching
 sanger.drug.match <- sanger.drug[sanger.drug$ARXSPAN_ID %in% colnames(ccle.sample.outlier.status.overlap.na), ];
 
@@ -55,12 +38,12 @@ sanger.drug.info.dup <- separate_rows(sanger.drug.info.dup, TARGET, sep = ',');
 sanger.drug.info.dup <- data.frame(sanger.drug.info.dup);
 
 # Data matching and merging
-sanger_upper_drug_names <- toupper(sanger.drug.info.name$DRUG_NAME);
-sanger_upper_drug_ids <- toupper(sanger.drug.info.name$drug.name.id);
+sanger_upper_drug_names <- toupper(sanger.drug.info.dup$DRUG_NAME);
+sanger_upper_drug_ids <- toupper(sanger.drug.info.dup$drug.name.id);
 
 # Match Sanger and DepMap drug targets
 overlap.sanger.depmap.drug.target <- NULL;
-for (i in 1:nrow(sanger.drug.info.name)) {
+for (i in 1:nrow(sanger.drug.info.dup)) {
     current_targets <- c(sanger_upper_drug_names[i], sanger_upper_drug_ids[i]);
     matched_indices <- which(depmap.drug.info$UpperDrugName %in% current_targets);
     overlap.sanger.depmap.drug.target <- c(
@@ -68,6 +51,12 @@ for (i in 1:nrow(sanger.drug.info.name)) {
         depmap.drug.info$repurposing_target[matched_indices][1]
         );
     };
+sanger.drug.info.name <- sanger.drug.info.dup;
+sanger.drug.info.name$depmap.drug.target <- overlap.sanger.depmap.drug.target;
+merged.target.sanger.depmap <- paste(sanger.drug.info.name$TARGET, sanger.drug.info.name$depmap.drug.target, sep = ', ');
+sanger.drug.info.name$merged.target.sanger.depmap <- merged.target.sanger.depmap;
+sanger.drug.info.name.dup <- separate_rows(sanger.drug.info.name, merged.target.sanger.depmap, sep = ", ")
+sanger.drug.info.name.dup <- data.frame(sanger.drug.info.name.dup);
 
 # Process IC50 and Z-score data
 sanger.drug.match.dup.ic50 <- dcast(sanger.drug.match.dup, DRUG_NAME ~ ARXSPAN_ID, value.var = 'IC50_PUBLISHED', fun.aggregate = mean);
@@ -75,10 +64,25 @@ rownames(sanger.drug.match.dup.ic50) <- sanger.drug.match.dup.ic50$DRUG_NAME;
 sanger.drug.match.dup.ic50 <- sanger.drug.match.dup.ic50[, 2:ncol(sanger.drug.match.dup.ic50)];
 
 sanger.drug.match.dup$Z_SCORE_PUBLISHED <- as.numeric(sanger.drug.match.dup$Z_SCORE_PUBLISHED);
+sanger.drug.match.dup.zscore <- dcast(sanger.drug.match.dup,  DRUG_NAME ~ ARXSPAN_ID, value.var = "Z_SCORE_PUBLISHED", fun.aggregate = mean)
+rownames(sanger.drug.match.dup.zscore) <- sanger.drug.match.dup.zscore$DRUG_NAME
+sanger.drug.match.dup.zscore <- sanger.drug.match.dup.zscore[,2:ncol(sanger.drug.match.dup.zscore)];
 
 # Process sample outlier data
-ccle.sample.outlier.status.overlap.na.samger.match <- ccle.sample.outlier.status.overlap.na[, colnames(sanger.drug.match.dup.ic50)];
-rownames(ccle.sample.outlier.status.overlap.na.samger.match) <- unlist(sapply(rownames(ccle.sample.outlier.status.overlap.na.samger.match), function(x) sub('\\..*', '', x)));
+ccle.sample.outlier.status.overlap.na.samger.match <- ccle.sample.outlier.status.overlap.na[,colnames(sanger.drug.match.dup.ic50)];
+rownames(ccle.sample.outlier.status.overlap.na.samger.match) <- unlist(sapply(rownames(ccle.sample.outlier.status.overlap.na.samger.match), function(x) sub("\\..*", "", x)));
+ccle.sample.outlier.status.overlap.na.samger.match.dup.sum <- apply(
+    ccle.sample.outlier.status.overlap.na.samger.match, 
+    1, 
+    sum);
+ccle.sample.outlier.status.overlap.na.samger.match.dup.filter <- ccle.sample.outlier.status.overlap.na.samger.match[
+    ccle.sample.outlier.status.overlap.na.samger.match.dup.sum > 0
+    ,
+    ];
+
+depmap.drug.info.match.sanger <- depmap.drug.info[depmap.drug.info$Drug.Name %in% unique(sanger.drug.match.dup$DRUG_NAME),];
+depmap.drug.info.match.sanger.dup <- separate_rows(depmap.drug.info.match.sanger, repurposing_target, sep = ", ")
+depmap.drug.info.match.sanger.dup <- data.frame(depmap.drug.info.match.sanger.dup);
 
 # Process breast cancer related data
 sanger.drug.breast.match.out <- list();
@@ -109,6 +113,8 @@ sanger.drug.breast.match.non.list.mean <- lapply(sanger.drug.breast.match.non, f
         mean(na.omit(as.numeric(y)))
         });
     });
+
+
 
 # Create final result dataframe
 sanger.drug.breast.match.out.list.mean.unlist <- unlist(sanger.drug.breast.match.out.list.mean);
@@ -186,6 +192,43 @@ sanger.zscore.drug.breast.match.out.mean <- apply(sanger.zscore.drug.breast.matc
 sanger.zscore.drug.breast.match.non.mean <- apply(sanger.zscore.drug.breast.match.non.df, 1, function(x) {
     mean(na.omit(as.numeric(x)))
     });
+
+
+
+sanger.zscore.drug.breast.match.out <- list();
+sanger.zscore.drug.breast.match.non <- list();
+sanger.zscore.drug.breast.match.info <- list();
+for (i in 1:nrow(ccle.sample.outlier.status.overlap.na.samger.match.dup.filter)) {
+    patient.status <- ccle.sample.outlier.status.overlap.na.samger.match.dup.filter[i,];
+    drug.target <- depmap.drug.info.match.sanger.dup[depmap.drug.info.match.sanger.dup$repurposing_target %in% rownames(patient.status),]
+    out.value <- sanger.drug.match.dup.zscore[match(drug.target$Drug.Name, rownames(sanger.drug.match.dup.zscore)), colnames(patient.status)[patient.status == 1], drop = FALSE];
+    non.value <- sanger.drug.match.dup.zscore[match(drug.target$Drug.Name, rownames(sanger.drug.match.dup.zscore)),colnames(patient.status)[patient.status == 0], drop = FALSE];
+    
+    sanger.zscore.drug.breast.match.out[[i]] <- out.value;
+    sanger.zscore.drug.breast.match.non[[i]] <- non.value;
+    sanger.zscore.drug.breast.match.info[[i]] <- drug.target;
+    
+    }
+
+library(dplyr)
+sanger.zscore.drug.breast.match.out.df <- bind_rows(sanger.zscore.drug.breast.match.out)
+sanger.zscore.drug.breast.match.non.df <- bind_rows(sanger.zscore.drug.breast.match.non)
+sanger.zscore.drug.breast.match.info.df <- bind_rows(sanger.zscore.drug.breast.match.info)
+
+sanger.zscore.drug.breast.match.out.list.mean <- lapply(sanger.zscore.drug.breast.match.out, function(x) {mean(na.omit(as.numeric(unlist(x))))})
+sanger.zscore.drug.breast.match.non.list.mean <- lapply(sanger.zscore.drug.breast.match.non, function(x) {
+    apply(x, 2, function(y) {mean(na.omit(as.numeric(y)))}) })
+sanger.zscore.drug.breast.match.out.list.mean.unlist <- unlist(sanger.zscore.drug.breast.match.out.list.mean)
+sanger.zscore.drug.breast.match.non.list.mean.df <- bind_rows(sanger.zscore.drug.breast.match.non.list.mean)
+sanger.zscore.drug.breast.match.out.non.mean.df <- data.frame(out = sanger.zscore.drug.breast.match.out.list.mean.unlist,
+                                                              sanger.zscore.drug.breast.match.non.list.mean.df)
+rownames(sanger.zscore.drug.breast.match.out.non.mean.df) <- rownames(ccle.sample.outlier.status.overlap.na.samger.match.dup.filter)
+
+
+sanger.zscore.drug.breast.match.out.mean <- apply(sanger.zscore.drug.breast.match.out.df, 1, function(x) {(mean(na.omit(as.numeric(x))))})
+sanger.zscore.drug.breast.match.non.mean <- apply(sanger.zscore.drug.breast.match.non.df, 1, function(x) {(mean(na.omit(as.numeric(x))))})
+
+
 
 # Combine Z-score mean data
 sanger.zscore.drug.breast.match.mean.df <- data.frame(

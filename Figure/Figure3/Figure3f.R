@@ -31,12 +31,12 @@ brca.clinic.order.data[brca.clinic.order.data$brca.clinic.order.Subtype == 'BRCA
 brca.clinic.order.data[brca.clinic.order.data$brca.clinic.order.Subtype == 'BRCA_LumB', ] <- 4;
 brca.clinic.order.data[brca.clinic.order.data$brca.clinic.order.Subtype == 'BRCA_Normal', ] <- 5;
 brca.clinic.order.data.num <- data.frame(as.numeric(brca.clinic.order.data$brca.clinic.order.Subtype));
-rownames(brca.clinic.order.data.num) <- colnames(brca.outlier.patient.tag.01.t.p.order);
+rownames(brca.clinic.order.data.num) <- colnames(outlier.patient.tag.01.brca);
 
-brca.outlier.patient.tag.01.t.p.order.sum <- apply(brca.outlier.patient.tag.01.t.p.order, 2, sum);
+outlier.patient.tag.01.brca.sum <- apply(outlier.patient.tag.01.brca, 2, sum);
 subtype.total.outlier.num.brca <- data.frame(cbind(
     subtype = brca.clinic.order.data.num,
-    outlier = brca.outlier.patient.tag.01.t.p.order.sum
+    outlier = outlier.patient.tag.01.brca.sum
     ));
 colnames(subtype.total.outlier.num.brca) <- c('subtype', 'outlier');
 subtype.total.outlier.num.1.brca <- subtype.total.outlier.num.brca;
@@ -46,15 +46,14 @@ subtype.brca.status <- data.frame(table(brca.clinic.order$Subtype));
 
 
 # 2. METABRIC
-meta.clinic.5.order.data <- data.frame(meta.clinic.5.order$subtype);
-meta.clinic.5.order.data[is.na(meta.clinic.5.order.data$meta.clinic.5.order.subtype), ] <- 6;
-meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.subtype == 'Basal', ] <- 1;
-meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.subtype == 'Her2', ] <- 2;
-meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.subtype == 'LumA', ] <- 3;
-meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.subtype == 'LumB', ] <- 4;
-# meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.subtype == 'claudin-low',] <- 5;
-meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.subtype == 'Normal', ] <- 5;
-meta.clinic.5.order.data.num <- data.frame(as.numeric(meta.clinic.5.order.data$meta.clinic.5.order.subtype));
+meta.clinic.5.order.data <- data.frame(meta.clinic.5.order.combine$pam50);
+meta.clinic.5.order.data[is.na(meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50), ] <- 6;
+meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50 == 'Basal', ] <- 1;
+meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50 == 'Her2', ] <- 2;
+meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50 == 'LumA', ] <- 3;
+meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50 == 'LumB', ] <- 4;
+meta.clinic.5.order.data[meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50 == 'Normal', ] <- 5;
+meta.clinic.5.order.data.num <- data.frame(as.numeric(meta.clinic.5.order.data$meta.clinic.5.order.combine.pam50));
 rownames(meta.clinic.5.order.data.num) <- colnames(outlier.patient.tag.01.meta);
 
 outlier.patient.tag.01.meta.sum <- apply(outlier.patient.tag.01.meta, 2, sum);
@@ -71,8 +70,7 @@ subtype.5.meta.status <- subtype.5.meta.status[match(c('Basal', 'Her2', 'LumA', 
 
 
 # 3. ICGC BRCA-EU
-# icgc.clinic.subtype <- read.delim2(file = '/Users/jyhan/Library/Mobile\ Documents/com~apple~CloudDocs/Documents/1.Project/ICGC-2016/nature17676-s3/ICGC_subtype.csv', sep =',');
-icgc.clinic.subtype.order <- icgc.clinic.subtype[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic.subtype$sample), ];
+icgc.clinic.subtype.order <- icgc.clinic.order[match(colnames(outlier.patient.tag.01.icgc), icgc.clinic.order$sample), ];
 
 icgc.clinic.subtype.order.data <- data.frame(as.character(icgc.clinic.subtype.order$subtype));
 icgc.clinic.subtype.order.data[is.na(icgc.clinic.subtype.order.data$as.character.icgc.clinic.subtype.order.subtype.), ] <- 6;
@@ -118,6 +116,22 @@ subtype.ispy.status <- data.frame(table(ispy.clinic.order$PAM50.Subtype));
 
 
 # 5. MATADOR
+
+metador.clinic.order.data <- data.frame(metador.clinic.order$subtype);
+metador.clinic.order.data[is.na(metador.clinic.order.data$metador.clinic.order.PAM50.Subtype),] <- 6;
+metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Basal',] <- 1;
+metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Her2',] <- 2;
+metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'LumA',] <- 3;
+metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'LumB',] <- 4;
+metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Normal',] <- 5;
+metador.clinic.order.data.num <- data.frame(as.numeric(metador.clinic.order.data$metador.clinic.order.subtype));
+rownames(metador.clinic.order.data.num) <- colnames(outlier.patient.tag.01.matador);
+
+outlier.patient.tag.01.matador.sum <- apply(outlier.patient.tag.01.matador, 2, sum);
+subtype.total.outlier.num.matador <- data.frame(cbind(subtype = metador.clinic.order.data.num,
+                                              outlier = outlier.patient.tag.01.matador.sum));
+colnames(subtype.total.outlier.num.matador) <- c("subtype", "outlier");
+
 subtype.total.outlier.num.1.matador <- subtype.total.outlier.num.matador;
 subtype.total.outlier.num.1.matador$outlier[subtype.total.outlier.num.1.matador$outlier > 0] <- 1;
 outlier.subtype.matador.status <- data.frame(table(subtype.total.outlier.num.1.matador));

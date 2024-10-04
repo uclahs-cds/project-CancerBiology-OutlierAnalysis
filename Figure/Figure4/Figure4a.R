@@ -23,6 +23,7 @@ load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
 
 
 # overlapped with tissue outliers
+ccle.sample.outlier.status.fdr.05 <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05),];
 ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
 
 # Tissue overlap outlier status

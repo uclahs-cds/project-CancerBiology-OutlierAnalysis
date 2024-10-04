@@ -23,7 +23,7 @@ i <- 'SYK';
 
 # Extract RNAi and CRISPR data
 rnai.score.i <- gene.rnai.breast.t.num.match.05.na[sub('\\..*', '', rownames(gene.rnai.breast.t.num.match.05.na)) %in% i, ];
-rnai.status.i <- ccle.sample.outlier.status.overlap.na.rnai[sub('\\..*', '', rownames(ccle.sample.outlier.status.overlap.na.rnai)) %in% i, ];
+rnai.status.i <- sample.outlier.05.overlap.na[sub('\\..*', '', rownames(sample.outlier.05.overlap.na)) %in% i, ];
 effect.score.i <- cas.effect.breast.05.na[sub('\\..*', '', rownames(cas.effect.breast.05.na)) %in% i, ];
 effect.status.i <- ccle.sample.outlier.status.overlap.na[sub('\\..*', '', rownames(ccle.sample.outlier.status.overlap.na)) %in% i, ];
 
