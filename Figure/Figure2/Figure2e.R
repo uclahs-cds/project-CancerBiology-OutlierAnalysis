@@ -116,7 +116,10 @@ meta.mutation.driver.list.gene.vector.data.convert.na <- t(meta.mutation.driver.
 # Luma subtype patient
 subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
 outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
-meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.luma))];
+meta.mutation.driver.list.gene.vector.data.convert.na.luma <- meta.mutation.driver.list.gene.vector.data.convert.na[
+    ,
+    colnames(meta.mutation.driver.list.gene.vector.data.convert.na) %in% rownames(na.omit(subtype.total.outlier.num.luma))
+    ];
 
 outlier.patient.tag.01.t.p.order.sum.luma.brca <-
     outlier.patient.tag.01.t.p.order.sum.luma[substr(names(outlier.patient.tag.01.t.p.order.sum.luma), 1, 4) == 'TCGA'];
@@ -135,7 +138,9 @@ meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc <-
 # Lumb subtype patient
 subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 4, ];
 outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
-meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[, rownames(na.omit(subtype.total.outlier.num.lumb))];
+meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[
+    ,
+    colnames(meta.mutation.driver.list.gene.vector.data.convert.na) %in% rownames(na.omit(subtype.total.outlier.num.lumb))];
 
 outlier.patient.tag.01.t.p.order.sum.lumb.brca <-
     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];
@@ -178,7 +183,7 @@ icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.l
 icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- 'mutation';
 icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- 'normal';
 
-colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
+colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data.mis);
 
 icgc.mutation.driver.list.gene.vector.data.convert.mis.luma.icgc <-
     icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.luma.icgc)];
@@ -216,7 +221,7 @@ names(brca.luma.odds.ratio.unlist) <- mutation.driver.list.gene;
 icgc.luma.odds.ratio.unlist <- icgc.results.luma$odds.ratio;
 icgc.luma.ci.df <- icgc.results.luma$ci;
 icgc.luma.p.unlist <- icgc.results.luma$p.value;
-names(icgc.luma.odds.ratio.unlist) <- rownames(icgc.mutation.driver.list.gene.vector.data);
+names(icgc.luma.odds.ratio.unlist) <- rownames(icgc.mutation.driver.list.gene.vector.data.mis);
 
 # METABRIC
 meta.luma.odds.ratio.unlist <- meta.results.luma$odds.ratio;

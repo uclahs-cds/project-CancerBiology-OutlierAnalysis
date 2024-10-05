@@ -65,7 +65,7 @@ colnames(subtype.5.total.outlier.num.meta) <- c('subtype.5', 'outlier');
 subtype.5.total.outlier.num.1.meta <- subtype.5.total.outlier.num.meta;
 subtype.5.total.outlier.num.1.meta$outlier[subtype.5.total.outlier.num.1.meta$outlier > 0] <- 1;
 outlier.subtype.5.meta.status <- data.frame(table(subtype.5.total.outlier.num.1.meta));
-subtype.5.meta.status <- data.frame(table(meta.clinic.5.order$subtype));
+subtype.5.meta.status <- data.frame(table(meta.clinic.5.order.combine$subtype));
 subtype.5.meta.status <- subtype.5.meta.status[match(c('Basal', 'Her2', 'LumA', 'LumB', 'Normal'), subtype.5.meta.status$Var1), ];
 
 
@@ -125,9 +125,9 @@ metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.S
 metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'LumB',] <- 4;
 metador.clinic.order.data[metador.clinic.order.data$metador.clinic.order.PAM50.Subtype == 'Normal',] <- 5;
 metador.clinic.order.data.num <- data.frame(as.numeric(metador.clinic.order.data$metador.clinic.order.subtype));
-rownames(metador.clinic.order.data.num) <- colnames(outlier.patient.tag.01.matador);
+rownames(metador.clinic.order.data.num) <- colnames(outlier.patient.tag.01.metador);
 
-outlier.patient.tag.01.matador.sum <- apply(outlier.patient.tag.01.matador, 2, sum);
+outlier.patient.tag.01.matador.sum <- apply(outlier.patient.tag.01.metador, 2, sum);
 subtype.total.outlier.num.matador <- data.frame(cbind(subtype = metador.clinic.order.data.num,
                                               outlier = outlier.patient.tag.01.matador.sum));
 colnames(subtype.total.outlier.num.matador) <- c("subtype", "outlier");
