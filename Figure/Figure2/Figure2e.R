@@ -559,9 +559,6 @@ icgc.mutation.driver.list.gene.vector.data.convert.mis <- icgc.mutation.driver.l
 icgc.mutation.driver.list.gene.vector.data.convert.mis[!(icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0)] <- 'mutation';
 icgc.mutation.driver.list.gene.vector.data.convert.mis[icgc.mutation.driver.list.gene.vector.data.convert.mis %in% icgc.mutation.silent.0] <- 'normal';
 
-# Ensure the column names are preserved for ICGC BRCA-EU data
-colnames(icgc.mutation.driver.list.gene.vector.data.convert.mis) <- colnames(icgc.mutation.driver.list.gene.vector.data);
-
 icgc.mutation.driver.list.gene.vector.data.convert.mis.lumb.icgc <-
     icgc.mutation.driver.list.gene.vector.data.convert.mis[, colnames(meta.mutation.driver.list.gene.vector.data.convert.na.lumb.icgc)];
 
@@ -597,7 +594,7 @@ names(brca.lumb.odds.ratio.unlist) <- mutation.driver.list.gene;
 icgc.lumb.odds.ratio.unlist <- icgc.results.lumb$odds.ratio;
 icgc.lumb.ci.df <- icgc.results.lumb$ci;
 icgc.lumb.p.unlist <- icgc.results.lumb$p.value;
-names(icgc.lumb.odds.ratio.unlist) <- rownames(icgc.mutation.driver.list.gene.vector.data);
+names(icgc.lumb.odds.ratio.unlist) <- rownames(icgc.mutation.driver.list.gene.vector.data.mis);
 
 # METABRIC
 meta.lumb.odds.ratio.unlist <- meta.results.lumb$odds.ratio;

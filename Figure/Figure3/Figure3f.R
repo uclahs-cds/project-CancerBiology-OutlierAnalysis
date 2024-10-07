@@ -70,7 +70,7 @@ colnames(subtype.5.total.outlier.num.meta) <- c('subtype.5', 'outlier');
 subtype.5.total.outlier.num.1.meta <- subtype.5.total.outlier.num.meta;
 subtype.5.total.outlier.num.1.meta$outlier[subtype.5.total.outlier.num.1.meta$outlier > 0] <- 1;
 outlier.subtype.5.meta.status <- data.frame(table(subtype.5.total.outlier.num.1.meta));
-subtype.5.meta.status <- data.frame(table(meta.clinic.5.order.combine$subtype));
+subtype.5.meta.status <- data.frame(table(meta.clinic.5.order.combine$pam50));
 subtype.5.meta.status <- subtype.5.meta.status[match(c('Basal', 'Her2', 'LumA', 'LumB', 'Normal'), subtype.5.meta.status$Var1), ];
 
 
