@@ -19,6 +19,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'brca.outlier.symbol'
+    ));
+
 ### 1. METABRIC
 meta.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.patient.tag.01.meta),"Symbol"];
 meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis[na.omit(match(meta.outlier.symbol, meta.cnv.chr.new.gis$Hugo_Symbol)),];
@@ -554,5 +558,15 @@ save.outlier.figure(
     width = 10.4,
     height = 4.5
     );
+
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'brca.cnv.chr.new.gis.match',
+    'icgc.cnv.chr.new.gis.fpkm.order.match',
+    'icgc.cnv.chr.new.gis.fpkm.order.match.chr',
+    'meta.cnv.chr.new.gis.match',
+    'outlier.patient.tag.01.brca.cnv.match',
+    'outlier.patient.tag.01.meta.cnv.match'
+    ));
 
 save.session.profile(file.path('output', 'Figure2a.txt'));

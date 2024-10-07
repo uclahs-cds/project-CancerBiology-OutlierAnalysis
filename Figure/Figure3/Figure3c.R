@@ -19,6 +19,11 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'non.outlier.protein.cptac.list.no.p.na',
+    'outlier.protein.cptac.list.no.p.na'
+    ));
+
 # Calculate quantiles of protein abundance for outlier genes
 percent.protein.cptac.quantile <- NULL;
 for (i in 1:length(outlier.protein.cptac.list.no.p.na)) {

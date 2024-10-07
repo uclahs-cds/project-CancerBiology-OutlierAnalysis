@@ -19,6 +19,13 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na.samger.match.dup.filter',
+    'depmap.drug.info.match.sanger.dup',
+    'sanger.drug.match.dup.zscore',
+    'sanger.zscore.drug.breast.match.info.df'
+    ));
+
 i <- 'SYK';
 
 drug.target <- sanger.zscore.drug.breast.match.info.df[sanger.zscore.drug.breast.match.info.df$repurposing_target %in% i, ]$Drug.Name;

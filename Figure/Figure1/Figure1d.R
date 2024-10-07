@@ -18,8 +18,9 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 ### PREAMBLE ####################################################################
-
-five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
+load.multiple.computed.variables(c(
+    'five.data.outlier.symbol.na'
+    ));
 
 ### 1. MATADOR
 # Find the position of "_" in Metador data row names

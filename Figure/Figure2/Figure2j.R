@@ -21,6 +21,15 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'brca.outlier.non.promoter.symbol.sample.match.merge.500',
+    'me.out.symbol.two.500',
+    'meta.outlier.non.promoter.symbol.sample.match.merge.500',
+    'non.outlier.sample.me.two.500',
+    'outlier.sample.me.two.500',
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ));
 
 
 unequal.quan <- rev(seq(0, 0.9, 0.1));

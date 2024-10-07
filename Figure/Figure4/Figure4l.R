@@ -24,6 +24,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na'
+    ));
+
 # Data matching
 sanger.drug.match <- sanger.drug[sanger.drug$ARXSPAN_ID %in% colnames(ccle.sample.outlier.status.overlap.na), ];
 
@@ -353,5 +357,12 @@ save.outlier.figure(
     width = 4,
     height = 6
     );
+
+cache.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na.samger.match.dup.filter',
+    'depmap.drug.info.match.sanger.dup',
+    'sanger.drug.match.dup.zscore',
+    'sanger.zscore.drug.breast.match.info.df'
+    ));
 
 save.session.profile(file.path('output', 'Figure4l.txt'));

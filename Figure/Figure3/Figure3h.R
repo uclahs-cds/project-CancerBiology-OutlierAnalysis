@@ -20,6 +20,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'os.group.brca',
+    'os.group.meta'
+    ));
 
 ### 3. Combine TCGA-BRCA and METABRIC Datasets
 os.group.combine <- data.frame(rbind(

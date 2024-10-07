@@ -156,4 +156,10 @@ save.outlier.figure(
     height = 7
     );
 
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'os.group.brca',
+    'os.group.meta'
+    ));
+
 save.session.profile(file.path('output', 'Figure3g.txt'));

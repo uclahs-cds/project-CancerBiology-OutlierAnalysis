@@ -22,6 +22,14 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'meta.me.outlier.match',
+    'outlier.patient.tag.01.brca.me.match',
+    'outlier.patient.tag.01.meta.me.match',
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ));
+
 
 ### Analyze the normal data
 # 1. TCGA-BRCA
