@@ -16,7 +16,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 # All CCLE outlier genes
 protein.info.breast.num.match.all <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% sub('\\..*', '', rownames(ccle.outlier.rank.fdr.05)), ];

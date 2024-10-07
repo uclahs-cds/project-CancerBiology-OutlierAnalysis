@@ -20,7 +20,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 ### DATA PREPARATION ############################################################
 
@@ -46,8 +46,9 @@ five.data.outlier.symbol <- unique(c(
     brca.outlier.symbol, 
     matador.outlier.symbol, 
     ispy.outlier.symbol, 
-    icgc.outlier.symbol)
-    );
+    icgc.outlier.symbol
+    ));
+
 five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
 
 ### 1. MATADOR
