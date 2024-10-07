@@ -8,15 +8,16 @@
 
 ### PREAMBLE ###########################################################################
 library(OutSeekR)
-library(devtools)
+#library(devtools)
 
 set.seed(12345)
+options(future.globals.maxSize = 16 * 1024^3)
 
 setwd('/hot/project/process/CancerBiology/OUTA-000164-GeneExpressionOABRCA/jlivingstone/test_outseekr')
 
-load_all('/hot/code/jlivingstone/GitHub/uclahs-cds/package-OutSeekR/')
+#load_all('/hot/code/jlivingstone/GitHub/uclahs-cds/package-OutSeekR/')
 
-future::plan(future::multisession)
+future::plan(future::multisession, workers = 8)
 
 # TCGA Uterine (17247 x 57) - filtered for genes detected in 50% of samples
 exprs <- read.delim(
@@ -30,8 +31,10 @@ exprs <- read.delim(
 ucs.outliers <- detect.outliers(
 	data = exprs,
 	num.null = 1000,
-	p.value.threshold = 0.05,
-	fdr.threshold = 0.1
+	initial.screen.method = 'fdr',
+#	p.value.threshold = 0.05,
+	fdr.threshold = 0.01,
+	kmeans.nstart = 1
 	)
 
 save(
@@ -50,17 +53,26 @@ brca <- read.delim(
 #dim(brca)
 #[1] 17696   342
 
-# set fdr to 0.01 - are there still output that is greater than cut-off being displayed?
+# need to adjust extremely small numbers; set to zero
+# issues with kmeans clustering; failed Error: empty cluster: try a better set of initial centers
+brca[brca > 0 & brca < 1 * 10^(-50)] <- 0
+
+# remove one gene that has the same value in 225 samples (weird)
+eu <- brca[-which(rownames(brca) == 'ENSG00000244428'),]
+
 outliers <- detect.outliers(
-	data = brca,
-	num.null = 1000,
-	p.value.threshold = 0.05,
-	fdr.threshold = 0.01
+	data = eu,
+	num.null = 1000000,
+#	initial.screen.method = 'p.value',
+	initial.screen.method = 'fdr',
+	p.value.threshold = 0.001,
+	fdr.threshold = 0.01,
+	kmeans.nstart = 1
 	)
 
 save(
 	outliers,
-	file = genereate.filename('outliers', 'BRCA_EU_results_using_package_function', 'rda')
+	file = genereate.filename('outliers', 'BRCA_EU_results_one_million', 'rda')
 	)
 
 future::plan(future::sequential)
