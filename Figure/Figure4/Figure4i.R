@@ -21,6 +21,11 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'five.data.outlier.symbol',
+    'ccle.sample.outlier.status.overlap.na',
+    'gene.rnai.diff.matrix.05.overlap'
+    ));
 
 # Get gene effect score from Cas-CRISPR dataset
 cas.effect.breast.05 <- cas.effect.breast[rownames(ccle.outlier.rank.fdr.05),];
@@ -152,5 +157,10 @@ save.outlier.figure(
     width = 5,
     height = 5
     );
+
+cache.multiple.computed.variables(c(
+    'cas.effect.breast.05.na',
+    'gene.effect.diff.matrix.05.overlap'
+    ));
 
 save.session.profile(file.path('output', 'Figure4i.txt'));

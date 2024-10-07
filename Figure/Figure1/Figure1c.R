@@ -51,6 +51,22 @@ five.data.outlier.symbol <- unique(c(
 
 five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
 
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'metabric.outlier.symbol',
+    'brca.outlier.symbol',
+    'matador.outlier.symbol',
+    'ispy.outlier.symbol',
+    'icgc.outlier.symbol',
+    'outlier.gene.fdr.01.brca',
+    'outlier.gene.fdr.01.meta',
+    'outlier.gene.fdr.01.matador',
+    'outlier.gene.fdr.01.ispy',
+    'outlier.gene.fdr.01.icgc',
+    'five.data.outlier.symbol',
+    'five.data.outlier.symbol.na'
+    ));
+
 ### 1. MATADOR
 # Find the position of "_" in Metador data row names
 outlier.patient.tag.01.metador.pos <- which(

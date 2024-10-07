@@ -19,6 +19,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'five.data.outlier.symbol'
+    ));
+
 gene.dependency.breast.t <- t(gene.dependency.breast);
 gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
 rownames(gene.dependency.breast.t.num.match) <- rownames(gene.dependency.breast.t);
@@ -138,5 +142,12 @@ save.outlier.figure(
     width = 6,
     height = 5
     );
+
+cache.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap',
+    'ccle.sample.outlier.status.overlap.na',
+    'gene.dependency.breast.t.num.match.05.na',
+    'gene.dependency.diff.matrix.05.overlap'
+    ));
 
 save.session.profile(file.path('output', 'Figure4e.txt'));

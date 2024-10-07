@@ -22,6 +22,13 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 ### DATA PREPARATION ############################################################
+load.multiple.computed.variables(c(
+    'outlier.gene.fdr.01.brca',
+    'outlier.gene.fdr.01.matador',
+    'outlier.gene.fdr.01.icgc',
+    'outlier.gene.fdr.01.ispy',
+    'outlier.gene.fdr.01.meta'
+    ));
 
 
 ### 1. Chromosomal enrichment ###################################################
@@ -1411,5 +1418,14 @@ save.outlier.figure(
     width = 5,
     height = 6.5
     );
+
+
+cache.multiple.computed.variables(c(
+    'gene.position.brca.all',
+    'gene.position.meta.all',
+    'gene.position.ispy.all',
+    'gene.position.icgc.all.entrez',
+    'gene.position.metador.all'
+    ));
 
 save.session.profile(file.path('output', 'Figure1fg.txt'));

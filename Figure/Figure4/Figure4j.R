@@ -19,6 +19,14 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'p.me',
+    'ccle.sample.outlier.status.overlap.na',
+    'rnai.05.box',
+    'cas.effect.breast.05.na',
+    'gene.effect.diff.matrix.05.overlap'
+    ));
+
 
 gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5, ];
 gene.effect.diff.matrix.05.overlap.minus.05.order <- gene.effect.diff.matrix.05.overlap.minus.05[order(gene.effect.diff.matrix.05.overlap.minus.05$diff), ];

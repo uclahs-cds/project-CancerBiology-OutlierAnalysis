@@ -15,6 +15,14 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
+load.multiple.computed.variables(c(
+    'brca.cnv.chr.new.gis.match',
+    'icgc.cnv.chr.new.gis.fpkm.order.match',
+    'icgc.cnv.chr.new.gis.fpkm.order.match.chr',
+    'meta.cnv.chr.new.gis.match',
+    'outlier.patient.tag.01.brca.cnv.match',
+    'outlier.patient.tag.01.meta.cnv.match'
+    ));
 
 ### DATA EXTRACTION ############################################################# 
 
@@ -320,5 +328,10 @@ save.outlier.figure(
     width = 10.4,
     height = 4.5
     );
+
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'brca.cnv.chr.new.gis.fpkm.order.match'
+    ));
 
 save.session.profile(file.path('output', 'Figure2c.txt'));

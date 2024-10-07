@@ -22,6 +22,11 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
+load.multiple.computed.variables(c(
+    'subtype.total.outlier.num.icgc'
+    ));
+
+
 # 1. TCGA-BRCA
 brca.clinic.order.data <- data.frame(brca.clinic.order$Subtype);
 brca.clinic.order.data[is.na(brca.clinic.order.data$brca.clinic.order.Subtype), ] <- 6;

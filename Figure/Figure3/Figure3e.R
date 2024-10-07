@@ -626,4 +626,8 @@ save.outlier.figure(
     height = 5.6
     );
 
+cache.multiple.computed.variables(c(
+    'subtype.total.outlier.num.icgc'
+    ));
+
 save.session.profile(file.path('output', 'Figure3e.txt'));

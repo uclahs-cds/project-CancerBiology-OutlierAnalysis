@@ -19,6 +19,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'five.data.outlier.symbol',
+    'ccle.sample.outlier.status.fdr.05'
+    ));
 
 ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
 ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
@@ -182,5 +186,10 @@ save.outlier.figure(
     width = 3.5,
     height = 6.5
     );
+
+cache.multiple.computed.variables(c(
+    'protein.info.breast.num.match',
+    'protein.info.breast.num.symbol'
+    ));
 
 save.session.profile(file.path('output', 'Figure4c.txt'));

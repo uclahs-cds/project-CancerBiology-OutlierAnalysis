@@ -19,6 +19,11 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na',
+    'gene.rnai.breast.t.num.match.05.na',
+    'gene.rnai.diff.matrix.05.overlap'
+    ));
 
 # Score of the overlap outliers
 gene.rnai.diff.matrix.05.overlap.minus.05 <- gene.rnai.diff.matrix.05.overlap[gene.rnai.diff.matrix.05.overlap$diff < -0.4, ];
@@ -91,5 +96,10 @@ save.outlier.figure(
     width = 6,
     height = 6
     );
+
+cache.multiple.computed.variables(c(
+    'rnai.05.box',
+    'rnai.score.05.overlap.minus.05'
+    ));
 
 save.session.profile(file.path('output', 'Figure4h.txt'));

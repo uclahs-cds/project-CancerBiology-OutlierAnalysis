@@ -23,6 +23,11 @@ source(here::here('common_functions.R'))
 # Load the data file
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'))
 
+
+load.multiple.computed.variables(c(
+    'outlier.patient.tag.01.brca.me.match'
+    ));
+
 ### DESCRIPTION #################################################################
 # Function to process DNA methylation and FPKM data for the PDXNL gene and generate heatmaps.
 

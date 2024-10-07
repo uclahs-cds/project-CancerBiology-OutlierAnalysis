@@ -21,6 +21,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'meta.mutation.driver.list.gene.vector.data.convert.na',
+    'outlier.patient.tag.01.t.p.order.sum'
+    ));
 
 # Helper function to subset and organize data by subtype
 process.subtype.data <- function(subtype.id) {

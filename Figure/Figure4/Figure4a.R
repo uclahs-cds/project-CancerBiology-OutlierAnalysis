@@ -22,6 +22,15 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
+load.multiple.computed.variables(c(
+    'brca.outlier.symbol',
+    'five.data.outlier.symbol',
+    'icgc.outlier.symbol',
+    'ispy.outlier.symbol',
+    'matador.outlier.symbol',
+    'metabric.outlier.symbol'
+    ));
+
 # overlapped with tissue outliers
 ccle.sample.outlier.status.fdr.05 <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05),];
 ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
@@ -221,5 +230,9 @@ save.outlier.figure(
     width = 7.5,
     height = 8.15
     );
+
+cache.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.fdr.05'
+    ));
 
 save.session.profile(file.path('output', 'Figure4a.txt'));

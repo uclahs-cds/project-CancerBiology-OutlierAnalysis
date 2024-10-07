@@ -69,6 +69,14 @@ combine.fisher.pvalue.all.fdr.sort <- sort(combine.fisher.pvalue.all.fdr);
 combine.fisher.pvalue.all.fdr.sort.log <- -log10(combine.fisher.pvalue.all.fdr.sort);
 
 
+load.multiple.computed.variables(c(
+    'gene.position.ispy.all',
+    'gene.position.meta.all',
+    'gene.position.brca.all',
+    'gene.position.metador.all',
+    'gene.position.icgc.all.entrez'
+    ));
+
 
 gene.position.ispy.all.location <- gene.position.ispy.all[, 2:5];
 gene.position.meta.all.location <- gene.position.meta.all[, 2:5];

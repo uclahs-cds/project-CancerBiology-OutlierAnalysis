@@ -20,6 +20,13 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
+load.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na',
+    'gene.dependency.breast.t.num.match.05.na',
+    'gene.dependency.diff.matrix.05.overlap'
+    ));
+
+
 # Filter for genes with dependency score difference > 0.5
 gene.dependency.diff.matrix.05.overlap.minus.05 <- gene.dependency.diff.matrix.05.overlap[
     gene.dependency.diff.matrix.05.overlap$diff > 0.5,

@@ -20,6 +20,11 @@ source(here::here('common_functions.R'))
 # Load required data
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'))
 
+load.multiple.computed.variables(c(
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ));
+
 ### DESCRIPTION #################################################################
 # The function `do.plot.2i` processes data for RNA abundance (FPKM) and DNA methylation
 # for two example genes (NGF, LRP4) and creates scatter plots for visualization.

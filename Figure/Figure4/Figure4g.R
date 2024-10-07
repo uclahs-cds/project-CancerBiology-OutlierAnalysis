@@ -22,6 +22,12 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
+load.multiple.computed.variables(c(
+    'five.data.outlier.symbol',
+    'ccle.sample.outlier.status.overlap'
+    ));
+
+
 # Filter for FDR < 0.05 and match gene names
 gene.rnai.breast.t.num.match.05 <- rnai.effect.breast[
     rownames(rnai.effect.breast) %in% gsub('\\..*$', '', rownames(ccle.outlier.rank.fdr.05)),
@@ -132,5 +138,11 @@ save.outlier.figure(
     width = 6,
     height = 5
     );
+
+cache.multiple.computed.variables(c(
+    'gene.rnai.breast.t.num.match.05.na',
+    'sample.outlier.05.overlap.na',
+    'gene.rnai.diff.matrix.05.overlap'
+    ));
 
 save.session.profile(file.path('output', 'Figure4g.txt'));

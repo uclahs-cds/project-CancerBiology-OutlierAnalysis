@@ -24,6 +24,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'brca.outlier.symbol',
+    'outlier.gene.fdr.01.brca'
+    ));
 
 # Protein CPTAC z-score list
 protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
@@ -167,5 +171,11 @@ save.outlier.figure(
     width = 3.5,
     height = 6.5
     );
+
+cache.multiple.computed.variables(c(
+    'non.outlier.protein.cptac.list.no.p.na',
+    'outlier.patient.tag.01.brca.protein.cptac.zscore.match',
+    'outlier.protein.cptac.list.no.p.na'
+    ));
 
 save.session.profile(file.path('output', 'Figure3a.txt'));

@@ -240,4 +240,24 @@ save.outlier.figure(
     height = 4.8
     );
 
+# Save these variables for later scripts
+meta.me.outlier.match <- meta.methylation$outlier_match;
+brca.me.outlier.match <- brca.methylation$outlier_match;
+brca.outlier.non.promoter.symbol.sample.match.merge.500 <- brca.methylation$non_outlier_match;
+meta.outlier.non.promoter.symbol.sample.match.merge.500 <- meta.methylation$non_outlier_match;
+
+cache.multiple.computed.variables(c(
+    'p.me',
+    'brca.outlier.non.promoter.symbol.sample.match.merge.500',
+    'me.out.symbol.two.500',
+    'meta.me.outlier.match',
+    'meta.outlier.non.promoter.symbol.sample.match.merge.500',
+    'non.outlier.sample.me.two.500',
+    'outlier.patient.tag.01.brca.me.match',
+    'outlier.patient.tag.01.meta.me.match',
+    'outlier.sample.me.two.500',
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ));
+
 save.session.profile(file.path('output', 'Figure2h.txt'));

@@ -24,6 +24,10 @@ source(here::here('common_functions.R'));
 # Load the datafile
 load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
+load.multiple.computed.variables(c(
+    'brca.outlier.symbol'
+    ));
+
 # Protein gene list from antibody data
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, '/'));
 
