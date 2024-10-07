@@ -94,12 +94,15 @@ hg19_location[,3] <- as.numeric(hg19_location[,3]);
 hg19_location[,1] <- paste("chr", hg19_location[,1], sep = '');
 hg19_location.gr <- makeGRangesFromDataFrame(hg19_location);
 
-url2 <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/hg19ToHg38.over.chain.gz";
-fileNameIn2 <- "hg19ToHg38.over.chain.gz";
-download.file(url2, fileNameIn2);
-system(paste0("gzip -d ", fileNameIn2));
-fileNameIn2 <- "hg19ToHg38.over.chain";
-ch <- import.chain(fileNameIn2);
+
+unpacked.chain <- "hg19ToHg38.over.chain";
+if (!file.exists(unpacked.chain)) {
+    url2 <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/hg19ToHg38.over.chain.gz";
+    packed.chain <- "hg19ToHg38.over.chain.gz";
+    download.file(url2, packed.chain);
+    system(paste0("gzip -d ", packed.chain));
+}
+ch <- import.chain(unpacked.chain);
 
 hg38_location <- liftOver(hg19_location.gr, ch);
 
