@@ -56,7 +56,7 @@ combined.df <- icgc.all.fdr %>%
 
 icgc.all.pvalue <- outlier.gene.fdr.all.icgc[, c('obs.p.value', 'Symbol')];
 ispy.all.pvalue <- outlier.gene.fdr.all.ispy[, c('new.p.value', 'Symbol')];
-meta.all.pvalue <- outlier.gene.fdr.all.meta[, c('new.p.value', 'Symbol')];
+meta.all.pvalue <- outlier.gene.fdr.all.meta[, c('obs.p.value', 'Symbol')];
 metador.all.pvalue <- outlier.gene.fdr.all.matador[, c('new.p.value', 'Symbol')];
 brca.all.pvalue <- outlier.gene.fdr.all.brca[, c('new.p.value', 'Symbol')];
 

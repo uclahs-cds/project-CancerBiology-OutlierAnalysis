@@ -80,7 +80,8 @@ brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis[na.omit(match(brca.outlier.sy
 rownames(brca.cnv.chr.new.gis.match) <- brca.cnv.chr.new.gis.match$Hugo_Symbol;
 brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis.match[,3:ncol(brca.cnv.chr.new.gis.match)];
 brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis.match[, colnames(brca.cnv.chr.new.gis.match) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)];
-brca.outlier.symbol.match <- rownames(outlier.patient.tag.01.brca)[match(rownames(brca.cnv.chr.new.gis.match), brca.outlier.symbol)]
+outlier.patient.tag.01.brca.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca),]$Symbol;
+brca.outlier.symbol.match <- rownames(outlier.patient.tag.01.brca)[match(rownames(brca.cnv.chr.new.gis.match), outlier.patient.tag.01.brca.symbol)]
 outlier.patient.tag.01.brca.cnv.match <- outlier.patient.tag.01.brca[brca.outlier.symbol.match, match(colnames(brca.cnv.chr.new.gis.match), substr(colnames(outlier.patient.tag.01.brca), 1, 15))];
 
 brca.outlier.sample.cnv.new.gis <- list();

@@ -294,7 +294,7 @@ diff.non.outlier.tumor.outlier.tumor <- two.out.non.tumor.normal.gene.value.mean
 
 threshold <- 0.2;
 two.out.non.tumor.normal.gene.value.mean.na.500.02 <- two.out.non.tumor.normal.gene.value.mean.na.500[
-    diff.outlier.normal.tumor > threshold &
+    # diff.outlier.normal.tumor > threshold &
         diff.non.outlier.tumor.outlier.tumor > threshold,
     ];
 

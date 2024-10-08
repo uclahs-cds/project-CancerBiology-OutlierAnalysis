@@ -38,7 +38,7 @@ outlier.gene.fdr.all.brca.symbol$Symbol <- fpkm.tumor.symbol.filter.brca[rowname
 # p-value combine and then multiple testing correction
 icgc.all.pvalue <- outlier.gene.fdr.all.icgc.symbol[, c('obs.p.value', 'Symbol')];
 ispy.all.pvalue <- outlier.gene.fdr.all.ispy.symbol[, c('new.p.value', 'Symbol')];
-meta.all.pvalue <- outlier.gene.fdr.all.meta.symbol[, c('new.p.value', 'Symbol')];
+meta.all.pvalue <- outlier.gene.fdr.all.meta.symbol[, c('x.obs.p.value', 'Symbol')];
 metador.all.pvalue <- outlier.gene.fdr.all.matador.symbol[, c('new.p.value', 'Symbol')];
 brca.all.pvalue <- outlier.gene.fdr.all.brca.symbol[, c('new.p.value', 'Symbol')];
 
@@ -84,8 +84,9 @@ all.gene.location <- rbind(
     gene.position.icgc.all.location
     );
 
-all.gene.location.filter <- all.gene.location[!grepl('^CHR', all.gene.location$chromosome_name), ]
-all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ]
+all.gene.location.filter <- all.gene.location[!grepl('^CHR', all.gene.location$chromosome_name), ];
+all.gene.location.filter <- all.gene.location[!grepl('^HSCHR', all.gene.location$chromosome_name), ];
+all.gene.location.filter.nodup <- all.gene.location.filter[!duplicated(all.gene.location.filter$hgnc_symbol), ];
 
 all.gene.location.filter.nodup.order <- all.gene.location.filter.nodup[match(names(combine.fisher.pvalue.all.fdr.sort.log), all.gene.location.filter.nodup$hgnc_symbol), ];
 
