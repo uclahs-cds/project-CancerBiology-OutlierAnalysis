@@ -40,7 +40,6 @@ gene.list.sub <- substr(gene.list, 1, 15);
 ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
                      dataset = "hsapiens_gene_ensembl",
                      mirror = "useast");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
 gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
                                  filters = 'ensembl_gene_id',
@@ -52,10 +51,6 @@ gene.position.brca <- gene.position;
 fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[,patient.part.brca], 1, max);
 gene.list <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.max.brca > 5];
 gene.list.sub <- substr(gene.list, 1, 15);
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-                                dataset = "hsapiens_gene_ensembl",
-                                mirror = "useast");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
 gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
                                  filters = 'ensembl_gene_id',
@@ -105,10 +100,6 @@ calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, tota
 ### 2. METABIRC
 # Get chromosomal location information for outlier genes
 gene.list <- substr(rownames(outlier.gene.fdr.01.meta), 1, nchar(rownames(outlier.gene.fdr.01.meta))-3)
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-                     dataset = "hsapiens_gene_ensembl",
-                     mirror = "uswest");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
 gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
                                  filters = "entrezgene_id",
@@ -118,10 +109,6 @@ gene.position.meta <- gene.position;
 
 # Get chromosomal location information for all genes
 gene.list <- substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol))-3)
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-                     dataset = "hsapiens_gene_ensembl",
-                     mirror = "uswest");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
 gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
                                  filters = "entrezgene_id",
@@ -224,10 +211,6 @@ p.value.chr.ispy.odd.sub.df <- fisher_ispy_results$odds_ratios
 # Get chromosomal location information for outlier genes
 gene.list <- rownames(outlier.gene.fdr.01.matador);
 gene.list.sub <- substr(gene.list, 1, 15);
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-                     dataset = "hsapiens_gene_ensembl",
-                     mirror = "useast");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
 gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
                                  filters = 'ensembl_gene_id',
@@ -993,10 +976,6 @@ exon.box.metador$exon.content <- as.numeric(exon.box.metador$exon.content);
 
 # 5. ICGC
 gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)];
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-                     dataset = "hsapiens_gene_ensembl",
-                     mirror = "useast");
-ensembl <- biomaRt:::useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl);
 gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
                                                 'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
                                  filters = 'ensembl_gene_id',
