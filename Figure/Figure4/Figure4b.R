@@ -17,7 +17,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
 
 # Outlier patient number
 outlier.patient.tag.sum.05 <- apply(ccle.sample.outlier.status, 2, sum);

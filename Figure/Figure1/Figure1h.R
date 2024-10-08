@@ -17,7 +17,7 @@ library(poolr);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
 
 outlier.gene.fdr.all.icgc$Symbol <- fpkm.data.icgc$Name[as.numeric(outlier.gene.fdr.all.icgc$gene)];
 outlier.gene.fdr.all.ispy$Symbol <- rownames(outlier.gene.fdr.all.ispy);
