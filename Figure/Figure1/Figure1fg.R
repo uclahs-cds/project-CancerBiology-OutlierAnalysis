@@ -23,11 +23,7 @@ load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda')
 
 ### DATA PREPARATION ############################################################
 load.multiple.computed.variables(c(
-    'outlier.gene.fdr.01.brca',
-    'outlier.gene.fdr.01.matador',
-    'outlier.gene.fdr.01.icgc',
-    'outlier.gene.fdr.01.ispy',
-    'outlier.gene.fdr.01.meta'
+    'outlier.gene.fdr.01'
     ));
 
 
@@ -35,7 +31,7 @@ load.multiple.computed.variables(c(
 
 ### 1. TCGA
 # Get chromosomal location information for outlier genes
-gene.list <- rownames(outlier.gene.fdr.01.brca);
+gene.list <- rownames(outlier.gene.fdr.01$brca);
 gene.list.sub <- substr(gene.list, 1, 15);
 ensembl <- biomaRt:::useEnsembl(
     biomart = 'ensembl',
@@ -115,7 +111,7 @@ calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, tota
 
 ### 2. METABIRC
 # Get chromosomal location information for outlier genes
-gene.list <- substr(rownames(outlier.gene.fdr.01.meta), 1, nchar(rownames(outlier.gene.fdr.01.meta)) - 3)
+gene.list <- substr(rownames(outlier.gene.fdr.01$meta), 1, nchar(rownames(outlier.gene.fdr.01$meta)) - 3)
 gene.position <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
@@ -153,7 +149,7 @@ chr.outlier.brca <- process_chr_data(gene.position.brca, chr.name)
 chr.outlier.brca.all <- process_chr_data(gene.position.brca.all, chr.name)
 
 # Fisher's test and odds ratio for BRCA
-fisher_brca_results <- calculate_fisher_odds(chr.outlier.brca, chr.outlier.brca.all, nrow(fpkm.tumor.symbol.filter.brca), nrow(outlier.gene.fdr.01.brca));
+fisher_brca_results <- calculate_fisher_odds(chr.outlier.brca, chr.outlier.brca.all, nrow(fpkm.tumor.symbol.filter.brca), nrow(outlier.gene.fdr.01$brca));
 
 p.value.chr.brca.fisher.sub <- fisher_brca_results$p.values
 p.value.chr.brca.odd.sub.df <- fisher_brca_results$odds_ratios
@@ -163,14 +159,14 @@ chr.outlier.meta <- process_chr_data(gene.position.meta, chr.name)
 chr.outlier.meta.all <- process_chr_data(gene.position.meta.all, chr.name)
 
 # Fisher's test and odds ratio for METABRIC
-fisher_meta_results <- calculate_fisher_odds(chr.outlier.meta, chr.outlier.meta.all, nrow(fpkm.tumor.symbol.filter.meta.symbol), nrow(outlier.gene.fdr.01.meta));
+fisher_meta_results <- calculate_fisher_odds(chr.outlier.meta, chr.outlier.meta.all, nrow(fpkm.tumor.symbol.filter.meta.symbol), nrow(outlier.gene.fdr.01$meta));
 
 p.value.chr.meta.fisher.sub <- fisher_meta_results$p.values
 p.value.chr.meta.odd.sub.df <- fisher_meta_results$odds_ratios
 
 ### 3. ISPY
 # Get chromosomal location information for outlier genes
-gene.list <- rownames(outlier.gene.fdr.01.ispy);
+gene.list <- rownames(outlier.gene.fdr.01$ispy);
 gene.position <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
@@ -218,7 +214,7 @@ p.value.chr.ispy.odd.sub <- NULL;
 for (i in 1:25) {
     total.gene <- nrow(fpkm.tumor.symbol.filter.ispy);
     chr.gene <- chr.position.outlier.ispy.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.ispy) # sample size
+    total.outlier <- nrow(outlier.gene.fdr.01$ispy) # sample size
     chr.outlier <- chr.position.outlier.ispy$count[i] # number of genes on the chromosome of interest in the sample
     if (is.na(chr.outlier)) {
         chr.outlier <- 0;
@@ -236,14 +232,14 @@ chr.position.outlier.ispy <- process_chr_data(gene.position.ispy, chr.name)
 chr.position.outlier.ispy.all <- process_chr_data(gene.position.ispy.all, chr.name)
 
 
-fisher_ispy_results <- calculate_fisher_odds(chr.position.outlier.ispy, chr.position.outlier.ispy.all, nrow(fpkm.tumor.symbol.filter.ispy), nrow(outlier.gene.fdr.01.ispy));
+fisher_ispy_results <- calculate_fisher_odds(chr.position.outlier.ispy, chr.position.outlier.ispy.all, nrow(fpkm.tumor.symbol.filter.ispy), nrow(outlier.gene.fdr.01$ispy));
 
 p.value.chr.ispy.fisher.sub <- fisher_ispy_results$p.values
 p.value.chr.ispy.odd.sub.df <- fisher_ispy_results$odds_ratios
 
 ### 4. MATADOR
 # Get chromosomal location information for outlier genes
-gene.list <- rownames(outlier.gene.fdr.01.matador);
+gene.list <- rownames(outlier.gene.fdr.01$matador);
 gene.list.sub <- substr(gene.list, 1, 15);
 gene.position <- biomaRt:::getBM(
     attributes = c(
@@ -291,7 +287,7 @@ p.value.chr.metador.odd.sub <- NULL;
 for (i in 1:25) {
     total.gene <- nrow(fpkm.tumor.symbol.filter.metador.symbol);
     chr.gene <- chr.position.outlier.metador.all$count[i] # number of genes on the chromosome of interest in the population
-    total.outlier <- nrow(outlier.gene.fdr.01.matador) # sample size
+    total.outlier <- nrow(outlier.gene.fdr.01$matador) # sample size
     chr.outlier <- chr.position.outlier.metador$count[i] # number of genes on the chromosome of interest in the sample
     if (is.na(chr.outlier)) {
         chr.outlier <- 0;
@@ -310,7 +306,7 @@ chr.position.outlier.metador <- process_chr_data(gene.position.metador, chr.name
 chr.position.outlier.metador.all <- process_chr_data(gene.position.metador.all, chr.name)
 
 
-fisher_metador_results <- calculate_fisher_odds(chr.position.outlier.metador, chr.position.outlier.metador.all, nrow(fpkm.tumor.symbol.filter.metador.symbol), nrow(outlier.gene.fdr.01.matador));
+fisher_metador_results <- calculate_fisher_odds(chr.position.outlier.metador, chr.position.outlier.metador.all, nrow(fpkm.tumor.symbol.filter.metador.symbol), nrow(outlier.gene.fdr.01$matador));
 
 p.value.chr.metador.fisher.sub <- fisher_metador_results$p.values
 p.value.chr.metador.odd.sub.df <- fisher_metador_results$odds_ratios
@@ -319,10 +315,10 @@ p.value.chr.metador.odd.sub.df <- fisher_metador_results$odds_ratios
 gene.position.icgc.all.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(rownames(fpkm.tumor.symbol.filter.icgc))])
 chr.position.outlier.icgc.all <- process_chr_data(data.frame(chromosome_name = gene.position.icgc.all.chr), chr.name)
 
-gene.position.icgc.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01.icgc$gene)])
+gene.position.icgc.chr <- gsub(':.*', '', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01$icgc$gene)])
 chr.position.outlier.icgc <- process_chr_data(data.frame(chromosome_name = gene.position.icgc.chr), chr.name)
 
-fisher_icgc_results <- calculate_fisher_odds(chr.position.outlier.icgc, chr.position.outlier.icgc.all, nrow(fpkm.tumor.symbol.filter.icgc), nrow(outlier.gene.fdr.01.icgc));
+fisher_icgc_results <- calculate_fisher_odds(chr.position.outlier.icgc, chr.position.outlier.icgc.all, nrow(fpkm.tumor.symbol.filter.icgc), nrow(outlier.gene.fdr.01$icgc));
 
 p.value.chr.icgc.fisher.sub <- fisher_icgc_results$p.values
 p.value.chr.icgc.odd.sub.df <- fisher_icgc_results$odds_ratios
@@ -428,12 +424,12 @@ metafor.chr.odd.ci.p.data.label.5 <- data.frame(
 
 ### - 1. GC content
 # 1. TCGA-BRCA
-gene.list <- rownames(outlier.gene.fdr.01.brca);
+gene.list <- rownames(outlier.gene.fdr.01$brca);
 gene.list.sub <- substr(gene.list, 1, 15);
 gene.gc.brca <- gene.gc[match(gene.list.sub, gene.gc$Gene.stable.ID), ];
 gene.gc.brca.content <- as.numeric(gene.gc.brca$Gene...GC.content);
 outlier.gene.fdr.01.brca.gc <- cbind(
-    outlier.gene.fdr.01.brca,
+    outlier.gene.fdr.01$brca,
     GC.content = gene.gc.brca.content
     );
 
@@ -448,7 +444,7 @@ outlier.gene.fdr.all.brca.gc <- cbind(
     GC.content = gene.gc.brca.content.all
     );
 
-gene.position.all.gc.non.brca <- outlier.gene.fdr.all.brca.gc[!(rownames(outlier.gene.fdr.all.brca.gc) %in% rownames(outlier.gene.fdr.01.brca)), ];
+gene.position.all.gc.non.brca <- outlier.gene.fdr.all.brca.gc[!(rownames(outlier.gene.fdr.all.brca.gc) %in% rownames(outlier.gene.fdr.01$brca)), ];
 gene.position.all.gc.outlier.brca <- outlier.gene.fdr.01.brca.gc;
 gc.num.non.brca <- gene.position.all.gc.non.brca$GC.content;
 gc.num.outlier.brca <- gene.position.all.gc.outlier.brca$GC.content;
@@ -464,11 +460,11 @@ gc.box.brca <- na.omit(gc.box.brca);
 gc.box.brca$gc.content <- as.numeric(gc.box.brca$gc.content);
 
 # 2. METABRIC
-gene.list <- rownames(outlier.gene.fdr.01.meta);
+gene.list <- rownames(outlier.gene.fdr.01$meta);
 gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
 gene.position.meta.order <- gene.position.meta[match(gene.list.sub, gene.position.meta$entrezgene_id), ];
 outlier.gene.fdr.01.meta.ensg <- cbind(
-    outlier.gene.fdr.01.meta,
+    outlier.gene.fdr.01$meta,
     ensembl = gene.position.meta.order$ensembl_gene_id
     );
 
@@ -509,10 +505,10 @@ gc.box.meta <- na.omit(gc.box.meta);
 gc.box.meta$gc.content <- as.numeric(gc.box.meta$gc.content);
 
 # 3. I-SPY-2
-gene.list <- rownames(outlier.gene.fdr.01.ispy);
+gene.list <- rownames(outlier.gene.fdr.01$ispy);
 gene.position.ispy.order <- gene.position.ispy[match(gene.list, gene.position.ispy$hgnc_symbol), ];
 outlier.gene.fdr.01.ispy.ensg <- cbind(
-    outlier.gene.fdr.01.ispy,
+    outlier.gene.fdr.01$ispy,
     ensembl = gene.position.ispy.order$ensembl_gene_id
     );
 gene.gc.ispy <- gene.gc[match(gene.position.ispy.order$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
@@ -551,12 +547,12 @@ gc.box.ispy <- na.omit(gc.box.ispy);
 gc.box.ispy$gc.content <- as.numeric(gc.box.ispy$gc.content);
 
 # 4. MATADOR
-gene.list <- rownames(outlier.gene.fdr.01.matador);
+gene.list <- rownames(outlier.gene.fdr.01$matador);
 gene.list.metadordor.sub <- substr(gene.list, 1, 15);
 gene.gc.metador <- gene.gc[match(gene.list.metadordor.sub, gene.gc$Gene.stable.ID), ];
 gene.gc.metador.content <- as.numeric(gene.gc.metador$Gene...GC.content);
 outlier.gene.fdr.01.matador.gc <- cbind(
-    outlier.gene.fdr.01.matador,
+    outlier.gene.fdr.01$matador,
     GC.content = gene.gc.metador.content
     );
 
@@ -585,11 +581,11 @@ gc.box.metador <- na.omit(gc.box.metador);
 gc.box.metador$gc.content <- as.numeric(gc.box.metador$gc.content);
 
 # 5. ICGC
-gene.list.icgc <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01.icgc$gene)];
+gene.list.icgc <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01$icgc$gene)];
 gene.gc.icgc <- gene.gc[match(gene.list.icgc, gene.gc$Gene.stable.ID), ];
 gene.gc.icgc.content <- as.numeric(gene.gc.icgc$Gene...GC.content);
 outlier.gene.fdr.01.icgc.gc <- cbind(
-    outlier.gene.fdr.01.icgc,
+    outlier.gene.fdr.01$icgc,
     GC.content = gene.gc.icgc.content
     );
 
@@ -805,12 +801,12 @@ length.box.metador$length.content <- as.numeric(length.box.metador$length.conten
 ### 5. ICGC
 
 # Extract the start and end positions for ICGC non-outlier genes
-first.number.icgc.non <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.all.icgc$gene)[-(as.numeric(outlier.gene.fdr.01.icgc$gene))]]);
-second.number.icgc.non <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.all.icgc$gene)[-(as.numeric(outlier.gene.fdr.01.icgc$gene))]]);
+first.number.icgc.non <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.all.icgc$gene)[-(as.numeric(outlier.gene.fdr.01$icgc$gene))]]);
+second.number.icgc.non <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.all.icgc$gene)[-(as.numeric(outlier.gene.fdr.01$icgc$gene))]]);
 
 # Extract the start and end positions for ICGC outlier genes
-first.number.icgc.out <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01.icgc$gene)]);
-second.number.icgc.out <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01.icgc$gene)]);
+first.number.icgc.out <- gsub('^.*:(\\d+)-.*$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01$icgc$gene)]);
+second.number.icgc.out <- gsub('^.*-(\\d+)$', '\\1', fpkm.data.icgc$loc[as.numeric(outlier.gene.fdr.01$icgc$gene)]);
 
 # Calculate the lengths of non-outlier and outlier genes
 outlier.length.icgc <- as.numeric(second.number.icgc.out) - as.numeric(first.number.icgc.out) + 1;
@@ -1029,7 +1025,7 @@ gene.position.entrez <- biomaRt:::getBM(
     );
 gene.position.icgc.all.entrez <- gene.position.entrez;
 
-gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01.icgc$gene)]
+gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01$icgc$gene)]
 gene.position.entrez <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
@@ -1144,9 +1140,9 @@ smd.metafor.exon.5 <- rma.uni(yi = yi, vi = vi, data = escalc.exon.matrix.5, met
 ### - 4) RNA abundance
 
 # 1. TCGA-BRCA
-outlier.rna.brca <- apply(fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01.brca), patient.part.brca], 1, median);
+outlier.rna.brca <- apply(fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01$brca), patient.part.brca], 1, median);
 
-gene.non.rna.brca <- apply(fpkm.tumor.symbol.filter.brca[!(rownames(fpkm.tumor.symbol.filter.brca) %in% rownames(outlier.gene.fdr.01.brca)), patient.part.brca], 1, median)
+gene.non.rna.brca <- apply(fpkm.tumor.symbol.filter.brca[!(rownames(fpkm.tumor.symbol.filter.brca) %in% rownames(outlier.gene.fdr.01$brca)), patient.part.brca], 1, median)
 
 rna.box.brca <- data.frame(cbind(
     rna.content = c(gene.non.rna.brca, outlier.rna.brca),
@@ -1160,9 +1156,9 @@ rna.box.brca$rna.content <- as.numeric(rna.box.brca$rna.content);
 
 
 # 2. METABRIC
-outlier.rna.meta <- apply(fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01.meta), patient.part.meta], 1, median);
+outlier.rna.meta <- apply(fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01$meta), patient.part.meta], 1, median);
 
-gene.non.rna.meta <- apply(fpkm.tumor.symbol.filter.meta.symbol[!(rownames(fpkm.tumor.symbol.filter.meta.symbol) %in% rownames(outlier.gene.fdr.01.meta)), patient.part.meta], 1, median)
+gene.non.rna.meta <- apply(fpkm.tumor.symbol.filter.meta.symbol[!(rownames(fpkm.tumor.symbol.filter.meta.symbol) %in% rownames(outlier.gene.fdr.01$meta)), patient.part.meta], 1, median)
 
 rna.box.meta <- data.frame(cbind(
     rna.content = c(gene.non.rna.meta, outlier.rna.meta),
@@ -1176,9 +1172,9 @@ rna.box.meta$rna.content <- as.numeric(rna.box.meta$rna.content);
 
 
 # 3. I-SPY-2
-outlier.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[rownames(outlier.gene.fdr.01.ispy), patient.part.ispy], 1, median);
+outlier.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[rownames(outlier.gene.fdr.01$ispy), patient.part.ispy], 1, median);
 
-gene.non.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[!(rownames(fpkm.tumor.symbol.filter.ispy) %in% rownames(outlier.gene.fdr.01.ispy)), patient.part.ispy], 1, median)
+gene.non.rna.ispy <- apply(fpkm.tumor.symbol.filter.ispy[!(rownames(fpkm.tumor.symbol.filter.ispy) %in% rownames(outlier.gene.fdr.01$ispy)), patient.part.ispy], 1, median)
 
 rna.box.ispy <- data.frame(cbind(
     rna.content = c(gene.non.rna.ispy, outlier.rna.ispy),
@@ -1192,9 +1188,9 @@ rna.box.ispy$rna.content <- as.numeric(rna.box.ispy$rna.content);
 
 
 # 4. MATADOR
-outlier.rna.metador <- apply(fpkm.tumor.symbol.filter.metador.symbol[rownames(outlier.gene.fdr.01.matador), patient.part.metador], 1, median);
+outlier.rna.metador <- apply(fpkm.tumor.symbol.filter.metador.symbol[rownames(outlier.gene.fdr.01$matador), patient.part.metador], 1, median);
 
-gene.non.rna.metador <- apply(fpkm.tumor.symbol.filter.metador.symbol[!(rownames(fpkm.tumor.symbol.filter.metador.symbol) %in% rownames(outlier.gene.fdr.01.matador)), patient.part.metador], 1, median)
+gene.non.rna.metador <- apply(fpkm.tumor.symbol.filter.metador.symbol[!(rownames(fpkm.tumor.symbol.filter.metador.symbol) %in% rownames(outlier.gene.fdr.01$matador)), patient.part.metador], 1, median)
 
 rna.box.metador <- data.frame(cbind(
     rna.content = c(gene.non.rna.metador, outlier.rna.metador),
@@ -1208,9 +1204,9 @@ rna.box.metador$rna.content <- as.numeric(rna.box.metador$rna.content);
 
 
 # 5. ICGC
-outlier.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[outlier.gene.fdr.01.icgc$gene, patient.part.icgc], 1, median);
+outlier.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[outlier.gene.fdr.01$icgc$gene, patient.part.icgc], 1, median);
 
-gene.non.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[!(rownames(fpkm.tumor.symbol.filter.icgc) %in% outlier.gene.fdr.01.icgc$gene), patient.part.icgc], 1, median)
+gene.non.rna.icgc <- apply(fpkm.tumor.symbol.filter.icgc[!(rownames(fpkm.tumor.symbol.filter.icgc) %in% outlier.gene.fdr.01$icgc$gene), patient.part.icgc], 1, median)
 
 rna.box.icgc <- data.frame(cbind(
     rna.content = c(gene.non.rna.icgc, outlier.rna.icgc),

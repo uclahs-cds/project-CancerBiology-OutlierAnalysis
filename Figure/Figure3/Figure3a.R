@@ -26,7 +26,7 @@ load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda')
 
 load.multiple.computed.variables(c(
     'outlier.symbol',
-    'outlier.gene.fdr.01.brca'
+    'outlier.gene.fdr.01'
     ));
 
 # Protein CPTAC z-score list
@@ -49,7 +49,7 @@ outlier.patient.tag.01.brca.protein.cptac.zscore.match <- outlier.patient.tag.01
 
 # Only outlier gene's FPKM
 fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[
-    rownames(outlier.gene.fdr.01.brca),
+    rownames(outlier.gene.fdr.01$brca),
     ];
 
 outlier.protein.cptac.zscore.list <- list();

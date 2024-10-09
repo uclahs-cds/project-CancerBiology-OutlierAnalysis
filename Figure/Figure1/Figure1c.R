@@ -26,21 +26,23 @@ load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda')
 
 
 # Get the FDR information of only outlier genes
-outlier.gene.fdr.01.brca <- outlier.gene.fdr.all.brca[outlier.gene.fdr.all.brca$fdr < 0.01, ];
-outlier.gene.fdr.01.meta <- outlier.gene.fdr.all.meta[outlier.gene.fdr.all.meta$fdr < 0.01, ];
-outlier.gene.fdr.01.matador <- outlier.gene.fdr.all.matador[outlier.gene.fdr.all.matador$fdr < 0.01, ];
-outlier.gene.fdr.01.ispy <- outlier.gene.fdr.all.ispy[outlier.gene.fdr.all.ispy$fdr < 0.01, ];
-outlier.gene.fdr.01.icgc <- outlier.gene.fdr.all.icgc[outlier.gene.fdr.all.icgc$fdr < 0.01, ];
+outlier.gene.fdr.01 <- list(
+    brca = outlier.gene.fdr.all.brca[outlier.gene.fdr.all.brca$fdr < 0.01, ],
+    meta = outlier.gene.fdr.all.meta[outlier.gene.fdr.all.meta$fdr < 0.01, ],
+    matador = outlier.gene.fdr.all.matador[outlier.gene.fdr.all.matador$fdr < 0.01, ],
+    ispy = outlier.gene.fdr.all.ispy[outlier.gene.fdr.all.ispy$fdr < 0.01, ],
+    icgc = outlier.gene.fdr.all.icgc[outlier.gene.fdr.all.icgc$fdr < 0.01, ]
+    );
 
-pos <- which(strsplit(rownames(outlier.gene.fdr.01.matador), '')[[1]] == '_');
+pos <- which(strsplit(rownames(outlier.gene.fdr.01$matador), '')[[1]] == '_');
 
 outlier.symbol <- list(
-    metabric = fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01.meta), ]$Symbol,
-    brca = fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01.brca), ]$Symbol,
-    matador = substring(rownames(outlier.gene.fdr.01.matador), pos + 1),
-    ispy = rownames(outlier.gene.fdr.01.ispy),
+    metabric = fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01$meta), ]$Symbol,
+    brca = fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01$brca), ]$Symbol,
+    matador = substring(rownames(outlier.gene.fdr.01$matador), pos + 1),
+    ispy = rownames(outlier.gene.fdr.01$ispy),
     icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol
-);
+    );
 
 five.data.outlier.symbol <- unique(c(
     outlier.symbol$metabric,
@@ -54,11 +56,7 @@ five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
 # Save these variables for later scripts
 cache.multiple.computed.variables(c(
     'outlier.symbol',
-    'outlier.gene.fdr.01.brca',
-    'outlier.gene.fdr.01.meta',
-    'outlier.gene.fdr.01.matador',
-    'outlier.gene.fdr.01.ispy',
-    'outlier.gene.fdr.01.icgc',
+    'outlier.gene.fdr.01',
     'five.data.outlier.symbol',
     'five.data.outlier.symbol.na'
     ));
