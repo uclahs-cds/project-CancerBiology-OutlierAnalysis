@@ -29,39 +29,57 @@ load.multiple.computed.variables(c(
 
 ### 1. Chromosomal enrichment ###################################################
 
+# Declare the biomaRt connection once
+ensembl <- NULL;
+
+# Get chromosomal positions, caching results in an intermediate directory for
+# efficiency
+get.chromosomal.positions <- function(gene.list, filters) {
+    cache.dir <- file.path('output', 'ensembl_cache');
+
+    if (!dir.exists(cache.dir)) {
+        dir.create(cache.dir);
+        }
+
+    cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
+    if (file.exists(cache.file)) {
+        return(readRDS(cache.file));
+        }
+
+    # Initialize the ensembl object lazily, if it's not already initialized
+    if (is.null(ensembl)) {
+        ensembl <<- biomaRt:::useEnsembl(
+            biomart = 'ensembl',
+            dataset = 'hsapiens_gene_ensembl',
+            version = 112
+            );
+        }
+
+    results <- biomaRt::getBM(
+        attributes = c(
+            'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+            'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+            ),
+        filters = filters,
+        values = gene.list,
+        mart = ensembl
+        );
+
+    saveRDS(results, file = cache.file);
+    return(results);
+    }
+
 ### 1. TCGA
 # Get chromosomal location information for outlier genes
-gene.list <- rownames(outlier.gene.fdr.01$brca);
-gene.list.sub <- substr(gene.list, 1, 15);
-ensembl <- biomaRt:::useEnsembl(
-    biomart = 'ensembl',
-    dataset = 'hsapiens_gene_ensembl',
-    mirror = 'useast'
-    );
-gene.position.brca <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'ensembl_gene_id',
-    values = gene.list.sub,
-    mart = ensembl
+gene.position.brca <- get.chromosomal.positions(
+    substr(rownames(outlier.gene.fdr.01$brca), 1, 15),
+    'ensembl_gene_id'
     );
 
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[, patient.part.brca], 1, max);
 gene.list <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.max.brca > 5];
-gene.list.sub <- substr(gene.list, 1, 15);
-gene.position.brca.all <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'ensembl_gene_id',
-    values = gene.list.sub,
-    mart = ensembl
-    );
-
+gene.position.brca.all <- get.chromosomal.positions(substr(gene.list, 1, 15), 'ensembl_gene_id');
 
 # Function to process chromosome data
 process_chr_data <- function(gene_data, chr_name) {
@@ -109,27 +127,15 @@ calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, tota
 
 ### 2. METABIRC
 # Get chromosomal location information for outlier genes
-gene.list <- substr(rownames(outlier.gene.fdr.01$meta), 1, nchar(rownames(outlier.gene.fdr.01$meta)) - 3)
-gene.position.meta <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'entrezgene_id',
-    values = gene.list,
-    mart = ensembl
+gene.position.meta <- get.chromosomal.positions(
+    substr(rownames(outlier.gene.fdr.01$meta), 1, nchar(rownames(outlier.gene.fdr.01$meta)) - 3),
+    'entrezgene_id'
     );
 
 # Get chromosomal location information for all genes
-gene.list <- substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol)) - 3)
-gene.position.meta.all <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'entrezgene_id',
-    values = gene.list,
-    mart = ensembl
+gene.position.meta.all <- get.chromosomal.positions(
+    substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol)) - 3),
+    'entrezgene_id'
     );
 
 # Chromosome names
@@ -162,30 +168,16 @@ p.value.chr.meta.odd.sub.df <- fisher_meta_results$odds_ratios
 
 ### 3. ISPY
 # Get chromosomal location information for outlier genes
-gene.list <- rownames(outlier.gene.fdr.01$ispy);
-gene.position.ispy <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'hgnc_symbol',
-    values = gene.list,
-    mart = ensembl
+gene.position.ispy <- get.chromosomal.positions(
+    rownames(outlier.gene.fdr.01$ispy),
+    'hgnc_symbol'
     );
 
 # Get chromosomal location information for all genes
-gene.list <- rownames(fpkm.tumor.symbol.filter.ispy);
-gene.position.ispy.all <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'hgnc_symbol',
-    values = gene.list,
-    mart = ensembl
+gene.position.ispy.all <- get.chromosomal.positions(
+    rownames(fpkm.tumor.symbol.filter.ispy),
+    'hgnc_symbol'
     );
-
-
 
 
 chr.position.ispy <- data.frame(as.matrix(table(gene.position.ispy$chromosome_name)))
@@ -233,30 +225,18 @@ p.value.chr.ispy.odd.sub.df <- fisher_ispy_results$odds_ratios
 
 ### 4. MATADOR
 # Get chromosomal location information for outlier genes
-gene.list <- rownames(outlier.gene.fdr.01$matador);
-gene.list.sub <- substr(gene.list, 1, 15);
-gene.position.metador <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'ensembl_gene_id',
-    values = gene.list.sub,
-    mart = ensembl
+gene.position.metador <- get.chromosomal.positions(
+    substr(rownames(outlier.gene.fdr.01$matador), 1, 15),
+    'ensembl_gene_id'
     );
 
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[, -ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
 fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5, ];
 gene.list <- fpkm.tumor.symbol.filter.metador.symbol.max.filter$Symbol;
-gene.position.metador.all <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'hgnc_symbol',
-    values = gene.list,
-    mart = ensembl
+gene.position.metador.all <- get.chromosomal.positions(
+    gene.list,
+    'hgnc_symbol'
     );
 
 
@@ -1005,29 +985,15 @@ exon.box.metador$exon.content <- as.numeric(exon.box.metador$exon.content);
 
 
 # 5. ICGC
-gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)];
-gene.position.entrez <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'ensembl_gene_id',
-    values = gene.list,
-    mart = ensembl
+gene.position.icgc.all.entrez <- get.chromosomal.positions(
+    fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)],
+    'ensembl_gene_id'
     );
-gene.position.icgc.all.entrez <- gene.position.entrez;
 
-gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01$icgc$gene)]
-gene.position.entrez <- biomaRt:::getBM(
-    attributes = c(
-        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
-        ),
-    filters = 'ensembl_gene_id',
-    values = gene.list,
-    mart = ensembl
+gene.position.icgc.entrez <- get.chromosomal.positions(
+    fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01$icgc$gene)],
+    'ensembl_gene_id'
     );
-gene.position.icgc.entrez <- gene.position.entrez;
 
 exon.num.order.icgc <- exon.num[match(gene.position.icgc.all.entrez$entrezgene_id, names(exon.num))];
 gene.position.all.exon.icgc <- data.frame(cbind(
