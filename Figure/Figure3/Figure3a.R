@@ -44,7 +44,8 @@ outlier.patient.tag.01.brca.protein.cptac.zscore.match <- outlier.patient.tag.01
     rownames(fpkm.tumor.symbol.filter.brca)[
         fpkm.tumor.symbol.filter.brca$Symbol %in% unique(outlier.protein.cptac.zscore.gene)
         ],
-    substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% colnames(brca.protein.cptac.zscore)];
+    substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% colnames(brca.protein.cptac.zscore)
+    ];
 
 # Only outlier gene's FPKM
 fpkm.tumor.symbol.filter.brca.outlier <- fpkm.tumor.symbol.filter.brca[

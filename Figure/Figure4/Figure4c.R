@@ -28,9 +28,9 @@ ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub(
 ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
 
 
-protein.info.breast.num.symbol <- sapply(strsplit(rownames(protein.info.breast.num), "\\|"), function(x) x[3]);
-protein.info.breast.num.symbol <- sub("_HUMAN", "", protein.info.breast.num.symbol);
-protein.info.breast.num.match <- protein.info.breast.num[,colnames(protein.info.breast.num) %in% colnames(fpkm.tumor.symbol.filter.ccle)];
+protein.info.breast.num.symbol <- sapply(strsplit(rownames(protein.info.breast.num), '\\|'), function(x) x[3]);
+protein.info.breast.num.symbol <- sub('_HUMAN', '', protein.info.breast.num.symbol);
+protein.info.breast.num.match <- protein.info.breast.num[, colnames(protein.info.breast.num) %in% colnames(fpkm.tumor.symbol.filter.ccle)];
 rownames(protein.info.breast.num.match) <- protein.info.breast.num.symbol;
 protein.info.breast.num.match.05 <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% ccle.sample.outlier.status.fdr.05.five.symbol, ];
 

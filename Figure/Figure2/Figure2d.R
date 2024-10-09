@@ -59,14 +59,14 @@ outlier.patient.tag.01.brca.patient.sum <- apply(outlier.patient.tag.01.brca, 2,
 brca.amplicon$sample_barcode <- gsub('-', '.', brca.amplicon$sample_barcode);
 
 # Match amplicon data with outlier patient data
-brca.amplicon.match <- brca.amplicon[brca.amplicon$sample_barcode %in% substr(names(outlier.patient.tag.01.brca.patient.sum), 1, 15),];
-brca.amplicon.match.ec <- brca.amplicon.match[brca.amplicon.match$amplicon_classification %in% "Circular",];
+brca.amplicon.match <- brca.amplicon[brca.amplicon$sample_barcode %in% substr(names(outlier.patient.tag.01.brca.patient.sum), 1, 15), ];
+brca.amplicon.match.ec <- brca.amplicon.match[brca.amplicon.match$amplicon_classification %in% 'Circular', ];
 
 # Process each amplicon interval
 brca.amplicon.match.ec.each <- NULL
 for (i in 1:nrow(brca.amplicon.match.ec)) {
-    original.df <- brca.amplicon.match.ec[i,];
-    split_intervals <- strsplit(original.df$amplicon_intervals, ",");
+    original.df <- brca.amplicon.match.ec[i, ];
+    split_intervals <- strsplit(original.df$amplicon_intervals, ',');
     num_rows <- sapply(split_intervals, length);
     split_df <- original.df[rep(seq_len(nrow(original.df)), num_rows), ];
     split_df$amplicon_intervals <- unlist(split_intervals);
@@ -75,12 +75,12 @@ for (i in 1:nrow(brca.amplicon.match.ec)) {
     }
 
 # Split intervals and create a data frame with chromosome, start, and end
-split.intervals <- strsplit(as.character(brca.amplicon.match.ec.each$amplicon_intervals), "[:-]")
+split.intervals <- strsplit(as.character(brca.amplicon.match.ec.each$amplicon_intervals), '[:-]')
 brca.amplicon.match.ec.each.chr <- cbind(
-    brca.amplicon.match.ec.each[,1:3],
-    chr = sapply(split.intervals, "[[", 1),
-    start = sapply(split.intervals, "[[", 2),
-    end = sapply(split.intervals, "[[", 3)
+    brca.amplicon.match.ec.each[, 1:3],
+    chr = sapply(split.intervals, '[[', 1),
+    start = sapply(split.intervals, '[[', 2),
+    end = sapply(split.intervals, '[[', 3)
     );
 
 # Convert hg19 to hg38
@@ -88,20 +88,20 @@ library(rtracklayer)
 library(liftOver)
 library(GenomicRanges)
 
-hg19_location <- brca.amplicon.match.ec.each.chr[,4:6];
-hg19_location[,2] <- as.numeric(hg19_location[,2]);
-hg19_location[,3] <- as.numeric(hg19_location[,3]);
-hg19_location[,1] <- paste("chr", hg19_location[,1], sep = '');
+hg19_location <- brca.amplicon.match.ec.each.chr[, 4:6];
+hg19_location[, 2] <- as.numeric(hg19_location[, 2]);
+hg19_location[, 3] <- as.numeric(hg19_location[, 3]);
+hg19_location[, 1] <- paste('chr', hg19_location[, 1], sep = '');
 hg19_location.gr <- makeGRangesFromDataFrame(hg19_location);
 
 
-unpacked.chain <- "hg19ToHg38.over.chain";
+unpacked.chain <- 'hg19ToHg38.over.chain';
 if (!file.exists(unpacked.chain)) {
-    url2 <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/hg19ToHg38.over.chain.gz";
-    packed.chain <- "hg19ToHg38.over.chain.gz";
+    url2 <- 'http://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/hg19ToHg38.over.chain.gz';
+    packed.chain <- 'hg19ToHg38.over.chain.gz';
     download.file(url2, packed.chain);
-    system(paste0("gzip -d ", packed.chain));
-}
+    system(paste0('gzip -d ', packed.chain));
+    }
 ch <- import.chain(unpacked.chain);
 
 hg38_location <- liftOver(hg19_location.gr, ch);
@@ -113,28 +113,27 @@ for (i in 1:length(hg38_location)) {
     start <- tryCatch(start(combined_location)[1], error = function(e) NULL);
     end <- tryCatch(end(combined_location)[length(end(combined_location))], error = function(e) NULL);
     if (!is.null(chr) && !is.null(start) && !is.null(end)) {
-        combined_location_str <- paste(chr, start, end, sep = " ");
-        } 
-    else {
+        combined_location_str <- paste(chr, start, end, sep = ' ');
+        } else {
         combined_location_str <- c('0 0 0');
         }
     hg38_location.reduce <- rbind(hg38_location.reduce, combined_location_str);
     }
 
-hg38_location.reduce.split <- strsplit(hg38_location.reduce[,1], " ");
+hg38_location.reduce.split <- strsplit(hg38_location.reduce[, 1], ' ');
 hg38_location.reduce.split.t <- t(data.frame(hg38_location.reduce.split));
 rownames(hg38_location.reduce.split.t) <- NULL;
 colnames(hg38_location.reduce.split.t) <- c('chr', 'start', 'end');
 
-brca.amplicon.match.ec.each.chr.hg38 <- cbind(brca.amplicon.match.ec.each.chr[,1:3], hg38_location.reduce.split.t);
+brca.amplicon.match.ec.each.chr.hg38 <- cbind(brca.amplicon.match.ec.each.chr[, 1:3], hg38_location.reduce.split.t);
 
 # Patients only have ecDNA data
-outlier.patient.tag.01.brca.ecDNA <- outlier.patient.tag.01.brca[,substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% unique(brca.amplicon.match.ec.each.chr.hg38$sample_barcode)];
-outlier.patient.tag.01.brca.ecDNA.match <- outlier.patient.tag.01.brca.ecDNA[apply(outlier.patient.tag.01.brca.ecDNA, 1, sum) > 0,];
+outlier.patient.tag.01.brca.ecDNA <- outlier.patient.tag.01.brca[, substr(colnames(outlier.patient.tag.01.brca), 1, 15) %in% unique(brca.amplicon.match.ec.each.chr.hg38$sample_barcode)];
+outlier.patient.tag.01.brca.ecDNA.match <- outlier.patient.tag.01.brca.ecDNA[apply(outlier.patient.tag.01.brca.ecDNA, 1, sum) > 0, ];
 
 
-brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name %in% brca.outlier.symbol,1:5];
-brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location[brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location$gene_name %in% fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca.ecDNA.match),'Symbol'],];
+brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name %in% brca.outlier.symbol, 1:5];
+brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location[brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location$gene_name %in% fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca.ecDNA.match), 'Symbol'], ];
 
 # Find if the outlier genes are from ecDNA
 ecDNA.outlier.patient.location <- NULL;
@@ -143,16 +142,15 @@ for (i in 1:nrow(brca.amplicon.match.ec.each.chr.hg38)) {
     target.chr <- brca.amplicon.match.ec.each.chr.hg38$chr[i];
     target.start <- brca.amplicon.match.ec.each.chr.hg38$start[i];
     target.end <- brca.amplicon.match.ec.each.chr.hg38$end[i];
-    target.outlier <- rownames(outlier.patient.tag.01.brca.ecDNA.match)[outlier.patient.tag.01.brca.ecDNA.match[,substr(colnames(outlier.patient.tag.01.brca.ecDNA.match), 1, 15) %in% target.patient] == 1];
+    target.outlier <- rownames(outlier.patient.tag.01.brca.ecDNA.match)[outlier.patient.tag.01.brca.ecDNA.match[, substr(colnames(outlier.patient.tag.01.brca.ecDNA.match), 1, 15) %in% target.patient] == 1];
     target.symbol <- fpkm.tumor.symbol.filter.brca[rownames(fpkm.tumor.symbol.filter.brca) %in% target.outlier, 'Symbol'];
-    target.symbol.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match[brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match$gene_name %in% target.symbol,];
-    
+    target.symbol.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match[brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match$gene_name %in% target.symbol, ];
+
     if (nrow(target.symbol.location) > 0) {
         for (j in 1:nrow(target.symbol.location)) {
             if (target.symbol.location$chromosome[j] == target.chr & target.symbol.location$start[j] >= target.start & target.symbol.location$end[j] <= target.end) {
-                ecDNA.outlier <- cbind(brca.amplicon.match.ec.each.chr.hg38[i,], target.symbol.location[j,]);
-                } 
-            else {
+                ecDNA.outlier <- cbind(brca.amplicon.match.ec.each.chr.hg38[i, ], target.symbol.location[j, ]);
+                } else {
                 ecDNA.outlier <- NULL
                 }
             ecDNA.outlier.patient.location <- rbind(ecDNA.outlier.patient.location, ecDNA.outlier);

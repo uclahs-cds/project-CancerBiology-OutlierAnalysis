@@ -75,40 +75,43 @@ outlier.patient.tag.01.sum.patient.meta <- apply(outlier.patient.tag.01.meta, 2,
 outlier.patient.tag.01.sum.patient.icgc <- apply(outlier.patient.tag.01.icgc, 2, sum);
 
 outlier.patient.tag.01.t.p.order.sum <- c(
-    outlier.patient.tag.01.sum.patient.brca, 
-    outlier.patient.tag.01.sum.patient.meta, 
+    outlier.patient.tag.01.sum.patient.brca,
+    outlier.patient.tag.01.sum.patient.meta,
     outlier.patient.tag.01.sum.patient.icgc
     );
 
 ### Get the mutation data
 # 1. TCGA-BRCA
 brca.mutation.driver.list.gene.vector.data.convert <- brca.mutation.driver.list.gene.vector.data;
-brca.mutation.driver.list.gene.vector.data.convert[!(brca.mutation.driver.list.gene.vector.data.convert =="0")] <- "mutation";
-brca.mutation.driver.list.gene.vector.data.convert[brca.mutation.driver.list.gene.vector.data.convert =="0"] <- "normal";
+brca.mutation.driver.list.gene.vector.data.convert[!(brca.mutation.driver.list.gene.vector.data.convert == '0')] <- 'mutation';
+brca.mutation.driver.list.gene.vector.data.convert[brca.mutation.driver.list.gene.vector.data.convert == '0'] <- 'normal';
 
 # 2. METABRIC
 meta.mutation.driver.list.gene.vector.data.convert <- meta.mutation.driver.list.gene.vector.data;
-meta.mutation.driver.list.gene.vector.data.convert[!(meta.mutation.driver.list.gene.vector.data.convert =="0")] <- "mutation";
-meta.mutation.driver.list.gene.vector.data.convert[meta.mutation.driver.list.gene.vector.data.convert =="0"] <- "normal";
+meta.mutation.driver.list.gene.vector.data.convert[!(meta.mutation.driver.list.gene.vector.data.convert == '0')] <- 'mutation';
+meta.mutation.driver.list.gene.vector.data.convert[meta.mutation.driver.list.gene.vector.data.convert == '0'] <- 'normal';
 
 # 3. ICGC BRCA-EU
 icgc.mutation.driver.list.gene.vector.data.convert <- icgc.mutation.driver.list.gene.vector.data.mis;
-icgc.mutation.driver.list.gene.vector.data.convert[!(icgc.mutation.driver.list.gene.vector.data.convert =="0")] <- "mutation";
-icgc.mutation.driver.list.gene.vector.data.convert[icgc.mutation.driver.list.gene.vector.data.convert =="0"] <- "normal";
+icgc.mutation.driver.list.gene.vector.data.convert[!(icgc.mutation.driver.list.gene.vector.data.convert == '0')] <- 'mutation';
+icgc.mutation.driver.list.gene.vector.data.convert[icgc.mutation.driver.list.gene.vector.data.convert == '0'] <- 'normal';
 icgc.mutation.driver.list.gene.vector.data.convert <- icgc.mutation.driver.list.gene.vector.data.convert[
-    match(rownames(brca.mutation.driver.list.gene.vector.data), 
-          rownames(icgc.mutation.driver.list.gene.vector.data.convert)),];
+    match(
+        rownames(brca.mutation.driver.list.gene.vector.data),
+        rownames(icgc.mutation.driver.list.gene.vector.data.convert)
+        ),
+    ];
 rownames(icgc.mutation.driver.list.gene.vector.data.convert) <- rownames(brca.mutation.driver.list.gene.vector.data);
 rownames(icgc.mutation.driver.list.gene.vector.data.convert) <- rownames(brca.mutation.driver.list.gene.vector.data);
 
 meta.mutation.driver.list.gene.vector.data.convert.na <- cbind(
-    brca.mutation.driver.list.gene.vector.data.convert, 
-    meta.mutation.driver.list.gene.vector.data.convert, 
+    brca.mutation.driver.list.gene.vector.data.convert,
+    meta.mutation.driver.list.gene.vector.data.convert,
     icgc.mutation.driver.list.gene.vector.data.convert
     );
 meta.mutation.driver.list.gene.vector.data.convert.na <- apply(meta.mutation.driver.list.gene.vector.data.convert.na, 1, function(x) {
-      x[is.na(x)] <- "normal"
-      return(x)
+    x[is.na(x)] <- 'normal'
+    return(x)
     })
 meta.mutation.driver.list.gene.vector.data.convert.na <- t(meta.mutation.driver.list.gene.vector.data.convert.na);
 
@@ -139,7 +142,8 @@ subtype.total.outlier.num.lumb <- subtype.total.outlier.num[subtype.total.outlie
 outlier.patient.tag.01.t.p.order.sum.lumb <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.lumb))];
 meta.mutation.driver.list.gene.vector.data.convert.na.lumb <- meta.mutation.driver.list.gene.vector.data.convert.na[
     ,
-    colnames(meta.mutation.driver.list.gene.vector.data.convert.na) %in% rownames(na.omit(subtype.total.outlier.num.lumb))];
+    colnames(meta.mutation.driver.list.gene.vector.data.convert.na) %in% rownames(na.omit(subtype.total.outlier.num.lumb))
+    ];
 
 outlier.patient.tag.01.t.p.order.sum.lumb.brca <-
     outlier.patient.tag.01.t.p.order.sum.lumb[substr(names(outlier.patient.tag.01.t.p.order.sum.lumb), 1, 4) == 'TCGA'];

@@ -34,14 +34,14 @@ gene.rnai.breast.t.num.match.05 <- rnai.effect.breast[
     ];
 gene.rnai.breast.t.num.match.05.na <- gene.rnai.breast.t.num.match.05;
 sample.outlier.05.overlap <- ccle.sample.outlier.status.overlap
-sample.outlier.05.overlap.na <- sample.outlier.05.overlap[match(rownames(gene.rnai.breast.t.num.match.05.na), gsub("\\..*$", "", rownames(sample.outlier.05.overlap))),];
-sample.outlier.05.overlap.na <- sample.outlier.05.overlap.na[,colnames(gene.rnai.breast.t.num.match.05.na)]; # should chnage the name
-sample.outlier.05.overlap.na.rnai <- sample.outlier.05.overlap.na[,colnames(gene.rnai.breast.t.num.match.05.na)];
+sample.outlier.05.overlap.na <- sample.outlier.05.overlap[match(rownames(gene.rnai.breast.t.num.match.05.na), gsub('\\..*$', '', rownames(sample.outlier.05.overlap))), ];
+sample.outlier.05.overlap.na <- sample.outlier.05.overlap.na[, colnames(gene.rnai.breast.t.num.match.05.na)]; # should chnage the name
+sample.outlier.05.overlap.na.rnai <- sample.outlier.05.overlap.na[, colnames(gene.rnai.breast.t.num.match.05.na)];
 rownames(gene.rnai.breast.t.num.match.05.na) <- rownames(sample.outlier.05.overlap.na);
 sample.outlier.05.overlap.na.sum <- apply(sample.outlier.05.overlap.na, 1, sum);
 
-sample.outlier.05.overlap.na <- sample.outlier.05.overlap.na[sample.outlier.05.overlap.na.sum > 0,];
-gene.rnai.breast.t.num.match.05.na <- gene.rnai.breast.t.num.match.05.na[sample.outlier.05.overlap.na.sum > 0,];
+sample.outlier.05.overlap.na <- sample.outlier.05.overlap.na[sample.outlier.05.overlap.na.sum > 0, ];
+gene.rnai.breast.t.num.match.05.na <- gene.rnai.breast.t.num.match.05.na[sample.outlier.05.overlap.na.sum > 0, ];
 
 
 rnai.quantile.05 <- list();
@@ -50,7 +50,7 @@ nonoutlier.gene.rnai.score.05 <- list();
 for (i in 1:nrow(sample.outlier.05.overlap.na)) {
     outlier.gene <- gene.rnai.breast.t.num.match.05.na[i, which(sample.outlier.05.overlap.na[i, ] == 1), drop = FALSE];
     non.outlier.gene <- gene.rnai.breast.t.num.match.05.na[i, -(which(sample.outlier.05.overlap.na[i, ] == 1))];
-    
+
     ecdf.obj <- ecdf(as.numeric(non.outlier.gene));
     quantile.value <- ecdf.obj(outlier.gene);
     quantile.value <- t(data.frame(quantile.value));
@@ -85,7 +85,7 @@ gene.rnai.diff.matrix.05 <- data.frame(
     symbol = sub('\\..*', '', rownames(outlier.gene.rnai.score.05.mean))
     );
 rownames(gene.rnai.diff.matrix.05) <- rownames(outlier.gene.rnai.score.05.mean);
-gene.rnai.diff.matrix.05.overlap <- gene.rnai.diff.matrix.05[gene.rnai.diff.matrix.05$symbol %in% five.data.outlier.symbol,];
+gene.rnai.diff.matrix.05.overlap <- gene.rnai.diff.matrix.05[gene.rnai.diff.matrix.05$symbol %in% five.data.outlier.symbol, ];
 
 # Set colors for the scatter plot
 

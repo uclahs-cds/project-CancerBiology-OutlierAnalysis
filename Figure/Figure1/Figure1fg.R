@@ -37,25 +37,35 @@ load.multiple.computed.variables(c(
 # Get chromosomal location information for outlier genes
 gene.list <- rownames(outlier.gene.fdr.01.brca);
 gene.list.sub <- substr(gene.list, 1, 15);
-ensembl <- biomaRt:::useEnsembl(biomart = "ensembl",
-                     dataset = "hsapiens_gene_ensembl",
-                     mirror = "useast");
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id',
-                                 values = gene.list.sub,
-                                 mart = ensembl);
+ensembl <- biomaRt:::useEnsembl(
+    biomart = 'ensembl',
+    dataset = 'hsapiens_gene_ensembl',
+    mirror = 'useast'
+    );
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'ensembl_gene_id',
+    values = gene.list.sub,
+    mart = ensembl
+    );
 gene.position.brca <- gene.position;
 
 # Get chromosomal location information for all genes
-fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[,patient.part.brca], 1, max);
+fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[, patient.part.brca], 1, max);
 gene.list <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.max.brca > 5];
 gene.list.sub <- substr(gene.list, 1, 15);
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id',
-                                 values = gene.list.sub,
-                                 mart = ensembl);
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'ensembl_gene_id',
+    values = gene.list.sub,
+    mart = ensembl
+    );
 
 gene.position.brca.all <- gene.position;
 
@@ -73,25 +83,31 @@ process_chr_data <- function(gene_data, chr_name) {
 # Function for Fisher's test and odds ratio calculations
 calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, total_outlier) {
     p.values <- numeric(25)
-    odds_ratios <- matrix(NA, ncol = 3, nrow = 25)  # matrix for odds ratio and confidence intervals
+    odds_ratios <- matrix(NA, ncol = 3, nrow = 25) # matrix for odds ratio and confidence intervals
 
     for (i in 1:25) {
         chr.gene <- chr_outlier_all$count[i]
         chr.out <- ifelse(is.na(chr_outlier$count[i]), 0, chr_outlier$count[i])
 
-        test_matrix <- matrix(c(chr.out, total_outlier - chr.out,
-                                chr.gene - chr.out,
-                                total_gene - total_outlier - chr.gene + chr.out),
-                              nrow = 2)
+        test_matrix <- matrix(
+            c(
+                chr.out, total_outlier - chr.out,
+                chr.gene - chr.out,
+                total_gene - total_outlier - chr.gene + chr.out
+                ),
+            nrow = 2
+            )
 
         fisher_res <- fisher.test(test_matrix, alternative = 'two.sided')
         p.values[i] <- fisher_res$p.value
         odds_ratios[i, ] <- c(fisher_res$estimate, fisher_res$conf.int)
-    }
+        }
 
-    odds_ratios <- data.frame(odds.ratio = odds_ratios[, 1],
-                              lower = odds_ratios[, 2],
-                              upper = odds_ratios[, 3]);
+    odds_ratios <- data.frame(
+        odds.ratio = odds_ratios[, 1],
+        lower = odds_ratios[, 2],
+        upper = odds_ratios[, 3]
+        );
 
     return(list(p.values = p.values, odds_ratios = odds_ratios))
     }
@@ -99,27 +115,37 @@ calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, tota
 
 ### 2. METABIRC
 # Get chromosomal location information for outlier genes
-gene.list <- substr(rownames(outlier.gene.fdr.01.meta), 1, nchar(rownames(outlier.gene.fdr.01.meta))-3)
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = "entrezgene_id",
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.list <- substr(rownames(outlier.gene.fdr.01.meta), 1, nchar(rownames(outlier.gene.fdr.01.meta)) - 3)
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'entrezgene_id',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.meta <- gene.position;
 
 # Get chromosomal location information for all genes
-gene.list <- substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol))-3)
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = "entrezgene_id",
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.list <- substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol)) - 3)
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'entrezgene_id',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.meta.all <- gene.position;
 
 # Chromosome names
-chr.name <- c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-              '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-              '21', '22', 'MT', 'X', 'Y')
+chr.name <- c(
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+    '21', '22', 'MT', 'X', 'Y'
+    )
 
 
 # Processing BRCA data
@@ -145,20 +171,28 @@ p.value.chr.meta.odd.sub.df <- fisher_meta_results$odds_ratios
 ### 3. ISPY
 # Get chromosomal location information for outlier genes
 gene.list <- rownames(outlier.gene.fdr.01.ispy);
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = "hgnc_symbol",
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'hgnc_symbol',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.ispy <- gene.position;
 
 # Get chromosomal location information for all genes
 gene.list <- rownames(fpkm.tumor.symbol.filter.ispy);
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = "hgnc_symbol",
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'hgnc_symbol',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.ispy.all <- gene.position;
 
 
@@ -211,22 +245,30 @@ p.value.chr.ispy.odd.sub.df <- fisher_ispy_results$odds_ratios
 # Get chromosomal location information for outlier genes
 gene.list <- rownames(outlier.gene.fdr.01.matador);
 gene.list.sub <- substr(gene.list, 1, 15);
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id',
-                                 values = gene.list.sub,
-                                 mart = ensembl);
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'ensembl_gene_id',
+    values = gene.list.sub,
+    mart = ensembl
+    );
 gene.position.metador <- gene.position;
 
 # Get chromosomal location information for all genes
-fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[,-ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
-fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5,];
+fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[, -ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
+fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5, ];
 gene.list <- fpkm.tumor.symbol.filter.metador.symbol.max.filter$Symbol;
-gene.position <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'hgnc_symbol',
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.position <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'hgnc_symbol',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.metador.all <- gene.position;
 
 
@@ -505,7 +547,7 @@ gc.box.ispy <- data.frame(cbind(
         rep('out', length(gc.num.outlier.ispy))
         )
     ));
-gc.box.ispy <- na.omit(gc.box.ispy);    
+gc.box.ispy <- na.omit(gc.box.ispy);
 gc.box.ispy$gc.content <- as.numeric(gc.box.ispy$gc.content);
 
 # 4. MATADOR
@@ -578,38 +620,38 @@ gc.box.icgc$gc.content <- as.numeric(gc.box.icgc$gc.content);
 
 # Meta-analysis
 
-brca.out.mean <- mean(log2(gc.box.brca$gc.content[gc.box.brca$status == 'out']+1));
-brca.out.sd <- sd(log2(gc.box.brca$gc.content[gc.box.brca$status == 'out']+1));
+brca.out.mean <- mean(log2(gc.box.brca$gc.content[gc.box.brca$status == 'out'] + 1));
+brca.out.sd <- sd(log2(gc.box.brca$gc.content[gc.box.brca$status == 'out'] + 1));
 brca.out.n <- length(gc.box.brca$gc.content[gc.box.brca$status == 'out']);
-brca.non.mean <- mean(log2(gc.box.brca$gc.content[gc.box.brca$status == 'non']+1));
-brca.non.sd <- sd(log2(gc.box.brca$gc.content[gc.box.brca$status == 'non']+1));
+brca.non.mean <- mean(log2(gc.box.brca$gc.content[gc.box.brca$status == 'non'] + 1));
+brca.non.sd <- sd(log2(gc.box.brca$gc.content[gc.box.brca$status == 'non'] + 1));
 brca.non.n <- length(gc.box.brca$gc.content[gc.box.brca$status == 'non']);
 
-meta.out.mean <- mean(log2(gc.box.meta$gc.content[gc.box.meta$status == 'out']+1));
-meta.out.sd <- sd(log2(gc.box.meta$gc.content[gc.box.meta$status == 'out']+1));
-meta.non.mean <- mean(log2(gc.box.meta$gc.content[gc.box.meta$status == 'non']+1));
-meta.non.sd <- sd(log2(gc.box.meta$gc.content[gc.box.meta$status == 'non']+1));
+meta.out.mean <- mean(log2(gc.box.meta$gc.content[gc.box.meta$status == 'out'] + 1));
+meta.out.sd <- sd(log2(gc.box.meta$gc.content[gc.box.meta$status == 'out'] + 1));
+meta.non.mean <- mean(log2(gc.box.meta$gc.content[gc.box.meta$status == 'non'] + 1));
+meta.non.sd <- sd(log2(gc.box.meta$gc.content[gc.box.meta$status == 'non'] + 1));
 meta.out.n <- length(gc.box.meta$gc.content[gc.box.meta$status == 'out']);
 meta.non.n <- length(gc.box.meta$gc.content[gc.box.meta$status == 'non']);
 
-ispy.out.mean <- mean(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'out']+1));
-ispy.out.sd <- sd(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'out']+1));
-ispy.non.mean <- mean(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'non']+1));
-ispy.non.sd <- sd(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'non']+1));
+ispy.out.mean <- mean(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'out'] + 1));
+ispy.out.sd <- sd(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'out'] + 1));
+ispy.non.mean <- mean(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'non'] + 1));
+ispy.non.sd <- sd(log2(gc.box.ispy$gc.content[gc.box.ispy$status == 'non'] + 1));
 ispy.out.n <- length(gc.box.ispy$gc.content[gc.box.ispy$status == 'out']);
 ispy.non.n <- length(gc.box.ispy$gc.content[gc.box.ispy$status == 'non']);
 
-metador.out.mean <- mean(log2(gc.box.metador$gc.content[gc.box.metador$status == 'out']+1));
-metador.out.sd <- sd(log2(gc.box.metador$gc.content[gc.box.metador$status == 'out']+1));
-metador.non.mean <- mean(log2(gc.box.metador$gc.content[gc.box.metador$status == 'non']+1));
-metador.non.sd <- sd(log2(gc.box.metador$gc.content[gc.box.metador$status == 'non']+1));
+metador.out.mean <- mean(log2(gc.box.metador$gc.content[gc.box.metador$status == 'out'] + 1));
+metador.out.sd <- sd(log2(gc.box.metador$gc.content[gc.box.metador$status == 'out'] + 1));
+metador.non.mean <- mean(log2(gc.box.metador$gc.content[gc.box.metador$status == 'non'] + 1));
+metador.non.sd <- sd(log2(gc.box.metador$gc.content[gc.box.metador$status == 'non'] + 1));
 metador.out.n <- length(gc.box.metador$gc.content[gc.box.metador$status == 'out']);
 metador.non.n <- length(gc.box.metador$gc.content[gc.box.metador$status == 'non']);
 
-icgc.out.mean <- mean(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'out']+1));
-icgc.out.sd <- sd(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'out']+1));
-icgc.non.mean <- mean(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'non']+1));
-icgc.non.sd <- sd(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'non']+1));
+icgc.out.mean <- mean(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'out'] + 1));
+icgc.out.sd <- sd(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'out'] + 1));
+icgc.non.mean <- mean(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'non'] + 1));
+icgc.non.sd <- sd(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'non'] + 1));
 icgc.out.n <- length(gc.box.icgc$gc.content[gc.box.icgc$status == 'out']);
 icgc.non.n <- length(gc.box.icgc$gc.content[gc.box.icgc$status == 'non']);
 
@@ -787,38 +829,38 @@ length.box.icgc$length.content <- as.numeric(length.box.icgc$length.content);
 
 
 
-brca.out.mean <- mean(log2(length.box.brca$length.content[length.box.brca$status == 'out']+1));
-brca.out.sd <- sd(log2(length.box.brca$length.content[length.box.brca$status == 'out']+1));
+brca.out.mean <- mean(log2(length.box.brca$length.content[length.box.brca$status == 'out'] + 1));
+brca.out.sd <- sd(log2(length.box.brca$length.content[length.box.brca$status == 'out'] + 1));
 brca.out.n <- length(length.box.brca$length.content[length.box.brca$status == 'out']);
-brca.non.mean <- mean(log2(length.box.brca$length.content[length.box.brca$status == 'non']+1));
-brca.non.sd <- sd(log2(length.box.brca$length.content[length.box.brca$status == 'non']+1));
+brca.non.mean <- mean(log2(length.box.brca$length.content[length.box.brca$status == 'non'] + 1));
+brca.non.sd <- sd(log2(length.box.brca$length.content[length.box.brca$status == 'non'] + 1));
 brca.non.n <- length(length.box.brca$length.content[length.box.brca$status == 'non']);
 
-meta.out.mean <- mean(log2(length.box.meta$length.content[length.box.meta$status == 'out']+1));
-meta.out.sd <- sd(log2(length.box.meta$length.content[length.box.meta$status == 'out']+1));
-meta.non.mean <- mean(log2(length.box.meta$length.content[length.box.meta$status == 'non']+1));
-meta.non.sd <- sd(log2(length.box.meta$length.content[length.box.meta$status == 'non']+1));
+meta.out.mean <- mean(log2(length.box.meta$length.content[length.box.meta$status == 'out'] + 1));
+meta.out.sd <- sd(log2(length.box.meta$length.content[length.box.meta$status == 'out'] + 1));
+meta.non.mean <- mean(log2(length.box.meta$length.content[length.box.meta$status == 'non'] + 1));
+meta.non.sd <- sd(log2(length.box.meta$length.content[length.box.meta$status == 'non'] + 1));
 meta.out.n <- length(length.box.meta$length.content[length.box.meta$status == 'out']);
 meta.non.n <- length(length.box.meta$length.content[length.box.meta$status == 'non']);
 
-ispy.out.mean <- mean(log2(length.box.ispy$length.content[length.box.ispy$status == 'out']+1));
-ispy.out.sd <- sd(log2(length.box.ispy$length.content[length.box.ispy$status == 'out']+1));
-ispy.non.mean <- mean(log2(length.box.ispy$length.content[length.box.ispy$status == 'non']+1));
-ispy.non.sd <- sd(log2(length.box.ispy$length.content[length.box.ispy$status == 'non']+1));
+ispy.out.mean <- mean(log2(length.box.ispy$length.content[length.box.ispy$status == 'out'] + 1));
+ispy.out.sd <- sd(log2(length.box.ispy$length.content[length.box.ispy$status == 'out'] + 1));
+ispy.non.mean <- mean(log2(length.box.ispy$length.content[length.box.ispy$status == 'non'] + 1));
+ispy.non.sd <- sd(log2(length.box.ispy$length.content[length.box.ispy$status == 'non'] + 1));
 ispy.out.n <- length(length.box.ispy$length.content[length.box.ispy$status == 'out']);
 ispy.non.n <- length(length.box.ispy$length.content[length.box.ispy$status == 'non']);
 
-metador.out.mean <- mean(log2(length.box.metador$length.content[length.box.metador$status == 'out']+1));
-metador.out.sd <- sd(log2(length.box.metador$length.content[length.box.metador$status == 'out']+1));
-metador.non.mean <- mean(log2(length.box.metador$length.content[length.box.metador$status == 'non']+1));
-metador.non.sd <- sd(log2(length.box.metador$length.content[length.box.metador$status == 'non']+1));
+metador.out.mean <- mean(log2(length.box.metador$length.content[length.box.metador$status == 'out'] + 1));
+metador.out.sd <- sd(log2(length.box.metador$length.content[length.box.metador$status == 'out'] + 1));
+metador.non.mean <- mean(log2(length.box.metador$length.content[length.box.metador$status == 'non'] + 1));
+metador.non.sd <- sd(log2(length.box.metador$length.content[length.box.metador$status == 'non'] + 1));
 metador.out.n <- length(length.box.metador$length.content[length.box.metador$status == 'out']);
 metador.non.n <- length(length.box.metador$length.content[length.box.metador$status == 'non']);
 
-icgc.out.mean <- mean(log2(length.box.icgc$length.content[length.box.icgc$status == 'out']+1));
-icgc.out.sd <- sd(log2(length.box.icgc$length.content[length.box.icgc$status == 'out']+1));
-icgc.non.mean <- mean(log2(length.box.icgc$length.content[length.box.icgc$status == 'non']+1));
-icgc.non.sd <- sd(log2(length.box.icgc$length.content[length.box.icgc$status == 'non']+1));
+icgc.out.mean <- mean(log2(length.box.icgc$length.content[length.box.icgc$status == 'out'] + 1));
+icgc.out.sd <- sd(log2(length.box.icgc$length.content[length.box.icgc$status == 'out'] + 1));
+icgc.non.mean <- mean(log2(length.box.icgc$length.content[length.box.icgc$status == 'non'] + 1));
+icgc.non.sd <- sd(log2(length.box.icgc$length.content[length.box.icgc$status == 'non'] + 1));
 icgc.out.n <- length(length.box.icgc$length.content[length.box.icgc$status == 'out']);
 icgc.non.n <- length(length.box.icgc$length.content[length.box.icgc$status == 'non']);
 
@@ -976,19 +1018,27 @@ exon.box.metador$exon.content <- as.numeric(exon.box.metador$exon.content);
 
 # 5. ICGC
 gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)];
-gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id',
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.position.entrez <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'ensembl_gene_id',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.icgc.all.entrez <- gene.position.entrez;
 
 gene.list <- fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.01.icgc$gene)]
-gene.position.entrez <- biomaRt:::getBM(attributes = c('ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
-                                                'start_position', 'end_position', 'band', "gene_biotype", "entrezgene_id"),
-                                 filters = 'ensembl_gene_id',
-                                 values = gene.list,
-                                 mart = ensembl);
+gene.position.entrez <- biomaRt:::getBM(
+    attributes = c(
+        'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
+        'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
+        ),
+    filters = 'ensembl_gene_id',
+    values = gene.list,
+    mart = ensembl
+    );
 gene.position.icgc.entrez <- gene.position.entrez;
 
 exon.num.order.icgc <- exon.num[match(gene.position.icgc.all.entrez$entrezgene_id, names(exon.num))];
@@ -1015,38 +1065,38 @@ exon.box.icgc$exon.content <- as.numeric(exon.box.icgc$exon.content);
 
 # Meta-analysis
 
-brca.out.mean <- mean(log2(exon.box.brca$exon.content[exon.box.brca$status == 'out']+1));
-brca.out.sd <- sd(log2(exon.box.brca$exon.content[exon.box.brca$status == 'out']+1));
+brca.out.mean <- mean(log2(exon.box.brca$exon.content[exon.box.brca$status == 'out'] + 1));
+brca.out.sd <- sd(log2(exon.box.brca$exon.content[exon.box.brca$status == 'out'] + 1));
 brca.out.n <- length(exon.box.brca$exon.content[exon.box.brca$status == 'out']);
-brca.non.mean <- mean(log2(exon.box.brca$exon.content[exon.box.brca$status == 'non']+1));
-brca.non.sd <- sd(log2(exon.box.brca$exon.content[exon.box.brca$status == 'non']+1));
+brca.non.mean <- mean(log2(exon.box.brca$exon.content[exon.box.brca$status == 'non'] + 1));
+brca.non.sd <- sd(log2(exon.box.brca$exon.content[exon.box.brca$status == 'non'] + 1));
 brca.non.n <- length(exon.box.brca$exon.content[exon.box.brca$status == 'non']);
 
-meta.out.mean <- mean(log2(exon.box.meta$exon.content[exon.box.meta$status == 'out']+1));
-meta.out.sd <- sd(log2(exon.box.meta$exon.content[exon.box.meta$status == 'out']+1));
-meta.non.mean <- mean(log2(exon.box.meta$exon.content[exon.box.meta$status == 'non']+1));
-meta.non.sd <- sd(log2(exon.box.meta$exon.content[exon.box.meta$status == 'non']+1));
+meta.out.mean <- mean(log2(exon.box.meta$exon.content[exon.box.meta$status == 'out'] + 1));
+meta.out.sd <- sd(log2(exon.box.meta$exon.content[exon.box.meta$status == 'out'] + 1));
+meta.non.mean <- mean(log2(exon.box.meta$exon.content[exon.box.meta$status == 'non'] + 1));
+meta.non.sd <- sd(log2(exon.box.meta$exon.content[exon.box.meta$status == 'non'] + 1));
 meta.out.n <- length(exon.box.meta$exon.content[exon.box.meta$status == 'out']);
 meta.non.n <- length(exon.box.meta$exon.content[exon.box.meta$status == 'non']);
 
-ispy.out.mean <- mean(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'out']+1));
-ispy.out.sd <- sd(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'out']+1));
-ispy.non.mean <- mean(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'non']+1));
-ispy.non.sd <- sd(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'non']+1));
+ispy.out.mean <- mean(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'out'] + 1));
+ispy.out.sd <- sd(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'out'] + 1));
+ispy.non.mean <- mean(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'non'] + 1));
+ispy.non.sd <- sd(log2(exon.box.ispy$exon.content[exon.box.ispy$status == 'non'] + 1));
 ispy.out.n <- length(exon.box.ispy$exon.content[exon.box.ispy$status == 'out']);
 ispy.non.n <- length(exon.box.ispy$exon.content[exon.box.ispy$status == 'non']);
 
-metador.out.mean <- mean(log2(exon.box.metador$exon.content[exon.box.metador$status == 'out']+1));
-metador.out.sd <- sd(log2(exon.box.metador$exon.content[exon.box.metador$status == 'out']+1));
-metador.non.mean <- mean(log2(exon.box.metador$exon.content[exon.box.metador$status == 'non']+1));
-metador.non.sd <- sd(log2(exon.box.metador$exon.content[exon.box.metador$status == 'non']+1));
+metador.out.mean <- mean(log2(exon.box.metador$exon.content[exon.box.metador$status == 'out'] + 1));
+metador.out.sd <- sd(log2(exon.box.metador$exon.content[exon.box.metador$status == 'out'] + 1));
+metador.non.mean <- mean(log2(exon.box.metador$exon.content[exon.box.metador$status == 'non'] + 1));
+metador.non.sd <- sd(log2(exon.box.metador$exon.content[exon.box.metador$status == 'non'] + 1));
 metador.out.n <- length(exon.box.metador$exon.content[exon.box.metador$status == 'out']);
 metador.non.n <- length(exon.box.metador$exon.content[exon.box.metador$status == 'non']);
 
-icgc.out.mean <- mean(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'out']+1));
-icgc.out.sd <- sd(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'out']+1));
-icgc.non.mean <- mean(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'non']+1));
-icgc.non.sd <- sd(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'non']+1));
+icgc.out.mean <- mean(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'out'] + 1));
+icgc.out.sd <- sd(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'out'] + 1));
+icgc.non.mean <- mean(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'non'] + 1));
+icgc.non.sd <- sd(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'non'] + 1));
 icgc.out.n <- length(exon.box.icgc$exon.content[exon.box.icgc$status == 'out']);
 icgc.non.n <- length(exon.box.icgc$exon.content[exon.box.icgc$status == 'non']);
 
@@ -1175,38 +1225,38 @@ rna.box.icgc$rna.content <- as.numeric(rna.box.icgc$rna.content);
 
 
 
-brca.out.mean <- mean(log2(rna.box.brca$rna.content[rna.box.brca$status == 'out']+1));
-brca.out.sd <- sd(log2(rna.box.brca$rna.content[rna.box.brca$status == 'out']+1));
+brca.out.mean <- mean(log2(rna.box.brca$rna.content[rna.box.brca$status == 'out'] + 1));
+brca.out.sd <- sd(log2(rna.box.brca$rna.content[rna.box.brca$status == 'out'] + 1));
 brca.out.n <- length(rna.box.brca$rna.content[rna.box.brca$status == 'out']);
-brca.non.mean <- mean(log2(rna.box.brca$rna.content[rna.box.brca$status == 'non']+1));
-brca.non.sd <- sd(log2(rna.box.brca$rna.content[rna.box.brca$status == 'non']+1));
+brca.non.mean <- mean(log2(rna.box.brca$rna.content[rna.box.brca$status == 'non'] + 1));
+brca.non.sd <- sd(log2(rna.box.brca$rna.content[rna.box.brca$status == 'non'] + 1));
 brca.non.n <- length(rna.box.brca$rna.content[rna.box.brca$status == 'non']);
 
-meta.out.mean <- mean(log2(rna.box.meta$rna.content[rna.box.meta$status == 'out']+1));
-meta.out.sd <- sd(log2(rna.box.meta$rna.content[rna.box.meta$status == 'out']+1));
-meta.non.mean <- mean(log2(rna.box.meta$rna.content[rna.box.meta$status == 'non']+1));
-meta.non.sd <- sd(log2(rna.box.meta$rna.content[rna.box.meta$status == 'non']+1));
+meta.out.mean <- mean(log2(rna.box.meta$rna.content[rna.box.meta$status == 'out'] + 1));
+meta.out.sd <- sd(log2(rna.box.meta$rna.content[rna.box.meta$status == 'out'] + 1));
+meta.non.mean <- mean(log2(rna.box.meta$rna.content[rna.box.meta$status == 'non'] + 1));
+meta.non.sd <- sd(log2(rna.box.meta$rna.content[rna.box.meta$status == 'non'] + 1));
 meta.out.n <- length(rna.box.meta$rna.content[rna.box.meta$status == 'out']);
 meta.non.n <- length(rna.box.meta$rna.content[rna.box.meta$status == 'non']);
 
-ispy.out.mean <- mean(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'out']+1));
-ispy.out.sd <- sd(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'out']+1));
-ispy.non.mean <- mean(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'non']+1));
-ispy.non.sd <- sd(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'non']+1));
+ispy.out.mean <- mean(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'out'] + 1));
+ispy.out.sd <- sd(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'out'] + 1));
+ispy.non.mean <- mean(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'non'] + 1));
+ispy.non.sd <- sd(log2(rna.box.ispy$rna.content[rna.box.ispy$status == 'non'] + 1));
 ispy.out.n <- length(rna.box.ispy$rna.content[rna.box.ispy$status == 'out']);
 ispy.non.n <- length(rna.box.ispy$rna.content[rna.box.ispy$status == 'non']);
 
-metador.out.mean <- mean(log2(rna.box.metador$rna.content[rna.box.metador$status == 'out']+1));
-metador.out.sd <- sd(log2(rna.box.metador$rna.content[rna.box.metador$status == 'out']+1));
-metador.non.mean <- mean(log2(rna.box.metador$rna.content[rna.box.metador$status == 'non']+1));
-metador.non.sd <- sd(log2(rna.box.metador$rna.content[rna.box.metador$status == 'non']+1));
+metador.out.mean <- mean(log2(rna.box.metador$rna.content[rna.box.metador$status == 'out'] + 1));
+metador.out.sd <- sd(log2(rna.box.metador$rna.content[rna.box.metador$status == 'out'] + 1));
+metador.non.mean <- mean(log2(rna.box.metador$rna.content[rna.box.metador$status == 'non'] + 1));
+metador.non.sd <- sd(log2(rna.box.metador$rna.content[rna.box.metador$status == 'non'] + 1));
 metador.out.n <- length(rna.box.metador$rna.content[rna.box.metador$status == 'out']);
 metador.non.n <- length(rna.box.metador$rna.content[rna.box.metador$status == 'non']);
 
-icgc.out.mean <- mean(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'out']+1));
-icgc.out.sd <- sd(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'out']+1));
-icgc.non.mean <- mean(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'non']+1));
-icgc.non.sd <- sd(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'non']+1));
+icgc.out.mean <- mean(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'out'] + 1));
+icgc.out.sd <- sd(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'out'] + 1));
+icgc.non.mean <- mean(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'non'] + 1));
+icgc.non.sd <- sd(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'non'] + 1));
 icgc.out.n <- length(rna.box.icgc$rna.content[rna.box.icgc$status == 'out']);
 icgc.non.n <- length(rna.box.icgc$rna.content[rna.box.icgc$status == 'non']);
 

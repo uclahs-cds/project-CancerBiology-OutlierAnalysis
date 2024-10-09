@@ -286,18 +286,20 @@ perform.fisher.test.icgc <- function(data, subtype = NULL) {
 
 
 icgc.clinic.order.data <- data.frame(as.character(icgc.clinic.order$subtype));
-icgc.clinic.order.data[is.na(icgc.clinic.order.data$as.character.icgc.clinic.order.subtype.),] <- 6;
-icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Basal',] <- 1;
-icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Her2',] <- 2;
-icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'LumA',] <- 3;
-icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'LumB',] <- 4;
-icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Normal',] <- 5;
+icgc.clinic.order.data[is.na(icgc.clinic.order.data$as.character.icgc.clinic.order.subtype.), ] <- 6;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Basal', ] <- 1;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Her2', ] <- 2;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'LumA', ] <- 3;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'LumB', ] <- 4;
+icgc.clinic.order.data[icgc.clinic.order.data$as.character.icgc.clinic.order.subtype. == 'Normal', ] <- 5;
 icgc.clinic.order.data.num <- data.frame(as.numeric(icgc.clinic.order.data$as.character.icgc.clinic.order.subtype.));
 
 outlier.patient.tag.01.icgc.sum <- apply(outlier.patient.tag.01.icgc, 2, sum);
-subtype.total.outlier.num.icgc <- data.frame(cbind(subtype = icgc.clinic.order.data.num,
-                                              outlier = outlier.patient.tag.01.icgc.sum));
-colnames(subtype.total.outlier.num.icgc) <- c("subtype", "outlier");
+subtype.total.outlier.num.icgc <- data.frame(cbind(
+    subtype = icgc.clinic.order.data.num,
+    outlier = outlier.patient.tag.01.icgc.sum
+    ));
+colnames(subtype.total.outlier.num.icgc) <- c('subtype', 'outlier');
 
 # Data preparation
 os.data.stage.pseudo.icgc <- data.frame(cbind(subtype.total.outlier.num.icgc,
