@@ -38,7 +38,7 @@ ensembl <- biomaRt:::useEnsembl(
     dataset = 'hsapiens_gene_ensembl',
     mirror = 'useast'
     );
-gene.position <- biomaRt:::getBM(
+gene.position.brca <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -47,13 +47,12 @@ gene.position <- biomaRt:::getBM(
     values = gene.list.sub,
     mart = ensembl
     );
-gene.position.brca <- gene.position;
 
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[, patient.part.brca], 1, max);
 gene.list <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.max.brca > 5];
 gene.list.sub <- substr(gene.list, 1, 15);
-gene.position <- biomaRt:::getBM(
+gene.position.brca.all <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -63,7 +62,6 @@ gene.position <- biomaRt:::getBM(
     mart = ensembl
     );
 
-gene.position.brca.all <- gene.position;
 
 # Function to process chromosome data
 process_chr_data <- function(gene_data, chr_name) {
@@ -112,7 +110,7 @@ calculate_fisher_odds <- function(chr_outlier, chr_outlier_all, total_gene, tota
 ### 2. METABIRC
 # Get chromosomal location information for outlier genes
 gene.list <- substr(rownames(outlier.gene.fdr.01$meta), 1, nchar(rownames(outlier.gene.fdr.01$meta)) - 3)
-gene.position <- biomaRt:::getBM(
+gene.position.meta <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -121,11 +119,10 @@ gene.position <- biomaRt:::getBM(
     values = gene.list,
     mart = ensembl
     );
-gene.position.meta <- gene.position;
 
 # Get chromosomal location information for all genes
 gene.list <- substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol)) - 3)
-gene.position <- biomaRt:::getBM(
+gene.position.meta.all <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -134,7 +131,6 @@ gene.position <- biomaRt:::getBM(
     values = gene.list,
     mart = ensembl
     );
-gene.position.meta.all <- gene.position;
 
 # Chromosome names
 chr.name <- c(
@@ -167,7 +163,7 @@ p.value.chr.meta.odd.sub.df <- fisher_meta_results$odds_ratios
 ### 3. ISPY
 # Get chromosomal location information for outlier genes
 gene.list <- rownames(outlier.gene.fdr.01$ispy);
-gene.position <- biomaRt:::getBM(
+gene.position.ispy <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -176,11 +172,10 @@ gene.position <- biomaRt:::getBM(
     values = gene.list,
     mart = ensembl
     );
-gene.position.ispy <- gene.position;
 
 # Get chromosomal location information for all genes
 gene.list <- rownames(fpkm.tumor.symbol.filter.ispy);
-gene.position <- biomaRt:::getBM(
+gene.position.ispy.all <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -189,7 +184,6 @@ gene.position <- biomaRt:::getBM(
     values = gene.list,
     mart = ensembl
     );
-gene.position.ispy.all <- gene.position;
 
 
 
@@ -241,7 +235,7 @@ p.value.chr.ispy.odd.sub.df <- fisher_ispy_results$odds_ratios
 # Get chromosomal location information for outlier genes
 gene.list <- rownames(outlier.gene.fdr.01$matador);
 gene.list.sub <- substr(gene.list, 1, 15);
-gene.position <- biomaRt:::getBM(
+gene.position.metador <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -250,13 +244,12 @@ gene.position <- biomaRt:::getBM(
     values = gene.list.sub,
     mart = ensembl
     );
-gene.position.metador <- gene.position;
 
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[, -ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
 fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5, ];
 gene.list <- fpkm.tumor.symbol.filter.metador.symbol.max.filter$Symbol;
-gene.position <- biomaRt:::getBM(
+gene.position.metador.all <- biomaRt:::getBM(
     attributes = c(
         'ensembl_gene_id', 'hgnc_symbol', 'chromosome_name',
         'start_position', 'end_position', 'band', 'gene_biotype', 'entrezgene_id'
@@ -265,7 +258,6 @@ gene.position <- biomaRt:::getBM(
     values = gene.list,
     mart = ensembl
     );
-gene.position.metador.all <- gene.position;
 
 
 chr.position.metador <- data.frame(as.matrix(table(gene.position.metador$chromosome_name)))
