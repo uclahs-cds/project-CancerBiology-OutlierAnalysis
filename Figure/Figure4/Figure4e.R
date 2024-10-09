@@ -17,7 +17,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 gene.dependency.breast.t <- t(gene.dependency.breast);
 gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));

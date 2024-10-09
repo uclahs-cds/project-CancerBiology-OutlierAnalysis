@@ -21,7 +21,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
 ### 1. CPTAC example

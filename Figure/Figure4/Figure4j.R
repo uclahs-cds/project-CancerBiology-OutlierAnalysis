@@ -17,7 +17,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 
 gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5, ];

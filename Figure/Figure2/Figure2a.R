@@ -17,7 +17,7 @@ library(BoutrosLab.utilities);
 source(here::here('common_functions.R'));
 
 # Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-08-23_Figure2a-d.rda'));
+load(file.path(get.outlier.data.dir(), '2024-10-03_Figure1_2_3_4_min_input.rda'));
 
 ### 1. METABRIC
 meta.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.patient.tag.01.meta),"Symbol"];
