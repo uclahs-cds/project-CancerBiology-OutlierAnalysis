@@ -51,15 +51,8 @@ five.data.outlier.symbol <- unique(c(
     outlier.symbol$ispy,
     outlier.symbol$icgc
     ));
-five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
 
-# Save these variables for later scripts
-cache.multiple.computed.variables(c(
-    'outlier.symbol',
-    'outlier.gene.fdr.01',
-    'five.data.outlier.symbol',
-    'five.data.outlier.symbol.na'
-    ));
+five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
 
 ### 1. MATADOR
 # Find the position of "_" in Metador data row names
@@ -125,6 +118,15 @@ outlier.patient.all.five.01 <- data.frame(
 
 # Set row names of the combined data frame
 rownames(outlier.patient.all.five.01) <- five.data.outlier.symbol.na;
+
+
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'outlier.symbol',
+    'outlier.gene.fdr.01',
+    'five.data.outlier.symbol',
+    'outlier.patient.all.five.01'
+    ));
 
 # Calculate the sum of non-NA values for each row
 outlier.patient.all.five.01.sum <- apply(
