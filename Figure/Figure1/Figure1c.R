@@ -32,31 +32,28 @@ outlier.gene.fdr.01.matador <- outlier.gene.fdr.all.matador[outlier.gene.fdr.all
 outlier.gene.fdr.01.ispy <- outlier.gene.fdr.all.ispy[outlier.gene.fdr.all.ispy$fdr < 0.01, ];
 outlier.gene.fdr.01.icgc <- outlier.gene.fdr.all.icgc[outlier.gene.fdr.all.icgc$fdr < 0.01, ];
 
-metabric.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01.meta), ]$Symbol;
-brca.outlier.symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01.brca), ]$Symbol;
 pos <- which(strsplit(rownames(outlier.gene.fdr.01.matador), '')[[1]] == '_');
-matador.outlier.symbol <- substring(rownames(outlier.gene.fdr.01.matador), pos + 1);
-ispy.outlier.symbol <- rownames(outlier.gene.fdr.01.ispy);
-icgc.outlier.symbol <- fpkm.tumor.symbol.filter.symbol.icgc[
-    rownames(outlier.patient.tag.01.icgc),
-    ]$Symbol;
+
+outlier.symbol <- list(
+    metabric = fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.gene.fdr.01.meta), ]$Symbol,
+    brca = fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01.brca), ]$Symbol,
+    matador = substring(rownames(outlier.gene.fdr.01.matador), pos + 1),
+    ispy = rownames(outlier.gene.fdr.01.ispy),
+    icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol
+);
 
 five.data.outlier.symbol <- unique(c(
-    metabric.outlier.symbol,
-    brca.outlier.symbol,
-    matador.outlier.symbol,
-    ispy.outlier.symbol,
-    icgc.outlier.symbol
+    outlier.symbol$metabric,
+    outlier.symbol$brca,
+    outlier.symbol$matador,
+    outlier.symbol$ispy,
+    outlier.symbol$icgc
     ));
 five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
 
 # Save these variables for later scripts
 cache.multiple.computed.variables(c(
-    'metabric.outlier.symbol',
-    'brca.outlier.symbol',
-    'matador.outlier.symbol',
-    'ispy.outlier.symbol',
-    'icgc.outlier.symbol',
+    'outlier.symbol',
     'outlier.gene.fdr.01.brca',
     'outlier.gene.fdr.01.meta',
     'outlier.gene.fdr.01.matador',

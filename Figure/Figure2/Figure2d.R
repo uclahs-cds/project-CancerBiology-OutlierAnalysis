@@ -16,7 +16,7 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
 
 load.multiple.computed.variables(c(
-    'brca.outlier.symbol',
+    'outlier.symbol',
     'brca.cnv.chr.new.gis.fpkm.order.match'
     ));
 
@@ -132,7 +132,7 @@ outlier.patient.tag.01.brca.ecDNA <- outlier.patient.tag.01.brca[, substr(colnam
 outlier.patient.tag.01.brca.ecDNA.match <- outlier.patient.tag.01.brca.ecDNA[apply(outlier.patient.tag.01.brca.ecDNA, 1, sum) > 0, ];
 
 
-brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name %in% brca.outlier.symbol, 1:5];
+brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location <- brca.cnv.chr.new.gis.fpkm.order.match.chr[brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name %in% outlier.symbol$brca, 1:5];
 brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location.ecdna.match <- brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location[brca.cnv.chr.new.gis.fpkm.order.match.chr.outlier.location$gene_name %in% fpkm.tumor.symbol.filter.brca[rownames(outlier.patient.tag.01.brca.ecDNA.match), 'Symbol'], ];
 
 # Find if the outlier genes are from ecDNA

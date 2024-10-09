@@ -20,17 +20,16 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
 
 load.multiple.computed.variables(c(
-    'brca.outlier.symbol',
-    'metabric.outlier.symbol'
+    'outlier.symbol'
     ));
 
 # Get DNA methylation data
 # 1. TCGA-BRCA
-brca.me.outlier.match <- brca.me.data[rownames(brca.me.data) %in% brca.outlier.symbol, ];
-brca.outlier.non.promoter.symbol.sample.match.merge.500 <- brca.me.data[!(rownames(brca.me.data) %in% brca.outlier.symbol), ];
+brca.me.outlier.match <- brca.me.data[rownames(brca.me.data) %in% outlier.symbol$brca, ];
+brca.outlier.non.promoter.symbol.sample.match.merge.500 <- brca.me.data[!(rownames(brca.me.data) %in% outlier.symbol$brca), ];
 # 2. METABRIC
-meta.me.outlier.match <- meta.me.data[rownames(meta.me.data) %in% metabric.outlier.symbol, ];
-meta.outlier.non.promoter.symbol.sample.match.merge.500 <- meta.me.data[!(rownames(meta.me.data) %in% metabric.outlier.symbol), ];
+meta.me.outlier.match <- meta.me.data[rownames(meta.me.data) %in% outlier.symbol$metabric, ];
+meta.outlier.non.promoter.symbol.sample.match.merge.500 <- meta.me.data[!(rownames(meta.me.data) %in% outlier.symbol$metabric), ];
 
 
 # Use promoter region TSS ~ +500bp

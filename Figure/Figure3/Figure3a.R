@@ -25,7 +25,7 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
 
 load.multiple.computed.variables(c(
-    'brca.outlier.symbol',
+    'outlier.symbol',
     'outlier.gene.fdr.01.brca'
     ));
 
@@ -33,7 +33,7 @@ load.multiple.computed.variables(c(
 protein.cptac.zscore.gene <- rownames(brca.protein.cptac.zscore);
 
 # Outlier genes with protein CPTAC z-score data
-outlier.protein.cptac.zscore.gene <- brca.outlier.symbol[brca.outlier.symbol %in% protein.cptac.zscore.gene];
+outlier.protein.cptac.zscore.gene <- outlier.symbol$brca[outlier.symbol$brca %in% protein.cptac.zscore.gene];
 
 brca.protein.cptac.zscore.outlier.match <- brca.protein.cptac.zscore[
     ,

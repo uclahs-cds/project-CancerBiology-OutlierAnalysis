@@ -25,14 +25,14 @@ source(here::here('common_functions.R'));
 load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
 
 load.multiple.computed.variables(c(
-    'brca.outlier.symbol'
+    'outlier.symbol'
     ));
 
 # Protein gene list from antibody data
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, '/'));
 
 # Outlier genes with protein data
-outlier.protein.gene <- brca.outlier.symbol[brca.outlier.symbol %in% protein.gene];
+outlier.protein.gene <- outlier.symbol$brca[outlier.symbol$brca %in% protein.gene];
 
 protein.antibody.outlier <- NULL;
 
