@@ -24,25 +24,42 @@ load.multiple.computed.variables(c(
     ));
 
 ### 1. METABRIC
-meta.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.patient.tag.01.meta), 'Symbol'];
-meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis[na.omit(match(meta.outlier.symbol, meta.cnv.chr.new.gis$Hugo_Symbol)), ];
-rownames(meta.cnv.chr.new.gis.match) <- meta.cnv.chr.new.gis.match$Hugo_Symbol;
-meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis.match[, 3:ncol(meta.cnv.chr.new.gis.match)];
-meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis.match[, colnames(meta.cnv.chr.new.gis.match) %in% colnames(outlier.patient.tag.01.meta)];
-meta.outlier.symbol.match <- rownames(outlier.patient.tag.01.meta)[match(rownames(meta.cnv.chr.new.gis.match), meta.outlier.symbol)]
-outlier.patient.tag.01.meta.cnv.match <- outlier.patient.tag.01.meta[meta.outlier.symbol.match, match(colnames(meta.cnv.chr.new.gis.match), colnames(outlier.patient.tag.01.meta))];
 
-meta.outlier.sample.cnv.new.gis <- list();
-meta.non.outlier.sample.cnv.new.gis <- list();
-for (i in 1:nrow(meta.cnv.chr.new.gis.match)) {
-    out.patient <- colnames(outlier.patient.tag.01.meta.cnv.match)[outlier.patient.tag.01.meta.cnv.match[i, ] == 1];
-    non.out.patient <- colnames(meta.cnv.chr.new.gis.match)[!(colnames(meta.cnv.chr.new.gis.match) %in% out.patient)];
-    meta.outlier.sample.cnv.new.gis[[i]] <- meta.cnv.chr.new.gis.match[i, out.patient];
-    meta.non.outlier.sample.cnv.new.gis[[i]] <- meta.cnv.chr.new.gis.match[i, non.out.patient];
-    }
+# Filter meta.outlier.symbol and subset the meta.cnv.chr.new.gis dataset
+meta.outlier.symbol <- fpkm.tumor.symbol.filter.meta.symbol[rownames(outlier.patient.tag.01.meta), 'Symbol']
+meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis[na.omit(match(meta.outlier.symbol, meta.cnv.chr.new.gis$Hugo_Symbol)), ]
+rownames(meta.cnv.chr.new.gis.match) <- meta.cnv.chr.new.gis.match$Hugo_Symbol
 
-names(meta.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match);
-names(meta.non.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match);
+# Subset columns based on common columns with outlier.patient.tag.01.meta
+cnv_columns_match <- colnames(meta.cnv.chr.new.gis.match) %in% colnames(outlier.patient.tag.01.meta)
+meta.cnv.chr.new.gis.match <- meta.cnv.chr.new.gis.match[, cnv_columns_match]
+
+# Match outlier symbols with row names of outlier.patient.tag.01.meta and remove NAs
+meta.outlier.symbol.match <- na.omit(rownames(outlier.patient.tag.01.meta)[match(rownames(meta.cnv.chr.new.gis.match), meta.outlier.symbol)])
+
+# Ensure we remove any `NA`s in column matches to avoid undefined columns
+valid_colnames <- colnames(outlier.patient.tag.01.meta) %in% colnames(meta.cnv.chr.new.gis.match)
+outlier.patient.tag.01.meta.cnv.match <- outlier.patient.tag.01.meta[meta.outlier.symbol.match, valid_colnames, drop = FALSE]
+
+# Use lapply instead of a for loop for better performance
+outlier.nonoutlier_samples <- lapply(seq_len(nrow(meta.cnv.chr.new.gis.match)), function(i) {
+    out.patient <- colnames(outlier.patient.tag.01.meta.cnv.match)[outlier.patient.tag.01.meta.cnv.match[i, ] == 1]
+    non.out.patient <- colnames(meta.cnv.chr.new.gis.match)[!(colnames(meta.cnv.chr.new.gis.match) %in% out.patient)]
+
+    list(
+        outlier = meta.cnv.chr.new.gis.match[i, out.patient, drop = FALSE],
+        non_outlier = meta.cnv.chr.new.gis.match[i, non.out.patient, drop = FALSE]
+    )
+})
+
+# Split results into separate lists for outlier and non-outlier samples
+meta.outlier.sample.cnv.new.gis <- lapply(outlier.nonoutlier_samples, `[[`, "outlier")
+meta.non.outlier.sample.cnv.new.gis <- lapply(outlier.nonoutlier_samples, `[[`, "non_outlier")
+
+# Set the names of the lists
+names(meta.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match)
+names(meta.non.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match)
+
 # Convert lists to numeric vectors and calculate medians for meta data
 meta.outlier.cnv <- as.numeric(
     unlist(meta.outlier.sample.cnv.new.gis)
