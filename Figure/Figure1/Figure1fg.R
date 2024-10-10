@@ -68,6 +68,11 @@ get.chromosomal.positions <- function(gene.list, filters) {
     return(results);
     }
 
+gene.position.all <- list(
+    metador = NULL,
+    meta = NULL
+    );
+
 ### 1. TCGA
 # Get chromosomal location information for outlier genes
 gene.position.brca <- get.chromosomal.positions(
@@ -78,7 +83,7 @@ gene.position.brca <- get.chromosomal.positions(
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.max.brca <- apply(fpkm.tumor.symbol.filter.brca[, patient.part.brca], 1, max);
 gene.list <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.max.brca > 5];
-gene.position.brca.all <- get.chromosomal.positions(substr(gene.list, 1, 15), 'ensembl_gene_id');
+gene.position.all$brca <- get.chromosomal.positions(substr(gene.list, 1, 15), 'ensembl_gene_id');
 
 # Function to process chromosome data
 process_chr_data <- function(gene_data, chr_name) {
@@ -132,7 +137,7 @@ gene.position.meta <- get.chromosomal.positions(
     );
 
 # Get chromosomal location information for all genes
-gene.position.meta.all <- get.chromosomal.positions(
+gene.position.all$meta <- get.chromosomal.positions(
     substr(rownames(fpkm.tumor.symbol.filter.meta.symbol), 1, nchar(rownames(fpkm.tumor.symbol.filter.meta.symbol)) - 3),
     'entrezgene_id'
     );
@@ -147,7 +152,7 @@ chr.name <- c(
 
 # Processing BRCA data
 chr.outlier.brca <- process_chr_data(gene.position.brca, chr.name)
-chr.outlier.brca.all <- process_chr_data(gene.position.brca.all, chr.name)
+chr.outlier.brca.all <- process_chr_data(gene.position.all$brca, chr.name)
 
 # Fisher's test and odds ratio for BRCA
 fisher_brca_results <- calculate_fisher_odds(chr.outlier.brca, chr.outlier.brca.all, nrow(fpkm.tumor.symbol.filter.brca), nrow(outlier.gene.fdr.01$brca));
@@ -157,7 +162,7 @@ p.value.chr.brca.odd.sub.df <- fisher_brca_results$odds_ratios
 
 # Processing METABRIC data
 chr.outlier.meta <- process_chr_data(gene.position.meta, chr.name)
-chr.outlier.meta.all <- process_chr_data(gene.position.meta.all, chr.name)
+chr.outlier.meta.all <- process_chr_data(gene.position.all$meta, chr.name)
 
 # Fisher's test and odds ratio for METABRIC
 fisher_meta_results <- calculate_fisher_odds(chr.outlier.meta, chr.outlier.meta.all, nrow(fpkm.tumor.symbol.filter.meta.symbol), nrow(outlier.gene.fdr.01$meta));
@@ -173,7 +178,7 @@ gene.position.ispy <- get.chromosomal.positions(
     );
 
 # Get chromosomal location information for all genes
-gene.position.ispy.all <- get.chromosomal.positions(
+gene.position.all$ispy <- get.chromosomal.positions(
     rownames(fpkm.tumor.symbol.filter.ispy),
     'hgnc_symbol'
     );
@@ -185,10 +190,10 @@ rownames(chr.position.order.ispy) <- chr.name;
 chr.position.order.ispy[is.na(chr.position.order.ispy$as.matrix.table.gene.position.ispy.chromosome_name..), ] <- 0;
 chr.position.outlier.ispy <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.ispy[, 1])));
 
-chr.position.ispy.all <- data.frame(as.matrix(table(gene.position.ispy.all$chromosome_name)))
+chr.position.ispy.all <- data.frame(as.matrix(table(gene.position.all$ispy$chromosome_name)))
 chr.position.order.ispy.all <- chr.position.ispy.all[chr.name, , drop = FALSE];
 rownames(chr.position.order.ispy.all) <- chr.name;
-chr.position.order.ispy.all[is.na(chr.position.order.ispy.all$as.matrix.table.gene.position.ispy.all.chromosome_name..), ] <- 0;
+chr.position.order.ispy.all[is.na(chr.position.order.ispy.all$as.matrix.table.gene.position.all.ispy.chromosome_name..), ] <- 0;
 chr.position.outlier.ispy.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.ispy.all[, 1])));
 
 
@@ -214,7 +219,7 @@ for (i in 1:25) {
     }
 
 chr.position.outlier.ispy <- process_chr_data(gene.position.ispy, chr.name)
-chr.position.outlier.ispy.all <- process_chr_data(gene.position.ispy.all, chr.name)
+chr.position.outlier.ispy.all <- process_chr_data(gene.position.all$ispy, chr.name)
 
 
 fisher_ispy_results <- calculate_fisher_odds(chr.position.outlier.ispy, chr.position.outlier.ispy.all, nrow(fpkm.tumor.symbol.filter.ispy), nrow(outlier.gene.fdr.01$ispy));
@@ -233,7 +238,7 @@ gene.position.metador <- get.chromosomal.positions(
 fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[, -ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
 fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5, ];
 gene.list <- fpkm.tumor.symbol.filter.metador.symbol.max.filter$Symbol;
-gene.position.metador.all <- get.chromosomal.positions(
+gene.position.all$metador <- get.chromosomal.positions(
     gene.list,
     'hgnc_symbol'
     );
@@ -245,7 +250,7 @@ rownames(chr.position.order.metador) <- chr.name;
 chr.position.order.metador[is.na(chr.position.order.metador$as.matrix.table.gene.position.metador.chromosome_name..), ] <- 0;
 chr.position.outlier.metador <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.metador[, 1])));
 
-chr.position.metador.all <- data.frame(as.matrix(table(gene.position.metador.all$chromosome_name)))
+chr.position.metador.all <- data.frame(as.matrix(table(gene.position.all$metador$chromosome_name)))
 chr.position.order.metador.all <- chr.position.metador.all[chr.name, , drop = FALSE];
 rownames(chr.position.order.metador.all) <- chr.name;
 chr.position.order.metador.all[is.na(chr.position.order.metador.all$as.matrix.table.gene.position.metador.all.chromosome_name..), ] <- 0;
@@ -274,7 +279,7 @@ for (i in 1:25) {
 
 
 chr.position.outlier.metador <- process_chr_data(gene.position.metador, chr.name)
-chr.position.outlier.metador.all <- process_chr_data(gene.position.metador.all, chr.name)
+chr.position.outlier.metador.all <- process_chr_data(gene.position.all$metador, chr.name)
 
 
 fisher_metador_results <- calculate_fisher_odds(chr.position.outlier.metador, chr.position.outlier.metador.all, nrow(fpkm.tumor.symbol.filter.metador.symbol), nrow(outlier.gene.fdr.01$matador));
@@ -448,7 +453,7 @@ outlier.gene.fdr.01.meta.gc <- cbind(
 
 gene.list <- rownames(fpkm.tumor.symbol.filter.meta.symbol);
 gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
-gene.position.meta.order.all <- gene.position.meta.all[match(gene.list.sub, gene.position.meta.all$entrezgene_id), ];
+gene.position.meta.order.all <- gene.position.all$meta[match(gene.list.sub, gene.position.all$meta$entrezgene_id), ];
 outlier.gene.fdr.all.meta.ensg <- cbind(
     fpkm.tumor.symbol.filter.meta.symbol,
     ensembl = gene.position.meta.order.all$ensembl_gene_id
@@ -490,7 +495,7 @@ outlier.gene.fdr.01.ispy.gc <- cbind(
     );
 
 gene.list <- rownames(fpkm.tumor.symbol.filter.ispy);
-gene.position.ispy.order.all <- gene.position.ispy.all[match(gene.list, gene.position.ispy.all$hgnc_symbol), ];
+gene.position.ispy.order.all <- gene.position.all$ispy[match(gene.list, gene.position.all$ispy$hgnc_symbol), ];
 outlier.gene.fdr.all.ispy.ensg <- cbind(
     fpkm.tumor.symbol.filter.ispy,
     ensembl = gene.position.ispy.order.all$ensembl_gene_id
@@ -673,10 +678,10 @@ smd.metafor.gc.5 <- rma.uni(
 
 # Calculate gene lengths for the sample and population gene sets
 outlier.length.brca <- gene.position.brca$end_position - gene.position.brca$start_position + 1;
-gene.length.brca <- gene.position.brca.all$end_position - gene.position.brca.all$start_position + 1;
+gene.length.brca <- gene.position.all$brca$end_position - gene.position.all$brca$start_position + 1;
 
 # Create a subset of non-outlier genes
-gene.position.all.non.brca <- gene.position.brca.all[!(gene.position.brca.all$ensembl_gene_id %in% gene.position.brca$ensembl_gene_id), ];
+gene.position.all.non.brca <- gene.position.all$brca[!(gene.position.all$brca$ensembl_gene_id %in% gene.position.brca$ensembl_gene_id), ];
 gene.non.length.brca <- gene.position.all.non.brca$end_position - gene.position.all.non.brca$start_position + 1;
 
 # Create a data frame for the lengths and status of genes
@@ -698,10 +703,10 @@ gene.position.meta.length <- cbind(gene.position.meta,
     length = gene.position.meta$end_position - gene.position.meta$start_position + 1
     );
 outlier.length.meta <- gene.position.meta$end_position - gene.position.meta$start_position + 1;
-gene.length.meta <- gene.position.meta.all$end_position - gene.position.meta.all$start_position + 1;
+gene.length.meta <- gene.position.all$meta$end_position - gene.position.all$meta$start_position + 1;
 
 # Create a subset of non-outlier genes
-gene.position.meta.all.non <- gene.position.meta.all[!(gene.position.meta.all$ensembl_gene_id %in% gene.position.meta.length$ensembl_gene_id), ];
+gene.position.meta.all.non <- gene.position.all$meta[!(gene.position.all$meta$ensembl_gene_id %in% gene.position.meta.length$ensembl_gene_id), ];
 gene.non.length.meta <- gene.position.meta.all.non$end_position - gene.position.meta.all.non$start_position + 1;
 
 # Create a data frame for the lengths and status of genes
@@ -724,11 +729,12 @@ gene.position.ispy.length <- cbind(gene.position.ispy,
     );
 
 # Create vectors for the lengths of the sample and population gene sets
+
 outlier.length.ispy <- gene.position.ispy.length$length;
-gene.length.ispy <- gene.position.ispy.all$end_position - gene.position.ispy.all$start_position + 1;
+gene.length.ispy <- gene.position.all$ispy$end_position - gene.position.all$ispy$start_position + 1;
 
 # Create a subset of non-outlier genes
-gene.position.ispy.all.non <- gene.position.ispy.all[!(gene.position.ispy.all$ensembl_gene_id %in% gene.position.ispy.length$ensembl_gene_id), ];
+gene.position.ispy.all.non <- gene.position.all$ispy[!(gene.position.all$ispy$ensembl_gene_id %in% gene.position.ispy.length$ensembl_gene_id), ];
 gene.non.length.ispy <- gene.position.ispy.all.non$end_position - gene.position.ispy.all.non$start_position + 1;
 
 # Create a data frame for the lengths and status of genes
@@ -751,10 +757,10 @@ gene.position.metador.length <- cbind(gene.position.metador,
     );
 
 outlier.length.metador <- gene.position.metador.length$length;
-gene.length.metador <- gene.position.metador.all$end_position - gene.position.metador.all$start_position + 1;
+gene.length.metador <- gene.position.all$metador$end_position - gene.position.all$metador$start_position + 1;
 
 # Create a subset of non-outlier genes
-gene.position.metador.all.non <- gene.position.metador.all[!(gene.position.metador.all$ensembl_gene_id %in% gene.position.metador.length$ensembl_gene_id), ];
+gene.position.metador.all.non <- gene.position.all$metador[!(gene.position.all$metador$ensembl_gene_id %in% gene.position.metador.length$ensembl_gene_id), ];
 gene.non.length.metador <- gene.position.metador.all.non$end_position - gene.position.metador.all.non$start_position + 1;
 
 # Create a data frame for the lengths and status of genes
@@ -886,10 +892,10 @@ exon.num <- sapply(exons.reduce, length);
 
 # 1. TCGA-BRCA
 #   - get entrez id
-exon.num.order.brca <- exon.num[match(gene.position.brca.all$entrezgene_id, names(exon.num))];
+exon.num.order.brca <- exon.num[match(gene.position.all$brca$entrezgene_id, names(exon.num))];
 
 gene.position.all.exon.brca <- data.frame(cbind(
-    gene.position.brca.all,
+    gene.position.all$brca,
     exon.num = exon.num.order.brca
     ));
 
@@ -910,9 +916,9 @@ exon.box.brca$exon.content <- as.numeric(exon.box.brca$exon.content);
 
 
 # 2. METABRIC
-exon.num.order.meta <- exon.num[match(gene.position.meta.all$entrezgene_id, names(exon.num))];
+exon.num.order.meta <- exon.num[match(gene.position.all$meta$entrezgene_id, names(exon.num))];
 gene.position.all.exon.meta <- data.frame(cbind(
-    gene.position.meta.all,
+    gene.position.all$meta,
     exon.num = exon.num.order.meta
     ));
 
@@ -935,9 +941,10 @@ exon.box.meta$exon.content <- as.numeric(exon.box.meta$exon.content);
 
 
 # 3. ISPY
-exon.num.order.ispy <- exon.num[match(gene.position.ispy.all$entrezgene_id, names(exon.num))];
+
+exon.num.order.ispy <- exon.num[match(gene.position.all$ispy$entrezgene_id, names(exon.num))];
 gene.position.all.exon.ispy <- data.frame(cbind(
-    gene.position.ispy.all,
+    gene.position.all$ispy,
     exon.num = exon.num.order.ispy
     ));
 
@@ -958,10 +965,10 @@ exon.box.ispy$exon.content <- as.numeric(exon.box.ispy$exon.content);
 
 
 # 4. MATADOR
-exon.num.order.metador <- exon.num[match(gene.position.metador.all$entrezgene_id, names(exon.num))];
+exon.num.order.metador <- exon.num[match(gene.position.all$metador$entrezgene_id, names(exon.num))];
 
 gene.position.all.exon.metador <- data.frame(cbind(
-    gene.position.metador.all,
+    gene.position.all$metador,
     exon.num = exon.num.order.metador
     ));
 
@@ -984,7 +991,7 @@ exon.box.metador$exon.content <- as.numeric(exon.box.metador$exon.content);
 
 
 # 5. ICGC
-gene.position.icgc.all.entrez <- get.chromosomal.positions(
+gene.position.all$icgc <- get.chromosomal.positions(
     fpkm.data.icgc$Ensembl[as.numeric(outlier.gene.fdr.all.icgc$gene)],
     'ensembl_gene_id'
     );
@@ -994,9 +1001,9 @@ gene.position.icgc.entrez <- get.chromosomal.positions(
     'ensembl_gene_id'
     );
 
-exon.num.order.icgc <- exon.num[match(gene.position.icgc.all.entrez$entrezgene_id, names(exon.num))];
+exon.num.order.icgc <- exon.num[match(gene.position.all$icgc$entrezgene_id, names(exon.num))];
 gene.position.all.exon.icgc <- data.frame(cbind(
-    gene.position.icgc.all.entrez,
+    gene.position.all$icgc,
     exon.num = exon.num.order.icgc
     ));
 
@@ -1403,13 +1410,8 @@ save.outlier.figure(
     height = 6.5
     );
 
-
 cache.multiple.computed.variables(c(
-    'gene.position.brca.all',
-    'gene.position.meta.all',
-    'gene.position.ispy.all',
-    'gene.position.icgc.all.entrez',
-    'gene.position.metador.all'
+    'gene.position.all'
     ));
 
 save.session.profile(file.path('output', 'Figure1fg.txt'));

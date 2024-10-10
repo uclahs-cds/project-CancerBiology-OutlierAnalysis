@@ -33,8 +33,6 @@ outlier.gene.fdr.all.matador.symbol$Symbol <- substr(rownames(outlier.gene.fdr.a
 outlier.gene.fdr.all.brca.symbol <- outlier.gene.fdr.all.brca;
 outlier.gene.fdr.all.brca.symbol$Symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.all.brca.symbol), ]$Symbol
 
-
-
 # p-value combine and then multiple testing correction
 icgc.all.pvalue <- outlier.gene.fdr.all.icgc.symbol[, c('obs.p.value', 'Symbol')];
 ispy.all.pvalue <- outlier.gene.fdr.all.ispy.symbol[, c('new.p.value', 'Symbol')];
@@ -70,19 +68,15 @@ combine.fisher.pvalue.all.fdr.sort.log <- -log10(combine.fisher.pvalue.all.fdr.s
 
 
 load.multiple.computed.variables(c(
-    'gene.position.ispy.all',
-    'gene.position.meta.all',
-    'gene.position.brca.all',
-    'gene.position.metador.all',
-    'gene.position.icgc.all.entrez'
+    'gene.position.all'
     ));
 
 
-gene.position.ispy.all.location <- gene.position.ispy.all[, 2:5];
-gene.position.meta.all.location <- gene.position.meta.all[, 2:5];
-gene.position.brca.all.location <- gene.position.brca.all[, 2:5];
-gene.position.metador.all.location <- gene.position.metador.all[, 2:5];
-gene.position.icgc.all.location <- gene.position.icgc.all.entrez[, 2:5];
+gene.position.ispy.all.location <- gene.position.all$ispy[, 2:5];
+gene.position.meta.all.location <- gene.position.all$meta[, 2:5];
+gene.position.brca.all.location <- gene.position.all$brca[, 2:5];
+gene.position.metador.all.location <- gene.position.all$metador[, 2:5];
+gene.position.icgc.all.location <- gene.position.all$icgc[, 2:5];
 
 all.gene.location <- rbind(
     gene.position.meta.all.location,
