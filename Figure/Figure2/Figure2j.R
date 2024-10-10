@@ -32,27 +32,25 @@ load.multiple.computed.variables(c(
     'two.outlier.promoter.symbol.sample.match.merge.filter.500'
     ))
 
-# Define constants
-unequal.quan <- rev(seq(0, 0.9, 0.1))
 
-# Function to analyze beta values
+# Ensure that the data matrix is numeric
+two.outlier.promoter.symbol.sample.match.merge.filter.500 <- apply(two.outlier.promoter.symbol.sample.match.merge.filter.500, 2, as.numeric)
+
+# Function to analyze beta values using lapply (with proper indexing)
 analyze_beta_values <- function(sample_list, data_matrix) {
-    lapply(seq_len(nrow(data_matrix)), function(i) {
-        value.vector <- as.numeric(data_matrix[i, ])
-        percentile <- ecdf(value.vector)
-        percent.value <- percentile(sample_list[[i]])
-        na.omit(percent.value)
-        }) |> unlist()
-    }
+  lapply(seq_len(nrow(data_matrix)), function(i) {
+    value.vector <- data_matrix[i, ]  # Retrieve the ith row
+    percentile <- ecdf(value.vector)  # Compute the ecdf for the row
+    percent_value <- percentile(sample_list[[i]])  # Apply ecdf to corresponding sample
+    na.omit(percent_value)  # Remove any NA values
+  }) |> unlist()
+}
 
 # Compute the sum of the patient status filter
-two.outlier.patient.status.merge.filter.sum.500 <- apply(
-    two.outlier.patient.status.merge.filter.500,
-    2,
-    function(x) {
-        sum(na.omit(as.numeric(x)))
-        }
-    )
+two.outlier.patient.status.merge.filter.sum.500 <- colSums(
+  apply(two.outlier.patient.status.merge.filter.500, 2, as.numeric),
+  na.rm = TRUE
+)
 
 # Analyze outlier and non-outlier probes in outlier and non-outlier patients
 percent.beta.out.out.500 <- analyze_beta_values(outlier.sample.me.two.500, two.outlier.promoter.symbol.sample.match.merge.filter.500)
@@ -64,27 +62,39 @@ me.non.out.symbol.two.500 <- setdiff(
     me.out.symbol.two.500
     )
 
-# Analyze non-outlier probes in outlier and non-outlier patients
-analyze_non_outlier_beta <- function(gene_symbol, brca_data, meta_data, patient_status_sum) {
-    value.vector.brca <- as.numeric(brca_data[rownames(brca_data) == gene_symbol, ])
-    value.vector.meta <- as.numeric(meta_data[rownames(meta_data) == gene_symbol, ])
+# Precompute row indices for brca and meta data
+brca_gene_indices <- match(me.non.out.symbol.two.500, rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500))
+meta_gene_indices <- match(me.non.out.symbol.two.500, rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500))
+
+analyze_non_outlier_beta <- function(gene_index_brca, gene_index_meta, brca_data, meta_data, patient_status_sum) {
+    # Pre-extracted rows based on gene indices (instead of searching by rownames)
+    value.vector.brca <- as.numeric(brca_data[gene_index_brca, , drop = FALSE])
+    value.vector.meta <- as.numeric(meta_data[gene_index_meta, , drop = FALSE])
     value.vector <- na.omit(c(value.vector.brca, value.vector.meta))
 
     if (length(value.vector) == 0) {
         return(list(out.non = NA, non.non = NA))
-        }
+    }
 
     percentile <- ecdf(value.vector)
     list(
         out.non = na.omit(percentile(value.vector[patient_status_sum > 0])),
         non.non = na.omit(percentile(value.vector[patient_status_sum == 0]))
-        )
-    }
+    )
+}
 
-# Compute beta values for non-outlier probes
-non.outlier.results <- lapply(me.non.out.symbol.two.500, function(gene) {
-    analyze_non_outlier_beta(gene, brca.outlier.non.promoter.symbol.sample.match.merge.500, meta.outlier.non.promoter.symbol.sample.match.merge.500, two.outlier.patient.status.merge.filter.sum.500)
-    })
+# Compute beta values for non-outlier probes using precomputed row indices
+non.outlier.results <- mapply(
+    analyze_non_outlier_beta,
+    brca_gene_indices,
+    meta_gene_indices,
+    MoreArgs = list(
+        brca_data = brca.outlier.non.promoter.symbol.sample.match.merge.500,
+        meta_data = meta.outlier.non.promoter.symbol.sample.match.merge.500,
+        patient_status_sum = two.outlier.patient.status.merge.filter.sum.500
+    ),
+    SIMPLIFY = FALSE
+)
 
 # Unlist results
 percent.beta.out.non.500 <- unlist(lapply(non.outlier.results, `[[`, 'out.non'))
