@@ -128,15 +128,15 @@ split_outliers <- function(gene_row, promoter_row) {
     list(
         outlier = promoter_row[gene_row == 1],
         non_outlier = promoter_row[gene_row == 0]
-    )
-}
+        )
+    }
 
 # Apply split_outliers function to each row
 outlier_non_outlier_list <- Map(
     split_outliers,
     as.data.frame(t(two.outlier.patient.status.merge.filter.500)),
     as.data.frame(t(two.outlier.promoter.symbol.sample.match.merge.filter.500))
-)
+    )
 
 # Split results into outliers and non-outliers
 outlier.sample.me.two.500 <- lapply(outlier_non_outlier_list, `[[`, 'outlier')

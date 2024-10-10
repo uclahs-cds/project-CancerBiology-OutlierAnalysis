@@ -49,12 +49,12 @@ outlier.nonoutlier_samples <- lapply(seq_len(nrow(meta.cnv.chr.new.gis.match)), 
     list(
         outlier = meta.cnv.chr.new.gis.match[i, out.patient, drop = FALSE],
         non_outlier = meta.cnv.chr.new.gis.match[i, non.out.patient, drop = FALSE]
-    )
-})
+        )
+    })
 
 # Split results into separate lists for outlier and non-outlier samples
-meta.outlier.sample.cnv.new.gis <- lapply(outlier.nonoutlier_samples, `[[`, "outlier")
-meta.non.outlier.sample.cnv.new.gis <- lapply(outlier.nonoutlier_samples, `[[`, "non_outlier")
+meta.outlier.sample.cnv.new.gis <- lapply(outlier.nonoutlier_samples, `[[`, 'outlier')
+meta.non.outlier.sample.cnv.new.gis <- lapply(outlier.nonoutlier_samples, `[[`, 'non_outlier')
 
 # Set the names of the lists
 names(meta.outlier.sample.cnv.new.gis) <- rownames(meta.cnv.chr.new.gis.match)
