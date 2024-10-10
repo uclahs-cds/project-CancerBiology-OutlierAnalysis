@@ -123,23 +123,28 @@ colnames(two.outlier.patient.status.merge.filter.500) <- c(
     colnames(meta.me.data)
     );
 
+# Use lapply to split outliers and non-outliers efficiently
+split_outliers <- function(gene_row, promoter_row) {
+    list(
+        outlier = promoter_row[gene_row == 1],
+        non_outlier = promoter_row[gene_row == 0]
+    )
+}
 
+# Apply split_outliers function to each row
+outlier_non_outlier_list <- Map(
+    split_outliers,
+    as.data.frame(t(two.outlier.patient.status.merge.filter.500)),
+    as.data.frame(t(two.outlier.promoter.symbol.sample.match.merge.filter.500))
+)
 
+# Split results into outliers and non-outliers
+outlier.sample.me.two.500 <- lapply(outlier_non_outlier_list, `[[`, 'outlier')
+non.outlier.sample.me.two.500 <- lapply(outlier_non_outlier_list, `[[`, 'non_outlier')
 
-# divide into outlier and non-outlier
-outlier.sample.me.two.500 <- list();
-non.outlier.sample.me.two.500 <- list();
-for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
-    outlier.patient.gene <- two.outlier.patient.status.merge.filter.500[i, ];
-    outlier.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[i, ][outlier.patient.gene == 1];
-    non.outlier.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[i, ][outlier.patient.gene == 0];
-
-    outlier.sample.me.two.500[[i]] <- outlier.me;
-    non.outlier.sample.me.two.500[[i]] <- non.outlier.me;
-    }
-
-outlier.sample.me.two.unlist.500 <- as.numeric(unlist(outlier.sample.me.two.500));
-non.outlier.sample.me.two.unlist.500 <- as.numeric(unlist(non.outlier.sample.me.two.500));
+# Flatten lists into numeric vectors
+outlier.sample.me.two.unlist.500 <- as.numeric(unlist(outlier.sample.me.two.500))
+non.outlier.sample.me.two.unlist.500 <- as.numeric(unlist(non.outlier.sample.me.two.500))
 
 outlier.sample.me.two.unlist.mean.500 <- lapply(outlier.sample.me.two.500, function(x) {
     mean(na.omit(as.numeric(x)))
@@ -161,6 +166,7 @@ mean.minus.ma.merge.two.500 <- data.frame(cbind(
     as.numeric(minus.beta.merge.two.500),
     rownames(two.outlier.promoter.symbol.sample.match.merge.filter.500)
     ));
+
 mean.minus.ma.merge.two.500[, 1] <- as.numeric(mean.minus.ma.merge.two.500[, 1]);
 mean.minus.ma.merge.two.500[, 2] <- as.numeric(mean.minus.ma.merge.two.500[, 2]);
 colnames(mean.minus.ma.merge.two.500) <- c('mean.beta', 'minus.beta', 'Symbol');
