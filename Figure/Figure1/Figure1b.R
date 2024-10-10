@@ -16,9 +16,8 @@ library(BoutrosLab.utilities);
 # Source the helper library
 library(outlierAnalysisSupport);
 
-attach(get.outlier.data.path());
-
 ### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M');

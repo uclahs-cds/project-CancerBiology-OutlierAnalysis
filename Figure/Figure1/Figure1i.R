@@ -13,10 +13,10 @@ library(tidyr);
 library(poolr);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
 outlier.gene.fdr.all.icgc.symbol <- outlier.gene.fdr.all.icgc;
 outlier.gene.fdr.all.icgc.symbol$Symbol <- fpkm.data.icgc$Name[as.numeric(outlier.gene.fdr.all.icgc.symbol$gene)];

@@ -17,12 +17,11 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 library(metafor);
 
-# Source helper library
-source(here::here('common_functions.R'))
+# Source the helper library
+library(outlierAnalysisSupport);
 
-# Load the data file
-load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'))
-
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
 load.multiple.computed.variables(c(
     'outlier.patient.tag.01.brca.me.match'

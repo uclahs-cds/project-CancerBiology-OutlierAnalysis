@@ -17,10 +17,10 @@ library(BoutrosLab.utilities);
 library(metafor);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
 ### 1. TCGA-BRCA
 convert.stage <- function(stage) {

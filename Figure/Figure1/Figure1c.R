@@ -17,13 +17,10 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
-
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-10-08_Figure1_2_3_4_min_input.rda'));
+library(outlierAnalysisSupport);
 
 ### DATA PREPARATION ############################################################
-
+attach(get.outlier.data.path());
 
 # Get the FDR information of only outlier genes
 outlier.gene.fdr.01 <- list(
