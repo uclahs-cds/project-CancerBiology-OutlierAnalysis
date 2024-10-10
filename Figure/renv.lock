@@ -1836,6 +1836,27 @@
       ],
       "Hash": "120d734b7c6eaed99d8f5f61e6c125ed"
     },
+    "outlierAnalysisSupport": {
+      "Package": "outlierAnalysisSupport",
+      "Version": "0.0.0.9000",
+      "Source": "unknown",
+      "Requirements": [
+        "BoutrosLab.plotting.general",
+        "BoutrosLab.plotting.survival",
+        "BoutrosLab.utilities",
+        "GenomicRanges",
+        "RColorBrewer",
+        "TxDb.Hsapiens.UCSC.hg38.knownGene",
+        "dplyr",
+        "liftOver",
+        "metafor",
+        "poolr",
+        "reshape2",
+        "rtracklayer",
+        "tidyr"
+      ],
+      "Hash": "9327452a0eec5b2f2b1b1fb0ef4bc122"
+    },
     "pbapply": {
       "Package": "pbapply",
       "Version": "1.7-2",
