@@ -51,16 +51,16 @@ save.outlier.figure <- function(plot.object, name.segments, width, height, outpu
     save.basename <- file.path(output.directory, paste(name.segments, sep = '_', collapse = '_'));
 
     # Save a PDF
-    pdf(
+    grDevices::pdf(
         file = paste0(save.basename, '.pdf'),
         width = width,
         height = height
         );
     print(plot.object);
-    dev.off();
+    grDevices::dev.off();
 
     # Save a PNG
-    png(
+    grDevices::png(
         file = paste0(save.basename, '.png'),
         width = width,
         height = height,
@@ -68,7 +68,7 @@ save.outlier.figure <- function(plot.object, name.segments, width, height, outpu
         res = 1200
         );
     print(plot.object);
-    dev.off();
+    grDevices::dev.off();
     return(invisible(NULL));
     }
 

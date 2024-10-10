@@ -2,14 +2,8 @@ Package: outlierAnalysisSupport
 Title: Support Code For Outlier Analysis Paper
 Version: 0.0.0.9000
 Authors@R: 
-    c(person("Jee Yun",
-             "Han",
-             email = "jyhan@mednet.ucla.edu",
-             role = c("aut", "cre")),
-      person("Nicholas",
-             "Wiltsie",
-             email = "nwiltsie@mednet.ucla.edu",
-             role = "ctb"))
+    c(person("Jee Yun", "Han", email = "jyhan@mednet.ucla.edu", role = c("aut", "cre")),
+      person("Nicholas", "Wiltsie", email = "nwiltsie@mednet.ucla.edu", role = c("ctb")))
 Description: Provides analysis support code for the outlier analysis paper.
 License: MIT
 Encoding: UTF-8
@@ -29,3 +23,10 @@ Imports:
     rtracklayer (>= 1.62.0),
     tidyr (>= 1.3.1),
     TxDb.Hsapiens.UCSC.hg38.knownGene (>= 3.18.0)
+Remotes: 
+    uclahs-cds/package-BoutrosLab-plotting-survival,
+    uclahs-cds/package-BoutrosLab-statistics-survival,
+    uclahs-cds/public-R-BoutrosLab-prognosticsignature-general,
+    uclahs-cds/public-R-BoutrosLab-prognosticsignature-general,
+    uclahs-cds/public-R-BoutrosLab-statistics-general,
+    uclahs-cds/public-R-BoutrosLab-utilities
