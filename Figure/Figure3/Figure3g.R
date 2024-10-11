@@ -101,12 +101,17 @@ os.group.meta$pam50 <- relevel(os.group.meta$pam50, ref = 'LumA');
 os.group.meta <- os.group.meta[!(os.group.meta$pam50 %in% 'NC'), ];
 os.group.meta$pam50 <- factor(os.group.meta$pam50);
 
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'os.group.brca',
+    'os.group.meta'
+    ));
+
 ### 3. Combine TCGA-BRCA and METABRIC Datasets
 os.group.combine <- data.frame(rbind(
     os.group.brca,
     os.group.meta
     ));
-
 
 os.group.combine$pam50 <- factor(os.group.combine$pam50);
 os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = 'LumA');
@@ -149,11 +154,5 @@ save.outlier.figure(
     width = 7.5,
     height = 7
     );
-
-# Save these variables for later scripts
-cache.multiple.computed.variables(c(
-    'os.group.brca',
-    'os.group.meta'
-    ));
 
 save.session.profile(file.path('output', 'Figure3g.txt'));

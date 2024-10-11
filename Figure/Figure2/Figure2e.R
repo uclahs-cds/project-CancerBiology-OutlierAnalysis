@@ -115,6 +115,12 @@ meta.mutation.driver.list.gene.vector.data.convert.na <- apply(meta.mutation.dri
     })
 meta.mutation.driver.list.gene.vector.data.convert.na <- t(meta.mutation.driver.list.gene.vector.data.convert.na);
 
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'meta.mutation.driver.list.gene.vector.data.convert.na',
+    'outlier.patient.tag.01.t.p.order.sum'
+    ));
+
 # Luma subtype patient
 subtype.total.outlier.num.luma <- subtype.total.outlier.num[subtype.total.outlier.num$subtype == 3, ];
 outlier.patient.tag.01.t.p.order.sum.luma <- outlier.patient.tag.01.t.p.order.sum[rownames(na.omit(subtype.total.outlier.num.luma))];
@@ -872,11 +878,5 @@ save.outlier.figure(
     width = 6.9,
     height = 5.7
     );
-
-# Save these variables for later scripts
-cache.multiple.computed.variables(c(
-    'meta.mutation.driver.list.gene.vector.data.convert.na',
-    'outlier.patient.tag.01.t.p.order.sum'
-    ));
 
 save.session.profile(file.path('output', 'Figure2e.txt'));

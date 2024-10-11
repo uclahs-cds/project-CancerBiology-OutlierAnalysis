@@ -86,6 +86,12 @@ gene.rnai.diff.matrix.05 <- data.frame(
 rownames(gene.rnai.diff.matrix.05) <- rownames(outlier.gene.rnai.score.05.mean);
 gene.rnai.diff.matrix.05.overlap <- gene.rnai.diff.matrix.05[gene.rnai.diff.matrix.05$symbol %in% five.data.outlier.symbol, ];
 
+cache.multiple.computed.variables(c(
+    'gene.rnai.breast.t.num.match.05.na',
+    'sample.outlier.05.overlap.na',
+    'gene.rnai.diff.matrix.05.overlap'
+    ));
+
 # Set colors for the scatter plot
 
 interesting.points <- gene.rnai.diff.matrix.05.overlap$diff < -0.5;
@@ -137,11 +143,5 @@ save.outlier.figure(
     width = 6,
     height = 5
     );
-
-cache.multiple.computed.variables(c(
-    'gene.rnai.breast.t.num.match.05.na',
-    'sample.outlier.05.overlap.na',
-    'gene.rnai.diff.matrix.05.overlap'
-    ));
 
 save.session.profile(file.path('output', 'Figure4g.txt'));

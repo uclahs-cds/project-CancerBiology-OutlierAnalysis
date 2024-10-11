@@ -1022,6 +1022,9 @@ exon.box.icgc <- data.frame(cbind(
 exon.box.icgc <- na.omit(exon.box.icgc);
 exon.box.icgc$exon.content <- as.numeric(exon.box.icgc$exon.content);
 
+cache.multiple.computed.variables(c(
+    'gene.position.all'
+    ));
 
 # Meta-analysis
 
@@ -1409,9 +1412,5 @@ save.outlier.figure(
     width = 5,
     height = 6.5
     );
-
-cache.multiple.computed.variables(c(
-    'gene.position.all'
-    ));
 
 save.session.profile(file.path('output', 'Figure1fg.txt'));

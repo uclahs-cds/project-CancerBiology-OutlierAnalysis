@@ -100,8 +100,6 @@ outlier.patient.tag.01.icgc.match.five <- outlier.patient.tag.01.icgc[
     match(five.data.outlier.symbol.na, outlier.patient.tag.01.icgc.symbol),
     ];
 
-
-
 # Combine matched data from all sources into a single data frame
 outlier.patient.all.five.01 <- data.frame(
     cbind(
@@ -115,7 +113,6 @@ outlier.patient.all.five.01 <- data.frame(
 
 # Set row names of the combined data frame
 rownames(outlier.patient.all.five.01) <- five.data.outlier.symbol.na;
-
 
 # Save these variables for later scripts
 cache.multiple.computed.variables(c(

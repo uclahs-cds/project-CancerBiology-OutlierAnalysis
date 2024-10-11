@@ -44,6 +44,10 @@ brca.cnv.chr.new.gis.fpkm.order.match <- brca.cnv.chr.new.gis.fpkm.order[
         ])
     ];
 
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'brca.cnv.chr.new.gis.fpkm.order.match'
+    ));
 
 # Filtering data for chromosome 10
 brca.cnv.chr.new.gis.fpkm.order.match.chr10 <- brca.cnv.chr.new.gis.fpkm.order.match[
@@ -333,10 +337,5 @@ save.outlier.figure(
     width = 10.4,
     height = 4.5
     );
-
-# Save these variables for later scripts
-cache.multiple.computed.variables(c(
-    'brca.cnv.chr.new.gis.fpkm.order.match'
-    ));
 
 save.session.profile(file.path('output', 'Figure2c.txt'));

@@ -74,6 +74,11 @@ gene.effect.diff.matrix.05 <- data.frame(
 rownames(gene.effect.diff.matrix.05) <- rownames(outlier.gene.effect.score.05.mean);
 gene.effect.diff.matrix.05.overlap <- gene.effect.diff.matrix.05[gene.effect.diff.matrix.05$symbol %in% five.data.outlier.symbol, ];
 
+cache.multiple.computed.variables(c(
+    'cas.effect.breast.05.na',
+    'gene.effect.diff.matrix.05.overlap'
+    ));
+
 # Prepare the datasets by matching and removing NA values
 gene.rnai.diff.matrix.05.overlap.na <- na.omit(gene.rnai.diff.matrix.05.overlap);
 gene.effect.diff.matrix.05.overlap.match.rnai <- gene.effect.diff.matrix.05.overlap[rownames(gene.rnai.diff.matrix.05.overlap.na), ];
@@ -157,10 +162,5 @@ save.outlier.figure(
     width = 5,
     height = 5
     );
-
-cache.multiple.computed.variables(c(
-    'cas.effect.breast.05.na',
-    'gene.effect.diff.matrix.05.overlap'
-    ));
 
 save.session.profile(file.path('output', 'Figure4i.txt'));

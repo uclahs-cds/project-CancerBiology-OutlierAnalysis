@@ -84,6 +84,13 @@ gene.dependency.diff.matrix.05.overlap <- gene.dependency.diff.matrix.05[
     gene.dependency.diff.matrix.05$symbol %in% five.data.outlier.symbol,
     ];
 
+cache.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap',
+    'ccle.sample.outlier.status.overlap.na',
+    'gene.dependency.breast.t.num.match.05.na',
+    'gene.dependency.diff.matrix.05.overlap'
+    ));
+
 # Filter overlapping genes
 
 # Set colors
@@ -141,12 +148,5 @@ save.outlier.figure(
     width = 6,
     height = 5
     );
-
-cache.multiple.computed.variables(c(
-    'ccle.sample.outlier.status.overlap',
-    'ccle.sample.outlier.status.overlap.na',
-    'gene.dependency.breast.t.num.match.05.na',
-    'gene.dependency.diff.matrix.05.overlap'
-    ));
 
 save.session.profile(file.path('output', 'Figure4e.txt'));

@@ -218,6 +218,14 @@ sanger.zscore.drug.breast.match.out.df <- bind_rows(sanger.zscore.drug.breast.ma
 sanger.zscore.drug.breast.match.non.df <- bind_rows(sanger.zscore.drug.breast.match.non)
 sanger.zscore.drug.breast.match.info.df <- bind_rows(sanger.zscore.drug.breast.match.info)
 
+
+cache.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na.samger.match.dup.filter',
+    'depmap.drug.info.match.sanger.dup',
+    'sanger.drug.match.dup.zscore',
+    'sanger.zscore.drug.breast.match.info.df'
+    ));
+
 sanger.zscore.drug.breast.match.out.list.mean <- lapply(sanger.zscore.drug.breast.match.out, function(x) {
     mean(na.omit(as.numeric(unlist(x))))
     })
@@ -367,12 +375,5 @@ save.outlier.figure(
     width = 4,
     height = 6
     );
-
-cache.multiple.computed.variables(c(
-    'ccle.sample.outlier.status.overlap.na.samger.match.dup.filter',
-    'depmap.drug.info.match.sanger.dup',
-    'sanger.drug.match.dup.zscore',
-    'sanger.zscore.drug.breast.match.info.df'
-    ));
 
 save.session.profile(file.path('output', 'Figure4l.txt'));

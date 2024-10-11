@@ -48,6 +48,10 @@ rnai.05.box <- data.frame(cbind(
 rnai.05.box$score <- as.numeric(rnai.05.box$score);
 rnai.05.box$status <- as.numeric(rnai.05.box$status);
 
+cache.multiple.computed.variables(c(
+    'rnai.05.box',
+    'rnai.score.05.overlap.minus.05'
+    ));
 
 dot.colours <- vector(length = nrow(rnai.05.box));
 dot.colours <- rep('grey70', nrow(rnai.05.box));
@@ -96,10 +100,5 @@ save.outlier.figure(
     width = 6,
     height = 6
     );
-
-cache.multiple.computed.variables(c(
-    'rnai.05.box',
-    'rnai.score.05.overlap.minus.05'
-    ));
 
 save.session.profile(file.path('output', 'Figure4h.txt'));

@@ -301,6 +301,10 @@ subtype.total.outlier.num.icgc <- data.frame(cbind(
     ));
 colnames(subtype.total.outlier.num.icgc) <- c('subtype', 'outlier');
 
+cache.multiple.computed.variables(c(
+    'subtype.total.outlier.num.icgc'
+    ));
+
 # Data preparation
 os.data.stage.pseudo.icgc <- data.frame(cbind(subtype.total.outlier.num.icgc,
     stage = icgc.stage.convert.new.x
@@ -627,9 +631,5 @@ save.outlier.figure(
     width = 4.5,
     height = 5.6
     );
-
-cache.multiple.computed.variables(c(
-    'subtype.total.outlier.num.icgc'
-    ));
 
 save.session.profile(file.path('output', 'Figure3e.txt'));

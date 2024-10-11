@@ -215,6 +215,16 @@ icgc.cnv.chr.new.gis.fpkm.order.match <- icgc.cnv.chr.new.gis.col;
 icgc.cnv.chr.new.gis.fpkm.order.match.chr <- icgc.cnv.chr.new.gis.raw$Cytoband;
 icgc.cnv.chr.new.gis.fpkm.order.match.chr <- gsub('[pq].*', '', icgc.cnv.chr.new.gis.fpkm.order.match.chr);
 
+# Save these variables for later scripts
+cache.multiple.computed.variables(c(
+    'brca.cnv.chr.new.gis.match',
+    'icgc.cnv.chr.new.gis.fpkm.order.match',
+    'icgc.cnv.chr.new.gis.fpkm.order.match.chr',
+    'meta.cnv.chr.new.gis.match',
+    'outlier.patient.tag.01.brca.cnv.match',
+    'outlier.patient.tag.01.meta.cnv.match'
+    ));
+
 icgc.outlier.sample.cnv.new.gis <- list();
 icgc.non.outlier.sample.cnv.new.gis <- list();
 for (i in 1:nrow(icgc.cnv.chr.new.gis.match)) {
@@ -548,9 +558,6 @@ fdr.bar <- BoutrosLab.plotting.general:::create.barplot(
     );
 fdr.bar;
 
-
-
-
 multi.gene <- create.multipanelplot(
     list(non.fraction.bar, out.fraction.bar, metafor.all.segplot, fdr.bar),
     main.cex = 0,
@@ -575,15 +582,5 @@ save.outlier.figure(
     width = 10.4,
     height = 4.5
     );
-
-# Save these variables for later scripts
-cache.multiple.computed.variables(c(
-    'brca.cnv.chr.new.gis.match',
-    'icgc.cnv.chr.new.gis.fpkm.order.match',
-    'icgc.cnv.chr.new.gis.fpkm.order.match.chr',
-    'meta.cnv.chr.new.gis.match',
-    'outlier.patient.tag.01.brca.cnv.match',
-    'outlier.patient.tag.01.meta.cnv.match'
-    ));
 
 save.session.profile(file.path('output', 'Figure2a.txt'));

@@ -84,6 +84,12 @@ names(non.outlier.protein.cptac.zscore.list) <- outlier.protein.cptac.zscore.gen
 outlier.protein.cptac.list.no.p.na <- na.omit(unlist(outlier.protein.cptac.zscore.list))
 non.outlier.protein.cptac.list.no.p.na <- non.outlier.protein.cptac.zscore.list[names(outlier.protein.cptac.list.no.p.na)];
 
+cache.multiple.computed.variables(c(
+    'non.outlier.protein.cptac.list.no.p.na',
+    'outlier.patient.tag.01.brca.protein.cptac.zscore.match',
+    'outlier.protein.cptac.list.no.p.na'
+    ));
+
 protein.cptac.na.value <- data.frame(
     protein.cptac.na.value = c(
         as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na)),
@@ -172,11 +178,5 @@ save.outlier.figure(
     width = 3.5,
     height = 6.5
     );
-
-cache.multiple.computed.variables(c(
-    'non.outlier.protein.cptac.list.no.p.na',
-    'outlier.patient.tag.01.brca.protein.cptac.zscore.match',
-    'outlier.protein.cptac.list.no.p.na'
-    ));
 
 save.session.profile(file.path('output', 'Figure3a.txt'));

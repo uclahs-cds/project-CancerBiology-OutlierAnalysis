@@ -34,6 +34,11 @@ protein.info.breast.num.match <- protein.info.breast.num[, colnames(protein.info
 rownames(protein.info.breast.num.match) <- protein.info.breast.num.symbol;
 protein.info.breast.num.match.05 <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% ccle.sample.outlier.status.fdr.05.five.symbol, ];
 
+cache.multiple.computed.variables(c(
+    'protein.info.breast.num.match',
+    'protein.info.breast.num.symbol'
+    ));
+
 # Use the mean of the duplicated gene and patient
 #   - duplicated gene
 uni.gene.protein <- unique(rownames(protein.info.breast.num.match.05));
@@ -186,10 +191,5 @@ save.outlier.figure(
     width = 3.5,
     height = 6.5
     );
-
-cache.multiple.computed.variables(c(
-    'protein.info.breast.num.match',
-    'protein.info.breast.num.symbol'
-    ));
 
 save.session.profile(file.path('output', 'Figure4c.txt'));
