@@ -1,18 +1,18 @@
 ### HISTORY #####################################################################
-# This script performs a meta-meta analysis to combine hazard ratios
-# across different breast cancer subtypes (e.g., Basal, Her2, LuminalA, LuminalB, Normal)
+# This script processes survival data from the TCGA-BRCA and METABRIC datasets
+# to analyze overall survival by combining data from both sources. The analysis
+# includes Kaplan-Meier survival plots among different patient groups.
 # Date: 2024-08-15
 
 ### DESCRIPTION #################################################################
-# This script combines TCGA-BRCA and METABRIC datasets, performs Cox proportional
-# hazards regression for each breast cancer subtype, and then conducts a meta-analysis
-# to combine the hazard ratios. It generates a segment plot to visualize the results.
+# The script loads and processes survival data from TCGA-BRCA and METABRIC datasets,
+# combines them, and performs a Kaplan-Meier survival analysis. It creates a plot
+# comparing survival outcomes between outlier and non-outlier patient groups.
 
 ### PREAMBLE ####################################################################
-# Load required libraries
+# Load necessary libraries
 library(BoutrosLab.plotting.survival);
 library(BoutrosLab.utilities);
-library(metafor);
 
 # Source the helper library
 library(outlierAnalysisSupport);
@@ -20,26 +20,129 @@ library(outlierAnalysisSupport);
 ### DATA PREPARATION ############################################################
 attach(get.outlier.data.path());
 
-load.multiple.computed.variables(c(
-    'os.group.brca',
-    'os.group.meta'
+### 1. TCGA-BRCA
+os.data.brca <- data.frame(cbind(
+    status = substr(brca.clinic.order$Overall.Survival.Status, 1, 1),
+    os = brca.clinic.order$Overall.Survival..Months.,
+    sum = apply(outlier.patient.tag.01.brca, 2, sum),
+    pam50 = sub('^BRCA_', '', brca.clinic.order$Subtype),
+    age = brca.clinic.order$Diagnosis.Age
     ));
 
-# Combine two datasets
-os.group.combine <- data.frame(rbind(
-    os.group.brca,
-    os.group.meta
+os.data.meta <- data.frame(cbind(
+    status = substr(meta.clinic.5.order.combine$Overall.Survival.Status, 1, 1),
+    os = meta.clinic.5.order.combine$Overall.Survival..Months.,
+    sum = apply(outlier.patient.tag.01.meta, 2, sum),
+    pam50 = meta.clinic.5.order.combine$pam50,
+    age = meta.clinic.5.order.combine$Age.at.Diagnosis
     ));
 
+os.group.combine <- rbind(
+    os.data.brca,
+    os.data.meta
+    );
 
-os.group.combine$pam50 <- as.factor(os.group.combine$pam50);
-os.group.combine$pam50 <- relevel(os.group.combine$pam50, ref = 'LumA');
+# Ensure 'status', 'os', 'sum', and 'age' are numeric
+os.group.combine$status <- as.numeric(os.group.combine$status)
+os.group.combine$os <- as.numeric(os.group.combine$os)
+os.group.combine$sum <- as.numeric(os.group.combine$sum)
+os.group.combine$age <- as.numeric(os.group.combine$age)
+
+# Filter out any NC pam50 values, then convert that to a factor
 os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% 'NC'), ];
-os.group.combine$pam50 <- factor(os.group.combine$pam50);
+os.group.combine$pam50 <- relevel(as.factor(os.group.combine$pam50), ref = 'LumA');
+
+# Group risk groups based on total sums
+os.group.combine$patient <- ifelse(os.group.combine$sum == 0, 1, 2);
+
 os.group.combine <- na.omit(os.group.combine);
 
+message('First plot')
+message(paste(str(os.group.combine)))
+
+### 4. Kaplan-Meier Survival Analysis
+km.os.group.combine <- create.km.plot(
+    survival.object = Surv(os.group.combine$os, os.group.combine$status),
+    main = as.expression(substitute(paste('Kaplan-Meier estimate (Combined datasets)'))),
+    show.risktable = TRUE,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    xlab.label = expression('Overall survival (Months)'),
+    ylab.label = expression('Estimated proportion'),
+    xlimits = c(0, 280),
+    xat = seq(0, 240, 80),
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xlab.cex = 1.3,
+    ylab.cex = 1.3,
+    main.cex = 1.5,
+    key.stats.cex = 1.1,
+    patient.groups = as.factor(os.group.combine$patient),
+    risktable.fontsize = 11.5,
+    show.key.groups = TRUE,
+    risk.label.pos = -70,
+    ylab.axis.padding = 2,
+    risk.label.fontface = 1,
+    left.padding = 5.5,
+    key.groups.labels = rev(c('Outlier patients', 'Non-outlier patients')),
+    key.groups.cex = 1,
+    line.colours = rev(c('red3', 'dodgerblue3'))
+    );
+km.os.group.combine;
+
+save.outlier.figure(
+    km.os.group.combine,
+    c('Figure3ghi', 'os', 'merge', 'km'),
+    width = 7.5,
+    height = 7
+    );
+
+i <- 'Basal'
+
+os.group.basal <- os.group.combine[os.group.combine$pam50 %in% 'Basal', ];
+
+km.os.group.combine <- create.km.plot(
+    survival.object = Surv(os.group.basal$os, os.group.basal$status),
+    main = as.expression(substitute(paste('Kaplan-Meier estimate (Combined datasets) - ', var), list(var = 'Basal'))),
+    show.risktable = TRUE,
+    xaxis.fontface = 1,
+    yaxis.fontface = 1,
+    xlab.label = expression('Overall survival (Months)'),
+    ylab.label = expression('Estimated proportion'),
+    xlimits = c(0, 280),
+    xat = seq(0, 240, 80),
+    xaxis.cex = 1,
+    yaxis.cex = 1,
+    xlab.cex = 1.3,
+    ylab.cex = 1.3,
+    main.cex = 1.5,
+    key.stats.cex = 1.1,
+    patient.groups = as.factor(os.group.basal$patient),
+    risktable.fontsize = 11.5,
+    show.key.groups = TRUE,
+    risk.label.pos = -70,
+    ylab.axis.padding = 2,
+    risk.label.fontface = 1,
+    left.padding = 5.5,
+    key.groups.labels = c('Non-outlier patients', 'Outlier patients'),
+    key.groups.cex = 1,
+    line.colours = rev(c('red3', 'dodgerblue3'))
+    );
+km.os.group.combine;
+
+save.outlier.figure(
+    km.os.group.combine,
+    c('Figure3ghi', i, 'km'),
+    width = 7.5,
+    height = 7
+    );
+
+# This section combines TCGA-BRCA and METABRIC datasets, performs Cox proportional
+# hazards regression for each breast cancer subtype, and then conducts a meta-analysis
+# to combine the hazard ratios. It generates a segment plot to visualize the results.
 
 os.model.subtype <- coxph(Surv(os, status == TRUE) ~ patient, data = os.group.combine);
+
 cox.rf.group.assumption.sub <- cox.zph(os.model.subtype);
 
 summary.cox.sub <- summary(os.model.subtype);
@@ -50,13 +153,11 @@ all.data.combine <- data.frame(
     upper = as.numeric(summary.cox.sub$conf.int[4]),
     Features = 'Outlier patients',
     number = paste(as.character(sum(os.group.combine[, 'patient'] == 2)), '/', as.character(length(os.group.combine[, 'patient'])), sep = ''),
-    # log2HR = as.character(round(log2(as.numeric(summary_cox$conf.int[1])), digits = 2)),
     HR = as.character(round(as.numeric(summary.cox.sub$conf.int[1]), digits = 2)),
     Pvalue = as.character(round(as.numeric(summary.cox.sub$coefficients[5]), digits = 4)),
     event = paste(as.character(sum(os.group.combine[os.group.combine$patient == 2, 'status'] == 1)), '/', as.character(sum(os.group.combine[, 'status'] == 1)), sep = ''),
     assumption = as.character(round(cox.rf.group.assumption.sub$table[1, 3], digits = 3))
     );
-
 
 input.subtype <- c('Basal', 'Her2', 'LumA', 'LumB', 'Normal')
 
@@ -92,12 +193,9 @@ combine.surv.data <- rbind(
     );
 combine.surv.data$Features <- c('All patients', 'Basal', 'Her2', 'LuminalA', 'LuminalB', 'Normal');
 
-
-
 combine.surv.data.subtype <- combine.surv.data[2:6, ];
 ln.hr.combine.surv.data.subtype <- log(combine.surv.data.subtype$mean);
 se.hr.combine.surv.data.subtype <- (log(combine.surv.data.subtype$upper) - log(combine.surv.data.subtype$lower)) / 3.92;
-
 
 combine.surv.data.meta <- rbind(
     all = all.data.combine,
@@ -109,7 +207,6 @@ combine.surv.data.meta <- rbind(
     );
 
 combine.surv.data.meta$Features <- c('All patients', 'Basal', 'Her2', 'LuminalA', 'LuminalB', 'Normal');
-
 
 combine.surv.data.meta.rev <- combine.surv.data.meta[c(6, 5, 4, 3, 2, 1), ];
 
@@ -153,9 +250,10 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
 
 save.outlier.figure(
     merge.surv.seg.log,
-    c('Figure3i', 'survival', 'subtype', 'segment'),
+    c('Figure3ghi', 'survival', 'subtype', 'segment'),
     width = 5,
     height = 3.8
     );
 
-save.session.profile(file.path('output', 'Figure3i.txt'));
+
+save.session.profile(file.path('output', 'Figure3ghi.txt'));
