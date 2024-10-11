@@ -41,15 +41,13 @@ outlier.symbol <- list(
     icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol
     );
 
-five.data.outlier.symbol <- unique(c(
+outlier.symbol$unique <- na.omit(unique(c(
     outlier.symbol$metabric,
     outlier.symbol$brca,
     outlier.symbol$matador,
     outlier.symbol$ispy,
     outlier.symbol$icgc
-    ));
-
-five.data.outlier.symbol.na <- na.omit(five.data.outlier.symbol);
+    )));
 
 ### 1. MATADOR
 # Find the position of "_" in Metador data row names
@@ -61,9 +59,9 @@ outlier.patient.tag.01.metador.symbol <- substring(
     rownames(outlier.patient.tag.01.metador),
     outlier.patient.tag.01.metador.pos + 1
     );
-# Match and extract rows from Metador data based on 'five.data.outlier.symbol.na'
+# Match and extract rows from Metador data based on unique symbols
 outlier.patient.tag.01.metador.match.five <- outlier.patient.tag.01.metador[
-    match(five.data.outlier.symbol.na, outlier.patient.tag.01.metador.symbol),
+    match(outlier.symbol$unique, outlier.patient.tag.01.metador.symbol),
     ];
 
 ### 2. TCGA-BRCA
@@ -71,7 +69,7 @@ outlier.patient.tag.01.brca.symbol <- fpkm.tumor.symbol.filter.brca[
     rownames(outlier.patient.tag.01.brca),
     ]$Symbol;
 outlier.patient.tag.01.brca.match.five <- outlier.patient.tag.01.brca[
-    match(five.data.outlier.symbol.na, outlier.patient.tag.01.brca.symbol),
+    match(outlier.symbol$unique, outlier.patient.tag.01.brca.symbol),
     ];
 
 
@@ -80,14 +78,14 @@ outlier.patient.tag.01.meta.symbol <- fpkm.tumor.symbol.filter.meta.symbol[
     rownames(outlier.patient.tag.01.meta),
     ]$Symbol;
 outlier.patient.tag.01.meta.match.five <- outlier.patient.tag.01.meta[
-    match(five.data.outlier.symbol.na, outlier.patient.tag.01.meta.symbol),
+    match(outlier.symbol$unique, outlier.patient.tag.01.meta.symbol),
     ];
 
 
 ### 4. ISPY-2
 outlier.patient.tag.01.ispy.symbol <- rownames(outlier.patient.tag.01.ispy);
 outlier.patient.tag.01.ispy.match.five <- outlier.patient.tag.01.ispy[
-    match(five.data.outlier.symbol.na, outlier.patient.tag.01.ispy.symbol),
+    match(outlier.symbol$unique, outlier.patient.tag.01.ispy.symbol),
     ];
 
 
@@ -95,9 +93,9 @@ outlier.patient.tag.01.ispy.match.five <- outlier.patient.tag.01.ispy[
 outlier.patient.tag.01.icgc.symbol <- fpkm.tumor.symbol.filter.symbol.icgc[
     rownames(outlier.patient.tag.01.icgc),
     ]$Symbol;
-# Match and extract rows from ICGC data based on 'five.data.outlier.symbol.na'
+# Match and extract rows from ICGC data based on unique symbols
 outlier.patient.tag.01.icgc.match.five <- outlier.patient.tag.01.icgc[
-    match(five.data.outlier.symbol.na, outlier.patient.tag.01.icgc.symbol),
+    match(outlier.symbol$unique, outlier.patient.tag.01.icgc.symbol),
     ];
 
 # Combine matched data from all sources into a single data frame
@@ -112,13 +110,12 @@ outlier.patient.all.five.01 <- data.frame(
     );
 
 # Set row names of the combined data frame
-rownames(outlier.patient.all.five.01) <- five.data.outlier.symbol.na;
+rownames(outlier.patient.all.five.01) <- outlier.symbol$unique;
 
 # Save these variables for later scripts
 cache.multiple.computed.variables(c(
     'outlier.symbol',
     'outlier.gene.fdr.01',
-    'five.data.outlier.symbol',
     'outlier.patient.all.five.01'
     ));
 

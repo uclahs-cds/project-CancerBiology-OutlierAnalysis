@@ -22,23 +22,24 @@ library(outlierAnalysisSupport);
 attach(get.outlier.data.path());
 
 load.multiple.computed.variables(c(
-    'outlier.symbol',
-    'five.data.outlier.symbol'
+    'outlier.symbol'
     ));
 
-# overlapped with tissue outliers
 ccle.sample.outlier.status.fdr.05 <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05), ];
-ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% five.data.outlier.symbol, ];
-
-# Tissue overlap outlier status
+ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% outlier.symbol$unique, ];
 ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
 
+cache.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.fdr.05.five.symbol'
+    ));
+
+
+# overlapped with tissue outliers
 outlier.patient.tag.01.brca.sum.overlap <- outlier.symbol$brca[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$brca)];
 outlier.patient.tag.01.meta.sum.overlap <- outlier.symbol$metabric[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$metabric)];
 outlier.patient.tag.01.ispy.sum.overlap <- outlier.symbol$ispy[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$ispy)];
 outlier.patient.tag.01.matador.sum.overlap <- outlier.symbol$matador[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$matador)];
 outlier.patient.tag.01.icgc.sum.overlap <- outlier.symbol$icgc[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$icgc)];
-
 
 ccle.overlap.outlier.05.five.tissue <- data.frame(cbind(
     brca = outlier.patient.tag.01.brca.sum.overlap,

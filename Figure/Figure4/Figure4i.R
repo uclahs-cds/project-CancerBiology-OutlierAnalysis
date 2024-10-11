@@ -22,7 +22,7 @@ library(outlierAnalysisSupport);
 attach(get.outlier.data.path());
 
 load.multiple.computed.variables(c(
-    'five.data.outlier.symbol',
+    'outlier.symbol',
     'ccle.sample.outlier.status.overlap.na',
     'gene.rnai.diff.matrix.05.overlap'
     ));
@@ -72,7 +72,8 @@ gene.effect.diff.matrix.05 <- data.frame(
     symbol = sub('\\..*', '', rownames(outlier.gene.effect.score.05.mean))
     );
 rownames(gene.effect.diff.matrix.05) <- rownames(outlier.gene.effect.score.05.mean);
-gene.effect.diff.matrix.05.overlap <- gene.effect.diff.matrix.05[gene.effect.diff.matrix.05$symbol %in% five.data.outlier.symbol, ];
+
+gene.effect.diff.matrix.05.overlap <- gene.effect.diff.matrix.05[gene.effect.diff.matrix.05$symbol %in% outlier.symbol$unique, ];
 
 cache.multiple.computed.variables(c(
     'cas.effect.breast.05.na',
