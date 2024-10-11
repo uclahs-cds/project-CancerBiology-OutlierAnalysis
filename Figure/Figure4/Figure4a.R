@@ -226,8 +226,4 @@ save.outlier.figure(
     height = 8.15
     );
 
-cache.multiple.computed.variables(c(
-    'ccle.sample.outlier.status.fdr.05'
-    ));
-
 save.session.profile(file.path('output', 'Figure4a.txt'));
