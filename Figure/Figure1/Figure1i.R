@@ -66,11 +66,9 @@ names(combine.fisher.pvalue.all.fdr) <- all.pvalue.df$Symbol;
 combine.fisher.pvalue.all.fdr.sort <- sort(combine.fisher.pvalue.all.fdr);
 combine.fisher.pvalue.all.fdr.sort.log <- -log10(combine.fisher.pvalue.all.fdr.sort);
 
-
 load.multiple.computed.variables(c(
     'gene.position.all'
     ));
-
 
 gene.position.ispy.all.location <- gene.position.all$ispy[, 2:5];
 gene.position.meta.all.location <- gene.position.all$meta[, 2:5];

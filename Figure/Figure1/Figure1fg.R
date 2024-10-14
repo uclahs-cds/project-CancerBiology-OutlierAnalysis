@@ -21,11 +21,6 @@ library(outlierAnalysisSupport);
 ### DATA PREPARATION ############################################################
 attach(get.outlier.data.path());
 
-load.multiple.computed.variables(c(
-    'outlier.gene.fdr.01'
-    ));
-
-
 ### 1. Chromosomal enrichment ###################################################
 
 # Declare the biomaRt connection once
@@ -75,6 +70,10 @@ gene.position.all <- list(
 
 ### 1. TCGA
 # Get chromosomal location information for outlier genes
+load.multiple.computed.variables(c(
+    'outlier.gene.fdr.01'
+    ));
+
 gene.position.brca <- get.chromosomal.positions(
     substr(rownames(outlier.gene.fdr.01$brca), 1, 15),
     'ensembl_gene_id'

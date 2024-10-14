@@ -19,10 +19,6 @@ library(outlierAnalysisSupport);
 ### DATA PREPARATION ############################################################
 attach(get.outlier.data.path());
 
-load.multiple.computed.variables(c(
-    'outlier.symbol'
-    ));
-
 gene.dependency.breast.t <- t(gene.dependency.breast);
 gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
 rownames(gene.dependency.breast.t.num.match) <- rownames(gene.dependency.breast.t);
@@ -80,6 +76,10 @@ gene.dependency.diff.matrix.05 <- data.frame(
     diff = outlier.gene.dependency.score.05.mean$dependency - nonoutlier.gene.dependency.score.05.mean$dependency,
     symbol = sub('\\..*', '', rownames(outlier.gene.dependency.score.05.mean))
     );
+
+load.multiple.computed.variables(c(
+    'outlier.symbol'
+    ));
 
 gene.dependency.diff.matrix.05.overlap <- gene.dependency.diff.matrix.05[
     gene.dependency.diff.matrix.05$symbol %in% outlier.symbol$unique,
