@@ -6,7 +6,7 @@
 #' @param height The output image's height
 #' @param output.directory The output directory, defaulting to 'output'. Will be created if necessary.
 #'
-#' @return `NULL`
+#' @return The path to the PNG image.
 #' @export
 save.outlier.figure <- function(plot.object, name.segments, width, height, output.directory = 'output') {
   if (!dir.exists(output.directory)) {
@@ -34,5 +34,5 @@ save.outlier.figure <- function(plot.object, name.segments, width, height, outpu
   );
   print(plot.object);
   grDevices::dev.off();
-  return(invisible(NULL));
+  return(paste0(save.basename, 'png'));
 }

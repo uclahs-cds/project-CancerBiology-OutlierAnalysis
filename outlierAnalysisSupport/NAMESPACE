@@ -2,7 +2,12 @@
 
 export(cache.computed.variable)
 export(cache.multiple.computed.variables)
+export(figure1b)
+export(figure1d)
+export(figure3ghi)
+export(figure4b)
 export(get.outlier.data.path)
 export(load.computed.variable)
 export(load.multiple.computed.variables)
 export(save.outlier.figure)
+export(shared.setup)
