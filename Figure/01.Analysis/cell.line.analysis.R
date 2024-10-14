@@ -89,6 +89,34 @@ ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub(
 ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
 
 
+
+
+
+# Score of the overlap outliers
+gene.rnai.diff.matrix.05.overlap.minus.05 <- gene.rnai.diff.matrix.05.overlap[gene.rnai.diff.matrix.05.overlap$diff < -0.4, ];
+gene.rnai.diff.matrix.05.overlap.minus.05 <- na.omit(gene.rnai.diff.matrix.05.overlap.minus.05);
+gene.rnai.diff.matrix.05.overlap.minus.05.order <- gene.rnai.diff.matrix.05.overlap.minus.05[order(gene.rnai.diff.matrix.05.overlap.minus.05$diff), ];
+
+
+rnai.score.05.overlap.minus.05 <- gene.rnai.breast.t.num.match.05.na[rownames(gene.rnai.diff.matrix.05.overlap.minus.05.order), ];
+outlier.status.05.overlap.minus.05 <- ccle.sample.outlier.status.overlap.na[rownames(gene.rnai.diff.matrix.05.overlap.minus.05.order), colnames(rnai.score.05.overlap.minus.05)];
+
+gene.name.box.05 <- NULL;
+for (i in 1:nrow(outlier.status.05.overlap.minus.05)) {
+    gene.name <- rep(sub('\\..*', '', rownames(rnai.score.05.overlap.minus.05))[i], ncol(rnai.score.05.overlap.minus.05));
+    gene.name.box.05 <- c(gene.name.box.05, gene.name);
+    }
+
+rnai.05.box <- data.frame(cbind(
+    score = as.numeric(unlist(t(rnai.score.05.overlap.minus.05))),
+    gene = gene.name.box.05,
+    status = as.numeric(unlist(t(outlier.status.05.overlap.minus.05)))
+    ));
+rnai.05.box$score <- as.numeric(rnai.05.box$score);
+rnai.05.box$status <- as.numeric(rnai.05.box$status);
+
+
+
 cache.multiple.computed.variables(c(
     'ccle.sample.outlier.status.fdr.05.five',
     'ccle.sample.outlier.status.fdr.05.five.symbol',
@@ -97,6 +125,8 @@ cache.multiple.computed.variables(c(
     'gene.dependency.breast.t.num.match.05.na',
     'gene.rnai.breast.t.num.match.05.na',
     'gene.rnai.diff.matrix.05.overlap',
+    'rnai.05.box',
+    'rnai.score.05.overlap.minus.05',
     'sample.outlier.05.overlap.na'
     ));
 
