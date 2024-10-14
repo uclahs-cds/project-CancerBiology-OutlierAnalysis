@@ -117,6 +117,23 @@ rnai.05.box$status <- as.numeric(rnai.05.box$status);
 
 
 
+
+
+
+
+
+
+
+
+protein.info.breast.num.symbol <- sapply(strsplit(rownames(protein.info.breast.num), '\\|'), function(x) x[3]);
+protein.info.breast.num.symbol <- sub('_HUMAN', '', protein.info.breast.num.symbol);
+protein.info.breast.num.match <- protein.info.breast.num[, colnames(protein.info.breast.num) %in% colnames(fpkm.tumor.symbol.filter.ccle)];
+rownames(protein.info.breast.num.match) <- protein.info.breast.num.symbol;
+protein.info.breast.num.match.05 <- protein.info.breast.num.match[rownames(protein.info.breast.num.match) %in% ccle.sample.outlier.status.fdr.05.five.symbol, ];
+
+
+
+
 cache.multiple.computed.variables(c(
     'ccle.sample.outlier.status.fdr.05.five',
     'ccle.sample.outlier.status.fdr.05.five.symbol',
@@ -125,6 +142,9 @@ cache.multiple.computed.variables(c(
     'gene.dependency.breast.t.num.match.05.na',
     'gene.rnai.breast.t.num.match.05.na',
     'gene.rnai.diff.matrix.05.overlap',
+    'protein.info.breast.num.match',
+    'protein.info.breast.num.match.05',
+    'protein.info.breast.num.symbol',
     'rnai.05.box',
     'rnai.score.05.overlap.minus.05',
     'sample.outlier.05.overlap.na'

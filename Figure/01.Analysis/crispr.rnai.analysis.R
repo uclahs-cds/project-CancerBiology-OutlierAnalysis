@@ -1,3 +1,5 @@
+library(BoutrosLab.utilities);
+
 # Source the helper library
 library(outlierAnalysisSupport);
 
@@ -60,3 +62,4 @@ cache.multiple.computed.variables(c(
     'gene.effect.diff.matrix.05.overlap'
     ));
 
+save.session.profile(file.path('output', 'crispr.rnai.analysis.txt'));
