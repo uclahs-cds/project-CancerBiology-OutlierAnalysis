@@ -42,30 +42,34 @@ me.out.symbol.two.500 <- unique(c(
 
 # merge two dataset
 #   - 1. merge methylation data
-two.outlier.promoter.symbol.sample.match.merge.filter.500 <- list();
-for (i in 1:length(me.out.symbol.two.500)) {
-    if (me.out.symbol.two.500[i] %in% rownames(brca.me.outlier.match)) {
-        target.gene.brca <- as.numeric(brca.me.outlier.match[me.out.symbol.two.500[i], ]);
-        } else {
-        target.gene.brca <- rep('NA', ncol(brca.me.outlier.match))
-        }
+# Initialize the list to store merged data
+two.outlier.promoter.symbol.sample.match.merge.filter.500 <- lapply(me.out.symbol.two.500, function(symbol) {
 
-    if (me.out.symbol.two.500[i] %in% rownames(meta.me.outlier.match)) {
-        target.gene.meta <- as.numeric(meta.me.outlier.match[me.out.symbol.two.500[i], ]);
-        } else {
-        target.gene.meta <- rep('NA', ncol(meta.me.outlier.match))
-        }
-
-    both.target.gene <- c(target.gene.brca, target.gene.meta)
-
-    two.outlier.promoter.symbol.sample.match.merge.filter.500[[i]] <- both.target.gene;
+    # Get BRCA target gene data or assign NA if not found
+    target_gene_brca <- if (symbol %in% rownames(brca.me.outlier.match)) {
+        as.numeric(brca.me.outlier.match[symbol, ])
+    } else {
+        rep(NA, ncol(brca.me.outlier.match))
     }
 
-two.outlier.promoter.symbol.sample.match.merge.filter.500 <- do.call(rbind, two.outlier.promoter.symbol.sample.match.merge.filter.500);
-rownames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- me.out.symbol.two.500;
-colnames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- c(colnames(brca.me.outlier.match), colnames(meta.me.outlier.match));
-two.outlier.promoter.symbol.sample.match.merge.filter.500 <- data.frame(two.outlier.promoter.symbol.sample.match.merge.filter.500);
+    # Get METABRIC target gene data or assign NA if not found
+    target_gene_meta <- if (symbol %in% rownames(meta.me.outlier.match)) {
+        as.numeric(meta.me.outlier.match[symbol, ])
+    } else {
+        rep(NA, ncol(meta.me.outlier.match))
+    }
 
+    # Combine BRCA and METABRIC data
+    c(target_gene_brca, target_gene_meta)
+})
+
+# Combine the list into a data frame and set row and column names
+two.outlier.promoter.symbol.sample.match.merge.filter.500 <- do.call(rbind, two.outlier.promoter.symbol.sample.match.merge.filter.500)
+rownames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- me.out.symbol.two.500
+colnames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- c(colnames(brca.me.outlier.match), colnames(meta.me.outlier.match))
+
+# Convert to data frame if necessary
+two.outlier.promoter.symbol.sample.match.merge.filter.500 <- as.data.frame(two.outlier.promoter.symbol.sample.match.merge.filter.500)
 
 # 2. Merge outlier status data
 outlier.patient.tag.01.brca.me.match <- outlier.patient.tag.01.brca[, colnames(brca.me.outlier.match)];
