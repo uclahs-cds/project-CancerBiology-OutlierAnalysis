@@ -22,17 +22,10 @@ library(outlierAnalysisSupport);
 attach(get.outlier.data.path());
 
 load.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.fdr.05.five',
+    'ccle.sample.outlier.status.fdr.05.five.symbol',
     'outlier.symbol'
     ));
-
-ccle.sample.outlier.status.fdr.05 <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05), ];
-ccle.sample.outlier.status.fdr.05.five <- ccle.sample.outlier.status.fdr.05[sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05)) %in% outlier.symbol$unique, ];
-ccle.sample.outlier.status.fdr.05.five.symbol <- sub('\\..*', '', rownames(ccle.sample.outlier.status.fdr.05.five));
-
-cache.multiple.computed.variables(c(
-    'ccle.sample.outlier.status.fdr.05.five.symbol'
-    ));
-
 
 # overlapped with tissue outliers
 outlier.patient.tag.01.brca.sum.overlap <- outlier.symbol$brca[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$brca)];

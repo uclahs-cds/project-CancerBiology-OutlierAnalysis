@@ -19,19 +19,13 @@ library(outlierAnalysisSupport);
 ### DATA PREPARATION ############################################################
 attach(get.outlier.data.path());
 
-gene.dependency.breast.t <- t(gene.dependency.breast);
-gene.dependency.breast.t.num.match <- as.data.frame(apply(gene.dependency.breast.t, 2, as.numeric));
-rownames(gene.dependency.breast.t.num.match) <- rownames(gene.dependency.breast.t);
-colnames(gene.dependency.breast.t.num.match) <- colnames(gene.dependency.breast.t);
-gene.dependency.breast.t.num.match <- gene.dependency.breast.t.num.match[
-    , colnames(fpkm.tumor.symbol.filter.ccle)
-    ];
 
-gene.dependency.breast.t.num.match.05 <- gene.dependency.breast.t.num.match[rownames(ccle.outlier.rank.fdr.05), ];
-gene.dependency.breast.t.num.match.05.na <- na.omit(gene.dependency.breast.t.num.match.05);
-ccle.sample.outlier.status.overlap <- ccle.sample.outlier.status[rownames(ccle.outlier.rank.fdr.05), ];
-ccle.sample.outlier.status.overlap.na <- ccle.sample.outlier.status.overlap[rownames(gene.dependency.breast.t.num.match.05.na), ];
-
+load.multiple.computed.variables(c(
+    'gene.dependency.breast.t.num.match.05.na',
+    'ccle.sample.outlier.status.overlap',
+    'ccle.sample.outlier.status.overlap.na',
+    'outlier.symbol'
+    ));
 
 
 dependency.quantile.05 <- list();
@@ -77,17 +71,9 @@ gene.dependency.diff.matrix.05 <- data.frame(
     symbol = sub('\\..*', '', rownames(outlier.gene.dependency.score.05.mean))
     );
 
-load.multiple.computed.variables(c(
-    'outlier.symbol'
-    ));
-
 gene.dependency.diff.matrix.05.overlap <- gene.dependency.diff.matrix.05[
     gene.dependency.diff.matrix.05$symbol %in% outlier.symbol$unique,
     ];
-
-cache.multiple.computed.variables(c(
-    'ccle.sample.outlier.status.overlap'
-    ));
 
 # Filter overlapping genes
 
