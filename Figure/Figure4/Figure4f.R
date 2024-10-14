@@ -24,7 +24,6 @@ load.multiple.computed.variables(c(
     'gene.dependency.diff.matrix.05.overlap'
     ));
 
-
 # Filter for genes with dependency score difference > 0.5
 gene.dependency.diff.matrix.05.overlap.minus.05 <- gene.dependency.diff.matrix.05.overlap[
     gene.dependency.diff.matrix.05.overlap$diff > 0.5,

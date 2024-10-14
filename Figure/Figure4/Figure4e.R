@@ -87,7 +87,6 @@ gene.dependency.diff.matrix.05.overlap <- gene.dependency.diff.matrix.05[
 
 cache.multiple.computed.variables(c(
     'ccle.sample.outlier.status.overlap',
-    'ccle.sample.outlier.status.overlap.na',
     'gene.dependency.breast.t.num.match.05.na',
     'gene.dependency.diff.matrix.05.overlap'
     ));
