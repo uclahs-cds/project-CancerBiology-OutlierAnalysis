@@ -291,7 +291,7 @@ def parse_script(scriptfile: Path) -> tuple[str, list[Path], list[Path]]:
     else:
         cache_vars = []
 
-    cachedir = Path("variable-cache")
+    cachedir = Path("output/variable-cache")
 
     load_files = [cachedir / (varname + ".rda") for varname in load_vars]
     cache_files = [cachedir / (varname + ".rda") for varname in cache_vars]
@@ -382,7 +382,6 @@ def task_run_scripts():
             "meta": {"scriptfile": scriptfile, "pairs": pairs},
             "file_dep": [
                 scriptfile,
-                "common_functions.R",
                 datafile,
                 *deps,
             ],
