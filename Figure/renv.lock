@@ -266,6 +266,26 @@
       ],
       "Hash": "b792f395c65dbad47b5728ca81ca08dc"
     },
+    "BoutrosLab.statistics.survival": {
+      "Package": "BoutrosLab.statistics.survival",
+      "Version": "0.4.20",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "package-BoutrosLab-statistics-survival",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteSha": "29e8176418c7c1b9740382beb42dfd456b3ffacb",
+      "Requirements": [
+        "R",
+        "data.table",
+        "doParallel",
+        "parallel",
+        "rbenchmark",
+        "stringr",
+        "survival"
+      ],
+      "Hash": "151ebc48c30613530d0a9687de7dead1"
+    },
     "BoutrosLab.utilities": {
       "Package": "BoutrosLab.utilities",
       "Version": "1.9.10",
@@ -1054,6 +1074,17 @@
       ],
       "Hash": "d91263322a58af798f6cf3b13fd56dde"
     },
+    "data.table": {
+      "Package": "data.table",
+      "Version": "1.16.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods"
+      ],
+      "Hash": "2e00b378fc3be69c865120d9f313039a"
+    },
     "dbplyr": {
       "Package": "dbplyr",
       "Version": "2.5.0",
@@ -1104,6 +1135,20 @@
         "utils"
       ],
       "Hash": "33698c4b3127fc9f506654607fb73676"
+    },
+    "doParallel": {
+      "Package": "doParallel",
+      "Version": "1.0.17",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "foreach",
+        "iterators",
+        "parallel",
+        "utils"
+      ],
+      "Hash": "451e5edf411987991ab6a5410c45011f"
     },
     "dplyr": {
       "Package": "dplyr",
@@ -1194,6 +1239,19 @@
         "rlang"
       ],
       "Hash": "c2efdd5f0bcd1ea861c2d4e2a883a67d"
+    },
+    "foreach": {
+      "Package": "foreach",
+      "Version": "1.5.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "codetools",
+        "iterators",
+        "utils"
+      ],
+      "Hash": "618609b42c9406731ead03adf5379850"
     },
     "formatR": {
       "Package": "formatR",
@@ -1464,6 +1522,17 @@
         "deldir"
       ],
       "Hash": "824328a500468b76e61402b2cb3033df"
+    },
+    "iterators": {
+      "Package": "iterators",
+      "Version": "1.0.14",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "utils"
+      ],
+      "Hash": "8954069286b4b2b0d023d1b288dce978"
     },
     "jpeg": {
       "Package": "jpeg",
@@ -1739,6 +1808,7 @@
       "Requirements": [
         "BoutrosLab.plotting.general",
         "BoutrosLab.plotting.survival",
+        "BoutrosLab.statistics.survival",
         "BoutrosLab.utilities",
         "GenomicRanges",
         "RColorBrewer",
@@ -1752,7 +1822,7 @@
         "rtracklayer",
         "tidyr"
       ],
-      "Hash": "89427e630d2920b678d4a2a64b3859d4"
+      "Hash": "bfe66f7731bde6f5f7666a3d19af5a64"
     },
     "pbapply": {
       "Package": "pbapply",
@@ -1910,6 +1980,13 @@
         "R"
       ],
       "Hash": "5e3c5dc0b071b21fa128676560dbe94d"
+    },
+    "rbenchmark": {
+      "Package": "rbenchmark",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ee3d5d435f751a88bc69091c51111bd8"
     },
     "readr": {
       "Package": "readr",

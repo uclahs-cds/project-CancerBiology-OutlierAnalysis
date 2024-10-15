@@ -12,6 +12,7 @@ RoxygenNote: 7.3.2
 Imports: 
     BoutrosLab.plotting.general (>= 7.1.0),
     BoutrosLab.plotting.survival (>= 3.0.10),
+    BoutrosLab.statistics.survival,
     BoutrosLab.utilities (>= 1.9.10),
     dplyr (>= 1.1.4),
     GenomicRanges (>= 1.54.1),
