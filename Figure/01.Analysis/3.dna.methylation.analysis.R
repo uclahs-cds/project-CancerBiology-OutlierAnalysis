@@ -29,24 +29,23 @@ me.out.symbol.two.500 <- unique(c(
 #   - 1. merge methylation data
 # Initialize the list to store merged data
 two.outlier.promoter.symbol.sample.match.merge.filter.500 <- lapply(me.out.symbol.two.500, function(symbol) {
-
     # Get BRCA target gene data or assign NA if not found
     target_gene_brca <- if (symbol %in% rownames(brca.me.outlier.match)) {
         as.numeric(brca.me.outlier.match[symbol, ])
-    } else {
+        } else {
         rep(NA, ncol(brca.me.outlier.match))
-    }
+        }
 
     # Get METABRIC target gene data or assign NA if not found
     target_gene_meta <- if (symbol %in% rownames(meta.me.outlier.match)) {
         as.numeric(meta.me.outlier.match[symbol, ])
-    } else {
+        } else {
         rep(NA, ncol(meta.me.outlier.match))
-    }
+        }
 
     # Combine BRCA and METABRIC data
     c(target_gene_brca, target_gene_meta)
-})
+    })
 
 # Combine the list into a data frame and set row and column names
 two.outlier.promoter.symbol.sample.match.merge.filter.500 <- do.call(rbind, two.outlier.promoter.symbol.sample.match.merge.filter.500)
