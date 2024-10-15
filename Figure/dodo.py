@@ -275,16 +275,18 @@ def parse_script(scriptfile: Path) -> tuple[str, list[Path], list[Path]]:
 
     load_regex = re.compile(r"load\.multiple\.computed\.variables\(c\(([^)]+)\)\)")
     if load_match := load_regex.search(text):
+        stripped_comments = re.sub(r"#.*", "", load_match.group(1))
         load_vars = json.loads(
-            ("[" + load_match.group(1) + "]").replace("\n", " ").replace("'", '"')
+            ("[" + stripped_comments + "]").replace("\n", " ").replace("'", '"')
         )
     else:
         load_vars = []
 
     cache_regex = re.compile(r"cache\.multiple\.computed\.variables\(c\(([^)]+)\)\)")
     if cache_match := cache_regex.search(text):
+        stripped_comments = re.sub(r"#.*", "", cache_match.group(1))
         cache_vars = json.loads(
-            ("[" + cache_match.group(1) + "]").replace("\n", " ").replace("'", '"')
+            ("[" + stripped_comments + "]").replace("\n", " ").replace("'", '"')
         )
     else:
         cache_vars = []
