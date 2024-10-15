@@ -7,3 +7,4 @@ untracked_data/
 output/
 reference_figures/
 *.Rproj
+.doit.db.db
