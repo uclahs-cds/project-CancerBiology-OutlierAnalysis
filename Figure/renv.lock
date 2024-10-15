@@ -266,6 +266,36 @@
       ],
       "Hash": "b792f395c65dbad47b5728ca81ca08dc"
     },
+    "BoutrosLab.prognosticsignature.general": {
+      "Package": "BoutrosLab.prognosticsignature.general",
+      "Version": "1.3.13",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "public-R-BoutrosLab-prognosticsignature-general",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteSha": "a4bf879b1599e5d592064dc1cbf9636e4884f02a",
+      "Requirements": [
+        "BoutrosLab.statistics.survival",
+        "R",
+        "survival"
+      ],
+      "Hash": "0adbe323e1a06a71435eba3dbff11630"
+    },
+    "BoutrosLab.statistics.general": {
+      "Package": "BoutrosLab.statistics.general",
+      "Version": "2.1.3",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "public-R-BoutrosLab-statistics-general",
+      "RemoteUsername": "uclahs-cds",
+      "RemoteSha": "73d116df30410ec7bb01380a627ce7b80f8aed69",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "636d7afbf7a5c185c643cca7a61d1105"
+    },
     "BoutrosLab.statistics.survival": {
       "Package": "BoutrosLab.statistics.survival",
       "Version": "0.4.20",
@@ -1808,6 +1838,8 @@
       "Requirements": [
         "BoutrosLab.plotting.general",
         "BoutrosLab.plotting.survival",
+        "BoutrosLab.prognosticsignature.general",
+        "BoutrosLab.statistics.general",
         "BoutrosLab.statistics.survival",
         "BoutrosLab.utilities",
         "GenomicRanges",
@@ -1822,7 +1854,7 @@
         "rtracklayer",
         "tidyr"
       ],
-      "Hash": "bfe66f7731bde6f5f7666a3d19af5a64"
+      "Hash": "af9bac77b268a63a5933b52d5d671f34"
     },
     "pbapply": {
       "Package": "pbapply",

@@ -12,6 +12,8 @@ RoxygenNote: 7.3.2
 Imports: 
     BoutrosLab.plotting.general (>= 7.1.0),
     BoutrosLab.plotting.survival (>= 3.0.10),
+    BoutrosLab.prognosticsignature.general,
+    BoutrosLab.statistics.general,
     BoutrosLab.statistics.survival,
     BoutrosLab.utilities (>= 1.9.10),
     dplyr (>= 1.1.4),
@@ -28,7 +30,6 @@ Imports:
 Remotes: 
     uclahs-cds/package-BoutrosLab-plotting-survival,
     uclahs-cds/package-BoutrosLab-statistics-survival,
-    uclahs-cds/public-R-BoutrosLab-prognosticsignature-general,
     uclahs-cds/public-R-BoutrosLab-prognosticsignature-general,
     uclahs-cds/public-R-BoutrosLab-statistics-general,
     uclahs-cds/public-R-BoutrosLab-utilities
