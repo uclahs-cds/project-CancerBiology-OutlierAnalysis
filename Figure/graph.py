@@ -341,7 +341,7 @@ def plot_dependency_graph(data: dict):
 
         if "Figure" not in name:
             kwargs["shape"] = "polygon"
-            kwargs["fillcolor"] = "lightgreen"
+            kwargs["fillcolor"] = "lightblue"
 
         dot.node(name, **kwargs)
 
