@@ -4,11 +4,12 @@
 #' @param name.segments A vector of filename segments to be joined with underscores
 #' @param width The output image's width
 #' @param height The output image's height
-#' @param output.directory The output directory, defaulting to 'output'. Will be created if necessary.
 #'
 #' @return The path to the PNG image.
 #' @export
-save.outlier.figure <- function(plot.object, name.segments, width, height, output.directory = 'output') {
+save.outlier.figure <- function(plot.object, name.segments, width, height) {
+  output.directory <- here::here('Figure', 'output');
+
   if (!dir.exists(output.directory)) {
     dir.create(output.directory);
   }

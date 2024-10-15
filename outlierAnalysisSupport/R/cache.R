@@ -9,10 +9,10 @@
 #' @return `NULL`.
 #' @export
 cache.computed.variable <- function(object.name) {
-  output.directory <- here::here('variable-cache');
+  output.directory <- here::here('Figure', 'output', 'variable-cache');
   
   if (!dir.exists(output.directory)) {
-    dir.create(output.directory);
+    dir.create(output.directory, recursive = TRUE);
   }
   
   data.file <- file.path(output.directory, paste0(object.name, '.rda'));
@@ -50,7 +50,7 @@ cache.multiple.computed.variables <- function(object.names) {
 #' @return `NULL`.
 #' @export
 load.computed.variable <- function(object.name) {
-  data.file <- file.path(here::here('variable-cache'), paste0(object.name, '.rda'));
+  data.file <- file.path(here::here('Figure', 'output', 'variable-cache'), paste0(object.name, '.rda'));
   load(data.file);
   assign(object.name, get(object.name), envir = parent.frame());
   return(invisible(NULL));
