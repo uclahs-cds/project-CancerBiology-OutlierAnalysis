@@ -11,118 +11,111 @@
 
 ### PREAMBLE #####################################################################
 # Load necessary libraries
-library(stats);
-library(BoutrosLab.plotting.general);
-library(BoutrosLab.utilities);
+library(stats)
+library(BoutrosLab.plotting.general)
+library(BoutrosLab.utilities)
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+# Load required variables
+load.multiple.computed.variables(c(
+    'brca.outlier.non.promoter.symbol.sample.match.merge.500',
+    'me.out.symbol.two.500',
+    'meta.outlier.non.promoter.symbol.sample.match.merge.500',
+    'non.outlier.sample.me.two.500',
+    'outlier.sample.me.two.500',
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ))
 
 
+# Ensure that the data matrix is numeric
+two.outlier.promoter.symbol.sample.match.merge.filter.500 <- apply(two.outlier.promoter.symbol.sample.match.merge.filter.500, 2, as.numeric)
 
-unequal.quan <- rev(seq(0, 0.9, 0.1));
-
-# 1. Analyze outlier probes in outlier patients
-percent.beta.out.out.500 <- NULL;
-for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
-    value.vector <- as.numeric(two.outlier.promoter.symbol.sample.match.merge.filter.500[i,]);
-    percentile <- ecdf(value.vector);
-    percent.value <- percentile(outlier.sample.me.two.500[[i]]);
-    percent.value.mean <- na.omit(percent.value);
-    percent.beta.out.out.500 <- c(percent.beta.out.out.500, percent.value.mean);
+# Function to analyze beta values using lapply (with proper indexing)
+analyze_beta_values <- function(sample_list, data_matrix) {
+    lapply(seq_len(nrow(data_matrix)), function(i) {
+        value.vector <- data_matrix[i, ] # Retrieve the ith row
+        percentile <- ecdf(value.vector) # Compute the ecdf for the row
+        percent_value <- percentile(sample_list[[i]]) # Apply ecdf to corresponding sample
+        na.omit(percent_value) # Remove any NA values
+        }) |> unlist()
     }
 
-# 2. Analyze outlier probes in non-outlier patients
-percent.beta.non.out.500 <- NULL;
-for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
-    value.vector <- as.numeric(two.outlier.promoter.symbol.sample.match.merge.filter.500[i,]);
-    percentile <- ecdf(value.vector);
-    percent.value <- percentile(non.outlier.sample.me.two.500[[i]]);
-    percent.value.mean <- na.omit(percent.value);
-    percent.beta.non.out.500 <- c(percent.beta.non.out.500, percent.value.mean);
-    }
+# Compute the sum of the patient status filter
+two.outlier.patient.status.merge.filter.sum.500 <- colSums(
+    apply(two.outlier.patient.status.merge.filter.500, 2, as.numeric),
+    na.rm = TRUE
+    )
 
-# 3. & 4. Analyze non-outlier probes in outlier and non-outlier patients
-two.outlier.patient.status.merge.filter.sum.500 <- apply(
-    two.outlier.patient.status.merge.filter.500, 
-    2, 
-    function(x) { sum(na.omit(as.numeric(x))); }
-    );
+# Analyze outlier and non-outlier probes in outlier and non-outlier patients
+percent.beta.out.out.500 <- analyze_beta_values(outlier.sample.me.two.500, two.outlier.promoter.symbol.sample.match.merge.filter.500)
+percent.beta.non.out.500 <- analyze_beta_values(non.outlier.sample.me.two.500, two.outlier.promoter.symbol.sample.match.merge.filter.500)
 
-me.non.out.symbol.two.500 <- unique(c(
-    rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500), 
-    rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500)
-    ));
+# Analyze non-outlier probes
+me.non.out.symbol.two.500 <- setdiff(
+    unique(c(rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500), rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500))),
+    me.out.symbol.two.500
+    )
 
-me.non.out.symbol.two.500 <- me.non.out.symbol.two.500[
-    !(me.non.out.symbol.two.500 %in% me.out.symbol.two.500)
-    ];
+# Precompute row indices for brca and meta data
+brca_gene_indices <- match(me.non.out.symbol.two.500, rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500))
+meta_gene_indices <- match(me.non.out.symbol.two.500, rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500))
 
-brca.outlier.non.promoter.symbol.sample.match.merge.500 <- data.frame(
-    brca.outlier.non.promoter.symbol.sample.match.merge.500
-    );
+analyze_non_outlier_beta <- function(gene_index_brca, gene_index_meta, brca_data, meta_data, patient_status_sum) {
+    # Pre-extracted rows based on gene indices (instead of searching by rownames)
+    value.vector.brca <- as.numeric(brca_data[gene_index_brca, , drop = FALSE])
+    value.vector.meta <- as.numeric(meta_data[gene_index_meta, , drop = FALSE])
+    value.vector <- na.omit(c(value.vector.brca, value.vector.meta))
 
-meta.outlier.non.promoter.symbol.sample.match.merge.500 <- data.frame(
-    meta.outlier.non.promoter.symbol.sample.match.merge.500
-    );
-
-
-percent.beta.out.non.500 <- list();
-percent.beta.non.non.500 <- list();
-
-for (i in 1:length(me.non.out.symbol.two.500)) {
-    i.symbol <- me.non.out.symbol.two.500[i];
-    value.vector.brca <- as.numeric(
-        brca.outlier.non.promoter.symbol.sample.match.merge.500[rownames(brca.outlier.non.promoter.symbol.sample.match.merge.500) %in% i.symbol,]
-        );
-    value.vector.meta <- as.numeric(
-        meta.outlier.non.promoter.symbol.sample.match.merge.500[rownames(meta.outlier.non.promoter.symbol.sample.match.merge.500) %in% i.symbol,]
-        );
-    
-    value.vector <- na.omit(c(value.vector.brca, value.vector.meta));
     if (length(value.vector) == 0) {
-        percent.beta.out.non.500[[i]] <- NA;
-        percent.beta.non.non.500[[i]] <- NA;
+        return(list(out.non = NA, non.non = NA))
         }
-    else {
-        percentile <- ecdf(value.vector);
-        
-        percent.value.out.non <- percentile(
-            value.vector[two.outlier.patient.status.merge.filter.sum.500 > 0]
-            );
-        percent.beta.out.non.500[[i]] <- na.omit(percent.value.out.non);
-        
-        percent.value.non.non <- percentile(
-            value.vector[two.outlier.patient.status.merge.filter.sum.500 == 0]
-            );
-        percent.beta.non.non.500[[i]] <- na.omit(percent.value.non.non);
-        }
+
+    percentile <- ecdf(value.vector)
+    list(
+        out.non = na.omit(percentile(value.vector[patient_status_sum > 0])),
+        non.non = na.omit(percentile(value.vector[patient_status_sum == 0]))
+        )
     }
 
-percent.beta.out.non.500 <- unlist(percent.beta.out.non.500);
-percent.beta.non.non.500 <- unlist(percent.beta.non.non.500);
+# Compute beta values for non-outlier probes using precomputed row indices
+non.outlier.results <- mapply(
+    analyze_non_outlier_beta,
+    brca_gene_indices,
+    meta_gene_indices,
+    MoreArgs = list(
+        brca_data = brca.outlier.non.promoter.symbol.sample.match.merge.500,
+        meta_data = meta.outlier.non.promoter.symbol.sample.match.merge.500,
+        patient_status_sum = two.outlier.patient.status.merge.filter.sum.500
+        ),
+    SIMPLIFY = FALSE
+    )
 
+# Unlist results
+percent.beta.out.non.500 <- unlist(lapply(non.outlier.results, `[[`, 'out.non'))
+percent.beta.non.non.500 <- unlist(lapply(non.outlier.results, `[[`, 'non.non'))
 
-# Create histograms and calculate percentages for each group
-breaks <- seq(0, 1, length.out = 31);
-
-create.histogram.df <- function(data) {
+# Function to create histograms and calculate percentages
+create_histogram_df <- function(data, breaks = seq(0, 1, length.out = 31)) {
     hist.data <- hist(data, breaks = breaks, plot = FALSE)
     percentages <- hist.data$counts / sum(hist.data$counts) * 100
     data.frame(
         bin_start = hist.data$breaks[-length(hist.data$breaks)],
         bin_end = hist.data$breaks[-1],
         percentage = percentages
-        );
+        )
     }
 
-percent.beta.out.out.500.percentages.df <- create.histogram.df(percent.beta.out.out.500);
-percent.beta.non.out.500.percentages.df <- create.histogram.df(percent.beta.non.out.500);
-percent.beta.out.non.500.percentages.df <- create.histogram.df(percent.beta.out.non.500);
-percent.beta.non.non.500.percentages.df <- create.histogram.df(percent.beta.non.non.500);
+# Calculate percentages for each group
+percent.beta.out.out.500.percentages.df <- create_histogram_df(percent.beta.out.out.500)
+percent.beta.non.out.500.percentages.df <- create_histogram_df(percent.beta.non.out.500)
+percent.beta.out.non.500.percentages.df <- create_histogram_df(percent.beta.out.non.500)
+percent.beta.non.non.500.percentages.df <- create_histogram_df(percent.beta.non.non.500)
 
 # Combine percentages for all groups
 percent.merge.two.four.group.500 <- cbind(
@@ -130,13 +123,13 @@ percent.merge.two.four.group.500 <- cbind(
     group2 = percent.beta.non.out.500.percentages.df$percentage,
     group3 = percent.beta.out.non.500.percentages.df$percentage,
     group4 = percent.beta.non.non.500.percentages.df$percentage
-    );
+    )
 
 # Prepare data for heatmap
-heat.df <- data.frame(percent.merge.two.four.group.500);
-heat.df.rev <- heat.df[rev(seq(nrow(heat.df))), ];
+heat.df <- data.frame(percent.merge.two.four.group.500)
+heat.df.rev <- heat.df[rev(seq(nrow(heat.df))), ]
 
-# Set up legend
+# Set up heatmap legend
 legend.col <- list(
     legend = list(
         colours = c('#2166ac', 'white', '#b2182b'),
@@ -147,7 +140,7 @@ legend.col <- list(
         continuous = TRUE,
         height = 3
         )
-    );
+    )
 
 # Create heatmap
 heat.out <- BoutrosLab.plotting.general:::create.heatmap(
@@ -174,14 +167,8 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
     legend.cex = 1,
     colourkey.cex = 1.3,
     print.colour.key = FALSE
-    );
+    )
 
-
-save.outlier.figure(
-    heat.out,
-    c('Figure2j', 'merge', 'me', 'quantile', 'heatmap'),
-    width = 6,
-    height = 4.5
-    );
-
-save.session.profile(file.path('output', 'Figure2j.txt'));
+# Save the heatmap
+save.outlier.figure(heat.out, c('Figure2j', 'merge', 'me', 'quantile', 'heatmap'), width = 6, height = 4.5)
+save.session.profile(file.path('output', 'Figure2j.txt'))

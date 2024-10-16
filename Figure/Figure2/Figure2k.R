@@ -17,26 +17,34 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'meta.me.outlier.match',
+    'outlier.patient.tag.01.brca.me.match',
+    'outlier.patient.tag.01.meta.me.match',
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ));
 
 
 ### Analyze the normal data
 # 1. TCGA-BRCA
 process.outliers <- function(df, outlier.patients) {
     lapply(1:nrow(df), function(i) {
-        symbol.name <- rownames(df)[i]; 
+        symbol.name <- rownames(df)[i];
         outlier.patient.gene <- outlier.patients[
             rownames(fpkm.tumor.symbol.filter.brca)[
                 fpkm.tumor.symbol.filter.brca$Symbol == symbol.name
-                ], 
-            ]; 
+                ],
+            ];
         overlap.patient <- colnames(df)[
-            substr(colnames(df), 1, 12) %in% 
+            substr(colnames(df), 1, 12) %in%
                 substr(names(outlier.patient.gene)[outlier.patient.gene == 1], 1, 12)
-            ]; 
+            ];
         df[i, overlap.patient];
         });
     }
@@ -44,15 +52,15 @@ process.outliers <- function(df, outlier.patients) {
 
 process.sample.methylation <- function(df, outlier.patients) {
     lapply(1:nrow(df), function(i) {
-        symbol.name <- rownames(df)[i]; 
+        symbol.name <- rownames(df)[i];
         outlier.patient.gene <- outlier.patients[
             rownames(fpkm.tumor.symbol.filter.brca)[
                 fpkm.tumor.symbol.filter.brca$Symbol == symbol.name
-                ], 
-            ]; 
-        outlier.patient.gene.na <- na.omit(outlier.patient.gene); 
+                ],
+            ];
+        outlier.patient.gene.na <- na.omit(outlier.patient.gene);
         list(
-            outlier = df[i, ][outlier.patient.gene.na == 1], 
+            outlier = df[i, ][outlier.patient.gene.na == 1],
             non.outlier = df[i, ][outlier.patient.gene.na == 0]
             );
         });
@@ -61,76 +69,76 @@ process.sample.methylation <- function(df, outlier.patients) {
 
 # Process the outliers for the normal sample methylation data
 outlier.normal.me.merge.500 <- process.outliers(
-    brca.outlier.promoter.symbol.normal.match.merge.500, 
+    brca.outlier.promoter.symbol.normal.match.merge.500,
     outlier.patient.tag.01.brca.me.match
-    ); 
+    );
 
 # Process sample methylation data to separate outliers from non-outliers
 sample.methylation <- process.sample.methylation(
-    brca.me.outlier.match, 
+    brca.me.outlier.match,
     outlier.patient.tag.01.brca.me.match
-    ); 
+    );
 
 # Extract outliers and non-outliers
 outlier.sample.me.merge.beta.500 <- lapply(
-    sample.methylation, 
-    `[[`, "outlier"
-    ); 
+    sample.methylation,
+    `[[`, 'outlier'
+    );
 non.outlier.sample.me.merge.beta.500 <- lapply(
-    sample.methylation, 
-    `[[`, "non.outlier"
-    ); 
+    sample.methylation,
+    `[[`, 'non.outlier'
+    );
 
 # Calculate the means for outlier and non-outlier samples
-outlier.sample.me.merge.unlist.beta.500 <- as.numeric(unlist(outlier.sample.me.merge.beta.500)); 
-non.outlier.sample.me.merge.unlist.beta.500 <- as.numeric(unlist(non.outlier.sample.me.merge.beta.500)); 
+outlier.sample.me.merge.unlist.beta.500 <- as.numeric(unlist(outlier.sample.me.merge.beta.500));
+non.outlier.sample.me.merge.unlist.beta.500 <- as.numeric(unlist(non.outlier.sample.me.merge.beta.500));
 outlier.sample.me.merge.unlist.beta.mean.500 <- sapply(
-    outlier.sample.me.merge.beta.500, 
+    outlier.sample.me.merge.beta.500,
     function(x) mean(as.numeric(x))
-    ); 
+    );
 non.outlier.sample.me.merge.unlist.beta.mean.500 <- sapply(
-    non.outlier.sample.me.merge.beta.500, 
+    non.outlier.sample.me.merge.beta.500,
     function(x) mean(na.omit(as.numeric(x)))
-    ); 
+    );
 
 # Process normal samples and filter for relevant genes
 outlier.sample.normal.beta.merge.500 <- sapply(
-    outlier.normal.me.merge.500, 
+    outlier.normal.me.merge.500,
     mean
-    ); 
+    );
 
-names(outlier.sample.normal.beta.merge.500) <- rownames(brca.me.outlier.match); 
+names(outlier.sample.normal.beta.merge.500) <- rownames(brca.me.outlier.match);
 outlier.sample.normal.beta.merge.unlist.filter.500 <- outlier.sample.normal.beta.merge.500[
     rownames(brca.me.outlier.match)
-    ]; 
+    ];
 
 # Prepare comparison data between normal and tumor methylation samples
 normal.tumor.beta.comparison.merge.500 <- data.frame(
-    normal = as.numeric(outlier.sample.normal.beta.merge.unlist.filter.500), 
+    normal = as.numeric(outlier.sample.normal.beta.merge.unlist.filter.500),
     tumor = as.numeric(outlier.sample.me.merge.unlist.beta.mean.500)
-    ); 
-rownames(normal.tumor.beta.comparison.merge.500) <- rownames(brca.me.outlier.match); 
-normal.tumor.beta.comparison.merge.500 <- na.omit(normal.tumor.beta.comparison.merge.500); 
+    );
+rownames(normal.tumor.beta.comparison.merge.500) <- rownames(brca.me.outlier.match);
+normal.tumor.beta.comparison.merge.500 <- na.omit(normal.tumor.beta.comparison.merge.500);
 
 # Calculate the difference between normal and tumor samples
 matched.me.outlier.normal.unlist.minus.name.na.brca.500 <- cbind(
-    normal.tumor.beta.comparison.merge.500, 
+    normal.tumor.beta.comparison.merge.500,
     minus = normal.tumor.beta.comparison.merge.500[, 2] - normal.tumor.beta.comparison.merge.500[, 1]
-    ); 
+    );
 
 # Order the data by the 'minus' column
 matched.me.outlier.normal.unlist.minus.name.na.order.brca.500 <- matched.me.outlier.normal.unlist.minus.name.na.brca.500[
-    order(matched.me.outlier.normal.unlist.minus.name.na.brca.500$minus), 
-    ]; 
+    order(matched.me.outlier.normal.unlist.minus.name.na.brca.500$minus),
+    ];
 
 
 
 # 2. METABRIC
 # Filter the outlier genes having matched normal
-meta.com.outlier.promoter.symbol.normal.match.name <- sub("^chr\\d+[.+-]", "", rownames(meta.com.outlier.promoter.symbol.normal.match)); 
-meta.com.outlier.promoter.symbol.normal.match.symbol <- sub("^.*[+-]", "", meta.com.outlier.promoter.symbol.normal.match.name); 
-meta.com.outlier.promoter.symbol.normal.match.symbol <- sub("\\.\\d+$", "", meta.com.outlier.promoter.symbol.normal.match.symbol); 
-meta.com.outlier.promoter.symbol.normal.match.symbol <- sub("^\\.", "", meta.com.outlier.promoter.symbol.normal.match.symbol); 
+meta.com.outlier.promoter.symbol.normal.match.name <- sub('^chr\\d+[.+-]', '', rownames(meta.com.outlier.promoter.symbol.normal.match));
+meta.com.outlier.promoter.symbol.normal.match.symbol <- sub('^.*[+-]', '', meta.com.outlier.promoter.symbol.normal.match.name);
+meta.com.outlier.promoter.symbol.normal.match.symbol <- sub('\\.\\d+$', '', meta.com.outlier.promoter.symbol.normal.match.symbol);
+meta.com.outlier.promoter.symbol.normal.match.symbol <- sub('^\\.', '', meta.com.outlier.promoter.symbol.normal.match.symbol);
 
 
 meta.com.outlier.promoter.symbol.normal.match.meta.name <- meta.com.outlier.promoter.symbol.normal.match;
@@ -142,71 +150,79 @@ meta.com.outlier.promoter.symbol.normal.match.meta.unique <- NULL;
 for (i in 1:length(meta.com.outlier.promoter.symbol.normal.match.filter.meta.name.unique)) {
     target.gene <- meta.com.outlier.promoter.symbol.normal.match.filter.meta.name.unique[i];
     target.beta <- meta.com.outlier.promoter.symbol.normal.match[
-        meta.com.outlier.promoter.symbol.normal.match.meta.name$name %in% target.gene
-        ,
+        meta.com.outlier.promoter.symbol.normal.match.meta.name$name %in% target.gene,
         ];
     if (1 == nrow(target.beta)) {
         target.beta.mean <- target.beta;
-        }
-    else {
-        target.beta.mean <- apply(target.beta, 2, function(x) { mean(na.omit(x))});
+        } else {
+        target.beta.mean <- apply(target.beta, 2, function(x) {
+            mean(na.omit(x))
+            });
         }
     meta.com.outlier.promoter.symbol.normal.match.meta.unique <- rbind(
         meta.com.outlier.promoter.symbol.normal.match.meta.unique,
-        target.beta.mean);
-    
+        target.beta.mean
+        );
     }
 rownames(meta.com.outlier.promoter.symbol.normal.match.meta.unique) <- meta.com.outlier.promoter.symbol.normal.match.filter.meta.name.unique;
 
 
-meta.com.matched.normal <- list(); 
-meta.com.matched.outlier <- list(); 
+meta.com.matched.normal <- list();
+meta.com.matched.outlier <- list();
 meta.com.matched.symbol <- NULL;
 
-for (i in 1:nrow(outlier.patient.tag.01.meta.me.match)) { 
+for (i in 1:nrow(outlier.patient.tag.01.meta.me.match)) {
     target.outlier.patient <- colnames(outlier.patient.tag.01.meta.me.match)[
         outlier.patient.tag.01.meta.me.match[i, ] == 1
-        ]; 
-    
+        ];
+
     target.symbol <- fpkm.tumor.symbol.filter.meta.symbol[
         rownames(outlier.patient.tag.01.meta.me.match[i, ]), 'Symbol'
-        ]; 
-    
+        ];
+
     target.level <- meta.me.outlier.match[
         rownames(meta.me.outlier.match) %in% target.symbol,
         ];
-    
+
     target.level.normal <- meta.com.outlier.promoter.symbol.normal.match[
         meta.com.outlier.promoter.symbol.normal.match.symbol %in% target.symbol,
         ];
-    
+
     target.normal.patient <- sample.info.norm[
-        sample.info.norm$matched_tumor %in% gsub("\\.", "_", target.outlier.patient), 
-        ]$samp; 
-    
+        sample.info.norm$matched_tumor %in% gsub('\\.', '_', target.outlier.patient),
+        ]$samp;
+
     target.outlier.patient.match <- gsub(
-        '_', ".", sample.info.norm[sample.info.norm$samp %in% target.normal.patient, 'matched_tumor']
-        ); 
-    
+        '_', '.', sample.info.norm[sample.info.norm$samp %in% target.normal.patient, 'matched_tumor']
+        );
+
     meta.com.matched.normal[[i]] <- target.level.normal[
-        , gsub('_', ".", target.normal.patient), drop = FALSE
-        ]; 
-    
+        , gsub('_', '.', target.normal.patient),
+        drop = FALSE
+        ];
+
     meta.com.matched.outlier[[i]] <- target.level[
-        , target.outlier.patient.match, drop = FALSE
-        ]; 
-    
+        , target.outlier.patient.match,
+        drop = FALSE
+        ];
+
     meta.com.matched.symbol <- c(meta.com.matched.symbol, target.symbol);
-    } 
+    }
 
-meta.com.matched.normal.unlist <- unlist(lapply(meta.com.matched.normal, function(x) { mean(na.omit(as.numeric(unlist(x))))})); 
-meta.com.matched.outlier.unlist <- unlist(lapply(meta.com.matched.outlier, function(x) { mean(na.omit(as.numeric(unlist(x))))})); 
+meta.com.matched.normal.unlist <- unlist(lapply(meta.com.matched.normal, function(x) {
+    mean(na.omit(as.numeric(unlist(x))))
+    }));
+meta.com.matched.outlier.unlist <- unlist(lapply(meta.com.matched.outlier, function(x) {
+    mean(na.omit(as.numeric(unlist(x))))
+    }));
 
-normal.tumor.com.beta.comparison <- data.frame(cbind(meta.com.matched.normal.unlist,
-                                                     meta.com.matched.outlier.unlist,
-                                                     meta.com.matched.symbol));
+normal.tumor.com.beta.comparison <- data.frame(cbind(
+    meta.com.matched.normal.unlist,
+    meta.com.matched.outlier.unlist,
+    meta.com.matched.symbol
+    ));
 colnames(normal.tumor.com.beta.comparison) <- c('normal', 'tumor', 'Symbol');
-normal.tumor.com.beta.comparison[normal.tumor.com.beta.comparison == "NaN"] <- NA;
+normal.tumor.com.beta.comparison[normal.tumor.com.beta.comparison == 'NaN'] <- NA;
 normal.tumor.com.beta.comparison <- na.omit(normal.tumor.com.beta.comparison);
 
 
@@ -214,27 +230,26 @@ normal.tumor.com.beta.comparison <- na.omit(normal.tumor.com.beta.comparison);
 
 # divide into outlier and non-outlier
 me.out.normal.symbol.two.500 <- unique(c(
-    rownames(matched.me.outlier.normal.unlist.minus.name.na.order.brca.500), 
-    normal.tumor.com.beta.comparison$Symbol));
+    rownames(matched.me.outlier.normal.unlist.minus.name.na.order.brca.500),
+    normal.tumor.com.beta.comparison$Symbol
+    ));
 
 two.outlier.promoter.symbol.sample.normal.match.merge.filter.500 <- list();
-for (i in 1:length(me.out.normal.symbol.two.500)){
-    if(me.out.normal.symbol.two.500[i] %in% rownames(brca.outlier.promoter.symbol.normal.match.merge.500)) {
-        target.gene.brca <- as.numeric(brca.outlier.promoter.symbol.normal.match.merge.500[me.out.normal.symbol.two.500[i],]);
-    }
-    else {
+for (i in 1:length(me.out.normal.symbol.two.500)) {
+    if (me.out.normal.symbol.two.500[i] %in% rownames(brca.outlier.promoter.symbol.normal.match.merge.500)) {
+        target.gene.brca <- as.numeric(brca.outlier.promoter.symbol.normal.match.merge.500[me.out.normal.symbol.two.500[i], ]);
+        } else {
         target.gene.brca <- rep('NA', ncol(brca.outlier.promoter.symbol.normal.match.merge.500))
-    }
-    
-    if(me.out.normal.symbol.two.500[i] %in% rownames(meta.com.outlier.promoter.symbol.normal.match.meta.unique)) {
-        target.gene.meta <- as.numeric(meta.com.outlier.promoter.symbol.normal.match.meta.unique[me.out.normal.symbol.two.500[i],]);
-    }
-    else {
+        }
+
+    if (me.out.normal.symbol.two.500[i] %in% rownames(meta.com.outlier.promoter.symbol.normal.match.meta.unique)) {
+        target.gene.meta <- as.numeric(meta.com.outlier.promoter.symbol.normal.match.meta.unique[me.out.normal.symbol.two.500[i], ]);
+        } else {
         target.gene.meta <- rep('NA', ncol(meta.com.outlier.promoter.symbol.normal.match.meta.unique))
-    }
-    
+        }
+
     both.target.gene <- c(target.gene.brca, target.gene.meta)
-    
+
     two.outlier.promoter.symbol.sample.normal.match.merge.filter.500[[i]] <- both.target.gene;
     }
 
@@ -245,7 +260,9 @@ colnames(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500) <- c(
 two.outlier.promoter.symbol.sample.normal.match.merge.filter.500 <- data.frame(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500);
 
 
-two.outlier.promoter.symbol.sample.normal.match.merge.filter.mean.500 <- apply(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500, 1, function(x) { mean(na.omit(as.numeric(x)))});
+two.outlier.promoter.symbol.sample.normal.match.merge.filter.mean.500 <- apply(two.outlier.promoter.symbol.sample.normal.match.merge.filter.500, 1, function(x) {
+    mean(na.omit(as.numeric(x)))
+    });
 two.outlier.promoter.symbol.sample.normal.match.merge.filter.mean.na.500 <- na.omit(two.outlier.promoter.symbol.sample.normal.match.merge.filter.mean.500);
 
 
@@ -295,7 +312,7 @@ diff.non.outlier.tumor.outlier.tumor <- two.out.non.tumor.normal.gene.value.mean
 threshold <- 0.2;
 two.out.non.tumor.normal.gene.value.mean.na.500.02 <- two.out.non.tumor.normal.gene.value.mean.na.500[
     # diff.outlier.normal.tumor > threshold &
-        diff.non.outlier.tumor.outlier.tumor > threshold,
+    diff.non.outlier.tumor.outlier.tumor > threshold,
     ];
 
 

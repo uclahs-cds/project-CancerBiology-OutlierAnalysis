@@ -14,10 +14,10 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
 # Outlier patient number
 outlier.patient.tag.sum.05 <- apply(ccle.sample.outlier.status, 2, sum);

@@ -14,147 +14,15 @@ library(BoutrosLab.plotting.general)
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
-# Get DNA methylation data
-# 1. TCGA-BRCA
-brca.me.outlier.match <- brca.me.data[rownames(brca.me.data) %in% brca.outlier.symbol,];
-brca.outlier.non.promoter.symbol.sample.match.merge.500 <- brca.me.data[!(rownames(brca.me.data) %in% brca.outlier.symbol),];
-# 2. METABRIC
-meta.me.outlier.match <- meta.me.data[rownames(meta.me.data) %in% metabric.outlier.symbol,];
-meta.outlier.non.promoter.symbol.sample.match.merge.500 <- meta.me.data[!(rownames(meta.me.data) %in% metabric.outlier.symbol),];
-
-
-# Use promoter region TSS ~ +500bp
-me.out.symbol.two.500 <- unique(c(
-    rownames(meta.me.outlier.match),
-    rownames(brca.me.outlier.match)
+load.multiple.computed.variables(c(
+    'mean.minus.ma.merge.two.500',
+    'p.me'
     ));
-
-
-
-# merge two dataset
-#   - 1. merge methylation data
-two.outlier.promoter.symbol.sample.match.merge.filter.500 <- list();
-for (i in 1:length(me.out.symbol.two.500)){
-    if(me.out.symbol.two.500[i] %in% rownames(brca.me.outlier.match)) {
-        target.gene.brca <- as.numeric(brca.me.outlier.match[me.out.symbol.two.500[i],]);
-        }
-    else {
-        target.gene.brca <- rep('NA', ncol(brca.me.outlier.match))
-        }
-    
-    if(me.out.symbol.two.500[i] %in% rownames(meta.me.outlier.match)) {
-        target.gene.meta <- as.numeric(meta.me.outlier.match[me.out.symbol.two.500[i],]);
-        }
-    else {
-        target.gene.meta <- rep('NA', ncol(meta.me.outlier.match))
-        }
-    
-    both.target.gene <- c(target.gene.brca, target.gene.meta)
-    
-    two.outlier.promoter.symbol.sample.match.merge.filter.500[[i]] <- both.target.gene;
-    }
-
-two.outlier.promoter.symbol.sample.match.merge.filter.500 <- do.call(rbind, two.outlier.promoter.symbol.sample.match.merge.filter.500);
-rownames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- me.out.symbol.two.500;
-colnames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- c(colnames(brca.me.outlier.match), colnames(meta.me.outlier.match));
-two.outlier.promoter.symbol.sample.match.merge.filter.500 <- data.frame(two.outlier.promoter.symbol.sample.match.merge.filter.500);
-
-
-# 2. Merge outlier status data
-outlier.patient.tag.01.brca.me.match <- outlier.patient.tag.01.brca[,colnames(brca.me.outlier.match)];
-outlier.patient.tag.01.brca.me.match <- outlier.patient.tag.01.brca.me.match[
-    rownames(outlier.patient.tag.01.brca.me.match) %in% rownames(fpkm.tumor.symbol.filter.brca)[
-        fpkm.tumor.symbol.filter.brca$Symbol %in% 
-            rownames(brca.me.outlier.match)],
-    ];
-outlier.patient.tag.01.meta.me.match <- outlier.patient.tag.01.meta[,colnames(meta.me.outlier.match)];
-outlier.patient.tag.01.meta.me.match <- outlier.patient.tag.01.meta.me.match[
-    rownames(outlier.patient.tag.01.meta.me.match) %in% rownames(fpkm.tumor.symbol.filter.meta.symbol)[
-        fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% 
-            rownames(meta.me.outlier.match)],
-    ];
-
-two.outlier.patient.status.merge.filter.list.500 <- list();
-
-for (i in 1:length(me.out.symbol.two.500)) {
-    if (me.out.symbol.two.500[i] %in% rownames(brca.me.outlier.match)) {
-        row.brca <- rownames(fpkm.tumor.symbol.filter.brca)[
-            fpkm.tumor.symbol.filter.brca$Symbol == me.out.symbol.two.500[i]
-            ];
-        row.brca <- row.brca[row.brca %in% rownames(outlier.patient.tag.01.brca.me.match)];
-        target.gene.brca <- as.numeric(
-            outlier.patient.tag.01.brca.me.match[row.brca, ]
-            );
-        } else {
-        target.gene.brca <- rep('NA', ncol(brca.me.outlier.match));
-        }
-
-    if (me.out.symbol.two.500[i] %in% rownames(meta.me.outlier.match)) {
-        target.gene.meta <- as.numeric(
-            outlier.patient.tag.01.meta.me.match[
-                rownames(fpkm.tumor.symbol.filter.meta.symbol)[
-                    fpkm.tumor.symbol.filter.meta.symbol$Symbol %in% me.out.symbol.two.500[i]
-                    ],
-                ]
-            );
-        } else {
-        target.gene.meta <- rep('NA', ncol(outlier.patient.tag.01.meta.me.match));
-        }
-
-    both.target.gene <- c(target.gene.brca, target.gene.meta);
-
-    two.outlier.patient.status.merge.filter.list.500[[i]] <- both.target.gene;
-    }
-
-two.outlier.patient.status.merge.filter.500 <- do.call(rbind, two.outlier.patient.status.merge.filter.list.500);
-two.outlier.patient.status.merge.filter.500 <- data.frame(two.outlier.patient.status.merge.filter.500);
-rownames(two.outlier.patient.status.merge.filter.500) <- me.out.symbol.two.500;
-colnames(two.outlier.patient.status.merge.filter.500) <- c(
-    colnames(brca.me.data), 
-    colnames(meta.me.data));
-
-
-
-
-# divide into outlier and non-outlier
-outlier.sample.me.two.500 <- list();
-non.outlier.sample.me.two.500 <- list();
-for (i in 1:nrow(two.outlier.promoter.symbol.sample.match.merge.filter.500)) {
-    
-    outlier.patient.gene <- two.outlier.patient.status.merge.filter.500[i,];
-    outlier.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[i,][outlier.patient.gene == 1];
-    non.outlier.me <- two.outlier.promoter.symbol.sample.match.merge.filter.500[i,][outlier.patient.gene == 0];
-    
-    outlier.sample.me.two.500[[i]] <- outlier.me;
-    non.outlier.sample.me.two.500[[i]] <- non.outlier.me;
-    
-    }
-
-outlier.sample.me.two.unlist.500 <- as.numeric(unlist(outlier.sample.me.two.500));
-non.outlier.sample.me.two.unlist.500 <- as.numeric(unlist(non.outlier.sample.me.two.500));
-
-outlier.sample.me.two.unlist.mean.500 <- lapply(outlier.sample.me.two.500, function(x) {mean(na.omit(as.numeric(x)))});
-non.outlier.sample.me.two.unlist.mean.500 <- lapply(non.outlier.sample.me.two.500, function(x) {mean(na.omit(as.numeric(x)))});
-
-mean.beta.merge.two.500 <- apply(
-    two.outlier.promoter.symbol.sample.match.merge.filter.500, 
-    1, 
-    function(x) {mean(na.omit(as.numeric(x)))}
-    );
-minus.beta.merge.two.500 <- as.numeric(outlier.sample.me.two.unlist.mean.500) - as.numeric(non.outlier.sample.me.two.unlist.mean.500);
-mean.minus.ma.merge.two.500 <- data.frame(cbind(
-    as.numeric(mean.beta.merge.two.500), 
-    as.numeric(minus.beta.merge.two.500), 
-    rownames(two.outlier.promoter.symbol.sample.match.merge.filter.500)
-    ));
-mean.minus.ma.merge.two.500[,1] <- as.numeric(mean.minus.ma.merge.two.500[,1]);
-mean.minus.ma.merge.two.500[,2] <- as.numeric(mean.minus.ma.merge.two.500[,2]);
-colnames(mean.minus.ma.merge.two.500) <- c('mean.beta', 'minus.beta', 'Symbol');
 
 # Delta beta > 0.2
 dot.colours <- vector(
@@ -169,12 +37,6 @@ dot.colours <- rep(
 dot.colours[mean.minus.ma.merge.two.500$minus.beta < -0.2] <- 'dodgerblue3';
 dot.colours[mean.minus.ma.merge.two.500$minus.beta > 0.2] <- 'red2';
 
-p.me <- wilcox.test(
-    outlier.sample.me.two.unlist.500,
-    non.outlier.sample.me.two.unlist.500,
-    alternative = 'two.sided',
-    conf.int = TRUE
-    );
 
 text.pvalue <- display.statistical.result(
     x = p.me$p.value,

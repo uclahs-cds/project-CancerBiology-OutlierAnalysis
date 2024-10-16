@@ -16,10 +16,19 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'protein.info.breast.num.symbol',
+    'ccle.sample.outlier.status.overlap.na',
+    'rnai.05.box',
+    'rnai.score.05.overlap.minus.05',
+    'cas.effect.breast.05.na',
+    'gene.effect.diff.matrix.05.overlap'
+    ));
 
 gene.effect.diff.matrix.05.overlap.minus.05 <- gene.effect.diff.matrix.05.overlap[gene.effect.diff.matrix.05.overlap$diff < -0.5, ];
 gene.effect.diff.matrix.05.overlap.minus.05.order <- gene.effect.diff.matrix.05.overlap.minus.05[order(gene.effect.diff.matrix.05.overlap.minus.05$diff), ];

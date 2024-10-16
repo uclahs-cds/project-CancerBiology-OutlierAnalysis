@@ -15,10 +15,15 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'))
+library(outlierAnalysisSupport);
 
-# Load required data
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'))
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'two.outlier.patient.status.merge.filter.500',
+    'two.outlier.promoter.symbol.sample.match.merge.filter.500'
+    ));
 
 ### DESCRIPTION #################################################################
 # The function `do.plot.2i` processes data for RNA abundance (FPKM) and DNA methylation

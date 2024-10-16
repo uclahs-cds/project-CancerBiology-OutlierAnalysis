@@ -19,16 +19,20 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure3a-d.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'outlier.symbol'
+    ));
 
 # Protein gene list from antibody data
 protein.gene <- unlist(strsplit(protein.antibody$gene_name, '/'));
 
 # Outlier genes with protein data
-outlier.protein.gene <- brca.outlier.symbol[brca.outlier.symbol %in% protein.gene];
+outlier.protein.gene <- outlier.symbol$brca[outlier.symbol$brca %in% protein.gene];
 
 protein.antibody.outlier <- NULL;
 

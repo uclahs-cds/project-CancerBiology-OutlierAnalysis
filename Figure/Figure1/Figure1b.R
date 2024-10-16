@@ -14,12 +14,10 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 
 # Source the helper library
-source(here::here('common_functions.R'));
-
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure1.rda'));
+library(outlierAnalysisSupport);
 
 ### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
 
 
 genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M');

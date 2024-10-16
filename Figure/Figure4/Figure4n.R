@@ -12,12 +12,18 @@
 # Load necessary libraries
 library(BoutrosLab.utilities);
 
-
 # Source the helper library
-source(here::here('common_functions.R'));
+library(outlierAnalysisSupport);
 
-# Load the datafile
-load(file.path(get.outlier.data.dir(), '2024-09-10_Figure4.rda'));
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'ccle.sample.outlier.status.overlap.na',
+    'gene.rnai.breast.t.num.match.05.na',
+    'sample.outlier.05.overlap.na',
+    'cas.effect.breast.05.na'
+    ));
 
 i <- 'SYK';
 

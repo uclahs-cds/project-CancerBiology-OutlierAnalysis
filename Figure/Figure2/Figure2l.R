@@ -17,11 +17,15 @@ library(BoutrosLab.plotting.general);
 library(BoutrosLab.utilities);
 library(metafor);
 
-# Source helper library
-source(here::here('common_functions.R'))
+# Source the helper library
+library(outlierAnalysisSupport);
 
-# Load the data file
-load(file.path(get.outlier.data.dir(), '2024-08-26_Figure2h-l_input.rda'))
+### DATA PREPARATION ############################################################
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'outlier.patient.tag.01.brca.me.match'
+    ));
 
 ### DESCRIPTION #################################################################
 # Function to process DNA methylation and FPKM data for the PDXNL gene and generate heatmaps.
