@@ -162,6 +162,7 @@ fisher_brca_results <- calculate_fisher_odds(chr.outlier.brca, chr.outlier.brca.
 p.value.chr.brca.fisher.sub <- fisher_brca_results$p.values
 p.value.chr.brca.odd.sub.df <- fisher_brca_results$odds_ratios
 
+
 # Processing METABRIC data
 chr.outlier.meta <- process_chr_data(gene.position.meta, chr.name)
 chr.outlier.meta.all <- process_chr_data(gene.position.all$meta, chr.name)
@@ -220,6 +221,8 @@ for (i in 1:25) {
     p.value.chr.ispy.odd.sub <- rbind(p.value.chr.ispy.odd.sub, odd.ratio.ci);
     }
 
+
+
 chr.position.outlier.ispy <- process_chr_data(gene.position.ispy, chr.name)
 chr.position.outlier.ispy.all <- process_chr_data(gene.position.all$ispy, chr.name)
 
@@ -239,10 +242,10 @@ gene.position.metador <- get.chromosomal.positions(
 # Get chromosomal location information for all genes
 fpkm.tumor.symbol.filter.metador.symbol.max <- apply(fpkm.tumor.symbol.filter.metador.symbol[, -ncol(fpkm.tumor.symbol.filter.metador.symbol)], 1, max);
 fpkm.tumor.symbol.filter.metador.symbol.max.filter <- fpkm.tumor.symbol.filter.metador.symbol[fpkm.tumor.symbol.filter.metador.symbol.max > 5, ];
-gene.list <- fpkm.tumor.symbol.filter.metador.symbol.max.filter$Symbol;
+gene.list.sub <- substr(rownames(fpkm.tumor.symbol.filter.metador.symbol.max.filter), 1, 15);
 gene.position.all$metador <- get.chromosomal.positions(
-    gene.list,
-    'hgnc_symbol'
+    gene.list.sub,
+    'ensembl_gene_id'
     );
 
 
@@ -257,6 +260,7 @@ chr.position.order.metador.all <- chr.position.metador.all[chr.name, , drop = FA
 rownames(chr.position.order.metador.all) <- chr.name;
 chr.position.order.metador.all[is.na(chr.position.order.metador.all$as.matrix.table.gene.position.metador.all.chromosome_name..), ] <- 0;
 chr.position.outlier.metador.all <- data.frame(cbind(chr = c(1:25), count = as.numeric(chr.position.order.metador.all[, 1])));
+chr.position.outlier.metador.all[is.na(chr.position.outlier.metador.all)] <- 0;
 
 
 # segment plot
@@ -300,6 +304,16 @@ fisher_icgc_results <- calculate_fisher_odds(chr.position.outlier.icgc, chr.posi
 
 p.value.chr.icgc.fisher.sub <- fisher_icgc_results$p.values
 p.value.chr.icgc.odd.sub.df <- fisher_icgc_results$odds_ratios
+
+
+
+
+
+p.value.chr.brca.odd.sub.df$p.value <- p.value.chr.brca.fisher.sub;
+p.value.chr.meta.odd.sub.df$p.value <- p.value.chr.meta.fisher.sub;
+p.value.chr.ispy.odd.sub.df$p.value <- p.value.chr.ispy.fisher.sub;
+p.value.chr.metador.odd.sub.df$p.value <- p.value.chr.metador.fisher.sub;
+p.value.chr.icgc.odd.sub.df$p.value <- p.value.chr.icgc.fisher.sub;
 
 
 #   - use natural log
@@ -699,6 +713,10 @@ length.box.brca$length.content <- as.numeric(length.box.brca$length.content);
 
 
 ### 2. METABRIC
+gene.position.meta <- gene.position.meta[gene.position.meta$chromosome_name %in% chr.name,]
+gene.position.meta <- gene.position.meta[!(duplicated(gene.position.meta$hgnc_symbol)),]
+gene.position.all$meta <- gene.position.all$meta[gene.position.all$meta$chromosome_name %in% chr.name,]
+gene.position.all$meta <- gene.position.all$meta[!(duplicated(gene.position.all$meta$hgnc_symbol)),]
 
 # Calculate gene lengths for METABRIC sample and population gene sets
 gene.position.meta.length <- cbind(gene.position.meta,
@@ -726,6 +744,11 @@ length.box.meta$length.content <- as.numeric(length.box.meta$length.content);
 ### 3. I-SPY-2
 
 # Calculate gene lengths for I-SPY-2 sample and population gene sets
+gene.position.ispy <- gene.position.ispy[gene.position.ispy$chromosome_name %in% chr.name,]
+gene.position.ispy <- gene.position.ispy[!(duplicated(gene.position.ispy$hgnc_symbol)),]
+gene.position.all$ispy <- gene.position.all$ispy[gene.position.all$ispy$chromosome_name %in% chr.name,]
+gene.position.all$ispy <- gene.position.all$ispy[!(duplicated(gene.position.all$ispy$hgnc_symbol)),]
+
 gene.position.ispy.length <- cbind(gene.position.ispy,
     length = gene.position.ispy$end_position - gene.position.ispy$start_position + 1
     );
@@ -752,6 +775,10 @@ length.box.ispy$length.content <- as.numeric(length.box.ispy$length.content);
 
 
 ### 4. MATADOR
+gene.position.metador <- gene.position.metador[gene.position.metador$chromosome_name %in% chr.name,]
+gene.position.metador <- gene.position.metador[!(duplicated(gene.position.metador$hgnc_symbol)),]
+gene.position.all$metador <- gene.position.all$metador[gene.position.all$metador$chromosome_name %in% chr.name,]
+gene.position.all$metador <- gene.position.all$metador[!(duplicated(gene.position.all$metador$hgnc_symbol)),]
 
 # Calculate gene lengths for MATADOR sample and population gene sets
 gene.position.metador.length <- cbind(gene.position.metador,
