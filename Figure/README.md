@@ -4,7 +4,7 @@ Most of the shared analysis code has been abstracted into an `outlierAnalysisSup
 
 Bootstrapping a new development environment requires the following steps:
 
-1. Set the environment variables `OUTLIER_DATA_DIR` and `OUTLIER_DATA_FILE` to reference the original outlier datafile. These can be set up in an `.Renviron` file as well.
+1. Set the environment variables `OUTLIER_DATA_DIR` and `OUTLIER_DATA_FILENAME` to reference the original outlier datafile. These can be set up in an `.Renviron` file as well.
 2. Within R, call `renv::restore()` to install all of the snapshotted packages.
 3. Within R, call `devtools::install('../outlierAnalysisSupport')` to install the helper package.
 
