@@ -5,7 +5,7 @@ Authors@R:
     c(person("Jee Yun", "Han", email = "jyhan@mednet.ucla.edu", role = c("aut", "cre")),
       person("Nicholas", "Wiltsie", email = "nwiltsie@mednet.ucla.edu", role = c("ctb")))
 Description: Provides analysis support code for the outlier analysis paper.
-License: MIT + file LICENSE
+License: GPL >=2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
