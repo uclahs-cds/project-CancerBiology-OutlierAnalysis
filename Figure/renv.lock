@@ -251,8 +251,9 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "package-BoutrosLab-plotting-survival",
       "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "package-BoutrosLab-plotting-survival",
+      "RemoteRef": "main",
       "RemoteSha": "e7c3f6fab186f709a3e125a2340cd6fdec639759",
       "Requirements": [
         "BoutrosLab.plotting.general",
@@ -264,7 +265,7 @@
         "lattice",
         "survival"
       ],
-      "Hash": "b792f395c65dbad47b5728ca81ca08dc"
+      "Hash": "08e29597f3ca369751f344742c896a7d"
     },
     "BoutrosLab.prognosticsignature.general": {
       "Package": "BoutrosLab.prognosticsignature.general",
@@ -272,15 +273,16 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "public-R-BoutrosLab-prognosticsignature-general",
       "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "public-R-BoutrosLab-prognosticsignature-general",
+      "RemoteRef": "master",
       "RemoteSha": "a4bf879b1599e5d592064dc1cbf9636e4884f02a",
       "Requirements": [
         "BoutrosLab.statistics.survival",
         "R",
         "survival"
       ],
-      "Hash": "0adbe323e1a06a71435eba3dbff11630"
+      "Hash": "051bfb7399eede7bdd80d30f6489aec8"
     },
     "BoutrosLab.statistics.general": {
       "Package": "BoutrosLab.statistics.general",
@@ -288,13 +290,14 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "public-R-BoutrosLab-statistics-general",
       "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "public-R-BoutrosLab-statistics-general",
+      "RemoteRef": "main",
       "RemoteSha": "73d116df30410ec7bb01380a627ce7b80f8aed69",
       "Requirements": [
         "R"
       ],
-      "Hash": "636d7afbf7a5c185c643cca7a61d1105"
+      "Hash": "b37f32cdcee6b99d820f555082e61e8d"
     },
     "BoutrosLab.statistics.survival": {
       "Package": "BoutrosLab.statistics.survival",
@@ -302,8 +305,9 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "package-BoutrosLab-statistics-survival",
       "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "package-BoutrosLab-statistics-survival",
+      "RemoteRef": "main",
       "RemoteSha": "29e8176418c7c1b9740382beb42dfd456b3ffacb",
       "Requirements": [
         "R",
@@ -314,7 +318,7 @@
         "stringr",
         "survival"
       ],
-      "Hash": "151ebc48c30613530d0a9687de7dead1"
+      "Hash": "be068584b3ad60f9157817b5d87db4f7"
     },
     "BoutrosLab.utilities": {
       "Package": "BoutrosLab.utilities",
@@ -322,13 +326,14 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "public-R-BoutrosLab-utilities",
       "RemoteUsername": "uclahs-cds",
+      "RemoteRepo": "public-R-BoutrosLab-utilities",
+      "RemoteRef": "main",
       "RemoteSha": "eafa2eafb24f1d24de5dd615ff118135f7cf8e92",
       "Requirements": [
         "R"
       ],
-      "Hash": "08e5eecba024fbe61402fb7654aa79a7"
+      "Hash": "0005833f9d28f48c2b6e46353078d1e3"
     },
     "DBI": {
       "Package": "DBI",
@@ -1834,7 +1839,9 @@
     "outlierAnalysisSupport": {
       "Package": "outlierAnalysisSupport",
       "Version": "0.0.0.9000",
-      "Source": "unknown",
+      "Source": "Local",
+      "RemoteType": "local",
+      "RemoteUrl": "../outlierAnalysisSupport",
       "Requirements": [
         "BoutrosLab.plotting.general",
         "BoutrosLab.plotting.survival",
@@ -1854,7 +1861,7 @@
         "rtracklayer",
         "tidyr"
       ],
-      "Hash": "af9bac77b268a63a5933b52d5d671f34"
+      "Hash": "e8310f3350483e0b8c1e6b12dca13cf8"
     },
     "pbapply": {
       "Package": "pbapply",
