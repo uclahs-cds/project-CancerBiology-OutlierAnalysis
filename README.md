@@ -1,10 +1,10 @@
-# Figures for "An Outlier Detection Method in Breast Cancer Analysis"
+# Analysis and Visualization Code for Breast Cancer Outlier Study
 
 ## Overview
 
-This repository contains the figure-generating scripts for our academic paper titled:
+This repository contains the analysis and figure-generating scripts for our academic paper titled:
 
-"OutSeekR: A Novel Outlier Detection Method for Comprehensive Gene Expression Analysis in Breast Cancer"
+"Widespread and Functional Gene Expression Outliers in Cancer"
 
 This code is supplementary to the main analysis package, `package-OutSeekR` ([GitHub](https://github.com/uclahs-cds/package-OutSeekR)).
 
