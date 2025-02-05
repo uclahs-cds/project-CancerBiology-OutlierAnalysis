@@ -54,7 +54,7 @@ effect.05.box$status <- as.numeric(effect.05.box$status);
 
 
 
-gene.five.cas.rnai <- c('FGFR2', 'FOXP4', 'MECOM', 'WIPF2');
+gene.five.cas.rnai <- c('FGFR2', 'FOXP4', 'MECOM', 'WIPF2', 'TCF7', 'TNFSF10');
 rnai.05.box.4 <- rnai.05.box[rnai.05.box$gene %in% gene.five.cas.rnai, ];
 rnai.05.box.4$label <- rep('RNAi', nrow(rnai.05.box.4));
 effect.05.box.4 <- effect.05.box[effect.05.box$gene %in% gene.five.cas.rnai, ];
@@ -92,6 +92,18 @@ key <- list(
     x = 0.9,
     y = 0.93,
     text = list(
+        lab = 'TCF7',
+        cex = 1
+        ),
+    x = 0.9,
+    y = 0.93,
+    text = list(
+        lab = 'TNFSF10',
+        cex = 1
+        ),
+    x = 0.9,
+    y = 0.93,
+    text = list(
         lab = 'WIPF2',
         cex = 1
         ),
@@ -118,7 +130,7 @@ cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
     # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     main.cex = 1.5,
-    xaxis.lab = rep(c('CRISPR', 'RNAi'), 4),
+    xaxis.lab = rep(c('CRISPR', 'RNAi'), 6),
     xlab.label = NULL,
     xlab.cex = 0,
     ylab.label = expression('Gene effect score'),

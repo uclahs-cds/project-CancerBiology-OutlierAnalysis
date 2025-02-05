@@ -32,23 +32,23 @@ ensembl <- NULL;
 # Get chromosomal positions, caching results in an intermediate directory for
 # efficiency
 get.chromosomal.positions <- function(gene.list, filters) {
-    cache.dir <- file.path('output', 'ensembl_cache');
-
-    if (!dir.exists(cache.dir)) {
-        dir.create(cache.dir);
-        }
-
-    cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
-    if (file.exists(cache.file)) {
-        return(readRDS(cache.file));
-        }
+    # cache.dir <- file.path('output', 'ensembl_cache');
+    # 
+    # if (!dir.exists(cache.dir)) {
+    #     dir.create(cache.dir);
+    #     }
+    # 
+    # cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
+    # if (file.exists(cache.file)) {
+    #     return(readRDS(cache.file));
+    #     }
 
     # Initialize the ensembl object lazily, if it's not already initialized
     if (is.null(ensembl)) {
         ensembl <<- biomaRt:::useEnsembl(
             biomart = 'ensembl',
             dataset = 'hsapiens_gene_ensembl',
-            version = 112
+            # version = 112
             );
         }
 
@@ -62,7 +62,7 @@ get.chromosomal.positions <- function(gene.list, filters) {
         mart = ensembl
         );
 
-    saveRDS(results, file = cache.file);
+    # saveRDS(results, file = cache.file);
     return(results);
     }
 
@@ -305,7 +305,101 @@ fisher_icgc_results <- calculate_fisher_odds(chr.position.outlier.icgc, chr.posi
 p.value.chr.icgc.fisher.sub <- fisher_icgc_results$p.values
 p.value.chr.icgc.odd.sub.df <- fisher_icgc_results$odds_ratios
 
+### 6. Cheng
+# Get chromosomal location information for outlier genes
+gene.list.cheng.01 <- paste(substr(rownames(outlier.gene.fdr.01$cheng), 1, nchar(rownames(outlier.gene.fdr.01$cheng)) - 3), collapse=",");
+gene.position.cheng <- get.chromosomal.positions(
+    gene.list.cheng.01,
+    'entrezgene_id'
+    );
 
+# Get chromosomal location information for all genes
+gene.list.cheng.all <- paste(substr(rownames(fpkm.tumor.symbol.filter.cheng), 1, nchar(rownames(fpkm.tumor.symbol.filter.cheng)) - 3), collapse=",");
+gene.position.all$cheng <- get.chromosomal.positions(
+    gene.list.cheng.all,
+    'entrezgene_id'
+    );
+
+# Processing Cheng data
+chr.outlier.cheng <- process_chr_data(gene.position.cheng, chr.name)
+chr.outlier.cheng.all <- process_chr_data(gene.position.all$cheng, chr.name)
+
+# Fisher's test and odds ratio for Cheng
+fisher_cheng_results <- calculate_fisher_odds(chr.outlier.cheng, chr.outlier.cheng.all, nrow(fpkm.tumor.symbol.filter.cheng), nrow(outlier.gene.fdr.01$cheng));
+
+p.value.chr.cheng.fisher.sub <- fisher_cheng_results$p.values
+p.value.chr.cheng.odd.sub.df <- fisher_cheng_results$odds_ratios
+
+### 7.Kao
+# Get chromosomal location information for outlier genes
+gene.position.kao <- get.chromosomal.positions(
+    substr(rownames(outlier.gene.fdr.01$kao), 1, nchar(rownames(outlier.gene.fdr.01$kao)) - 3),
+    'entrezgene_id'
+    );
+
+# Get chromosomal location information for all genes
+gene.position.all$kao <- get.chromosomal.positions(
+    substr(rownames(fpkm.tumor.symbol.filter.kao), 1, nchar(rownames(fpkm.tumor.symbol.filter.kao)) - 3),
+    'entrezgene_id'
+    );
+
+# Processing kao data
+chr.outlier.kao <- process_chr_data(gene.position.kao, chr.name)
+chr.outlier.kao.all <- process_chr_data(gene.position.all$kao, chr.name)
+
+# Fisher's test and odds ratio for kao
+fisher_kao_results <- calculate_fisher_odds(chr.outlier.kao, chr.outlier.kao.all, nrow(fpkm.tumor.symbol.filter.kao), nrow(outlier.gene.fdr.01$kao));
+
+p.value.chr.kao.fisher.sub <- fisher_kao_results$p.values
+p.value.chr.kao.odd.sub.df <- fisher_kao_results$odds_ratios
+
+### 8.Hatzis
+# Get chromosomal location information for outlier genes
+gene.position.hatzis <- get.chromosomal.positions(
+    substr(rownames(outlier.gene.fdr.01$hatzis), 1, nchar(rownames(outlier.gene.fdr.01$hatzis)) - 3),
+    'entrezgene_id'
+    );
+
+# Get chromosomal location information for all genes
+gene.position.all$hatzis <- get.chromosomal.positions(
+    substr(rownames(fpkm.tumor.symbol.filter.hatzis), 1, nchar(rownames(fpkm.tumor.symbol.filter.hatzis)) - 3),
+    'entrezgene_id'
+    );
+
+# Processing hatzis data
+chr.outlier.hatzis <- process_chr_data(gene.position.hatzis, chr.name)
+chr.outlier.hatzis.all <- process_chr_data(gene.position.all$hatzis, chr.name)
+
+# Fisher's test and odds ratio for hatzis
+fisher_hatzis_results <- calculate_fisher_odds(chr.outlier.hatzis, chr.outlier.hatzis.all, nrow(fpkm.tumor.symbol.filter.hatzis), nrow(outlier.gene.fdr.01$hatzis));
+
+p.value.chr.hatzis.fisher.sub <- fisher_hatzis_results$p.values
+p.value.chr.hatzis.odd.sub.df <- fisher_hatzis_results$odds_ratios
+
+### 9.Sjostrom
+# Get chromosomal location information for outlier genes
+gene.list.sjostrom.01 <- paste(substr(rownames(outlier.gene.fdr.01$sjostrom), 1, nchar(rownames(outlier.gene.fdr.01$sjostrom)) - 3), collapse=",");
+gene.position.sjostrom <- get.chromosomal.positions(
+    gene.list.sjostrom.01,
+    'entrezgene_id'
+    );
+
+# Get chromosomal location information for all genes
+gene.list.sjostrom.all <- paste(substr(rownames(fpkm.tumor.symbol.filter.sjostrom), 1, nchar(rownames(fpkm.tumor.symbol.filter.sjostrom)) - 3), collapse=",");
+gene.position.all$sjostrom <- get.chromosomal.positions(
+    gene.list.sjostrom.all,
+    'entrezgene_id'
+    );
+
+# Processing sjostrom data
+chr.outlier.sjostrom <- process_chr_data(gene.position.sjostrom, chr.name)
+chr.outlier.sjostrom.all <- process_chr_data(gene.position.all$sjostrom, chr.name)
+
+# Fisher's test and odds ratio for sjostrom
+fisher_sjostrom_results <- calculate_fisher_odds(chr.outlier.sjostrom, chr.outlier.sjostrom.all, nrow(fpkm.tumor.symbol.filter.sjostrom), nrow(outlier.gene.fdr.01$sjostrom));
+
+p.value.chr.sjostrom.fisher.sub <- fisher_sjostrom_results$p.values
+p.value.chr.sjostrom.odd.sub.df <- fisher_sjostrom_results$odds_ratios
 
 
 
@@ -314,6 +408,10 @@ p.value.chr.meta.odd.sub.df$p.value <- p.value.chr.meta.fisher.sub;
 p.value.chr.ispy.odd.sub.df$p.value <- p.value.chr.ispy.fisher.sub;
 p.value.chr.metador.odd.sub.df$p.value <- p.value.chr.metador.fisher.sub;
 p.value.chr.icgc.odd.sub.df$p.value <- p.value.chr.icgc.fisher.sub;
+p.value.chr.cheng.odd.sub.df$p.value <- p.value.chr.cheng.fisher.sub;
+p.value.chr.kao.odd.sub.df$p.value <- p.value.chr.kao.fisher.sub;
+p.value.chr.hatzis.odd.sub.df$p.value <- p.value.chr.hatzis.fisher.sub;
+p.value.chr.sjostrom.odd.sub.df$p.value <- p.value.chr.sjostrom.fisher.sub;
 
 
 #   - use natural log
@@ -327,6 +425,18 @@ ln.odd.metador <- log(p.value.chr.metador.odd.sub.df$odds.ratio);
 se.odd.metador <- (log(p.value.chr.metador.odd.sub.df$upper) - log(p.value.chr.metador.odd.sub.df$lower)) / 3.92;
 ln.odd.icgc <- log(p.value.chr.icgc.odd.sub.df$odds.ratio);
 se.odd.icgc <- (log(p.value.chr.icgc.odd.sub.df$upper) - log(p.value.chr.icgc.odd.sub.df$lower)) / 3.92;
+ln.odd.cheng <- log(p.value.chr.cheng.odd.sub.df$odds.ratio);
+se.odd.cheng <- (log(p.value.chr.cheng.odd.sub.df$upper) - log(p.value.chr.cheng.odd.sub.df$lower)) / 3.92;
+ln.odd.kao <- log(p.value.chr.kao.odd.sub.df$odds.ratio);
+se.odd.kao <- (log(p.value.chr.kao.odd.sub.df$upper) - log(p.value.chr.kao.odd.sub.df$lower)) / 3.92;
+ln.odd.hatzis <- log(p.value.chr.hatzis.odd.sub.df$odds.ratio);
+se.odd.hatzis <- (log(p.value.chr.hatzis.odd.sub.df$upper) - log(p.value.chr.hatzis.odd.sub.df$lower)) / 3.92;
+ln.odd.sjostrom <- log(p.value.chr.sjostrom.odd.sub.df$odds.ratio);
+se.odd.sjostrom <- (log(p.value.chr.sjostrom.odd.sub.df$upper) - log(p.value.chr.sjostrom.odd.sub.df$lower)) / 3.92;
+
+
+
+
 
 chr.odd.se.5 <- list();
 
@@ -338,14 +448,22 @@ for (i in 1:nrow(p.value.chr.brca.odd.sub.df)) {
         ln.odd.meta[i],
         ln.odd.ispy[i],
         ln.odd.metador[i],
-        ln.odd.icgc[i]
+        ln.odd.icgc[i],
+        ln.odd.cheng[i],
+        ln.odd.kao[i],
+        ln.odd.hatzis[i],
+        ln.odd.sjostrom[i]
         );
     chr.se <- c(
         se.odd.brca[i],
         se.odd.meta[i],
         se.odd.ispy[i],
         se.odd.metador[i],
-        se.odd.icgc[i]
+        se.odd.icgc[i],
+        se.odd.cheng[i],
+        se.odd.kao[i],
+        se.odd.hatzis[i],
+        se.odd.sjostrom[i]
         );
 
     # Combine odds ratios and standard errors into a single data frame
@@ -605,6 +723,187 @@ gc.box.icgc <- na.omit(gc.box.icgc);
 gc.box.icgc$gc.content <- as.numeric(gc.box.icgc$gc.content);
 
 
+# 6. Cheng
+gene.list <- rownames(outlier.gene.fdr.01$cheng);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.cheng.order <- gene.position.cheng[match(gene.list.sub, gene.position.cheng$entrezgene_id), ];
+outlier.gene.fdr.01.cheng.ensg <- cbind(
+    outlier.gene.fdr.01$cheng,
+    ensembl = gene.position.cheng.order$ensembl_gene_id
+    );
+
+gene.gc.cheng <- gene.gc[match(gene.position.cheng.order[gene.position.cheng.order$entrezgene_id %in% gene.list.sub, ]$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.cheng.content <- as.numeric(gene.gc.cheng$Gene...GC.content);
+outlier.gene.fdr.01.cheng.gc <- cbind(
+    na.omit(outlier.gene.fdr.01.cheng.ensg),
+    GC.content = gene.gc.cheng.content
+    );
+
+gene.list <- rownames(fpkm.tumor.symbol.filter.cheng);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.cheng.order.all <- gene.position.all$cheng[match(gene.list.sub, gene.position.all$cheng$entrezgene_id), ];
+outlier.gene.fdr.all.cheng.ensg <- cbind(
+    fpkm.tumor.symbol.filter.cheng,
+    ensembl = gene.position.cheng.order.all$ensembl_gene_id
+    );
+gene.gc.cheng.all <- gene.gc[match(gene.position.cheng.order.all$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.cheng.content.all <- as.numeric(gene.gc.cheng.all$Gene...GC.content);
+outlier.gene.fdr.all.cheng.gc <- cbind(
+    outlier.gene.fdr.all.cheng.ensg,
+    GC.content = gene.gc.cheng.content.all
+    );
+
+gene.position.all.gc.non.cheng <- outlier.gene.fdr.all.cheng.gc[!(rownames(outlier.gene.fdr.all.cheng.gc) %in% rownames(outlier.gene.fdr.01.cheng.gc)), ];
+gene.position.all.gc.outlier.cheng <- outlier.gene.fdr.01.cheng.gc;
+gc.num.non.cheng <- gene.position.all.gc.non.cheng$GC.content;
+gc.num.outlier.cheng <- gene.position.all.gc.outlier.cheng$GC.content;
+
+gc.box.cheng <- data.frame(cbind(
+    gc.content = c(gc.num.non.cheng, gc.num.outlier.cheng),
+    status = c(
+        rep('non', length(gc.num.non.cheng)),
+        rep('out', length(gc.num.outlier.cheng))
+        )
+    ));
+gc.box.cheng <- na.omit(gc.box.cheng);
+gc.box.cheng$gc.content <- as.numeric(gc.box.cheng$gc.content);
+
+# 7. kao
+gene.list <- rownames(outlier.gene.fdr.01$kao);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.kao.order <- gene.position.kao[match(gene.list.sub, gene.position.kao$entrezgene_id), ];
+outlier.gene.fdr.01.kao.ensg <- cbind(
+    outlier.gene.fdr.01$kao,
+    ensembl = gene.position.kao.order$ensembl_gene_id
+    );
+
+gene.gc.kao <- gene.gc[match(gene.position.kao.order[gene.position.kao.order$entrezgene_id %in% gene.list.sub, ]$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.kao.content <- as.numeric(gene.gc.kao$Gene...GC.content);
+outlier.gene.fdr.01.kao.gc <- cbind(
+    na.omit(outlier.gene.fdr.01.kao.ensg),
+    GC.content = gene.gc.kao.content
+    );
+
+gene.list <- rownames(fpkm.tumor.symbol.filter.kao);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.kao.order.all <- gene.position.all$kao[match(gene.list.sub, gene.position.all$kao$entrezgene_id), ];
+outlier.gene.fdr.all.kao.ensg <- cbind(
+    fpkm.tumor.symbol.filter.kao,
+    ensembl = gene.position.kao.order.all$ensembl_gene_id
+    );
+gene.gc.kao.all <- gene.gc[match(gene.position.kao.order.all$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.kao.content.all <- as.numeric(gene.gc.kao.all$Gene...GC.content);
+outlier.gene.fdr.all.kao.gc <- cbind(
+    outlier.gene.fdr.all.kao.ensg,
+    GC.content = gene.gc.kao.content.all
+    );
+
+gene.position.all.gc.non.kao <- outlier.gene.fdr.all.kao.gc[!(rownames(outlier.gene.fdr.all.kao.gc) %in% rownames(outlier.gene.fdr.01.kao.gc)), ];
+gene.position.all.gc.outlier.kao <- outlier.gene.fdr.01.kao.gc;
+gc.num.non.kao <- gene.position.all.gc.non.kao$GC.content;
+gc.num.outlier.kao <- gene.position.all.gc.outlier.kao$GC.content;
+
+gc.box.kao <- data.frame(cbind(
+    gc.content = c(gc.num.non.kao, gc.num.outlier.kao),
+    status = c(
+        rep('non', length(gc.num.non.kao)),
+        rep('out', length(gc.num.outlier.kao))
+        )
+    ));
+gc.box.kao <- na.omit(gc.box.kao);
+gc.box.kao$gc.content <- as.numeric(gc.box.kao$gc.content);
+
+
+# 8. hatzis
+gene.list <- rownames(outlier.gene.fdr.01$hatzis);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.hatzis.order <- gene.position.hatzis[match(gene.list.sub, gene.position.hatzis$entrezgene_id), ];
+outlier.gene.fdr.01.hatzis.ensg <- cbind(
+    outlier.gene.fdr.01$hatzis,
+    ensembl = gene.position.hatzis.order$ensembl_gene_id
+    );
+
+gene.gc.hatzis <- gene.gc[match(gene.position.hatzis.order[gene.position.hatzis.order$entrezgene_id %in% gene.list.sub, ]$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.hatzis.content <- as.numeric(gene.gc.hatzis$Gene...GC.content);
+outlier.gene.fdr.01.hatzis.gc <- cbind(
+    na.omit(outlier.gene.fdr.01.hatzis.ensg),
+    GC.content = gene.gc.hatzis.content
+    );
+
+gene.list <- rownames(fpkm.tumor.symbol.filter.hatzis);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.hatzis.order.all <- gene.position.all$hatzis[match(gene.list.sub, gene.position.all$hatzis$entrezgene_id), ];
+outlier.gene.fdr.all.hatzis.ensg <- cbind(
+    fpkm.tumor.symbol.filter.hatzis,
+    ensembl = gene.position.hatzis.order.all$ensembl_gene_id
+    );
+gene.gc.hatzis.all <- gene.gc[match(gene.position.hatzis.order.all$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.hatzis.content.all <- as.numeric(gene.gc.hatzis.all$Gene...GC.content);
+outlier.gene.fdr.all.hatzis.gc <- cbind(
+    outlier.gene.fdr.all.hatzis.ensg,
+    GC.content = gene.gc.hatzis.content.all
+    );
+
+gene.position.all.gc.non.hatzis <- outlier.gene.fdr.all.hatzis.gc[!(rownames(outlier.gene.fdr.all.hatzis.gc) %in% rownames(outlier.gene.fdr.01.hatzis.gc)), ];
+gene.position.all.gc.outlier.hatzis <- outlier.gene.fdr.01.hatzis.gc;
+gc.num.non.hatzis <- gene.position.all.gc.non.hatzis$GC.content;
+gc.num.outlier.hatzis <- gene.position.all.gc.outlier.hatzis$GC.content;
+
+gc.box.hatzis <- data.frame(cbind(
+    gc.content = c(gc.num.non.hatzis, gc.num.outlier.hatzis),
+    status = c(
+        rep('non', length(gc.num.non.hatzis)),
+        rep('out', length(gc.num.outlier.hatzis))
+        )
+    ));
+gc.box.hatzis <- na.omit(gc.box.hatzis);
+gc.box.hatzis$gc.content <- as.numeric(gc.box.hatzis$gc.content);
+
+
+# 8. sjostrom
+gene.list <- rownames(outlier.gene.fdr.01$sjostrom);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.sjostrom.order <- gene.position.sjostrom[match(gene.list.sub, gene.position.sjostrom$entrezgene_id), ];
+outlier.gene.fdr.01.sjostrom.ensg <- cbind(
+    outlier.gene.fdr.01$sjostrom,
+    ensembl = gene.position.sjostrom.order$ensembl_gene_id
+    );
+
+gene.gc.sjostrom <- gene.gc[match(gene.position.sjostrom.order[gene.position.sjostrom.order$entrezgene_id %in% gene.list.sub, ]$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.sjostrom.content <- as.numeric(gene.gc.sjostrom$Gene...GC.content);
+outlier.gene.fdr.01.sjostrom.gc <- cbind(
+    na.omit(outlier.gene.fdr.01.sjostrom.ensg),
+    GC.content = gene.gc.sjostrom.content
+    );
+
+gene.list <- rownames(fpkm.tumor.symbol.filter.sjostrom);
+gene.list.sub <- substr(gene.list, 1, nchar(gene.list) - 3);
+gene.position.sjostrom.order.all <- gene.position.all$sjostrom[match(gene.list.sub, gene.position.all$sjostrom$entrezgene_id), ];
+outlier.gene.fdr.all.sjostrom.ensg <- cbind(
+    fpkm.tumor.symbol.filter.sjostrom,
+    ensembl = gene.position.sjostrom.order.all$ensembl_gene_id
+    );
+gene.gc.sjostrom.all <- gene.gc[match(gene.position.sjostrom.order.all$ensembl_gene_id, gene.gc$Gene.stable.ID), ];
+gene.gc.sjostrom.content.all <- as.numeric(gene.gc.sjostrom.all$Gene...GC.content);
+outlier.gene.fdr.all.sjostrom.gc <- cbind(
+    outlier.gene.fdr.all.sjostrom.ensg,
+    GC.content = gene.gc.sjostrom.content.all
+    );
+
+gene.position.all.gc.non.sjostrom <- outlier.gene.fdr.all.sjostrom.gc[!(rownames(outlier.gene.fdr.all.sjostrom.gc) %in% rownames(outlier.gene.fdr.01.sjostrom.gc)), ];
+gene.position.all.gc.outlier.sjostrom <- outlier.gene.fdr.01.sjostrom.gc;
+gc.num.non.sjostrom <- gene.position.all.gc.non.sjostrom$GC.content;
+gc.num.outlier.sjostrom <- gene.position.all.gc.outlier.sjostrom$GC.content;
+
+gc.box.sjostrom <- data.frame(cbind(
+    gc.content = c(gc.num.non.sjostrom, gc.num.outlier.sjostrom),
+    status = c(
+        rep('non', length(gc.num.non.sjostrom)),
+        rep('out', length(gc.num.outlier.sjostrom))
+        )
+    ));
+gc.box.sjostrom <- na.omit(gc.box.sjostrom);
+gc.box.sjostrom$gc.content <- as.numeric(gc.box.sjostrom$gc.content);
 
 # Meta-analysis
 
@@ -643,23 +942,51 @@ icgc.non.sd <- sd(log2(gc.box.icgc$gc.content[gc.box.icgc$status == 'non'] + 1))
 icgc.out.n <- length(gc.box.icgc$gc.content[gc.box.icgc$status == 'out']);
 icgc.non.n <- length(gc.box.icgc$gc.content[gc.box.icgc$status == 'non']);
 
+cheng.out.mean <- mean(log2(gc.box.cheng$gc.content[gc.box.cheng$status == 'out'] + 1));
+cheng.out.sd <- sd(log2(gc.box.cheng$gc.content[gc.box.cheng$status == 'out'] + 1));
+cheng.non.mean <- mean(log2(gc.box.cheng$gc.content[gc.box.cheng$status == 'non'] + 1));
+cheng.non.sd <- sd(log2(gc.box.cheng$gc.content[gc.box.cheng$status == 'non'] + 1));
+cheng.out.n <- length(gc.box.cheng$gc.content[gc.box.cheng$status == 'out']);
+cheng.non.n <- length(gc.box.cheng$gc.content[gc.box.cheng$status == 'non']);
+
+kao.out.mean <- mean(log2(gc.box.kao$gc.content[gc.box.kao$status == 'out'] + 1));
+kao.out.sd <- sd(log2(gc.box.kao$gc.content[gc.box.kao$status == 'out'] + 1));
+kao.non.mean <- mean(log2(gc.box.kao$gc.content[gc.box.kao$status == 'non'] + 1));
+kao.non.sd <- sd(log2(gc.box.kao$gc.content[gc.box.kao$status == 'non'] + 1));
+kao.out.n <- length(gc.box.kao$gc.content[gc.box.kao$status == 'out']);
+kao.non.n <- length(gc.box.kao$gc.content[gc.box.kao$status == 'non']);
+
+hatzis.out.mean <- mean(log2(gc.box.hatzis$gc.content[gc.box.hatzis$status == 'out'] + 1));
+hatzis.out.sd <- sd(log2(gc.box.hatzis$gc.content[gc.box.hatzis$status == 'out'] + 1));
+hatzis.non.mean <- mean(log2(gc.box.hatzis$gc.content[gc.box.hatzis$status == 'non'] + 1));
+hatzis.non.sd <- sd(log2(gc.box.hatzis$gc.content[gc.box.hatzis$status == 'non'] + 1));
+hatzis.out.n <- length(gc.box.hatzis$gc.content[gc.box.hatzis$status == 'out']);
+hatzis.non.n <- length(gc.box.hatzis$gc.content[gc.box.hatzis$status == 'non']);
+
+sjostrom.out.mean <- mean(log2(gc.box.sjostrom$gc.content[gc.box.sjostrom$status == 'out'] + 1));
+sjostrom.out.sd <- sd(log2(gc.box.sjostrom$gc.content[gc.box.sjostrom$status == 'out'] + 1));
+sjostrom.non.mean <- mean(log2(gc.box.sjostrom$gc.content[gc.box.sjostrom$status == 'non'] + 1));
+sjostrom.non.sd <- sd(log2(gc.box.sjostrom$gc.content[gc.box.sjostrom$status == 'non'] + 1));
+sjostrom.out.n <- length(gc.box.sjostrom$gc.content[gc.box.sjostrom$status == 'out']);
+sjostrom.non.n <- length(gc.box.sjostrom$gc.content[gc.box.sjostrom$status == 'non']);
+
 
 smd.gc.matrix.5 <- data.frame(cbind(
-    study = c(1, 2, 3, 4, 5), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
+    study = c(1, 2, 3, 4, 5, 6, 7, 8, 9), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
 
     # Mean of the gc number of outlier genes
-    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean),
+    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean, cheng.out.mean, kao.out.mean, hatzis.out.mean, sjostrom.out.mean),
     # SD of the gc number of outlier genes
-    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd),
+    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd, cheng.out.sd, kao.out.sd, hatzis.out.sd, sjostrom.out.sd),
     # Number of outlier genes
-    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n),
+    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n, cheng.out.n, kao.out.n, hatzis.out.n, sjostrom.out.n),
 
     # Mean of the gc number of non-outlier genes
-    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean),
+    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean, cheng.non.mean, kao.non.mean, hatzis.non.mean, sjostrom.non.mean),
     # SD of the gc number of non-outlier genes
-    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd),
+    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd, cheng.non.sd, kao.non.sd, hatzis.non.sd, sjostrom.non.sd),
     # Number of non-outlier genes
-    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n)
+    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n, cheng.non.n, kao.non.n, hatzis.non.n, sjostrom.non.n)
     ));
 
 
@@ -830,6 +1157,126 @@ length.box.icgc <- na.omit(length.box.icgc);
 length.box.icgc$length.content <- as.numeric(length.box.icgc$length.content);
 
 
+### 6. Cheng
+gene.position.cheng <- gene.position.cheng[gene.position.cheng$chromosome_name %in% chr.name,]
+gene.position.cheng <- gene.position.cheng[!(duplicated(gene.position.cheng$hgnc_symbol)),]
+gene.position.all$cheng <- gene.position.all$cheng[gene.position.all$cheng$chromosome_name %in% chr.name,]
+gene.position.all$cheng <- gene.position.all$cheng[!(duplicated(gene.position.all$cheng$hgnc_symbol)),]
+
+# Calculate gene lengths for chengBRIC sample and population gene sets
+gene.position.cheng.length <- cbind(gene.position.cheng,
+    length = gene.position.cheng$end_position - gene.position.cheng$start_position + 1
+    );
+outlier.length.cheng <- gene.position.cheng$end_position - gene.position.cheng$start_position + 1;
+gene.length.cheng <- gene.position.all$cheng$end_position - gene.position.all$cheng$start_position + 1;
+
+# Create a subset of non-outlier genes
+gene.position.cheng.all.non <- gene.position.all$cheng[!(gene.position.all$cheng$ensembl_gene_id %in% gene.position.cheng.length$ensembl_gene_id), ];
+gene.non.length.cheng <- gene.position.cheng.all.non$end_position - gene.position.cheng.all.non$start_position + 1;
+
+# Create a data frame for the lengths and status of genes
+length.box.cheng <- data.frame(cbind(
+    length.content = c(gene.non.length.cheng, outlier.length.cheng),
+    status = c(
+        rep('non', length(gene.non.length.cheng)),
+        rep('out', length(outlier.length.cheng))
+        )
+    ));
+length.box.cheng <- na.omit(length.box.cheng);
+length.box.cheng$length.content <- as.numeric(length.box.cheng$length.content);
+
+
+### 7. Kao
+gene.position.kao <- gene.position.kao[gene.position.kao$chromosome_name %in% chr.name,]
+gene.position.kao <- gene.position.kao[!(duplicated(gene.position.kao$hgnc_symbol)),]
+gene.position.all$kao <- gene.position.all$kao[gene.position.all$kao$chromosome_name %in% chr.name,]
+gene.position.all$kao <- gene.position.all$kao[!(duplicated(gene.position.all$kao$hgnc_symbol)),]
+
+# Calculate gene lengths for kaoBRIC sample and population gene sets
+gene.position.kao.length <- cbind(gene.position.kao,
+    length = gene.position.kao$end_position - gene.position.kao$start_position + 1
+    );
+outlier.length.kao <- gene.position.kao$end_position - gene.position.kao$start_position + 1;
+gene.length.kao <- gene.position.all$kao$end_position - gene.position.all$kao$start_position + 1;
+
+# Create a subset of non-outlier genes
+gene.position.kao.all.non <- gene.position.all$kao[!(gene.position.all$kao$ensembl_gene_id %in% gene.position.kao.length$ensembl_gene_id), ];
+gene.non.length.kao <- gene.position.kao.all.non$end_position - gene.position.kao.all.non$start_position + 1;
+
+# Create a data frame for the lengths and status of genes
+length.box.kao <- data.frame(cbind(
+    length.content = c(gene.non.length.kao, outlier.length.kao),
+    status = c(
+        rep('non', length(gene.non.length.kao)),
+        rep('out', length(outlier.length.kao))
+        )
+    ));
+length.box.kao <- na.omit(length.box.kao);
+length.box.kao$length.content <- as.numeric(length.box.kao$length.content);
+
+
+
+### 8. Hatzis
+gene.position.hatzis <- gene.position.hatzis[gene.position.hatzis$chromosome_name %in% chr.name,]
+gene.position.hatzis <- gene.position.hatzis[!(duplicated(gene.position.hatzis$hgnc_symbol)),]
+gene.position.all$hatzis <- gene.position.all$hatzis[gene.position.all$hatzis$chromosome_name %in% chr.name,]
+gene.position.all$hatzis <- gene.position.all$hatzis[!(duplicated(gene.position.all$hatzis$hgnc_symbol)),]
+
+# Calculate gene lengths for hatzisBRIC sample and population gene sets
+gene.position.hatzis.length <- cbind(gene.position.hatzis,
+    length = gene.position.hatzis$end_position - gene.position.hatzis$start_position + 1
+    );
+outlier.length.hatzis <- gene.position.hatzis$end_position - gene.position.hatzis$start_position + 1;
+gene.length.hatzis <- gene.position.all$hatzis$end_position - gene.position.all$hatzis$start_position + 1;
+
+# Create a subset of non-outlier genes
+gene.position.hatzis.all.non <- gene.position.all$hatzis[!(gene.position.all$hatzis$ensembl_gene_id %in% gene.position.hatzis.length$ensembl_gene_id), ];
+gene.non.length.hatzis <- gene.position.hatzis.all.non$end_position - gene.position.hatzis.all.non$start_position + 1;
+
+# Create a data frame for the lengths and status of genes
+length.box.hatzis <- data.frame(cbind(
+    length.content = c(gene.non.length.hatzis, outlier.length.hatzis),
+    status = c(
+        rep('non', length(gene.non.length.hatzis)),
+        rep('out', length(outlier.length.hatzis))
+        )
+    ));
+length.box.hatzis <- na.omit(length.box.hatzis);
+length.box.hatzis$length.content <- as.numeric(length.box.hatzis$length.content);
+
+
+
+### 9. Sjostrom
+gene.position.sjostrom <- gene.position.sjostrom[gene.position.sjostrom$chromosome_name %in% chr.name,]
+gene.position.sjostrom <- gene.position.sjostrom[!(duplicated(gene.position.sjostrom$hgnc_symbol)),]
+gene.position.all$sjostrom <- gene.position.all$sjostrom[gene.position.all$sjostrom$chromosome_name %in% chr.name,]
+gene.position.all$sjostrom <- gene.position.all$sjostrom[!(duplicated(gene.position.all$sjostrom$hgnc_symbol)),]
+
+# Calculate gene lengths for sjostromBRIC sample and population gene sets
+gene.position.sjostrom.length <- cbind(gene.position.sjostrom,
+    length = gene.position.sjostrom$end_position - gene.position.sjostrom$start_position + 1
+    );
+outlier.length.sjostrom <- gene.position.sjostrom$end_position - gene.position.sjostrom$start_position + 1;
+gene.length.sjostrom <- gene.position.all$sjostrom$end_position - gene.position.all$sjostrom$start_position + 1;
+
+# Create a subset of non-outlier genes
+gene.position.sjostrom.all.non <- gene.position.all$sjostrom[!(gene.position.all$sjostrom$ensembl_gene_id %in% gene.position.sjostrom.length$ensembl_gene_id), ];
+gene.non.length.sjostrom <- gene.position.sjostrom.all.non$end_position - gene.position.sjostrom.all.non$start_position + 1;
+
+# Create a data frame for the lengths and status of genes
+length.box.sjostrom <- data.frame(cbind(
+    length.content = c(gene.non.length.sjostrom, outlier.length.sjostrom),
+    status = c(
+        rep('non', length(gene.non.length.sjostrom)),
+        rep('out', length(outlier.length.sjostrom))
+        )
+    ));
+length.box.sjostrom <- na.omit(length.box.sjostrom);
+length.box.sjostrom$length.content <- as.numeric(length.box.sjostrom$length.content);
+
+
+
+
 
 brca.out.mean <- mean(log2(length.box.brca$length.content[length.box.brca$status == 'out'] + 1));
 brca.out.sd <- sd(log2(length.box.brca$length.content[length.box.brca$status == 'out'] + 1));
@@ -866,24 +1313,53 @@ icgc.non.sd <- sd(log2(length.box.icgc$length.content[length.box.icgc$status == 
 icgc.out.n <- length(length.box.icgc$length.content[length.box.icgc$status == 'out']);
 icgc.non.n <- length(length.box.icgc$length.content[length.box.icgc$status == 'non']);
 
+cheng.out.mean <- mean(log2(length.box.cheng$length.content[length.box.cheng$status == 'out'] + 1));
+cheng.out.sd <- sd(log2(length.box.cheng$length.content[length.box.cheng$status == 'out'] + 1));
+cheng.non.mean <- mean(log2(length.box.cheng$length.content[length.box.cheng$status == 'non'] + 1));
+cheng.non.sd <- sd(log2(length.box.cheng$length.content[length.box.cheng$status == 'non'] + 1));
+cheng.out.n <- length(length.box.cheng$length.content[length.box.cheng$status == 'out']);
+cheng.non.n <- length(length.box.cheng$length.content[length.box.cheng$status == 'non']);
+
+kao.out.mean <- mean(log2(length.box.kao$length.content[length.box.kao$status == 'out'] + 1));
+kao.out.sd <- sd(log2(length.box.kao$length.content[length.box.kao$status == 'out'] + 1));
+kao.non.mean <- mean(log2(length.box.kao$length.content[length.box.kao$status == 'non'] + 1));
+kao.non.sd <- sd(log2(length.box.kao$length.content[length.box.kao$status == 'non'] + 1));
+kao.out.n <- length(length.box.kao$length.content[length.box.kao$status == 'out']);
+kao.non.n <- length(length.box.kao$length.content[length.box.kao$status == 'non']);
+
+hatzis.out.mean <- mean(log2(length.box.hatzis$length.content[length.box.hatzis$status == 'out'] + 1));
+hatzis.out.sd <- sd(log2(length.box.hatzis$length.content[length.box.hatzis$status == 'out'] + 1));
+hatzis.non.mean <- mean(log2(length.box.hatzis$length.content[length.box.hatzis$status == 'non'] + 1));
+hatzis.non.sd <- sd(log2(length.box.hatzis$length.content[length.box.hatzis$status == 'non'] + 1));
+hatzis.out.n <- length(length.box.hatzis$length.content[length.box.hatzis$status == 'out']);
+hatzis.non.n <- length(length.box.hatzis$length.content[length.box.hatzis$status == 'non']);
+
+sjostrom.out.mean <- mean(log2(length.box.sjostrom$length.content[length.box.sjostrom$status == 'out'] + 1));
+sjostrom.out.sd <- sd(log2(length.box.sjostrom$length.content[length.box.sjostrom$status == 'out'] + 1));
+sjostrom.non.mean <- mean(log2(length.box.sjostrom$length.content[length.box.sjostrom$status == 'non'] + 1));
+sjostrom.non.sd <- sd(log2(length.box.sjostrom$length.content[length.box.sjostrom$status == 'non'] + 1));
+sjostrom.out.n <- length(length.box.sjostrom$length.content[length.box.sjostrom$status == 'out']);
+sjostrom.non.n <- length(length.box.sjostrom$length.content[length.box.sjostrom$status == 'non']);
+
+
 
 smd.length.matrix.5 <- data.frame(cbind(
-    study = c(1, 2, 3, 4, 5), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
-
+    study = c(1, 2, 3, 4, 5, 6, 7, 8, 9), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
+    
     # Mean of the length number of outlier genes
-    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean),
+    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean, cheng.out.mean, kao.out.mean, hatzis.out.mean, sjostrom.out.mean),
     # SD of the length number of outlier genes
-    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd),
+    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd, cheng.out.sd, kao.out.sd, hatzis.out.sd, sjostrom.out.sd),
     # Number of outlier genes
-    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n),
-
+    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n, cheng.out.n, kao.out.n, hatzis.out.n, sjostrom.out.n),
+    
     # Mean of the length number of non-outlier genes
-    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean),
+    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean, cheng.non.mean, kao.non.mean, hatzis.non.mean, sjostrom.non.mean),
     # SD of the length number of non-outlier genes
-    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd),
+    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd, cheng.non.sd, kao.non.sd, hatzis.non.sd, sjostrom.non.sd),
     # Number of non-outlier genes
-    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n)
-    ));
+    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n, cheng.non.n, kao.non.n, hatzis.non.n, sjostrom.non.n)
+));
 
 
 escalc.length.matrix.5 <- escalc(
@@ -1051,6 +1527,99 @@ exon.box.icgc <- data.frame(cbind(
 exon.box.icgc <- na.omit(exon.box.icgc);
 exon.box.icgc$exon.content <- as.numeric(exon.box.icgc$exon.content);
 
+
+# 6. Cheng
+exon.num.order.cheng <- exon.num[match(gene.position.all$cheng$entrezgene_id, names(exon.num))];
+gene.position.all.exon.cheng <- data.frame(cbind(
+    gene.position.all$cheng,
+    exon.num = exon.num.order.cheng
+    ));
+
+gene.position.all.exon.non.cheng <- gene.position.all.exon.cheng[!(gene.position.all.exon.cheng$ensembl_gene_id %in% gene.position.cheng.order$ensembl_gene_id), ];
+gene.position.all.exon.outlier.cheng <- gene.position.all.exon.cheng[gene.position.all.exon.cheng$ensembl_gene_id %in% gene.position.cheng.order$ensembl_gene_id, ];
+exon.num.non.cheng <- gene.position.all.exon.non.cheng$exon.num;
+exon.num.outlier.cheng <- gene.position.all.exon.outlier.cheng$exon.num;
+
+exon.box.cheng <- data.frame(cbind(
+    exon.content = c(na.omit(exon.num.non.cheng), na.omit(exon.num.outlier.cheng)),
+    status = c(
+        rep('non', length(na.omit(exon.num.non.cheng))),
+        rep('out', length(na.omit(exon.num.outlier.cheng)))
+        )
+    ));
+exon.box.cheng <- na.omit(exon.box.cheng);
+exon.box.cheng$exon.content <- as.numeric(exon.box.cheng$exon.content);
+
+
+# 7. Kao
+exon.num.order.kao <- exon.num[match(gene.position.all$kao$entrezgene_id, names(exon.num))];
+gene.position.all.exon.kao <- data.frame(cbind(
+    gene.position.all$kao,
+    exon.num = exon.num.order.kao
+    ));
+
+gene.position.all.exon.non.kao <- gene.position.all.exon.kao[!(gene.position.all.exon.kao$ensembl_gene_id %in% gene.position.kao.order$ensembl_gene_id), ];
+gene.position.all.exon.outlier.kao <- gene.position.all.exon.kao[gene.position.all.exon.kao$ensembl_gene_id %in% gene.position.kao.order$ensembl_gene_id, ];
+exon.num.non.kao <- gene.position.all.exon.non.kao$exon.num;
+exon.num.outlier.kao <- gene.position.all.exon.outlier.kao$exon.num;
+
+exon.box.kao <- data.frame(cbind(
+    exon.content = c(na.omit(exon.num.non.kao), na.omit(exon.num.outlier.kao)),
+    status = c(
+        rep('non', length(na.omit(exon.num.non.kao))),
+        rep('out', length(na.omit(exon.num.outlier.kao)))
+        )
+    ));
+exon.box.kao <- na.omit(exon.box.kao);
+exon.box.kao$exon.content <- as.numeric(exon.box.kao$exon.content);
+
+
+# 8. Hatzis
+exon.num.order.hatzis <- exon.num[match(gene.position.all$hatzis$entrezgene_id, names(exon.num))];
+gene.position.all.exon.hatzis <- data.frame(cbind(
+    gene.position.all$hatzis,
+    exon.num = exon.num.order.hatzis
+    ));
+
+gene.position.all.exon.non.hatzis <- gene.position.all.exon.hatzis[!(gene.position.all.exon.hatzis$ensembl_gene_id %in% gene.position.hatzis.order$ensembl_gene_id), ];
+gene.position.all.exon.outlier.hatzis <- gene.position.all.exon.hatzis[gene.position.all.exon.hatzis$ensembl_gene_id %in% gene.position.hatzis.order$ensembl_gene_id, ];
+exon.num.non.hatzis <- gene.position.all.exon.non.hatzis$exon.num;
+exon.num.outlier.hatzis <- gene.position.all.exon.outlier.hatzis$exon.num;
+
+exon.box.hatzis <- data.frame(cbind(
+    exon.content = c(na.omit(exon.num.non.hatzis), na.omit(exon.num.outlier.hatzis)),
+    status = c(
+        rep('non', length(na.omit(exon.num.non.hatzis))),
+        rep('out', length(na.omit(exon.num.outlier.hatzis)))
+        )
+    ));
+exon.box.hatzis <- na.omit(exon.box.hatzis);
+exon.box.hatzis$exon.content <- as.numeric(exon.box.hatzis$exon.content);
+
+
+# 9. Sjostrom
+exon.num.order.sjostrom <- exon.num[match(gene.position.all$sjostrom$entrezgene_id, names(exon.num))];
+gene.position.all.exon.sjostrom <- data.frame(cbind(
+    gene.position.all$sjostrom,
+    exon.num = exon.num.order.sjostrom
+    ));
+
+gene.position.all.exon.non.sjostrom <- gene.position.all.exon.sjostrom[!(gene.position.all.exon.sjostrom$ensembl_gene_id %in% gene.position.sjostrom.order$ensembl_gene_id), ];
+gene.position.all.exon.outlier.sjostrom <- gene.position.all.exon.sjostrom[gene.position.all.exon.sjostrom$ensembl_gene_id %in% gene.position.sjostrom.order$ensembl_gene_id, ];
+exon.num.non.sjostrom <- gene.position.all.exon.non.sjostrom$exon.num;
+exon.num.outlier.sjostrom <- gene.position.all.exon.outlier.sjostrom$exon.num;
+
+exon.box.sjostrom <- data.frame(cbind(
+    exon.content = c(na.omit(exon.num.non.sjostrom), na.omit(exon.num.outlier.sjostrom)),
+    status = c(
+        rep('non', length(na.omit(exon.num.non.sjostrom))),
+        rep('out', length(na.omit(exon.num.outlier.sjostrom)))
+        )
+    ));
+exon.box.sjostrom <- na.omit(exon.box.sjostrom);
+exon.box.sjostrom$exon.content <- as.numeric(exon.box.sjostrom$exon.content);
+
+
 # Meta-analysis
 
 brca.out.mean <- mean(log2(exon.box.brca$exon.content[exon.box.brca$status == 'out'] + 1));
@@ -1088,24 +1657,52 @@ icgc.non.sd <- sd(log2(exon.box.icgc$exon.content[exon.box.icgc$status == 'non']
 icgc.out.n <- length(exon.box.icgc$exon.content[exon.box.icgc$status == 'out']);
 icgc.non.n <- length(exon.box.icgc$exon.content[exon.box.icgc$status == 'non']);
 
+cheng.out.mean <- mean(log2(exon.box.cheng$exon.content[exon.box.cheng$status == 'out'] + 1));
+cheng.out.sd <- sd(log2(exon.box.cheng$exon.content[exon.box.cheng$status == 'out'] + 1));
+cheng.non.mean <- mean(log2(exon.box.cheng$exon.content[exon.box.cheng$status == 'non'] + 1));
+cheng.non.sd <- sd(log2(exon.box.cheng$exon.content[exon.box.cheng$status == 'non'] + 1));
+cheng.out.n <- length(exon.box.cheng$exon.content[exon.box.cheng$status == 'out']);
+cheng.non.n <- length(exon.box.cheng$exon.content[exon.box.cheng$status == 'non']);
+
+kao.out.mean <- mean(log2(exon.box.kao$exon.content[exon.box.kao$status == 'out'] + 1));
+kao.out.sd <- sd(log2(exon.box.kao$exon.content[exon.box.kao$status == 'out'] + 1));
+kao.non.mean <- mean(log2(exon.box.kao$exon.content[exon.box.kao$status == 'non'] + 1));
+kao.non.sd <- sd(log2(exon.box.kao$exon.content[exon.box.kao$status == 'non'] + 1));
+kao.out.n <- length(exon.box.kao$exon.content[exon.box.kao$status == 'out']);
+kao.non.n <- length(exon.box.kao$exon.content[exon.box.kao$status == 'non']);
+
+hatzis.out.mean <- mean(log2(exon.box.hatzis$exon.content[exon.box.hatzis$status == 'out'] + 1));
+hatzis.out.sd <- sd(log2(exon.box.hatzis$exon.content[exon.box.hatzis$status == 'out'] + 1));
+hatzis.non.mean <- mean(log2(exon.box.hatzis$exon.content[exon.box.hatzis$status == 'non'] + 1));
+hatzis.non.sd <- sd(log2(exon.box.hatzis$exon.content[exon.box.hatzis$status == 'non'] + 1));
+hatzis.out.n <- length(exon.box.hatzis$exon.content[exon.box.hatzis$status == 'out']);
+hatzis.non.n <- length(exon.box.hatzis$exon.content[exon.box.hatzis$status == 'non']);
+
+sjostrom.out.mean <- mean(log2(exon.box.sjostrom$exon.content[exon.box.sjostrom$status == 'out'] + 1));
+sjostrom.out.sd <- sd(log2(exon.box.sjostrom$exon.content[exon.box.sjostrom$status == 'out'] + 1));
+sjostrom.non.mean <- mean(log2(exon.box.sjostrom$exon.content[exon.box.sjostrom$status == 'non'] + 1));
+sjostrom.non.sd <- sd(log2(exon.box.sjostrom$exon.content[exon.box.sjostrom$status == 'non'] + 1));
+sjostrom.out.n <- length(exon.box.sjostrom$exon.content[exon.box.sjostrom$status == 'out']);
+sjostrom.non.n <- length(exon.box.sjostrom$exon.content[exon.box.sjostrom$status == 'non']);
+
 
 
 smd.exon.matrix.5 <- data.frame(cbind(
-    study = c(1, 2, 3, 4, 5), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
-
+    study = c(1, 2, 3, 4, 5, 6, 7, 8, 9), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
+    
     # Mean of the exon number of outlier genes
-    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean),
+    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean, cheng.out.mean, kao.out.mean, hatzis.out.mean, sjostrom.out.mean),
     # SD of the exon number of outlier genes
-    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd),
+    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd, cheng.out.sd, kao.out.sd, hatzis.out.sd, sjostrom.out.sd),
     # Number of outlier genes
-    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n),
-
+    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n, cheng.out.n, kao.out.n, hatzis.out.n, sjostrom.out.n),
+    
     # Mean of the exon number of non-outlier genes
-    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean),
+    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean, cheng.non.mean, kao.non.mean, hatzis.non.mean, sjostrom.non.mean),
     # SD of the exon number of non-outlier genes
-    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd),
+    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd, cheng.non.sd, kao.non.sd, hatzis.non.sd, sjostrom.non.sd),
     # Number of non-outlier genes
-    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n)
+    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n, cheng.non.n, kao.non.n, hatzis.non.n, sjostrom.non.n)
     ));
 
 
@@ -1210,6 +1807,70 @@ rna.box.icgc <- data.frame(cbind(
 rna.box.icgc <- na.omit(rna.box.icgc);
 rna.box.icgc$rna.content <- as.numeric(rna.box.icgc$rna.content);
 
+# 6. Cheng
+outlier.rna.cheng <- apply(fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.01$cheng), patient.part.cheng], 1, median);
+
+gene.non.rna.cheng <- apply(fpkm.tumor.symbol.filter.cheng[!(rownames(fpkm.tumor.symbol.filter.cheng) %in% rownames(outlier.gene.fdr.01$cheng)), patient.part.cheng], 1, median)
+
+rna.box.cheng <- data.frame(cbind(
+    rna.content = c(gene.non.rna.cheng, outlier.rna.cheng),
+    status = c(
+        rep('non', length(gene.non.rna.cheng)),
+        rep('out', length(outlier.rna.cheng))
+        )
+    ));
+rna.box.cheng <- na.omit(rna.box.cheng);
+rna.box.cheng$rna.content <- as.numeric(rna.box.cheng$rna.content);
+
+
+# 7. Kao
+outlier.rna.kao <- apply(fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.01$kao), patient.part.kao], 1, median);
+
+gene.non.rna.kao <- apply(fpkm.tumor.symbol.filter.kao[!(rownames(fpkm.tumor.symbol.filter.kao) %in% rownames(outlier.gene.fdr.01$kao)), patient.part.kao], 1, median)
+
+rna.box.kao <- data.frame(cbind(
+    rna.content = c(gene.non.rna.kao, outlier.rna.kao),
+    status = c(
+        rep('non', length(gene.non.rna.kao)),
+        rep('out', length(outlier.rna.kao))
+        )
+    ));
+rna.box.kao <- na.omit(rna.box.kao);
+rna.box.kao$rna.content <- as.numeric(rna.box.kao$rna.content);
+
+
+# 8. Hatzis
+outlier.rna.hatzis <- apply(fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.01$hatzis), patient.part.hatzis], 1, median);
+
+gene.non.rna.hatzis <- apply(fpkm.tumor.symbol.filter.hatzis[!(rownames(fpkm.tumor.symbol.filter.hatzis) %in% rownames(outlier.gene.fdr.01$hatzis)), patient.part.hatzis], 1, median)
+
+rna.box.hatzis <- data.frame(cbind(
+    rna.content = c(gene.non.rna.hatzis, outlier.rna.hatzis),
+    status = c(
+        rep('non', length(gene.non.rna.hatzis)),
+        rep('out', length(outlier.rna.hatzis))
+        )
+    ));
+rna.box.hatzis <- na.omit(rna.box.hatzis);
+rna.box.hatzis$rna.content <- as.numeric(rna.box.hatzis$rna.content);
+
+
+# 9. Sjostrom
+outlier.rna.sjostrom <- apply(fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.01$sjostrom), patient.part.sjostrom], 1, median);
+
+gene.non.rna.sjostrom <- apply(fpkm.tumor.symbol.filter.sjostrom[!(rownames(fpkm.tumor.symbol.filter.sjostrom) %in% rownames(outlier.gene.fdr.01$sjostrom)), patient.part.sjostrom], 1, median)
+
+rna.box.sjostrom <- data.frame(cbind(
+    rna.content = c(gene.non.rna.sjostrom, outlier.rna.sjostrom),
+    status = c(
+        rep('non', length(gene.non.rna.sjostrom)),
+        rep('out', length(outlier.rna.sjostrom))
+        )
+    ));
+rna.box.sjostrom <- na.omit(rna.box.sjostrom);
+rna.box.sjostrom$rna.content <- as.numeric(rna.box.sjostrom$rna.content);
+
+
 
 
 
@@ -1248,24 +1909,52 @@ icgc.non.sd <- sd(log2(rna.box.icgc$rna.content[rna.box.icgc$status == 'non'] + 
 icgc.out.n <- length(rna.box.icgc$rna.content[rna.box.icgc$status == 'out']);
 icgc.non.n <- length(rna.box.icgc$rna.content[rna.box.icgc$status == 'non']);
 
+cheng.out.mean <- mean(log2(rna.box.cheng$rna.content[rna.box.cheng$status == 'out'] + 1));
+cheng.out.sd <- sd(log2(rna.box.cheng$rna.content[rna.box.cheng$status == 'out'] + 1));
+cheng.non.mean <- mean(log2(rna.box.cheng$rna.content[rna.box.cheng$status == 'non'] + 1));
+cheng.non.sd <- sd(log2(rna.box.cheng$rna.content[rna.box.cheng$status == 'non'] + 1));
+cheng.out.n <- length(rna.box.cheng$rna.content[rna.box.cheng$status == 'out']);
+cheng.non.n <- length(rna.box.cheng$rna.content[rna.box.cheng$status == 'non']);
+
+kao.out.mean <- mean(log2(rna.box.kao$rna.content[rna.box.kao$status == 'out'] + 1));
+kao.out.sd <- sd(log2(rna.box.kao$rna.content[rna.box.kao$status == 'out'] + 1));
+kao.non.mean <- mean(log2(rna.box.kao$rna.content[rna.box.kao$status == 'non'] + 1));
+kao.non.sd <- sd(log2(rna.box.kao$rna.content[rna.box.kao$status == 'non'] + 1));
+kao.out.n <- length(rna.box.kao$rna.content[rna.box.kao$status == 'out']);
+kao.non.n <- length(rna.box.kao$rna.content[rna.box.kao$status == 'non']);
+
+hatzis.out.mean <- mean(log2(rna.box.hatzis$rna.content[rna.box.hatzis$status == 'out'] + 1));
+hatzis.out.sd <- sd(log2(rna.box.hatzis$rna.content[rna.box.hatzis$status == 'out'] + 1));
+hatzis.non.mean <- mean(log2(rna.box.hatzis$rna.content[rna.box.hatzis$status == 'non'] + 1));
+hatzis.non.sd <- sd(log2(rna.box.hatzis$rna.content[rna.box.hatzis$status == 'non'] + 1));
+hatzis.out.n <- length(rna.box.hatzis$rna.content[rna.box.hatzis$status == 'out']);
+hatzis.non.n <- length(rna.box.hatzis$rna.content[rna.box.hatzis$status == 'non']);
+
+sjostrom.out.mean <- mean(log2(rna.box.sjostrom$rna.content[rna.box.sjostrom$status == 'out'] + 1));
+sjostrom.out.sd <- sd(log2(rna.box.sjostrom$rna.content[rna.box.sjostrom$status == 'out'] + 1));
+sjostrom.non.mean <- mean(log2(rna.box.sjostrom$rna.content[rna.box.sjostrom$status == 'non'] + 1));
+sjostrom.non.sd <- sd(log2(rna.box.sjostrom$rna.content[rna.box.sjostrom$status == 'non'] + 1));
+sjostrom.out.n <- length(rna.box.sjostrom$rna.content[rna.box.sjostrom$status == 'out']);
+sjostrom.non.n <- length(rna.box.sjostrom$rna.content[rna.box.sjostrom$status == 'non']);
+
 
 
 smd.rna.matrix.5 <- data.frame(cbind(
-    study = c(1, 2, 3, 4, 5), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
-
+    study = c(1, 2, 3, 4, 5, 6, 7, 8, 9), # 1: TCGA-BRCA, 2: METABRIC, 3: I-SPY2, 4: MATADOR, 5: ICGC
+    
     # Mean of the rna number of outlier genes
-    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean),
+    mean.out = c(brca.out.mean, meta.out.mean, ispy.out.mean, metador.out.mean, icgc.out.mean, cheng.out.mean, kao.out.mean, hatzis.out.mean, sjostrom.out.mean),
     # SD of the rna number of outlier genes
-    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd),
+    sd.out = c(brca.out.sd, meta.out.sd, ispy.out.sd, metador.out.sd, icgc.out.sd, cheng.out.sd, kao.out.sd, hatzis.out.sd, sjostrom.out.sd),
     # Number of outlier genes
-    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n),
-
+    n.out = c(brca.out.n, meta.out.n, ispy.out.n, metador.out.n, icgc.out.n, cheng.out.n, kao.out.n, hatzis.out.n, sjostrom.out.n),
+    
     # Mean of the rna number of non-outlier genes
-    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean),
+    mean.non = c(brca.non.mean, meta.non.mean, ispy.non.mean, metador.non.mean, icgc.non.mean, cheng.non.mean, kao.non.mean, hatzis.non.mean, sjostrom.non.mean),
     # SD of the rna number of non-outlier genes
-    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd),
+    sd.non = c(brca.non.sd, meta.non.sd, ispy.non.sd, metador.non.sd, icgc.non.sd, cheng.non.sd, kao.non.sd, hatzis.non.sd, sjostrom.non.sd),
     # Number of non-outlier genes
-    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n)
+    n.non = c(brca.non.n, meta.non.n, ispy.non.n, metador.non.n, icgc.non.n, cheng.non.n, kao.non.n, hatzis.non.n, sjostrom.non.n)
     ));
 
 
@@ -1299,22 +1988,22 @@ metafor.smd.all.matrix.5 <- data.frame(cbind(
         smd.metafor.rna.5$pval
         ),
     odd = c(
-        exp(smd.metafor.exon.5$beta),
-        exp(smd.metafor.length.5$beta),
-        exp(smd.metafor.gc.5$beta),
-        exp(smd.metafor.rna.5$beta)
+        smd.metafor.exon.5$beta,
+        smd.metafor.length.5$beta,
+        smd.metafor.gc.5$beta,
+        smd.metafor.rna.5$beta
         ),
     ci.min = c(
-        exp(smd.metafor.exon.5$ci.lb),
-        exp(smd.metafor.length.5$ci.lb),
-        exp(smd.metafor.gc.5$ci.lb),
-        exp(smd.metafor.rna.5$ci.lb)
+        smd.metafor.exon.5$ci.lb,
+        smd.metafor.length.5$ci.lb,
+        smd.metafor.gc.5$ci.lb,
+        smd.metafor.rna.5$ci.lb
         ),
     ci.max = c(
-        exp(smd.metafor.exon.5$ci.ub),
-        exp(smd.metafor.length.5$ci.ub),
-        exp(smd.metafor.gc.5$ci.ub),
-        exp(smd.metafor.rna.5$ci.ub)
+        smd.metafor.exon.5$ci.ub,
+        smd.metafor.length.5$ci.ub,
+        smd.metafor.gc.5$ci.ub,
+        smd.metafor.rna.5$ci.ub
         )
     ));
 
@@ -1349,7 +2038,7 @@ metafor.all.segplot.multi.5 <- BoutrosLab.plotting.general::create.segplot(
     xlab.label = NULL,
     ylab.cex = 1.3,
     yaxis.cex = 1,
-    xaxis.cex = 0,
+    xaxis.cex = 1,
     xlimits = c(-1.1, 1.3),
     xaxis.lab = c('0.5', '1', '2'),
     xat = seq(-1, 1, 1),
@@ -1374,8 +2063,8 @@ metafor.all.segplot.multi.5;
 
 dot.colours <- vector(length = nrow(metafor.smd.all.matrix.label.5));
 dot.colours <- rep('grey70', nrow(metafor.smd.all.matrix.label.5));
-dot.colours[metafor.smd.all.matrix.label.fdr.5 < 0.01 & metafor.smd.all.matrix.label.5$odd < 1] <- 'dodgerblue2';
-dot.colours[metafor.smd.all.matrix.label.fdr.5 < 0.01 & metafor.smd.all.matrix.label.5$odd > 1] <- 'red';
+dot.colours[metafor.smd.all.matrix.label.fdr.5 < 0.01 & metafor.smd.all.matrix.label.5$odd < 0] <- 'dodgerblue2';
+dot.colours[metafor.smd.all.matrix.label.fdr.5 < 0.01 & metafor.smd.all.matrix.label.5$odd > 0] <- 'red';
 metafor.smd.all.matrix.label.segplot.multi.5 <- BoutrosLab.plotting.general::create.segplot(
     formula = labels ~ ci.min + ci.max,
     data = metafor.smd.all.matrix.label.5,
@@ -1386,18 +2075,18 @@ metafor.smd.all.matrix.label.segplot.multi.5 <- BoutrosLab.plotting.general::cre
     yaxis.lab = metafor.smd.all.matrix.label.5$labels,
     yaxis.fontface = 1,
     xlab.cex = 1.3,
-    xlab.label = expression('Mean difference'),
+    xlab.label = expression('SMD'),
     ylab.cex = 1.3,
     yaxis.cex = 1.1,
     xaxis.cex = 1,
-    xlimits = c(0.35, 1.65),
-    xaxis.lab = c('0.5', '1', '1.5'),
-    xat = c(0.5, 1, 1.5),
+    xlimits = c(-0.8, 0.8),
+    xaxis.lab = c(-0.5, 0, 0.5),
+    xat = c(-0.5, 0, 0.5),
     xaxis.fontface = 1,
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
     segments.col = dot.colours,
-    abline.v = 1,
+    abline.v = 0,
     abline.lty = 3,
     add.rectangle = TRUE,
     xleft.rectangle = -1.7,
@@ -1421,10 +2110,10 @@ metafor.multi.chr.smd.5 <- create.multipanelplot(
     ylab.cex = 0,
     xlab.cex = 0,
     layout.skip = c(FALSE, FALSE),
-    plot.objects.heights = c(5, 2),
+    plot.objects.heights = c(5.5, 2),
     ylab.axis.padding = -7,
     xlab.axis.padding = 1,
-    y.spacing = -3.5,
+    y.spacing = -2.5,
     bottom.padding = -0.5,
     top.padding = -0.5
     );
@@ -1434,8 +2123,8 @@ metafor.multi.chr.smd.5;
 save.outlier.figure(
     metafor.multi.chr.smd.5,
     c('Figure1fgi', 'metafor.multi.chr.smd.5', 'multipanel'),
-    width = 5,
-    height = 6.5
+    width = 4.3,
+    height = 7
     );
 
 
@@ -1457,31 +2146,84 @@ outlier.gene.fdr.all.matador.symbol$Symbol <- substr(rownames(outlier.gene.fdr.a
 outlier.gene.fdr.all.brca.symbol <- outlier.gene.fdr.all.brca;
 outlier.gene.fdr.all.brca.symbol$Symbol <- fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.all.brca.symbol), ]$Symbol
 
+outlier.gene.fdr.all.cheng.symbol <- outlier.gene.fdr.all.cheng;
+outlier.gene.fdr.all.cheng.symbol$Symbol <- fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.all.cheng.symbol), ]$Symbol;
+
+outlier.gene.fdr.all.kao.symbol <- outlier.gene.fdr.all.kao;
+outlier.gene.fdr.all.kao.symbol$Symbol <- fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.all.kao.symbol), ]$Symbol;
+
+outlier.gene.fdr.all.hatzis.symbol <- outlier.gene.fdr.all.hatzis;
+outlier.gene.fdr.all.hatzis.symbol$Symbol <- fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.all.hatzis.symbol), ]$Symbol;
+
+outlier.gene.fdr.all.sjostrom.symbol <- outlier.gene.fdr.all.sjostrom;
+outlier.gene.fdr.all.sjostrom.symbol$Symbol <- fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.all.sjostrom.symbol), ]$Symbol;
+
+
 # p-value combine and then multiple testing correction
 icgc.all.pvalue <- outlier.gene.fdr.all.icgc.symbol[, c('obs.p.value', 'Symbol')];
 ispy.all.pvalue <- outlier.gene.fdr.all.ispy.symbol[, c('new.p.value', 'Symbol')];
 meta.all.pvalue <- outlier.gene.fdr.all.meta.symbol[, c('x.obs.p.value', 'Symbol')];
 metador.all.pvalue <- outlier.gene.fdr.all.matador.symbol[, c('new.p.value', 'Symbol')];
 brca.all.pvalue <- outlier.gene.fdr.all.brca.symbol[, c('new.p.value', 'Symbol')];
+cheng.all.pvalue <- outlier.gene.fdr.all.cheng.symbol[, c('p.value', 'Symbol')];
+kao.all.pvalue <- outlier.gene.fdr.all.kao.symbol[, c('p.value', 'Symbol')];
+hatzis.all.pvalue <- outlier.gene.fdr.all.hatzis.symbol[, c('p.value', 'Symbol')];
+sjostrom.all.pvalue <- outlier.gene.fdr.all.sjostrom.symbol[, c('p.value', 'Symbol')];
 
 colnames(icgc.all.pvalue) <- c('pvalue_icgc', 'Symbol');
 colnames(ispy.all.pvalue) <- c('pvalue_ispy', 'Symbol');
 colnames(meta.all.pvalue) <- c('pvalue_meta', 'Symbol');
 colnames(metador.all.pvalue) <- c('pvalue_metador', 'Symbol');
 colnames(brca.all.pvalue) <- c('pvalue_brca', 'Symbol');
+colnames(cheng.all.pvalue) <- c('pvalue_cheng', 'Symbol');
+colnames(kao.all.pvalue) <- c('pvalue_kao', 'Symbol');
+colnames(hatzis.all.pvalue) <- c('pvalue_hatzis', 'Symbol');
+colnames(sjostrom.all.pvalue) <- c('pvalue_sjostrom', 'Symbol');
 
 library(dplyr);
+
+
+icgc.all.pvalue <- icgc.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+ispy.all.pvalue <- ispy.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+meta.all.pvalue <- meta.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+metador.all.pvalue <- metador.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+brca.all.pvalue <- brca.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+cheng.all.pvalue <- cheng.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+kao.all.pvalue <- kao.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+hatzis.all.pvalue <- hatzis.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
+
+sjostrom.all.pvalue <- sjostrom.all.pvalue %>% 
+    distinct(Symbol, .keep_all = TRUE);
 
 combined.df <- icgc.all.pvalue %>%
     rename(pvalue_icgc = pvalue_icgc) %>%
     full_join(ispy.all.pvalue %>% rename(pvalue_ispy = pvalue_ispy), by = 'Symbol') %>%
     full_join(meta.all.pvalue %>% rename(pvalue_meta = pvalue_meta), by = 'Symbol') %>%
     full_join(metador.all.pvalue %>% rename(pvalue_metador = pvalue_metador), by = 'Symbol') %>%
-    full_join(brca.all.pvalue %>% rename(pvalue_brca = pvalue_brca), by = 'Symbol')
+    full_join(brca.all.pvalue %>% rename(pvalue_brca = pvalue_brca), by = 'Symbol') %>%
+    full_join(cheng.all.pvalue %>% rename(pvalue_cheng = pvalue_cheng), by = 'Symbol') %>%
+    full_join(kao.all.pvalue %>% rename(pvalue_kao = pvalue_kao), by = 'Symbol') %>%
+    full_join(hatzis.all.pvalue %>% rename(pvalue_hatzis = pvalue_hatzis), by = 'Symbol') %>%
+    full_join(sjostrom.all.pvalue %>% rename(pvalue_sjostrom = pvalue_sjostrom), by = 'Symbol')
 
 
-all.pvalue.df <- combined.df[, c(1, 3, 4, 5, 6, 2)];
-combine.fisher.pvalue.all <- apply(all.pvalue.df[, 1:5], 1, function(x) {
+all.pvalue.df <- combined.df[, c(1, 3, 4, 5, 6, 7, 8, 9, 10, 2)];
+combine.fisher.pvalue.all <- apply(all.pvalue.df[, 1:9], 1, function(x) {
     fisher(na.omit(x))$p
     });
 combine.fisher.pvalue.all.fdr <- p.adjust(combine.fisher.pvalue.all, method = 'BH');
@@ -1496,13 +2238,21 @@ gene.position.meta.all.location <- gene.position.all$meta[, 2:5];
 gene.position.brca.all.location <- gene.position.all$brca[, 2:5];
 gene.position.metador.all.location <- gene.position.all$metador[, 2:5];
 gene.position.icgc.all.location <- gene.position.all$icgc[, 2:5];
+gene.position.cheng.all.location <- gene.position.all$cheng[, 2:5];
+gene.position.kao.all.location <- gene.position.all$kao[, 2:5];
+gene.position.hatzis.all.location <- gene.position.all$hatzis[, 2:5];
+gene.position.sjostrom.all.location <- gene.position.all$sjostrom[, 2:5];
 
 all.gene.location <- rbind(
     gene.position.meta.all.location,
     gene.position.brca.all.location,
     gene.position.ispy.all.location,
     gene.position.metador.all.location,
-    gene.position.icgc.all.location
+    gene.position.icgc.all.location,
+    gene.position.cheng.all.location,
+    gene.position.kao.all.location,
+    gene.position.hatzis.all.location,
+    gene.position.sjostrom.all.location
     );
 
 all.gene.location.filter <- all.gene.location[!grepl('^CHR', all.gene.location$chromosome_name), ];
@@ -1562,9 +2312,9 @@ outlier.manhattan <- create.manhattanplot(
     yaxis.cex = 1.1,
     xlab.cex = 1.3,
     ylab.cex = 1.3,
-    yat = seq(0, 15, 5),
-    yaxis.lab = expression(10^0, 10^-5, 10^-10, 10^-15),
-    ylimits = c(-0.1, 18),
+    yat = seq(0, 30, 10),
+    yaxis.lab = expression(10^0, 10^-10, 10^-20, 10^-30),
+    ylimits = c(-0.1, 34),
     xlimits = c(-max(chr.break) / 50, max(chr.break) * 1.02),
     col = chr.colours,
     pch = 20,
@@ -1573,17 +2323,17 @@ outlier.manhattan <- create.manhattanplot(
     xleft.rectangle = chr.break[seq(1, length(chr.break) - 1, 2)],
     ybottom.rectangle = -1,
     xright.rectangle = chr.break[c(seq(2, length(chr.break) - 1, 2), 24)],
-    ytop.rectangle = 19,
+    ytop.rectangle = 36,
     col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     description = 'Manhattan plot created using BoutrosLab.plotting.general',
     resolution = 200
     );
-
+outlier.manhattan;
 
 save.outlier.figure(
     outlier.manhattan,
-    c('Figure1fgi', 'combine_outlier', 'manhattan'),
+    c('Figure1fgi_9dataset', 'combine_outlier', 'manhattan'),
     width = 11,
     height = 4.5
     );

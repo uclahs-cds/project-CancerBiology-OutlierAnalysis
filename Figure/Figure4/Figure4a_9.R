@@ -33,13 +33,21 @@ outlier.patient.tag.01.meta.sum.overlap <- outlier.symbol$metabric[match(ccle.sa
 outlier.patient.tag.01.ispy.sum.overlap <- outlier.symbol$ispy[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$ispy)];
 outlier.patient.tag.01.matador.sum.overlap <- outlier.symbol$matador[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$matador)];
 outlier.patient.tag.01.icgc.sum.overlap <- outlier.symbol$icgc[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$icgc)];
+outlier.patient.tag.01.cheng.sum.overlap <- outlier.symbol$cheng[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$cheng)];
+outlier.patient.tag.01.kao.sum.overlap <- outlier.symbol$kao[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$kao)];
+outlier.patient.tag.01.hatzis.sum.overlap <- outlier.symbol$hatzis[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$hatzis)];
+outlier.patient.tag.01.sjostrom.sum.overlap <- outlier.symbol$sjostrom[match(ccle.sample.outlier.status.fdr.05.five.symbol, outlier.symbol$sjostrom)];
 
 ccle.overlap.outlier.05.five.tissue <- data.frame(cbind(
-    brca = outlier.patient.tag.01.brca.sum.overlap,
     meta = outlier.patient.tag.01.meta.sum.overlap,
+    brca = outlier.patient.tag.01.brca.sum.overlap,
     ispy = outlier.patient.tag.01.ispy.sum.overlap,
+    sjostrom = outlier.patient.tag.01.sjostrom.sum.overlap,
+    cheng = outlier.patient.tag.01.cheng.sum.overlap,
     matador = outlier.patient.tag.01.matador.sum.overlap,
-    icgc = outlier.patient.tag.01.icgc.sum.overlap
+    icgc = outlier.patient.tag.01.icgc.sum.overlap,
+    kao = outlier.patient.tag.01.kao.sum.overlap,
+    hatzis = outlier.patient.tag.01.hatzis.sum.overlap
     ));
 rownames(ccle.overlap.outlier.05.five.tissue) <- ccle.sample.outlier.status.fdr.05.five.symbol;
 
@@ -115,33 +123,42 @@ main.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
 
 
 ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore <- data.frame(ccle.overlap.outlier.05.five.tissue.0.1.order.zscore);
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca > 0, 2, 1);
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta > 0, 3, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$brca > 0, 3, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$meta > 0, 2, 1);
 ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$ispy <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$ispy > 0, 4, 1);
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador > 0, 5, 1);
-ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc > 0, 6, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$sjostrom <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$sjostrom > 0, 5, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$cheng <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$cheng > 0, 6, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$matador > 0, 7, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$icgc > 0, 8, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$kao <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$kao > 0, 9, 1);
+ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$hatzis <- ifelse(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore$hatzis > 0, 10, 1);
 
-five.col <- c(
-    grDevices::adjustcolor(c('firebrick3'), alpha.f = 0.7),
-    grDevices::adjustcolor(c('deepskyblue4'), alpha.f = 0.7),
-    grDevices::adjustcolor(c('gold2'), alpha.f = 0.7),
-    grDevices::adjustcolor(c('darkgreen'), alpha.f = 0.7),
-    grDevices::adjustcolor(c('mediumpurple'), alpha.f = 0.7)
+
+nine.col <- c(
+    grDevices::adjustcolor('deepskyblue4', alpha.f = 0.7),
+    grDevices::adjustcolor('firebrick3', alpha.f = 0.7),
+    grDevices::adjustcolor('gold2', alpha.f = 0.7),
+    grDevices::adjustcolor('darkgreen', alpha.f = 0.7),
+    grDevices::adjustcolor('mediumpurple3', alpha.f = 0.7),
+    grDevices::adjustcolor(c('darkorange2'), alpha.f = 0.7), 
+    grDevices::adjustcolor(c('darkblue'), alpha.f = 0.7), 
+    grDevices::adjustcolor(c('lightpink2'), alpha.f = 0.8),
+    grDevices::adjustcolor(c('yellowgreen'), alpha.f = 0.8)
     );
-all.col <- c('grey95', five.col);
+all.col <- c('grey95', nine.col);
 
 sub.hetmap <- BoutrosLab.plotting.general:::create.heatmap(
     x = t(ccle.overlap.outlier.05.five.tissue.0.1.order.col.zscore),
     clustering.method = 'none',
     colour.scheme = all.col,
-    total.colours = 7,
+    total.colours = 11,
     row.colour = 'black',
     col.colour = 'black',
     grid.row = TRUE,
     grid.col = TRUE,
     yaxis.tck = 0,
     xaxis.tck = 0,
-    xaxis.lab = c('TCGA-BRCA', 'METABRIC', 'I-SPY2', 'MATADOR', 'ICGC BRCA-EU'),
+    xaxis.lab = rev(c( 'Hatzis', 'Kao', 'ICGC\n BRCA-EU', 'MATADOR', 'Cheng', 'Sjostrom', 'ISPY-2', 'TCGA-BRCA', 'METABRIC')),
     xaxis.fontface = 1,
     xaxis.rot = 90,
     xaxis.cex = 1,
@@ -161,9 +178,9 @@ legend.sample.grob <- BoutrosLab.plotting.general:::legend.grob(
             height = 3
             ),
         legend = list(
-            colours = five.col,
+            colours = nine.col,
             title = expression(underline('Datasets')),
-            labels = c('TCGA-BRCA', 'METABRIC', 'I-SPY2', 'MATADOR', 'ICGC'),
+            labels = rev(c( 'Hatzis', 'Kao', 'ICGC BRCA-EU', 'MATADOR', 'Cheng', 'Sjostrom', 'ISPY-2', 'TCGA-BRCA', 'METABRIC')),
             size = 2,
             label.cex = 1,
             continuous = FALSE,
@@ -194,7 +211,7 @@ heat.all <- BoutrosLab.plotting.general:::create.multiplot(
     ylab.label = NULL,
     layout.skip = c(FALSE, FALSE),
     plot.layout = c(2, 1),
-    panel.widths = c(1, 0.22),
+    panel.widths = c(1, 0.3),
     ylab.padding = 2,
     xlab.to.xaxis.padding = -1.5,
     x.spacing = 0.3,

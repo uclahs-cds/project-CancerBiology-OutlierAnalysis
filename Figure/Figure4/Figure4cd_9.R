@@ -176,7 +176,7 @@ save.outlier.figure(
     ccle.protein.box,
     c('Figure4cd', 'CCLE', 'outlier', 'protein', 'box'),
     width = 3.5,
-    height = 6.5
+    height = 5.5
     );
 
 

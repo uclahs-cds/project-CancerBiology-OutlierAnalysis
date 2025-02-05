@@ -12,7 +12,11 @@ outlier.gene.fdr.01 <- list(
     meta = outlier.gene.fdr.all.meta[outlier.gene.fdr.all.meta$fdr < 0.01, ],
     matador = outlier.gene.fdr.all.matador[outlier.gene.fdr.all.matador$fdr < 0.01, ],
     ispy = outlier.gene.fdr.all.ispy[outlier.gene.fdr.all.ispy$fdr < 0.01, ],
-    icgc = outlier.gene.fdr.all.icgc[outlier.gene.fdr.all.icgc$fdr < 0.01, ]
+    icgc = outlier.gene.fdr.all.icgc[outlier.gene.fdr.all.icgc$fdr < 0.01, ],
+    kao = outlier.gene.fdr.all.kao[outlier.gene.fdr.all.kao$fdr < 0.01, ],
+    cheng = outlier.gene.fdr.all.cheng[outlier.gene.fdr.all.cheng$fdr < 0.01, ],
+    hatzis = outlier.gene.fdr.all.hatzis[outlier.gene.fdr.all.hatzis$fdr < 0.01, ],
+    sjostrom = outlier.gene.fdr.all.sjostrom[outlier.gene.fdr.all.sjostrom$fdr < 0.01, ]
     )
 
 # Identify the position of underscores in row names of the matador dataset
@@ -24,7 +28,11 @@ outlier.symbol <- list(
     brca = fpkm.tumor.symbol.filter.brca[rownames(outlier.gene.fdr.01$brca), ]$Symbol,
     matador = substring(rownames(outlier.gene.fdr.01$matador), pos + 1),
     ispy = rownames(outlier.gene.fdr.01$ispy),
-    icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol
+    icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol,
+    kao = fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.01.kao), ]$Symbol,
+    cheng = fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.01.cheng), ]$Symbol,
+    hatzis = fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.01.hatzis), ]$Symbol,
+    sjostrom = fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.01.sjostrom), ]$Symbol
     )
 
 # Combine unique symbols across all datasets
@@ -33,7 +41,11 @@ outlier.symbol$unique <- na.omit(unique(c(
     outlier.symbol$brca,
     outlier.symbol$matador,
     outlier.symbol$ispy,
-    outlier.symbol$icgc
+    outlier.symbol$icgc,
+    outlier.symbol$kao,
+    outlier.symbol$cheng,
+    outlier.symbol$hatzis,
+    outlier.symbol$sjostrom
     )))
 
 ### MATCH OUTLIER PATIENTS ACROSS DATASETS #####################################
@@ -76,27 +88,59 @@ outlier.patient.tag.01.icgc.match.five <- outlier.patient.tag.01.icgc[
     match(outlier.symbol$unique, outlier.patient.tag.01.icgc.symbol),
     ]
 
+
+# 6. Kao
+# Match unique symbols to kao outlier patients
+outlier.patient.tag.01.kao.symbol <- fpkm.tumor.symbol.filter.kao[rownames(outlier.patient.tag.01.kao), ]$Symbol
+outlier.patient.tag.01.kao.match.five <- outlier.patient.tag.01.kao[
+    match(outlier.symbol$unique, outlier.patient.tag.01.kao.symbol),
+    ]
+
+# 7. cheng
+# Match unique symbols to cheng outlier patients
+outlier.patient.tag.01.cheng.symbol <- fpkm.tumor.symbol.filter.cheng[rownames(outlier.patient.tag.01.cheng), ]$Symbol
+outlier.patient.tag.01.cheng.match.five <- outlier.patient.tag.01.cheng[
+    match(outlier.symbol$unique, outlier.patient.tag.01.cheng.symbol),
+    ]
+
+# 8. Hatzis
+# Match unique symbols to hatzis outlier patients
+outlier.patient.tag.01.hatzis.symbol <- fpkm.tumor.symbol.filter.hatzis[rownames(outlier.patient.tag.01.hatzis), ]$Symbol
+outlier.patient.tag.01.hatzis.match.five <- outlier.patient.tag.01.hatzis[
+    match(outlier.symbol$unique, outlier.patient.tag.01.hatzis.symbol),
+    ]
+
+# 9. sjostrom
+# Match unique symbols to sjostrom outlier patients
+outlier.patient.tag.01.sjostrom.symbol <- fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.patient.tag.01.sjostrom), ]$Symbol
+outlier.patient.tag.01.sjostrom.match.five <- outlier.patient.tag.01.sjostrom[
+    match(outlier.symbol$unique, outlier.patient.tag.01.sjostrom.symbol),
+    ]
 ### COMBINE DATA ###############################################################
 # Combine matched patient data from all sources into a single data frame
-outlier.patient.all.five.01 <- data.frame(
+outlier.patient.all.nine.01 <- data.frame(
     cbind(
         outlier.patient.tag.01.brca.match.five,
         outlier.patient.tag.01.meta.match.five,
         outlier.patient.tag.01.ispy.match.five,
         outlier.patient.tag.01.metador.match.five,
-        outlier.patient.tag.01.icgc.match.five
+        outlier.patient.tag.01.icgc.match.five,
+        outlier.patient.tag.01.kao.match.five,
+        outlier.patient.tag.01.cheng.match.five,
+        outlier.patient.tag.01.hatzis.match.five,
+        outlier.patient.tag.01.sjostrom.match.five
         )
     )
 
 # Set row names of the combined data frame to unique outlier symbols
-rownames(outlier.patient.all.five.01) <- outlier.symbol$unique
+rownames(outlier.patient.all.nine.01) <- outlier.symbol$unique
 
 ### SAVE VARIABLES #############################################################
 # Cache the important variables for later use
 cache.multiple.computed.variables(c(
     'outlier.symbol',
     'outlier.gene.fdr.01',
-    'outlier.patient.all.five.01'
+    'outlier.patient.all.nine.01'
     ))
 
 # Save the session profile for reproducibility

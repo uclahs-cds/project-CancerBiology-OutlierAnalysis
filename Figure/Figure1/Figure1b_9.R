@@ -20,7 +20,7 @@ library(outlierAnalysisSupport);
 attach(get.outlier.data.path());
 
 
-genes <- c('IGF2', 'TMEM30A', 'NRAS', 'IGF2R', 'GAPDH', 'B2M');
+genes <- c('FMO3', 'CUTC', 'PRKD1', 'PRKD2', 'GAPDH', 'B2M');
 
 # fpkm.tumor.symbol.filter.XXX: RNA abundance matrix with rows of genes and
 # columns of patients. Row names are Ensembl IDs.
@@ -42,14 +42,22 @@ unique.datasets <- list(
         'fpkm.tumor.symbol.filter.meta.symbol',
         'fpkm.tumor.symbol.filter.brca',
         'fpkm.tumor.symbol.filter.ispy',
-        'fpkm.tumor.symbol.filter.symbol.icgc'
+        'fpkm.tumor.symbol.filter.symbol.icgc',
+        'fpkm.tumor.symbol.filter.kao',
+        'fpkm.tumor.symbol.filter.cheng',
+        'fpkm.tumor.symbol.filter.hatzis',
+        'fpkm.tumor.symbol.filter.sjostrom'
         ),
     outlier.dataset.name = c(
         'outlier.patient.tag.01.metador',
         'outlier.patient.tag.01.meta',
         'outlier.patient.tag.01.brca',
         'outlier.patient.tag.01.ispy',
-        'outlier.patient.tag.01.icgc'
+        'outlier.patient.tag.01.icgc',
+        'outlier.patient.tag.01.kao',
+        'outlier.patient.tag.01.cheng',
+        'outlier.patient.tag.01.hatzis',
+        'outlier.patient.tag.01.sjostrom'
         )
     );
 
@@ -124,7 +132,7 @@ stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
     xaxis.cex = 1.1,
     yaxis.cex = 1,
     xaxis.lab = genes,
-    yat = seq(0, 200, 20),
+    yat = seq(0, 300, 50),
     xlab.cex = 1.3,
     ylab.cex = 1.3,
     cex = gene.data$size,
@@ -132,7 +140,7 @@ stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
     xleft.rectangle = c(1.5, 3.5, 5.5),
     xright.rectangle = c(2.5, 4.5, 6.5),
     ybottom.rectangle = -50,
-    ytop.rectangle = 1000,
+    ytop.rectangle = 300,
     col.rectangle = 'grey',
     alpha.rectangle = 0.25,
     ylab.label = expression('z-score'),
@@ -169,7 +177,7 @@ stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
                     )
                 ),
             x = 0.04,
-            y = -0.34
+            y = -0.24
             )
         )
     );

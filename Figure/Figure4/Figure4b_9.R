@@ -41,6 +41,18 @@ outlier.patient.tag.01.metador.gene.per.patient.sum <- apply(outlier.patient.tag
 # 5. ICGC BRCA-EU
 outlier.patient.tag.01.icgc.gene.per.patient.sum <- apply(outlier.patient.tag.01.icgc, 2, sum);
 
+# 6. Cheng
+outlier.patient.tag.01.cheng.gene.per.patient.sum <- apply(outlier.patient.tag.01.cheng, 2, sum);
+
+# 7. Kao
+outlier.patient.tag.01.kao.gene.per.patient.sum <- apply(outlier.patient.tag.01.kao, 2, sum);
+
+# 8. Hatzis
+outlier.patient.tag.01.hatzis.gene.per.patient.sum <- apply(outlier.patient.tag.01.hatzis, 2, sum);
+
+# 9. Sjostrom
+outlier.patient.tag.01.sjostrom.gene.per.patient.sum <- apply(outlier.patient.tag.01.sjostrom, 2, sum);
+
 # Number of outlier genes per patient
 outlier.patient.number.violin.tissue <- data.frame(
     out = c(
@@ -48,7 +60,11 @@ outlier.patient.number.violin.tissue <- data.frame(
         outlier.patient.tag.01.meta.gene.per.patient.sum,
         outlier.patient.tag.01.ispy.gene.per.patient.sum,
         outlier.patient.tag.01.metador.gene.per.patient.sum,
-        outlier.patient.tag.01.icgc.gene.per.patient.sum
+        outlier.patient.tag.01.icgc.gene.per.patient.sum,
+        outlier.patient.tag.01.cheng.gene.per.patient.sum,
+        outlier.patient.tag.01.kao.gene.per.patient.sum,
+        outlier.patient.tag.01.hatzis.gene.per.patient.sum,
+        outlier.patient.tag.01.sjostrom.gene.per.patient.sum
         ),
     strip = 'tissue'
     );
@@ -103,7 +119,7 @@ outlier.number.density <- create.densityplot(
                         fill = c(grDevices::adjustcolor(c('navy'), alpha.f = 1), grDevices::adjustcolor(c(ccle.col), alpha.f = 1))
                         ),
                     text = list(
-                        lab = c('CCLE (n = 45)', 'All patients (n = 4592)')
+                        lab = c('CCLE (n = 45)', 'All patients (n = 7,019)')
                         ),
                     padding.text = c(0, 5, 0),
                     cex = 1

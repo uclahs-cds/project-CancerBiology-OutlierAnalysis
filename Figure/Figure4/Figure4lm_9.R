@@ -278,6 +278,7 @@ sanger.zscore.drug.breast.match.out.non.each.df <- data.frame(
     non = sanger.zscore.drug.breast.match.non.df
     );
 rownames(sanger.zscore.drug.breast.match.out.non.each.df) <- rownames(sanger.zscore.drug.breast.match.out.df);
+sanger.zscore.drug.breast.match.out.non.each.df <- sanger.zscore.drug.breast.match.out.non.each.df[!(duplicated(substr(rownames(sanger.zscore.drug.breast.match.out.non.each.df), 1, 9))),]
 
 # Prepare data for boxplot
 z.score.box.each <- data.frame(

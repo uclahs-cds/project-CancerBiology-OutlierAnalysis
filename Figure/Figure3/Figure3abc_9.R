@@ -1,11 +1,11 @@
 ### HISTORY ######################################################################
-# This script performs meta-analysis to compare the tumour stages across
+# This script performs meta-analysis to compare the tumour stages and subtypes across
 # multiple breast cancer subtypes.
 # Date: 2024-08-15
 
 ### DESCRIPTION ##################################################################
 # This script analyzes tumor stage data across different breast cancer subtypes
-# using data from TCGA-BRCA, METABRIC, and ICGC BRCA-EU datasets. It performs
+# using data from all nine datasets. It performs
 # Fisher's exact tests, calculates odds ratios, and conducts meta-analysis
 # to compare tumor stages across subtypes. The script generates visualizations
 # of the results, including dotmaps for each subtype and for all patients.
@@ -329,6 +329,208 @@ p.value.stage.pseudo.lumb.ci.sub.t1.icgc <- lumb.results.icgc$ci.intervals;
 
 
 
+
+### 4. cheng
+outlier.patient.tag.01.cheng.sum <- apply(outlier.patient.tag.01.cheng, 2, sum)
+
+
+perform.fisher.test.cheng <- function(data, subtype = NULL) {
+    if (!is.null(subtype)) {
+        data <- data[data$pam50 == subtype, ];
+        }
+
+    stages <- c(1, 2, 3);
+    p.values <- numeric();
+    odd.ratios <- numeric();
+    ci.intervals <- matrix(nrow = 0, ncol = 2);
+
+    for (i in stages[-1]) {
+        table.1 <- sum(data$patient == 0 & data$stage == stages[1]);
+        table.2 <- sum(data$patient == 0 & data$stage == i);
+        table.3 <- sum(data$patient > 0 & data$stage == stages[1]);
+        table.4 <- sum(data$patient > 0 & data$stage == i);
+
+        fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = 'two.sided')
+
+        p.values <- c(p.values, fisher.result$p.value);
+        odd.ratios <- c(odd.ratios, fisher.result$estimate);
+        ci.intervals <- rbind(ci.intervals, fisher.result$conf.int);
+        }
+
+    p.values.fdr <- p.adjust(p.values, method = 'BH');
+
+    return(list(p.values = p.values, odd.ratios = odd.ratios, ci.intervals = ci.intervals, p.values.fdr = p.values.fdr));
+    }
+
+# Data preparation
+os.data.stage.pseudo.cheng <- data.frame(
+    patient = outlier.patient.tag.01.cheng.sum,
+    pam50 = patient.cheng$subtype.genefu,
+    stage = patient.cheng$stage
+    );
+
+os.data.stage.pseudo.cheng[, 1] <- as.numeric(os.data.stage.pseudo.cheng[, 1]);
+# os.data.stage.pseudo.cheng[, 2] <- as.numeric(os.data.stage.pseudo.cheng[, 2]);
+os.data.stage.pseudo.cheng[, 3] <- as.numeric(os.data.stage.pseudo.cheng[, 3]);
+
+os.data.stage.pseudo.cheng.stage <- data.frame(table(os.data.stage.pseudo.cheng$stage));
+
+
+# chengbric - All subtypes
+cheng.results <- perform.fisher.test.cheng(os.data.stage.pseudo.cheng);
+p.value.stage.pseudo.odd.sub.t1.cheng <- cheng.results$odd.ratios;
+p.value.stage.pseudo.ci.sub.t1.cheng <- cheng.results$ci.intervals;
+
+# Basal subtype
+basal.cheng.results <- perform.fisher.test.cheng(os.data.stage.pseudo.cheng, 'Basal');
+p.value.stage.pseudo.basal.odd.sub.t1.cheng <- basal.cheng.results$odd.ratios;
+p.value.stage.pseudo.basal.ci.sub.t1.cheng <- basal.cheng.results$ci.intervals;
+
+# Her2 subtype
+her2.cheng.results <- perform.fisher.test.cheng(os.data.stage.pseudo.cheng, 'Her2');
+p.value.stage.pseudo.her2.odd.sub.t1.cheng <- her2.cheng.results$odd.ratios;
+p.value.stage.pseudo.her2.ci.sub.t1.cheng <- her2.cheng.results$ci.intervals;
+
+# Luminal A subtype
+luma.cheng.results <- perform.fisher.test.cheng(os.data.stage.pseudo.cheng, 'LumA');
+p.value.stage.pseudo.luma.odd.sub.t1.cheng <- luma.cheng.results$odd.ratios;
+p.value.stage.pseudo.luma.ci.sub.t1.cheng <- luma.cheng.results$ci.intervals;
+
+# Luminal B subtype
+lumb.cheng.results <- perform.fisher.test.cheng(os.data.stage.pseudo.cheng, 'LumB');
+p.value.stage.pseudo.lumb.odd.sub.t1.cheng <- lumb.cheng.results$odd.ratios;
+p.value.stage.pseudo.lumb.ci.sub.t1.cheng <- lumb.cheng.results$ci.intervals;
+
+# Normal subtype
+normal.cheng.results <- perform.fisher.test.cheng(os.data.stage.pseudo.cheng, 'Normal');
+p.value.stage.pseudo.normal.odd.sub.t1.cheng <- normal.cheng.results$odd.ratios;
+p.value.stage.pseudo.normal.ci.sub.t1.cheng <- normal.cheng.results$ci.intervals;
+
+
+### 5. hatzis
+outlier.patient.tag.01.hatzis.sum <- apply(outlier.patient.tag.01.hatzis, 2, sum)
+
+
+perform.fisher.test.hatzis <- function(data, subtype = NULL) {
+    if (!is.null(subtype)) {
+        data <- data[data$pam50 == subtype, ];
+        }
+
+    data <- na.omit(data);
+    stages <- c(1, 2, 3);
+    p.values <- numeric();
+    odd.ratios <- numeric();
+    ci.intervals <- matrix(nrow = 0, ncol = 2);
+
+    for (i in stages[-1]) {
+        table.1 <- sum(data$patient == 0 & data$stage == stages[1]);
+        table.2 <- sum(data$patient == 0 & data$stage == i);
+        table.3 <- sum(data$patient > 0 & data$stage == stages[1]);
+        table.4 <- sum(data$patient > 0 & data$stage == i);
+        
+        table.1[is.na(table.1)] <- 0;
+        table.2[is.na(table.2)] <- 0;
+        table.3[is.na(table.3)] <- 0;
+        table.4[is.na(table.4)] <- 0;
+
+        fisher.result <- fisher.test(matrix(c(table.1 + 1, table.2 + 1, table.3 + 1, table.4 + 1), nrow = 2), alternative = 'two.sided')
+
+        p.values <- c(p.values, fisher.result$p.value);
+        odd.ratios <- c(odd.ratios, fisher.result$estimate);
+        ci.intervals <- rbind(ci.intervals, fisher.result$conf.int);
+        }
+
+    p.values.fdr <- p.adjust(p.values, method = 'BH');
+
+    return(list(p.values = p.values, odd.ratios = odd.ratios, ci.intervals = ci.intervals, p.values.fdr = p.values.fdr));
+    }
+
+# Data preparation
+os.data.stage.pseudo.hatzis <- data.frame(
+    patient = outlier.patient.tag.01.hatzis.sum,
+    pam50 = patient.hatzis$subtype,
+    stage = substr(patient.hatzis$stage, 1, 1)
+    );
+
+os.data.stage.pseudo.hatzis[, 1] <- as.numeric(os.data.stage.pseudo.hatzis[, 1]);
+# os.data.stage.pseudo.hatzis[, 2] <- as.numeric(os.data.stage.pseudo.hatzis[, 2]);
+os.data.stage.pseudo.hatzis[, 3] <- as.numeric(os.data.stage.pseudo.hatzis[, 3]);
+
+os.data.stage.pseudo.hatzis.stage <- data.frame(table(os.data.stage.pseudo.hatzis$stage));
+
+
+# hatzisbric - All subtypes
+hatzis.results <- perform.fisher.test.hatzis(os.data.stage.pseudo.hatzis);
+p.value.stage.pseudo.odd.sub.t1.hatzis <- hatzis.results$odd.ratios;
+p.value.stage.pseudo.ci.sub.t1.hatzis <- hatzis.results$ci.intervals;
+
+# Basal subtype
+basal.hatzis.results <- perform.fisher.test.hatzis(os.data.stage.pseudo.hatzis, 'Basal');
+p.value.stage.pseudo.basal.odd.sub.t1.hatzis <- basal.hatzis.results$odd.ratios;
+p.value.stage.pseudo.basal.ci.sub.t1.hatzis <- basal.hatzis.results$ci.intervals;
+
+# # Her2 subtype
+# her2.hatzis.results <- perform.fisher.test.hatzis(os.data.stage.pseudo.hatzis, 'Her2');
+# p.value.stage.pseudo.her2.odd.sub.t1.hatzis <- her2.hatzis.results$odd.ratios;
+# p.value.stage.pseudo.her2.ci.sub.t1.hatzis <- her2.hatzis.results$ci.intervals;
+
+# # Luminal A subtype
+# luma.hatzis.results <- perform.fisher.test.hatzis(os.data.stage.pseudo.hatzis, 'LumA');
+# p.value.stage.pseudo.luma.odd.sub.t1.hatzis <- luma.hatzis.results$odd.ratios;
+# p.value.stage.pseudo.luma.ci.sub.t1.hatzis <- luma.hatzis.results$ci.intervals;
+
+# # Luminal B subtype
+# lumb.hatzis.results <- perform.fisher.test.hatzis(os.data.stage.pseudo.hatzis, 'LumB');
+# p.value.stage.pseudo.lumb.odd.sub.t1.hatzis <- lumb.hatzis.results$odd.ratios;
+# p.value.stage.pseudo.lumb.ci.sub.t1.hatzis <- lumb.hatzis.results$ci.intervals;
+
+# # Normal subtype
+# normal.hatzis.results <- perform.fisher.test.hatzis(os.data.stage.pseudo.hatzis, 'Normal');
+# p.value.stage.pseudo.normal.odd.sub.t1.hatzis <- normal.hatzis.results$odd.ratios;
+# p.value.stage.pseudo.normal.ci.sub.t1.hatzis <- normal.hatzis.results$ci.intervals;
+
+
+
+data.frame(table(os.data.stage.pseudo.hatzis[os.data.stage.pseudo.hatzis$pam50 == 'Basal',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.hatzis[os.data.stage.pseudo.hatzis$pam50 == 'Her2',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.hatzis[os.data.stage.pseudo.hatzis$pam50 == 'LumA',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.hatzis[os.data.stage.pseudo.hatzis$pam50 == 'LumB',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.hatzis[os.data.stage.pseudo.hatzis$pam50 == 'Normal',][,c(3)]));
+
+
+
+data.frame(table(os.data.stage.pseudo.cheng[os.data.stage.pseudo.cheng$pam50 == 'Basal',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.cheng[os.data.stage.pseudo.cheng$pam50 == 'Her2',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.cheng[os.data.stage.pseudo.cheng$pam50 == 'LumA',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.cheng[os.data.stage.pseudo.cheng$pam50 == 'LumB',][,c(3)]));
+data.frame(table(os.data.stage.pseudo.cheng[os.data.stage.pseudo.cheng$pam50 == 'Normal',][,c(3)]));
+
+
+
+
+data.frame(table(os.data.stage.pseudo.brca[os.data.stage.pseudo.brca$pam50 == 'Basal',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.brca[os.data.stage.pseudo.brca$pam50 == 'Her2',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.brca[os.data.stage.pseudo.brca$pam50 == 'LumA',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.brca[os.data.stage.pseudo.brca$pam50 == 'LumB',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.brca[os.data.stage.pseudo.brca$pam50 == 'Normal',][,c(6)]));
+
+
+data.frame(table(os.data.stage.pseudo.meta[os.data.stage.pseudo.meta$pam50 == 'Basal',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.meta[os.data.stage.pseudo.meta$pam50 == 'Her2',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.meta[os.data.stage.pseudo.meta$pam50 == 'LumA',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.meta[os.data.stage.pseudo.meta$pam50 == 'LumB',][,c(6)]));
+data.frame(table(os.data.stage.pseudo.meta[os.data.stage.pseudo.meta$pam50 == 'Normal',][,c(6)]));
+
+
+data.frame(table(os.data.stage.pseudo.icgc[os.data.stage.pseudo.icgc$subtype == 1,][,c(3)]));
+data.frame(table(os.data.stage.pseudo.icgc[os.data.stage.pseudo.icgc$subtype == 2,][,c(3)]));
+data.frame(table(os.data.stage.pseudo.icgc[os.data.stage.pseudo.icgc$subtype == 3,][,c(3)]));
+data.frame(table(os.data.stage.pseudo.icgc[os.data.stage.pseudo.icgc$subtype == 4,][,c(3)]));
+data.frame(table(os.data.stage.pseudo.icgc[os.data.stage.pseudo.icgc$subtype == 5,][,c(3)]));
+
+
+
+
 ### Meta-analysis
 # Calculate log odds and standard error
 calculate.ln.odd.se <- function(odd, ci) {
@@ -388,48 +590,54 @@ perform.meta.analysis <- function(ln.odd, se.odd) {
 ln.odd.brca.basal <- calculate.ln.odd.se(p.value.stage.pseudo.basal.odd.sub.t1.brca, p.value.stage.pseudo.basal.ci.sub.t1.brca);
 ln.odd.meta.basal <- calculate.ln.odd.se(p.value.stage.pseudo.basal.odd.sub.t1.meta, p.value.stage.pseudo.basal.ci.sub.t1.meta);
 ln.odd.icgc.basal <- calculate.ln.odd.se(p.value.stage.pseudo.basal.odd.sub.t1.icgc, p.value.stage.pseudo.basal.ci.sub.t1.icgc);
+ln.odd.cheng.basal <- calculate.ln.odd.se(p.value.stage.pseudo.basal.odd.sub.t1.cheng, p.value.stage.pseudo.basal.ci.sub.t1.cheng);
+ln.odd.hatzis.basal <- calculate.ln.odd.se(p.value.stage.pseudo.basal.odd.sub.t1.hatzis, p.value.stage.pseudo.basal.ci.sub.t1.hatzis);
 
 basal.results <- perform.meta.analysis(
-    list(ln.odd.brca.basal$ln.odd, ln.odd.meta.basal$ln.odd, ln.odd.icgc.basal$ln.odd),
-    list(ln.odd.brca.basal$se.odd, ln.odd.meta.basal$se.odd, ln.odd.icgc.basal$se.odd)
+    list(ln.odd.brca.basal$ln.odd, ln.odd.meta.basal$ln.odd, ln.odd.icgc.basal$ln.odd, ln.odd.cheng.basal$ln.odd, ln.odd.hatzis.basal$ln.odd),
+    list(ln.odd.brca.basal$se.odd, ln.odd.meta.basal$se.odd, ln.odd.icgc.basal$se.odd, ln.odd.cheng.basal$se.odd, ln.odd.hatzis.basal$se.odd)
     );
 
-# 2. Her2 (excluding ICGC)
+# 2. Her2 (excluding ICGC/hatzis)
 ln.odd.brca.her2 <- calculate.ln.odd.se(p.value.stage.pseudo.her2.odd.sub.t1.brca, p.value.stage.pseudo.her2.ci.sub.t1.brca);
 ln.odd.meta.her2 <- calculate.ln.odd.se(p.value.stage.pseudo.her2.odd.sub.t1.meta, p.value.stage.pseudo.her2.ci.sub.t1.meta);
+ln.odd.cheng.her2 <- calculate.ln.odd.se(p.value.stage.pseudo.her2.odd.sub.t1.cheng, p.value.stage.pseudo.her2.ci.sub.t1.cheng);
 
 her2.results <- perform.meta.analysis(
-    list(ln.odd.brca.her2$ln.odd, ln.odd.meta.her2$ln.odd),
-    list(ln.odd.brca.her2$se.odd, ln.odd.meta.her2$se.odd)
+    list(ln.odd.brca.her2$ln.odd, ln.odd.meta.her2$ln.odd, ln.odd.cheng.her2$ln.odd),
+    list(ln.odd.brca.her2$se.odd, ln.odd.meta.her2$se.odd, ln.odd.cheng.her2$se.odd)
     );
 
-# 3. LumA
+# 3. LumA (excluding hatzis)
 ln.odd.brca.luma <- calculate.ln.odd.se(p.value.stage.pseudo.luma.odd.sub.t1.brca, p.value.stage.pseudo.luma.ci.sub.t1.brca);
 ln.odd.meta.luma <- calculate.ln.odd.se(p.value.stage.pseudo.luma.odd.sub.t1.meta, p.value.stage.pseudo.luma.ci.sub.t1.meta);
 ln.odd.icgc.luma <- calculate.ln.odd.se(p.value.stage.pseudo.luma.odd.sub.t1.icgc, p.value.stage.pseudo.luma.ci.sub.t1.icgc);
+ln.odd.cheng.luma <- calculate.ln.odd.se(p.value.stage.pseudo.luma.odd.sub.t1.cheng, p.value.stage.pseudo.luma.ci.sub.t1.cheng);
 
 luma.results <- perform.meta.analysis(
-    list(ln.odd.brca.luma$ln.odd, ln.odd.meta.luma$ln.odd, ln.odd.icgc.luma$ln.odd),
-    list(ln.odd.brca.luma$se.odd, ln.odd.meta.luma$se.odd, ln.odd.icgc.luma$se.odd)
+    list(ln.odd.brca.luma$ln.odd, ln.odd.meta.luma$ln.odd, ln.odd.icgc.luma$ln.odd, ln.odd.cheng.luma$ln.odd),
+    list(ln.odd.brca.luma$se.odd, ln.odd.meta.luma$se.odd, ln.odd.icgc.luma$se.odd, ln.odd.cheng.luma$se.odd)
     );
 
-# 4. LumB
+# 4. LumB (excluding hatzis)
 ln.odd.brca.lumb <- calculate.ln.odd.se(p.value.stage.pseudo.lumb.odd.sub.t1.brca, p.value.stage.pseudo.lumb.ci.sub.t1.brca);
 ln.odd.meta.lumb <- calculate.ln.odd.se(p.value.stage.pseudo.lumb.odd.sub.t1.meta, p.value.stage.pseudo.lumb.ci.sub.t1.meta);
 ln.odd.icgc.lumb <- calculate.ln.odd.se(p.value.stage.pseudo.lumb.odd.sub.t1.icgc, p.value.stage.pseudo.lumb.ci.sub.t1.icgc);
+ln.odd.cheng.lumb <- calculate.ln.odd.se(p.value.stage.pseudo.lumb.odd.sub.t1.cheng, p.value.stage.pseudo.lumb.ci.sub.t1.cheng);
 
 lumb.results <- perform.meta.analysis(
-    list(ln.odd.brca.lumb$ln.odd, ln.odd.meta.lumb$ln.odd, ln.odd.icgc.lumb$ln.odd),
-    list(ln.odd.brca.lumb$se.odd, ln.odd.meta.lumb$se.odd, ln.odd.icgc.lumb$se.odd)
+    list(ln.odd.brca.lumb$ln.odd, ln.odd.meta.lumb$ln.odd, ln.odd.icgc.lumb$ln.odd, ln.odd.cheng.lumb$ln.odd),
+    list(ln.odd.brca.lumb$se.odd, ln.odd.meta.lumb$se.odd, ln.odd.icgc.lumb$se.odd, ln.odd.cheng.lumb$se.odd)
     );
 
-# 5. Normal (excluding ICGC)
+# 5. Normal (excluding ICGC/hatzis)
 ln.odd.brca.normal <- calculate.ln.odd.se(p.value.stage.pseudo.normal.odd.sub.t1.brca, p.value.stage.pseudo.normal.ci.sub.t1.brca);
 ln.odd.meta.normal <- calculate.ln.odd.se(p.value.stage.pseudo.normal.odd.sub.t1.meta, p.value.stage.pseudo.normal.ci.sub.t1.meta);
+ln.odd.cheng.normal <- calculate.ln.odd.se(p.value.stage.pseudo.normal.odd.sub.t1.cheng, p.value.stage.pseudo.normal.ci.sub.t1.cheng);
 
 normal.results <- perform.meta.analysis(
-    list(ln.odd.brca.normal$ln.odd, ln.odd.meta.normal$ln.odd),
-    list(ln.odd.brca.normal$se.odd, ln.odd.meta.normal$se.odd)
+    list(ln.odd.brca.normal$ln.odd, ln.odd.meta.normal$ln.odd, ln.odd.cheng.normal$ln.odd),
+    list(ln.odd.brca.normal$se.odd, ln.odd.meta.normal$se.odd, ln.odd.cheng.normal$se.odd)
     );
 
 
@@ -437,10 +645,12 @@ normal.results <- perform.meta.analysis(
 ln.odd.brca <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.brca, p.value.stage.pseudo.ci.sub.t1.brca);
 ln.odd.meta <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.meta, p.value.stage.pseudo.ci.sub.t1.meta);
 ln.odd.icgc <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.icgc, p.value.stage.pseudo.ci.sub.t1.icgc);
+ln.odd.cheng <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.cheng, p.value.stage.pseudo.ci.sub.t1.cheng);
+ln.odd.hatzis <- calculate.ln.odd.se(p.value.stage.pseudo.odd.sub.t1.hatzis, p.value.stage.pseudo.ci.sub.t1.hatzis);
 
 all.results <- perform.meta.analysis(
-    list(ln.odd.brca$ln.odd, ln.odd.meta$ln.odd, ln.odd.icgc$ln.odd),
-    list(ln.odd.brca$se.odd, ln.odd.meta$se.odd, ln.odd.icgc$se.odd)
+    list(ln.odd.brca$ln.odd, ln.odd.meta$ln.odd, ln.odd.icgc$ln.odd, ln.odd.cheng$ln.odd, ln.odd.hatzis$ln.odd),
+    list(ln.odd.brca$se.odd, ln.odd.meta$se.odd, ln.odd.icgc$se.odd, ln.odd.cheng$se.odd, ln.odd.hatzis$se.odd)
     );
 # Combine the results for heatmap generation
 metafor.stage.pseudo.odd.ci.p.data.each.subtype.odd.t1.no3 <- data.frame(
@@ -449,6 +659,15 @@ metafor.stage.pseudo.odd.ci.p.data.each.subtype.odd.t1.no3 <- data.frame(
     luma = luma.results$data$odd[1:2],
     lumb = lumb.results$data$odd[1:2],
     normal = normal.results$data$odd[1:2]
+    );
+
+
+metafor.stage.pseudo.odd.ci.p.data.each.subtype.p.t1.no3 <- data.frame(
+    basal = basal.results$data$p.value[1:2],
+    her2 = her2.results$data$p.value[1:2],
+    luma = luma.results$data$p.value[1:2],
+    lumb = lumb.results$data$p.value[1:2],
+    normal = normal.results$data$p.value[1:2]
     );
 
 metafor.stage.pseudo.odd.ci.p.data.each.subtype.fdr.t1.no3 <- data.frame(
@@ -485,7 +704,7 @@ colourkey.labels <- sapply(
 legend <- legend.grob(
     list(
         legend = list(
-            title = expression(underline('FDR')),
+            title = expression(underline('P-value')),
             continuous = TRUE,
             colours = c('white', 'black'),
             total.colours = 100,
@@ -504,7 +723,7 @@ legend <- legend.grob(
 
 # Spot size and color functions
 spot.size.function <- function(x) {
-    0.1 + (1.5 * abs(x));
+    1 + (1.5 * abs(x));
     }
 spot.colour.function <- function(x) {
     colours <- rep('white', length(x));
@@ -554,6 +773,7 @@ dot.each <- create.dotmap(
             ),
         text = list(
             lab = c('0.25', '0.5', '1', '2', '4'),
+            # lab = c('0.5', '1', '2'),
             cex = 1,
             adj = 1,
             fontface = 'bold'
@@ -564,7 +784,7 @@ dot.each <- create.dotmap(
     right.padding = 2,
     pch = 21,
     pch.border.col = 'white',
-    bg.data = t(-log10(metafor.stage.pseudo.odd.ci.p.data.each.subtype.fdr.t1.no3)),
+    bg.data = t(-log10(metafor.stage.pseudo.odd.ci.p.data.each.subtype.p.t1.no3)),
     colourkey = FALSE,
     colourkey.cex = 0.95,
     bg.alpha = 1,
@@ -595,7 +815,8 @@ dot.all <- create.dotmap(
     right.padding = 2,
     pch = 21,
     pch.border.col = 'white',
-    bg.data = t(-log10(p.adjust(metafor.stage.pseudo.odd.ci.p.data.t1[1:2, ]$p.value, method = 'BH'))),
+    # bg.data = t(-log10(p.adjust(metafor.stage.pseudo.odd.ci.p.data.t1[1:2, ]$p.value, method = 'BH'))),
+    bg.data = t(-log10(metafor.stage.pseudo.odd.ci.p.data.t1[1:2, ]$p.value)),
     colourkey = FALSE,
     bg.alpha = 1,
     colour.scheme = c('white', 'black'),
@@ -623,10 +844,16 @@ dot.multi <- create.multipanelplot(
 
 save.outlier.figure(
     dot.multi,
-    c('Figure3ef', 'tumour', 'stage', 'multipanel'),
-    width = 4.5,
+    c('Figure3c', 'tumour', 'stage', 'multipanel'),
+    width = 4.8,
     height = 5.6
     );
+
+
+
+
+
+
 
 # 1. TCGA-BRCA
 brca.clinic.order.data <- data.frame(brca.clinic.order$Subtype);
@@ -673,6 +900,245 @@ subtype.5.total.outlier.num.1.meta$outlier[subtype.5.total.outlier.num.1.meta$ou
 outlier.subtype.5.meta.status <- data.frame(table(subtype.5.total.outlier.num.1.meta));
 subtype.5.meta.status <- data.frame(table(meta.clinic.5.order.combine$pam50));
 subtype.5.meta.status <- subtype.5.meta.status[match(c('Basal', 'Her2', 'LumA', 'LumB', 'Normal'), subtype.5.meta.status$Var1), ];
+
+# METABRIC individual contingency table
+### 1. subtype
+outlier.num.subtype.5.patient.table.meta <- table(subtype.5.total.outlier.num.meta)[1:5,];
+rownames(outlier.num.subtype.5.patient.table.meta) <- c('Basal', 'Her2', 'LuminalA', 'LuminalB', 'Normal');
+outlier.num.subtype.5.patient.table.meta.5 <- cbind(outlier.num.subtype.5.patient.table.meta[,1:3],
+                                             apply(outlier.num.subtype.5.patient.table.meta[,4:ncol(outlier.num.subtype.5.patient.table.meta)], 1, sum));
+colnames(outlier.num.subtype.5.patient.table.meta.5) <- c(0:3);
+outlier.num.subtype.5.patient.table.meta.5 <- as.table(outlier.num.subtype.5.patient.table.meta.5);
+ylabel <- "Subtype";
+xlabel <- "Number of outliers per patient";
+outlier.num.subtype.5.patient.table.meta.5.only <- outlier.num.subtype.5.patient.table.meta.5[,1:4];
+
+# Chi-square test
+expected.p.meta <- prop.table(colSums(outlier.num.subtype.5.patient.table.meta.5.only));
+expected.table.meta <- outer(as.vector(rowSums(outlier.num.subtype.5.patient.table.meta.5.only)), expected.p.meta);
+
+# Chi-square test
+expected.p.meta <- prop.table(colSums(outlier.num.subtype.5.patient.table.meta.5.only));
+expected.table.meta <- outer(as.vector(rowSums(outlier.num.subtype.5.patient.table.meta.5.only)), expected.p.meta);
+
+chisq.test(outlier.num.subtype.5.patient.table.meta.5.only)
+p.value.outlier.subtype.5.chi.meta <- NULL;
+for (i in 1:5) {
+    p.chi <- chisq.test(outlier.num.subtype.5.patient.table.meta.5.only[i,], p = expected.p.meta)$p.value;
+    p.value.outlier.subtype.5.chi.meta <- c(p.value.outlier.subtype.5.chi.meta, p.chi);
+    }
+p.value.outlier.subtype.5.chi.fdr.meta <- p.adjust(p.value.outlier.subtype.5.chi.meta, method = 'BH');
+
+
+p.value.outlier.subtype.5.chi.sub.meta <- NULL;
+for (i in 1:5) {
+    expected.p <- prop.table(colSums(outlier.num.subtype.5.patient.table.meta.5.only[-i,]));
+    p.chi <- chisq.test(outlier.num.subtype.5.patient.table.meta.5.only[i,], p = expected.p)$p.value;
+    p.value.outlier.subtype.5.chi.sub.meta <- c(p.value.outlier.subtype.5.chi.sub.meta, p.chi);
+    }
+
+
+text.size <- 1;
+main.heatmap2 <- create.heatmap(
+	x = outlier.num.subtype.5.patient.table.meta.5.only / sum(outlier.num.subtype.5.patient.table.meta.5.only),
+	clustering = 'none',
+	colour.scheme = c('white', 'dodgerblue'),
+	colour.alpha = 1,
+	at = seq(0, 1, 0.1),
+	cell.text = data.frame(outlier.num.subtype.5.patient.table.meta.5.only)$Freq,
+	text.cex = 1.2,
+	text.fontface = 1,
+	xaxis.fontface = 1,
+	yaxis.fontface = 1,
+	grid.row = TRUE,
+	grid.col = TRUE,
+	ylab.label = expression("Subtype"),
+	xlab.label = expression("Number of outliers per patient"),
+	yaxis.lab = rownames(outlier.num.subtype.5.patient.table.meta.5.only),
+	xaxis.tck = 0,
+	yaxis.tck = 0,
+	# xaxis.lab = colnames(plot.data.all),
+	xaxis.cex = 1.1,
+	yaxis.cex = 1.1,
+    ylab.cex = 1.5,
+	xlab.cex = 1.5,
+	col.pos = rep(1:ncol(outlier.num.subtype.5.patient.table.meta.5.only), each = nrow(outlier.num.subtype.5.patient.table.meta.5.only)),
+	row.pos = rep(nrow(outlier.num.subtype.5.patient.table.meta.5.only):1, times = ncol(outlier.num.subtype.5.patient.table.meta.5.only)),
+	print.colour.key = FALSE,
+	same.as.matrix = TRUE,
+	yaxis.rot = 90,
+	# xaxis.rot = 0,
+	use.legacy.settings = FALSE,
+	x.alternating = 2,
+	xaxis.rot.top = 0,
+	xaxis.lab.top = c(colnames(outlier.num.subtype.5.patient.table.meta.5.only)[1:3], "more than 3"),
+	xlab.top.cex = 1.3,
+	xlab.top.y = 2.4
+	);
+# row total heatmap
+row.total <- create.heatmap(
+	x = data.frame(rowSums(outlier.num.subtype.5.patient.table.meta.5.only), rowSums(outlier.num.subtype.5.patient.table.meta.5.only), rowSums(outlier.num.subtype.5.patient.table.meta.5.only)) / sum(outlier.num.subtype.5.patient.table.meta.5.only),
+	clustering = 'none',
+	colour.scheme = c('white', 'dodgerblue'),
+	colour.alpha = 1,
+	at = seq(0, 1, 0.1),
+	cell.text = rev(rowSums(outlier.num.subtype.5.patient.table.meta.5.only)),
+	text.cex = text.size,
+	text.fontface = 1,
+	xaxis.fontface = 1,
+	xaxis.lab = c('    ', 'Total', rep('', 4)),
+	xaxis.rot = 0, 
+	yaxis.lab = rep('', 8),
+	xaxis.cex = 1,
+	grid.row = TRUE,
+	grid.col = FALSE,
+	col.pos = rep(2, nrow(outlier.num.subtype.5.patient.table.meta.5.only)),
+	row.pos = 1:nrow(outlier.num.subtype.5.patient.table.meta.5.only),
+	print.colour.key = FALSE,
+	same.as.matrix = TRUE,
+	xaxis.tck = c(0, 0),
+	yaxis.tck = c(0, 0),
+	use.legacy.settings = FALSE,
+	);
+
+# column total heatmap
+col.total <- create.heatmap(
+	x = data.frame(colSums(outlier.num.subtype.5.patient.table.meta.5.only)) / sum(outlier.num.subtype.5.patient.table.meta.5.only),
+	clustering = 'none',
+	colour.scheme = c('white', 'dodgerblue'),
+	colour.alpha = 1,
+	at = seq(0, 1, 0.1),
+	cell.text = colSums(outlier.num.subtype.5.patient.table.meta.5.only),
+	text.cex = text.size,
+	text.fontface = 1,
+	xaxis.fontface = 1,
+	xaxis.lab = rep('', 8),
+	yaxis.lab = expression('Total'),
+	yaxis.cex = 1.1,
+	yat = 1.5,
+	grid.row = FALSE,
+	grid.col = TRUE,
+	col.pos = 1:ncol(outlier.num.subtype.5.patient.table.meta.5.only),
+	row.pos = rep(1.5, ncol(outlier.num.subtype.5.patient.table.meta.5.only)),
+	print.colour.key = FALSE,
+	yaxis.tck = c(0, 0),
+	xaxis.tck = c(0, 0),
+	xaxis.top.tck = c(0, 0),
+	same.as.matrix = TRUE,
+	use.legacy.settings = FALSE,
+	);
+
+
+# Include fisher and odd ratio
+p.value.outlier.subtype.5.fisher.meta <- NULL;
+p.value.subtype.5.odd.sub.meta <- NULL;
+for (i in 1:5) {
+    total.subtype <- nrow(subtype.5.total.outlier.num.meta); # total number of patients
+    target.subtype <- subtype.5.meta.status$Freq[i] # number of the subtypes of interest in the population
+    total.outlier <- sum(subtype.5.total.outlier.num.1.meta$outlier > 0) # total sample size
+    target.outlier <- outlier.subtype.5.meta.status$Freq[outlier.subtype.5.meta.status$outlier == 1][i] # number of patients with outliers 
+    
+    # Perform the hypergeometric test
+    p_value <- fisher.test(matrix(c(target.outlier, total.outlier - target.outlier, target.subtype - target.outlier, total.subtype - total.outlier - target.subtype + target.outlier), nrow=2), alternative="two.sided")$p.value;
+    p.value.outlier.subtype.5.fisher.meta <- c(p.value.outlier.subtype.5.fisher.meta, p_value);
+    
+    odd.ratio <- fisher.test(matrix(c(target.outlier, total.outlier - target.outlier, target.subtype - target.outlier, total.subtype - total.outlier - target.subtype + target.outlier), nrow=2), alternative="two.sided")$estimate
+    p.value.subtype.5.odd.sub.meta <- c(p.value.subtype.5.odd.sub.meta, odd.ratio);
+    }
+
+p.value.outlier.subtype.5.fisher.fdr.meta <- p.adjust(p.value.outlier.subtype.5.fisher.meta, method = 'BH');
+
+# column for the odd ratio - color on FDR
+row.total.4 <- create.heatmap(
+	x = data.frame(cbind(log2(c(p.value.subtype.5.odd.sub.meta)),
+	                     log2(c(p.value.subtype.5.odd.sub.meta)),
+	                     log2(c(p.value.subtype.5.odd.sub.meta)))),
+	clustering = 'none',
+	colour.scheme = c('red','white', 'dodgerblue'),
+	colour.alpha = 1,
+	at = seq(-2, 2, 0.1),
+	cell.text = c(rev(round(c(p.value.subtype.5.odd.sub.meta), digits = 2))),
+	text.cex = text.size,
+	text.fontface = 1,
+	xaxis.fontface = 1,
+	xaxis.lab = c('    ', 'Odd Ratio', rep('', 4)),
+	# xlab.top.label = 'FDR',
+	# xlab.top.cex = 1,
+	xaxis.rot = 0, 
+	yaxis.lab = rep('', 8),
+	xaxis.cex = 1,
+	grid.row = TRUE,
+	grid.col = FALSE,
+	col.pos = rep(2, nrow(outlier.num.subtype.5.patient.table.meta.5.only)),
+	row.pos = 1:nrow(outlier.num.subtype.5.patient.table.meta.5.only),
+	print.colour.key = FALSE,
+	same.as.matrix = TRUE,
+	xaxis.tck = c(0, 0),
+	yaxis.tck = c(0, 0),
+	use.legacy.settings = FALSE,
+	);
+
+
+# Only with odd and fdr
+text.pvalue.subtype <- display.statistical.result(
+    x = chisq.test(outlier.num.subtype.5.patient.table.meta.5.only)$p.value,
+    statistic.type = 'p',
+    symbol = ' = '
+    );
+
+key.subtype <- list(
+    text = list(
+        lab = text.pvalue.subtype, 
+        cex = 1
+        ),
+    x = 0.25,
+    y = 0.95
+    );
+
+
+create.multipanelplot(
+    list(main.heatmap2, row.total, row.total.4, col.total),
+	main = expression("Cancer subtype and the number of outliers"),
+    main.cex = 1.7,
+    main.y = 1.6,
+    resolution = 300,
+    layout.height = 2,
+    layout.width = 3,
+    layout.skip = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
+    plot.objects.heights = c(10, 1.5),
+	plot.objects.widths = c(10, 1.2, 1.2),
+	x.spacing = -2.2, 
+	y.spacing = -6,     # Legend
+    legend = list(
+        bottom = list(
+            fun = draw.key,
+            args = list(
+                key = list(
+                    text = list(
+                        lab = text.pvalue.subtype
+                        ),
+                    cex = 1.1,
+                just = 'right'
+                    )
+                )
+            )
+        ),
+	bottom.padding = 0,
+    bottom.legend.padding = -0.5,
+	top.padding = 2,
+	right.padding = 0
+    );
+
+
+save.outlier.figure(
+    rppa.box,
+    c('Figure3a', 'meta_subtype', 'box'),
+    width = 7,
+    height = 6
+    );
+
+
+
 
 
 # 3. ICGC BRCA-EU
@@ -746,16 +1212,129 @@ outlier.subtype.matador.status <- data.frame(table(subtype.total.outlier.num.1.m
 subtype.matador.status <- data.frame(table(subtype.total.outlier.num.matador$subtype));
 
 
+# 6. Cheng
+patient.cheng$subtype.genefu <- factor(
+  patient.cheng$subtype.genefu,
+  levels = c("Basal", "Her2", "LumA", "LumB", "Normal")
+    )
+patient.cheng <- data.frame(patient.cheng);
+rownames(patient.cheng) <-  colnames(outlier.patient.tag.01.cheng);
 
+patient.cheng.data <- data.frame(as.character(patient.cheng$subtype.genefu));
+patient.cheng.data[is.na(patient.cheng.data$as.character.patient.cheng.subtype.genefu.),] <- 6;
+patient.cheng.data[patient.cheng.data$as.character.patient.cheng.subtype.genefu. == 'Basal',] <- 1;
+patient.cheng.data[patient.cheng.data$as.character.patient.cheng.subtype.genefu. == 'Her2',] <- 2;
+patient.cheng.data[patient.cheng.data$as.character.patient.cheng.subtype.genefu. == 'LumA',] <- 3;
+patient.cheng.data[patient.cheng.data$as.character.patient.cheng.subtype.genefu. == 'LumB',] <- 4;
+patient.cheng.data[patient.cheng.data$as.character.patient.cheng.subtype.genefu. == 'Normal',] <- 5;
+patient.cheng.data.num <- data.frame(as.numeric(patient.cheng.data$as.character.patient.cheng.subtype.genefu.));
+
+
+outlier.patient.tag.01.cheng.sum <- apply(outlier.patient.tag.01.cheng, 2, sum);
+subtype.total.outlier.num.cheng <- data.frame(cbind(subtype = patient.cheng.data.num,
+                                   outlier = outlier.patient.tag.01.cheng.sum));
+colnames(subtype.total.outlier.num.cheng) <- c("subtype", "outlier");
+subtype.total.outlier.num.1.cheng <- subtype.total.outlier.num.cheng;
+subtype.total.outlier.num.1.cheng$outlier[subtype.total.outlier.num.1.cheng$outlier > 0] <- 1;
+outlier.subtype.cheng.status <- data.frame(table(subtype.total.outlier.num.1.cheng));
+subtype.cheng.status <- data.frame(table(subtype.total.outlier.num.cheng$subtype));
+
+
+# 7. Hatzis
+patient.hatzis$subtype <- factor(
+  patient.hatzis$subtype,
+  levels = c("Basal", "Her2", "LumA", "LumB", "Normal")
+    )
+patient.hatzis <- data.frame(patient.hatzis);
+rownames(patient.hatzis) <-  colnames(outlier.patient.tag.01.hatzis);
+
+patient.hatzis.data <- data.frame(as.character(patient.hatzis$subtype));
+patient.hatzis.data[is.na(patient.hatzis.data$as.character.patient.hatzis.subtype.),] <- 6;
+patient.hatzis.data[patient.hatzis.data$as.character.patient.hatzis.subtype. == 'Basal',] <- 1;
+patient.hatzis.data[patient.hatzis.data$as.character.patient.hatzis.subtype. == 'Her2',] <- 2;
+patient.hatzis.data[patient.hatzis.data$as.character.patient.hatzis.subtype. == 'LumA',] <- 3;
+patient.hatzis.data[patient.hatzis.data$as.character.patient.hatzis.subtype. == 'LumB',] <- 4;
+patient.hatzis.data[patient.hatzis.data$as.character.patient.hatzis.subtype. == 'Normal',] <- 5;
+patient.hatzis.data.num <- data.frame(as.numeric(patient.hatzis.data$as.character.patient.hatzis.subtype.));
+
+
+outlier.patient.tag.01.hatzis.sum <- apply(outlier.patient.tag.01.hatzis, 2, sum);
+subtype.total.outlier.num.hatzis <- data.frame(cbind(subtype = patient.hatzis.data.num,
+                                   outlier = outlier.patient.tag.01.hatzis.sum));
+colnames(subtype.total.outlier.num.hatzis) <- c("subtype", "outlier");
+subtype.total.outlier.num.1.hatzis <- subtype.total.outlier.num.hatzis;
+subtype.total.outlier.num.1.hatzis$outlier[subtype.total.outlier.num.1.hatzis$outlier > 0] <- 1;
+outlier.subtype.hatzis.status <- data.frame(table(subtype.total.outlier.num.1.hatzis));
+subtype.hatzis.status <- data.frame(table(subtype.total.outlier.num.hatzis$subtype));
+
+
+# 8. Sjostrom
+patient.sjostrom$subtype.genefu <- factor(
+  patient.sjostrom$subtype.genefu,
+  levels = c("Basal", "Her2", "LumA", "LumB", "Normal")
+    )
+patient.sjostrom <- data.frame(patient.sjostrom);
+rownames(patient.sjostrom) <-  colnames(outlier.patient.tag.01.sjostrom);
+
+patient.sjostrom.data <- data.frame(as.character(patient.sjostrom$subtype.genefu));
+patient.sjostrom.data[is.na(patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu.),] <- 6;
+patient.sjostrom.data[patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu. == 'Basal',] <- 1;
+patient.sjostrom.data[patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu. == 'Her2',] <- 2;
+patient.sjostrom.data[patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu. == 'LumA',] <- 3;
+patient.sjostrom.data[patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu. == 'LumB',] <- 4;
+patient.sjostrom.data[patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu. == 'Normal',] <- 5;
+patient.sjostrom.data.num <- data.frame(as.numeric(patient.sjostrom.data$as.character.patient.sjostrom.subtype.genefu.));
+
+
+outlier.patient.tag.01.sjostrom.sum <- apply(outlier.patient.tag.01.sjostrom, 2, sum);
+subtype.total.outlier.num.sjostrom <- data.frame(cbind(subtype = patient.sjostrom.data.num,
+                                   outlier = outlier.patient.tag.01.sjostrom.sum));
+colnames(subtype.total.outlier.num.sjostrom) <- c("subtype", "outlier");
+subtype.total.outlier.num.1.kao <- subtype.total.outlier.num.kao;
+subtype.total.outlier.num.1.kao$outlier[subtype.total.outlier.num.1.kao$outlier > 0] <- 1;
+outlier.subtype.kao.status <- data.frame(table(subtype.total.outlier.num.1.kao));
+subtype.kao.status <- data.frame(table(subtype.total.outlier.num.kao$subtype));
+
+
+# 9. Kao
+patient.kao$subtype.genefu <- factor(
+  patient.kao$subtype.genefu,
+  levels = c("Basal", "Her2", "LumA", "LumB", "Normal")
+    )
+patient.kao <- data.frame(patient.kao);
+rownames(patient.kao) <-  colnames(outlier.patient.tag.01.kao);
+
+patient.kao.data <- data.frame(as.character(patient.kao$subtype.genefu));
+patient.kao.data[is.na(patient.kao.data$as.character.patient.kao.subtype.genefu.),] <- 6;
+patient.kao.data[patient.kao.data$as.character.patient.kao.subtype.genefu. == 'Basal',] <- 1;
+patient.kao.data[patient.kao.data$as.character.patient.kao.subtype.genefu. == 'Her2',] <- 2;
+patient.kao.data[patient.kao.data$as.character.patient.kao.subtype.genefu. == 'LumA',] <- 3;
+patient.kao.data[patient.kao.data$as.character.patient.kao.subtype.genefu. == 'LumB',] <- 4;
+patient.kao.data[patient.kao.data$as.character.patient.kao.subtype.genefu. == 'Normal',] <- 5;
+patient.kao.data.num <- data.frame(as.numeric(patient.kao.data$as.character.patient.kao.subtype.genefu.));
+
+
+outlier.patient.tag.01.kao.sum <- apply(outlier.patient.tag.01.kao, 2, sum);
+subtype.total.outlier.num.kao <- data.frame(cbind(subtype = patient.kao.data.num,
+                                   outlier = outlier.patient.tag.01.kao.sum));
+colnames(subtype.total.outlier.num.kao) <- c("subtype", "outlier");
+subtype.total.outlier.num.1.kao <- subtype.total.outlier.num.kao;
+subtype.total.outlier.num.1.kao$outlier[subtype.total.outlier.num.1.kao$outlier > 0] <- 1;
+outlier.subtype.kao.status <- data.frame(table(subtype.total.outlier.num.1.kao));
+subtype.kao.status <- data.frame(table(subtype.total.outlier.num.kao$subtype));
+
+
+
+# Add pseudo count + 1
 # Function to perform Fisher's exact test and odds ratio calculation
 perform.fisher.test <- function(total.patients, total.outliers, subtype.freq, outlier.freq) {
     fisher.test.result <- fisher.test(
         matrix(
             c(
-                outlier.freq,
-                total.outliers - outlier.freq,
-                subtype.freq - outlier.freq,
-                total.patients - total.outliers - subtype.freq + outlier.freq
+                outlier.freq + 1,
+                total.outliers - outlier.freq + 1,
+                subtype.freq - outlier.freq + 1,
+                total.patients - total.outliers - subtype.freq + outlier.freq + 1
                 ),
             nrow = 2
             ),
@@ -831,25 +1410,27 @@ matador.results <- perform.subtype.analysis(subtype.total.outlier.num.matador, s
 # ICGC analysis
 icgc.results <- perform.subtype.analysis(subtype.total.outlier.num.icgc, subtype.icgc.status$Freq, outlier.subtype.icgc.status[outlier.subtype.icgc.status$outlier == 1, ]$Freq);
 
+# Hatzis analysis
+hatzis.results <- perform.subtype.analysis(subtype.total.outlier.num.hatzis, subtype.hatzis.status$Freq, outlier.subtype.hatzis.status[outlier.subtype.hatzis.status$outlier == 1, ]$Freq);
 
-all.odd.subtype <- cbind(
-    brca.results$odd.ratio,
-    meta.results$odd.ratio,
-    ispy.results$odd.ratio,
-    matador.results$odd.ratio,
-    icgc.results$odd.ratio
-    );
-all.odd.subtype.table <- as.table(all.odd.subtype);
-rownames(all.odd.subtype.table) <- c('Basal', 'Her2', 'LumA', 'LumB', 'Normal');
-all.odd.subtype.table <- all.odd.subtype.table[order(all.odd.subtype.table[, 1], decreasing = TRUE), ]
+# cheng analysis
+cheng.results <- perform.subtype.analysis(subtype.total.outlier.num.cheng, subtype.cheng.status$Freq, outlier.subtype.cheng.status[outlier.subtype.cheng.status$outlier == 1, ]$Freq);
+
+# kao analysis
+kao.results <- perform.subtype.analysis(subtype.total.outlier.num.kao, subtype.kao.status$Freq, outlier.subtype.kao.status[outlier.subtype.kao.status$outlier == 1, ]$Freq);
+
+# sjostrom analysis
+sjostrom.results <- perform.subtype.analysis(subtype.total.outlier.num.sjostrom, subtype.sjostrom.status$Freq, outlier.subtype.sjostrom.status[outlier.subtype.sjostrom.status$outlier == 1, ]$Freq);
+
+
 
 # Create heatmap
 odd.heat <- create.heatmap(
-    x = log2(all.odd.subtype.table),
+    x = log2(all.odd.subtype.table.inf),
     clustering = 'none',
     colour.scheme = c('#107090', 'white', '#b2402b'),
     colour.alpha = 1,
-    at = seq(-2, 2, 0.1),
+    at = seq(log(0.2), log(5), 0.1),
     cell.text = round(data.frame(all.odd.subtype.table)$Freq, digits = 1),
     text.cex = 1.2,
     text.fontface = 1,
@@ -859,7 +1440,16 @@ odd.heat <- create.heatmap(
     grid.col = TRUE,
     ylab.label = expression('Subtype'),
     yaxis.lab = rownames(all.odd.subtype.table),
-    xaxis.lab.top = c('TCGA-BRCA', 'METABRIC', 'I-SPY2', 'MATADOR', 'ICGC BRCA-EU'),
+    xaxis.lab.top = c(
+        'METABRIC',
+        'TCGA-BRCA',
+        'I-SPY2',
+        'Sjostrom', 
+        'Cheng', 
+        'METADOR',
+        'ICGC BRCA-EU',
+        'Kao', 
+        'Hatzis'),
     xaxis.tck = 0,
     yaxis.tck = 0,
     xaxis.cex = 1.1,
@@ -880,19 +1470,27 @@ odd.heat <- create.heatmap(
 
 
 ln.odd.list <- list(
-    log(brca.results$odd.ratio),
     log(meta.results$odd.ratio),
+    log(brca.results$odd.ratio),
     log(ispy.results$odd.ratio),
+    log(sjostrom.results$odd.ratio),
+    log(cheng.results$odd.ratio),
     log(matador.results$odd.ratio),
-    log(icgc.results$odd.ratio)
+    log(icgc.results$odd.ratio),
+    log(kao.results$odd.ratio),
+    log(hatzis.results$odd.ratio)
     );
 
 se.odd.list <- list(
-    (log(brca.results$ci[, 2]) - log(brca.results$ci[, 1])) / 3.92,
     (log(meta.results$ci[, 2]) - log(meta.results$ci[, 1])) / 3.92,
+    (log(brca.results$ci[, 2]) - log(brca.results$ci[, 1])) / 3.92,
     (log(ispy.results$ci[, 2]) - log(ispy.results$ci[, 1])) / 3.92,
+    (log(sjostrom.results$ci[, 2]) - log(sjostrom.results$ci[, 1])) / 3.92,
+    (log(cheng.results$ci[, 2]) - log(cheng.results$ci[, 1])) / 3.92,
     (log(matador.results$ci[, 2]) - log(matador.results$ci[, 1])) / 3.92,
-    (log(icgc.results$ci[, 2]) - log(icgc.results$ci[, 1])) / 3.92
+    (log(icgc.results$ci[, 2]) - log(icgc.results$ci[, 1])) / 3.92,
+    (log(kao.results$ci[, 2]) - log(kao.results$ci[, 1])) / 3.92,
+    (log(hatzis.results$ci[, 2]) - log(hatzis.results$ci[, 1])) / 3.92
     );
 
 # Perform meta-analysis
@@ -959,9 +1557,9 @@ multi.gene <- create.multipanelplot(
     layout.height = 1,
     layout.width = 2,
     layout.skip = c(FALSE, FALSE),
-    plot.objects.widths = c(3, 2),
+    plot.objects.widths = c(3, 1.2),
     ylab.axis.padding = -10,
-    x.spacing = 6,
+    x.spacing = 3,
     right.legend.padding = 0
     );
 
@@ -969,9 +1567,9 @@ multi.gene;
 
 save.outlier.figure(
     multi.gene,
-    c('Figure3ef', 'subtype', 'multi'),
+    c('Figure3b', 'subtype', 'multi'),
     width = 7,
     height = 5
     );
 
-save.session.profile(file.path('output', 'Figure3ef.txt'));
+save.session.profile(file.path('output', 'Figure3abc.txt'));

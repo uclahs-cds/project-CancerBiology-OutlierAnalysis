@@ -19,13 +19,13 @@ attach(get.outlier.data.path());
 
 ### PREAMBLE ####################################################################
 load.multiple.computed.variables(c(
-    'outlier.patient.all.five.01'
+    'outlier.patient.all.nine.01'
     ));
 
 
 # Calculate the sum of outlier genes per patient and per gene
-outlier.patient.all.five.01.sum.gene <- apply(
-    outlier.patient.all.five.01,
+outlier.patient.all.nine.01.sum.gene <- apply(
+    outlier.patient.all.nine.01,
     2,
     function(x) {
         sum(na.omit(x))
@@ -34,10 +34,10 @@ outlier.patient.all.five.01.sum.gene <- apply(
 
 
 # Create a histogram for the number of outlier genes per patient
-five.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
-    log10(outlier.patient.all.five.01.sum.gene + 1),
+nine.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
+    log10(outlier.patient.all.nine.01.sum.gene + 1),
     breaks = 20,
-    ylab.label = expression('Percent'),
+    ylab.label = expression('Percent of XEGs'),
     xlab.label = expression('Number of outlier genes per patient'),
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
@@ -54,11 +54,11 @@ five.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
     );
 
 # Display the histogram
-five.outlier.gene.sum;
+nine.outlier.gene.sum;
 
 ### OUTPUT ######################################################################
 save.outlier.figure(
-    five.outlier.gene.sum,
+    nine.outlier.gene.sum,
     c('Figure1d', '5_patient_per_outlier_gene_number', 'histogram'),
     width = 5.5,
     height = 5
