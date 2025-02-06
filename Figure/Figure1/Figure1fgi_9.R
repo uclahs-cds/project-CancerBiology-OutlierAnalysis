@@ -32,23 +32,23 @@ ensembl <- NULL;
 # Get chromosomal positions, caching results in an intermediate directory for
 # efficiency
 get.chromosomal.positions <- function(gene.list, filters) {
-    # cache.dir <- file.path('output', 'ensembl_cache');
-    # 
-    # if (!dir.exists(cache.dir)) {
-    #     dir.create(cache.dir);
-    #     }
-    # 
-    # cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
-    # if (file.exists(cache.file)) {
-    #     return(readRDS(cache.file));
-    #     }
+    cache.dir <- file.path('output', 'ensembl_cache');
+
+    if (!dir.exists(cache.dir)) {
+        dir.create(cache.dir);
+        }
+
+    cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
+    if (file.exists(cache.file)) {
+        return(readRDS(cache.file));
+        }
 
     # Initialize the ensembl object lazily, if it's not already initialized
     if (is.null(ensembl)) {
         ensembl <<- biomaRt:::useEnsembl(
             biomart = 'ensembl',
             dataset = 'hsapiens_gene_ensembl',
-            # version = 112
+            version = 113
             );
         }
 
@@ -62,7 +62,7 @@ get.chromosomal.positions <- function(gene.list, filters) {
         mart = ensembl
         );
 
-    # saveRDS(results, file = cache.file);
+    saveRDS(results, file = cache.file);
     return(results);
     }
 
