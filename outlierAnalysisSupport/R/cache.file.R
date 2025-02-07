@@ -8,7 +8,7 @@
 #' @export
 
 cache.file <- function(url) {
-    cache.directory <- here::here('Figure', 'output', 'download-cache');
+    cache.directory <- here::here('output', 'download-cache');
 
     if (!dir.exists(cache.directory)) {
         dir.create(cache.directory, recursive = TRUE);
