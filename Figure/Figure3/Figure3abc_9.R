@@ -1290,10 +1290,10 @@ outlier.patient.tag.01.sjostrom.sum <- apply(outlier.patient.tag.01.sjostrom, 2,
 subtype.total.outlier.num.sjostrom <- data.frame(cbind(subtype = patient.sjostrom.data.num,
                                    outlier = outlier.patient.tag.01.sjostrom.sum));
 colnames(subtype.total.outlier.num.sjostrom) <- c("subtype", "outlier");
-subtype.total.outlier.num.1.kao <- subtype.total.outlier.num.kao;
-subtype.total.outlier.num.1.kao$outlier[subtype.total.outlier.num.1.kao$outlier > 0] <- 1;
-outlier.subtype.kao.status <- data.frame(table(subtype.total.outlier.num.1.kao));
-subtype.kao.status <- data.frame(table(subtype.total.outlier.num.kao$subtype));
+subtype.total.outlier.num.1.sjostrom <- subtype.total.outlier.num.sjostrom;
+subtype.total.outlier.num.1.sjostrom$outlier[subtype.total.outlier.num.1.sjostrom$outlier > 0] <- 1;
+outlier.subtype.sjostrom.status <- data.frame(table(subtype.total.outlier.num.1.sjostrom));
+subtype.sjostrom.status <- data.frame(table(subtype.total.outlier.num.sjostrom$subtype));
 
 
 # 9. Kao
