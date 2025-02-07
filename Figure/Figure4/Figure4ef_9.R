@@ -168,46 +168,16 @@ dependency.05.box$score <- as.numeric(dependency.05.box$score);
 dependency.05.box$status <- as.numeric(dependency.05.box$status);
 
 # Filter out specific genes from the data
-dependency.05.box.part <- dependency.05.box[!(
-    dependency.05.box$gene %in% c('CASC3', 'TSEN54', 'MRPL21')
-    ), ];
-
-# Add specific genes to the box plot data
-gene.dependency.diff.matrix.05.overlap.plus.05 <- gene.dependency.diff.matrix.05.overlap[
-    gene.dependency.diff.matrix.05.overlap$symbol %in% c('TACC3', 'CCT2'),
-    ];
-dependency.score.05.overlap.plus.05 <- gene.dependency.breast.t.num.match.05.na[
-    rownames(gene.dependency.diff.matrix.05.overlap.plus.05),
-    ];
-outlier.status.05.overlap.plus.05 <- ccle.sample.outlier.status.overlap.na[
-    rownames(gene.dependency.diff.matrix.05.overlap.plus.05),
-    ];
-dependency.05.box.plus <- data.frame(
-    cbind(
-        score = as.numeric(unlist(t(dependency.score.05.overlap.plus.05))),
-        gene = c(
-            rep(gene.dependency.diff.matrix.05.overlap.plus.05$symbol[1], ncol(dependency.score.05.overlap.minus.05)),
-            rep(gene.dependency.diff.matrix.05.overlap.plus.05$symbol[2], ncol(dependency.score.05.overlap.minus.05))
-            ),
-        status = as.numeric(unlist(t(outlier.status.05.overlap.plus.05)))
-        )
-    );
-
-# Combine the additional data into the main data frame
-dependency.05.box.part <- rbind(dependency.05.box.part, dependency.05.box.plus);
+selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[1:11];
+dependency.05.box.part <- dependency.05.box[dependency.05.box$gene %in% selected.gene, ];
 
 # Convert score and status to numeric
 dependency.05.box.part$score <- as.numeric(dependency.05.box.part$score);
 dependency.05.box.part$status <- as.numeric(dependency.05.box.part$status);
 
-# Further filter out specific genes from the data
-dependency.05.box.part.4 <- dependency.05.box.part[!(
-    dependency.05.box.part$gene %in% c('CCT2', 'TACC3', 'MSL1', 'RTN4IP1')
-    ), ];
-
 # Set colors for the box plot
-dot.colours <- rep('grey70', nrow(dependency.05.box.part.4));
-dot.colours[dependency.05.box.part.4$status == 1] <- 'red2';
+dot.colours <- rep('grey70', nrow(dependency.05.box.part));
+dot.colours[dependency.05.box.part$status == 1] <- 'red2';
 
 # Establish an arbitrary but consistent random seed for plotting consistency
 set.seed(sum(utf8ToInt('Figure4f')));
@@ -215,7 +185,7 @@ set.seed(sum(utf8ToInt('Figure4f')));
 # Create the box plot
 dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ gene,
-    data = dependency.05.box.part.4,
+    data = dependency.05.box.part,
     main = expression('Gene dependency score of outlier genes'),
     outlier = TRUE,
     add.stripplot = TRUE,
