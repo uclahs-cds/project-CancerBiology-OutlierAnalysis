@@ -1424,9 +1424,25 @@ sjostrom.results <- perform.subtype.analysis(subtype.total.outlier.num.sjostrom,
 
 
 
+
+all.odd.subtype <- cbind(
+    meta.results$odd.ratio,
+    brca.results$odd.ratio,
+    ispy.results$odd.ratio,
+    sjostrom.results$odd.ratio,
+    cheng.results$odd.ratio,
+    matador.results$odd.ratio,
+    icgc.results$odd.ratio,
+    kao.results$odd.ratio,
+    hatzis.results$odd.ratio
+    );
+all.odd.subtype.table <- as.table(all.odd.subtype);
+rownames(all.odd.subtype.table) <- c('Basal', 'Her2', 'LumA', 'LumB', 'Normal');
+all.odd.subtype.table <- all.odd.subtype.table[order(all.odd.subtype.table[, 1], decreasing = TRUE), ]
+
 # Create heatmap
 odd.heat <- create.heatmap(
-    x = log2(all.odd.subtype.table.inf),
+    x = log2(all.odd.subtype.table),
     clustering = 'none',
     colour.scheme = c('#107090', 'white', '#b2402b'),
     colour.alpha = 1,
