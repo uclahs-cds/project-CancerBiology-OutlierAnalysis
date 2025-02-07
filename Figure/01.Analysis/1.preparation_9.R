@@ -29,10 +29,10 @@ outlier.symbol <- list(
     matador = substring(rownames(outlier.gene.fdr.01$matador), pos + 1),
     ispy = rownames(outlier.gene.fdr.01$ispy),
     icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol,
-    kao = fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.01.kao), ]$Symbol,
-    cheng = fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.01.cheng), ]$Symbol,
-    hatzis = fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.01.hatzis), ]$Symbol,
-    sjostrom = fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.01.sjostrom), ]$Symbol
+    kao = fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.01$kao), ]$Symbol,
+    cheng = fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.01$cheng), ]$Symbol,
+    hatzis = fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.01$hatzis), ]$Symbol,
+    sjostrom = fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.01$sjostrom), ]$Symbol
     )
 
 # Combine unique symbols across all datasets

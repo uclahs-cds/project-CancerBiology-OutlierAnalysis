@@ -128,7 +128,7 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
 
 save.outlier.figure(
     gene.scatter.05.minus.overlap.label,
-    c('Figure4ef', 'gene', 'dependency', 'diff', 'scatter'),
+    c('Figure4e', 'gene', 'dependency', 'diff', 'scatter'),
     width = 6,
     height = 5
     );
@@ -220,7 +220,7 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     dependency.05.box.plot,
-    c('Figure4ef', 'gene', 'dependency', 'example', 'box'),
+    c('Figure4f', 'gene', 'dependency', 'example', 'box'),
     width = 6,
     height = 5
     );

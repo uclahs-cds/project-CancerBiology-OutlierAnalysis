@@ -365,7 +365,7 @@ zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     zscore.box.sanger,
-    c('Figure4lm', 'sanger', 'drug', 'box'),
+    c('Figure4l', 'sanger', 'drug', 'box'),
     width = 4,
     height = 6
     );
@@ -436,7 +436,7 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     i.drug.box.plot,
-    c('Figure4lm', i, 'box', 'drug'),
+    c('Figure4m', i, 'box', 'drug'),
     width = 5,
     height = 6
     );

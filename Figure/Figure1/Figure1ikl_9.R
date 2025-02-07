@@ -169,7 +169,7 @@ cptac.box <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     cptac.box,
-    c('Figure3acd', 'cptac', 'box'),
+    c('Figure1i', 'cptac', 'box'),
     width = 3.5,
     height = 6.5
     );
@@ -234,7 +234,7 @@ heat.out <- BoutrosLab.plotting.general:::create.heatmap(
 
 save.outlier.figure(
     heat.out,
-    c('Figure3acd', 'cptac', 'heatmap'),
+    c('Figure1k', 'cptac', 'heatmap'),
     width = 6,
     height = 4.5
     );

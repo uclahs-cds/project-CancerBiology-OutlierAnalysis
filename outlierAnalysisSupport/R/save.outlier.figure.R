@@ -8,7 +8,7 @@
 #' @return The path to the PNG image.
 #' @export
 save.outlier.figure <- function(plot.object, name.segments, width, height) {
-  output.directory <- here::here('Figure', 'output');
+  output.directory <- here::here('output');
 
   if (!dir.exists(output.directory)) {
     dir.create(output.directory);

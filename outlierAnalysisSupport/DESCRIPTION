@@ -1,6 +1,6 @@
 Package: outlierAnalysisSupport
 Title: Support Code For Outlier Analysis Paper
-Version: 0.0.0.9000
+Version: 0.0.0.9002
 Authors@R: 
     c(person("Jee Yun", "Han", email = "jyhan@mednet.ucla.edu", role = c("aut", "cre")),
       person("Nicholas", "Wiltsie", email = "nwiltsie@mednet.ucla.edu", role = c("ctb")))

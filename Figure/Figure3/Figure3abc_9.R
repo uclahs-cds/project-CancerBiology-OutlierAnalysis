@@ -1096,7 +1096,7 @@ key.subtype <- list(
     );
 
 
-create.multipanelplot(
+new.plot <- create.multipanelplot(
     list(main.heatmap2, row.total, row.total.4, col.total),
 	main = expression("Cancer subtype and the number of outliers"),
     main.cex = 1.7,
@@ -1131,7 +1131,7 @@ create.multipanelplot(
 
 
 save.outlier.figure(
-    rppa.box,
+    new.plot,
     c('Figure3a', 'meta_subtype', 'box'),
     width = 7,
     height = 6
@@ -1290,10 +1290,10 @@ outlier.patient.tag.01.sjostrom.sum <- apply(outlier.patient.tag.01.sjostrom, 2,
 subtype.total.outlier.num.sjostrom <- data.frame(cbind(subtype = patient.sjostrom.data.num,
                                    outlier = outlier.patient.tag.01.sjostrom.sum));
 colnames(subtype.total.outlier.num.sjostrom) <- c("subtype", "outlier");
-subtype.total.outlier.num.1.kao <- subtype.total.outlier.num.kao;
-subtype.total.outlier.num.1.kao$outlier[subtype.total.outlier.num.1.kao$outlier > 0] <- 1;
-outlier.subtype.kao.status <- data.frame(table(subtype.total.outlier.num.1.kao));
-subtype.kao.status <- data.frame(table(subtype.total.outlier.num.kao$subtype));
+subtype.total.outlier.num.1.sjostrom <- subtype.total.outlier.num.sjostrom;
+subtype.total.outlier.num.1.sjostrom$outlier[subtype.total.outlier.num.1.sjostrom$outlier > 0] <- 1;
+outlier.subtype.sjostrom.status <- data.frame(table(subtype.total.outlier.num.1.sjostrom));
+subtype.sjostrom.status <- data.frame(table(subtype.total.outlier.num.sjostrom$subtype));
 
 
 # 9. Kao

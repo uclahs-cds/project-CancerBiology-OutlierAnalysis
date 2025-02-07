@@ -92,7 +92,7 @@ km.os.group.combine;
 
 save.outlier.figure(
     km.os.group.combine,
-    c('Figure3def', 'os', 'merge', 'km'),
+    c('Figure3d', 'os', 'merge', 'km'),
     width = 7.5,
     height = 7
     );
@@ -132,7 +132,7 @@ km.os.group.combine;
 
 save.outlier.figure(
     km.os.group.combine,
-    c('Figure3def', i, 'km'),
+    c('Figure3e', i, 'km'),
     width = 7.5,
     height = 7
     );
@@ -250,7 +250,7 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
 
 save.outlier.figure(
     merge.surv.seg.log,
-    c('Figure3def', 'survival', 'subtype', 'segment'),
+    c('Figure3g', 'survival', 'subtype', 'segment'),
     width = 5,
     height = 3.8
     );

@@ -32,23 +32,23 @@ ensembl <- NULL;
 # Get chromosomal positions, caching results in an intermediate directory for
 # efficiency
 get.chromosomal.positions <- function(gene.list, filters) {
-    # cache.dir <- file.path('output', 'ensembl_cache');
-    # 
-    # if (!dir.exists(cache.dir)) {
-    #     dir.create(cache.dir);
-    #     }
-    # 
-    # cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
-    # if (file.exists(cache.file)) {
-    #     return(readRDS(cache.file));
-    #     }
+    cache.dir <- file.path('output', 'ensembl_cache');
+
+    if (!dir.exists(cache.dir)) {
+        dir.create(cache.dir);
+        }
+
+    cache.file <- file.path(cache.dir, paste0(digest::digest(gene.list), filters, '.rds'));
+    if (file.exists(cache.file)) {
+        return(readRDS(cache.file));
+        }
 
     # Initialize the ensembl object lazily, if it's not already initialized
     if (is.null(ensembl)) {
         ensembl <<- biomaRt:::useEnsembl(
             biomart = 'ensembl',
             dataset = 'hsapiens_gene_ensembl',
-            # version = 112
+            version = 113
             );
         }
 
@@ -62,7 +62,7 @@ get.chromosomal.positions <- function(gene.list, filters) {
         mart = ensembl
         );
 
-    # saveRDS(results, file = cache.file);
+    saveRDS(results, file = cache.file);
     return(results);
     }
 
@@ -2122,7 +2122,7 @@ metafor.multi.chr.smd.5;
 
 save.outlier.figure(
     metafor.multi.chr.smd.5,
-    c('Figure1fgi', 'metafor.multi.chr.smd.5', 'multipanel'),
+    c('Figure1fg', 'metafor.multi.chr.smd.5', 'multipanel'),
     width = 4.3,
     height = 7
     );
@@ -2333,7 +2333,7 @@ outlier.manhattan;
 
 save.outlier.figure(
     outlier.manhattan,
-    c('Figure1fgi_9dataset', 'combine_outlier', 'manhattan'),
+    c('Figure1h_9dataset', 'combine_outlier', 'manhattan'),
     width = 11,
     height = 4.5
     );
