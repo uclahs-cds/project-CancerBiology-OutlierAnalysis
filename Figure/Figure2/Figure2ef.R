@@ -530,7 +530,7 @@ dot.multi.luma
 
 save.outlier.figure(
     dot.multi.luma,
-    c('Figure2ef', 'drivergene', 'luma', 'multipanel'),
+    c('Figure2e', 'drivergene', 'luma', 'multipanel'),
     width = 6.9,
     height = 5.7
     );
@@ -857,7 +857,7 @@ dot.multi.lumb
 
 save.outlier.figure(
     dot.multi.lumb,
-    c('Figure2ef', 'drivergene', 'lumb', 'multipanel'),
+    c('Figure2e', 'drivergene', 'lumb', 'multipanel'),
     width = 6.9,
     height = 5.7
     );
@@ -984,7 +984,7 @@ mutation.density <- BoutrosLab.plotting.general::create.scatterplot(
 # Save plot and session profile
 save.outlier.figure(
     mutation.density,
-    c('Figure2ef', 'PIK3CA', 'mutation', 'luma', 'lumb', 'scatter', 'density'),
+    c('Figure2f', 'PIK3CA', 'mutation', 'luma', 'lumb', 'scatter', 'density'),
     width = 6,
     height = 5.5
     )

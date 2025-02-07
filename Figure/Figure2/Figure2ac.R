@@ -285,7 +285,7 @@ multi.gene;
 
 save.outlier.figure(
     multi.gene,
-    c('Figure2ac', 'CNA', 'multipanel'),
+    c('Figure2a', 'CNA', 'multipanel'),
     width = 10.4,
     height = 4.5
     );
@@ -576,7 +576,7 @@ cna.multi <- create.multiplot(
 
 save.outlier.figure(
     cna.multi,
-    c('Figure2ac', 'CNA', 'chr10', 'multipanel'),
+    c('Figure2c', 'CNA', 'chr10', 'multipanel'),
     width = 10.4,
     height = 4.5
     );

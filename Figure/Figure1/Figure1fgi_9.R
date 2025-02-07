@@ -2122,7 +2122,7 @@ metafor.multi.chr.smd.5;
 
 save.outlier.figure(
     metafor.multi.chr.smd.5,
-    c('Figure1fgi', 'metafor.multi.chr.smd.5', 'multipanel'),
+    c('Figure1fg', 'metafor.multi.chr.smd.5', 'multipanel'),
     width = 4.3,
     height = 7
     );
@@ -2333,7 +2333,7 @@ outlier.manhattan;
 
 save.outlier.figure(
     outlier.manhattan,
-    c('Figure1fgi_9dataset', 'combine_outlier', 'manhattan'),
+    c('Figure1h_9dataset', 'combine_outlier', 'manhattan'),
     width = 11,
     height = 4.5
     );
