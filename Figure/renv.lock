@@ -2011,7 +2011,7 @@
     },
     "outlierAnalysisSupport": {
       "Package": "outlierAnalysisSupport",
-      "Version": "0.0.0.9000",
+      "Version": "0.0.0.9002",
       "Source": "Local",
       "RemoteType": "local",
       "RemoteUrl": "../outlierAnalysisSupport",
@@ -2034,7 +2034,7 @@
         "rtracklayer",
         "tidyr"
       ],
-      "Hash": "e8310f3350483e0b8c1e6b12dca13cf8"
+      "Hash": "d8530bca6d75b55c1d4dfdbf0f23bc42"
     },
     "pbapply": {
       "Package": "pbapply",
