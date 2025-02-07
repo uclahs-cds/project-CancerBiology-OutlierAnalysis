@@ -1096,7 +1096,7 @@ key.subtype <- list(
     );
 
 
-create.multipanelplot(
+new.plot <- create.multipanelplot(
     list(main.heatmap2, row.total, row.total.4, col.total),
 	main = expression("Cancer subtype and the number of outliers"),
     main.cex = 1.7,
@@ -1131,7 +1131,7 @@ create.multipanelplot(
 
 
 save.outlier.figure(
-    rppa.box,
+    new.plot,
     c('Figure3a', 'meta_subtype', 'box'),
     width = 7,
     height = 6
