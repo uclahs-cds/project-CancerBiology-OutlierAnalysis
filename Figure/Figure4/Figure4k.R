@@ -130,7 +130,7 @@ bar.protein.na <- BoutrosLab.plotting.general::create.barplot(
 
 # Prepare CNV data for heatmap
 i.cnv <- cnv.info.breast.t.num[rownames(i.fpkm), i.fpkm.data.order$sample];
-max.lim.cnv <- ceiling(max(na.omit(i.cnv)));
+max.lim.cnv <- 2.1;
 
 # Create CNV heatmap
 cnv.plot <- BoutrosLab.plotting.general::create.heatmap(
