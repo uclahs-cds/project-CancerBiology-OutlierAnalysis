@@ -20,7 +20,8 @@ library(outlierAnalysisSupport);
 attach(get.outlier.data.path());
 
 
-genes <- c('FMO3', 'CUTC', 'PRKD1', 'PRKD2', 'GAPDH', 'B2M');
+
+genes <- c('FMO3',  'CUTC', 'GMPPB', 'GMPPA', 'GAPDH', 'B2M');
 
 # fpkm.tumor.symbol.filter.XXX: RNA abundance matrix with rows of genes and
 # columns of patients. Row names are Ensembl IDs.
@@ -30,7 +31,7 @@ genes <- c('FMO3', 'CUTC', 'PRKD1', 'PRKD2', 'GAPDH', 'B2M');
 
 # All of the RNA abundance matricies have a Symbol column _except_ ispy, which
 # has the symbols as its row names. Standardize that now.
-fpkm.tumor.symbol.filter.ispy$Symbol <- rownames(fpkm.tumor.symbol.filter.ispy);
+# fpkm.tumor.symbol.filter.ispy$Symbol <- rownames(fpkm.tumor.symbol.filter.ispy);
 
 # outlier.patient.tag.01.XXX: Outlier status matrix of XXX dataset with
 # rows of genes and columns of patients. Values are 1 for outlier events
@@ -38,7 +39,7 @@ fpkm.tumor.symbol.filter.ispy$Symbol <- rownames(fpkm.tumor.symbol.filter.ispy);
 
 unique.datasets <- list(
     gene.dataset.name = c(
-        'fpkm.tumor.symbol.filter.metador.symbol',
+        'fpkm.tumor.symbol.filter.matador.symbol',
         'fpkm.tumor.symbol.filter.meta.symbol',
         'fpkm.tumor.symbol.filter.brca',
         'fpkm.tumor.symbol.filter.ispy',
@@ -49,7 +50,7 @@ unique.datasets <- list(
         'fpkm.tumor.symbol.filter.sjostrom'
         ),
     outlier.dataset.name = c(
-        'outlier.patient.tag.01.metador',
+        'outlier.patient.tag.01.matador',
         'outlier.patient.tag.01.meta',
         'outlier.patient.tag.01.brca',
         'outlier.patient.tag.01.ispy',
@@ -132,7 +133,7 @@ stripplot.gene.z.scores <- BoutrosLab.plotting.general::create.stripplot(
     xaxis.cex = 1.1,
     yaxis.cex = 1,
     xaxis.lab = genes,
-    yat = seq(0, 300, 50),
+    yat = seq(0, 350, 50),
     xlab.cex = 1.3,
     ylab.cex = 1.3,
     cex = gene.data$size,

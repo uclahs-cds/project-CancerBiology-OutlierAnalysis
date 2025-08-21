@@ -40,7 +40,7 @@ two.outlier.promoter.symbol.sample.match.merge.filter.500 <- apply(two.outlier.p
 analyze_beta_values <- function(sample_list, data_matrix) {
     lapply(seq_len(nrow(data_matrix)), function(i) {
         value.vector <- data_matrix[i, ] # Retrieve the ith row
-        percentile <- ecdf(value.vector) # Compute the ecdf for the row
+        percentile <- ecdf(na.omit(value.vector)) # Compute the ecdf for the row
         percent_value <- percentile(sample_list[[i]]) # Apply ecdf to corresponding sample
         na.omit(percent_value) # Remove any NA values
         }) |> unlist()

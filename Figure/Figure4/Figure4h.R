@@ -23,16 +23,22 @@ load.multiple.computed.variables(c(
     'rnai.05.box'
     ));
 
-dot.colours <- vector(length = nrow(rnai.05.box));
-dot.colours <- rep('grey70', nrow(rnai.05.box));
-dot.colours[rnai.05.box$status == 1] <- 'dodgerblue2';
-
 # Establish an arbitrary but consistent random seed for plotting consistency
 set.seed(sum(utf8ToInt('Figure4h')));
 
+rnai.selected.gene <- c('MECOM', 'CCNE1', 'FOXP4', 'NOTCH3', 'RASL11B', 'TNFSF10', 'WIPF2', 'CRLF1', 'CTDSP2', 'SMYD3', 'TRIM2');
+rnai.05.box.select <- rnai.05.box[rnai.05.box$gene %in% rnai.selected.gene,];
+# rnai.05.box.select <- rnai.05.box;
+
+
+dot.colours <- vector(length = nrow(rnai.05.box.select));
+dot.colours <- rep('grey70', nrow(rnai.05.box.select));
+dot.colours[rnai.05.box.select$status == 1] <- 'dodgerblue2';
+
+
 rnai.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
     formula = score ~ gene,
-    data = rnai.05.box,
+    data = rnai.05.box.select,
     main = expression('Gene effect score of outlier genes'),
     outlier = TRUE,
     add.stripplot = TRUE,
@@ -67,8 +73,8 @@ rnai.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 save.outlier.figure(
     rnai.05.box.plot,
     c('Figure4h', 'gene', 'effect', 'example', 'rnai', 'box'),
-    width = 6,
-    height = 6
+    width = 5,
+    height = 5
     );
 
 save.session.profile(file.path('output', 'Figure4h.txt'));

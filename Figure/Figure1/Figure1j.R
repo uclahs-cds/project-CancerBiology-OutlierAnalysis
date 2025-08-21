@@ -63,8 +63,10 @@ for (i in 1:nrow(brca.protein.outlier.match)) {
     target.gene.name.split <- unlist(strsplit(target.gene.name, '/'));
     target.gene.name.single <- outlier.protein.gene[outlier.protein.gene %in% target.gene.name.split];
     row.name.target <- rownames(fpkm.tumor.symbol.filter.brca)[fpkm.tumor.symbol.filter.brca$Symbol %in% target.gene.name.single];
-    target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[outlier.patient.tag.01.brca.protein.match[row.name.target, ] == 1];
-    non.target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[outlier.patient.tag.01.brca.protein.match[row.name.target, ] == 0];
+    # target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[outlier.patient.tag.01.brca.protein.match[row.name.target, ][1,] == 1];
+    # non.target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[outlier.patient.tag.01.brca.protein.match[row.name.target, ][1,] == 0];
+    target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[apply(outlier.patient.tag.01.brca.protein.match[row.name.target, ], 2, sum) == 1];
+    non.target.col <- colnames(outlier.patient.tag.01.brca.protein.match)[apply(outlier.patient.tag.01.brca.protein.match[row.name.target, ], 2, sum) == 0];
     target.gene.list <- c(target.gene.list, target.gene.name.single);
     outlier.protein.list[[i]] <- brca.protein.outlier.match[i, target.col];
     non.outlier.protein.list[[i]] <- brca.protein.outlier.match[i, non.target.col];

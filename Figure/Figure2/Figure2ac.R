@@ -212,7 +212,7 @@ metafor.all.segplot <- BoutrosLab.plotting.general::create.segplot(
     abline.v = 0,
     abline.lty = 3,
     add.rectangle = TRUE,
-    xleft.rectangle = -3,
+    xleft.rectangle = -5,
     xright.rectangle = 13,
     ybottom.rectangle = seq(1.5, 23.5, 2),
     ytop.rectangle = seq(2.5, 24.5, 2),
@@ -243,7 +243,7 @@ fdr.bar <- BoutrosLab.plotting.general:::create.barplot(
     ylab.label = NULL,
     xlab.cex = 1.1,
     xlab.label = expression('-log'[10] * '(FDR)'),
-    xlimits = c(-1, 13),
+    xlimits = c(-1, 10.5),
     ylab.cex = 1.3,
     xaxis.cex = 1.1,
     yaxis.cex = 0,
@@ -293,8 +293,9 @@ save.outlier.figure(
 # 1. TCGA-BRCA
 
 # Filtering data for chromosome 10
+brca.cnv.chr.new.gis.fpkm.order.match.chr <- brca.cnv.chr.new.gis.fpkm.order.match.chr[match(brca.cnv.chr.new.gis.fpkm.order.match$Hugo_Symbol, brca.cnv.chr.new.gis.fpkm.order.match.chr$gene_name),]
 brca.cnv.chr.new.gis.fpkm.order.match.chr10 <- brca.cnv.chr.new.gis.fpkm.order.match[
-    brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome == 'chr10',
+    brca.cnv.chr.new.gis.fpkm.order.match.chr$chromosome %in% 'chr10',
     ];
 
 # Extracting outlier patient samples for FGFR2

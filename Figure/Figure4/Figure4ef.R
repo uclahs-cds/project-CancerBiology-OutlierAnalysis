@@ -128,7 +128,7 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
 
 save.outlier.figure(
     gene.scatter.05.minus.overlap.label,
-    c('Figure4ef', 'gene', 'dependency', 'diff', 'scatter'),
+    c('Figure4e', 'gene', 'dependency', 'diff', 'scatter'),
     width = 6,
     height = 5
     );
@@ -168,7 +168,9 @@ dependency.05.box$score <- as.numeric(dependency.05.box$score);
 dependency.05.box$status <- as.numeric(dependency.05.box$status);
 
 # Filter out specific genes from the data
-selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[1:11];
+# selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[1:11];
+selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[c(1,3, 2, 4, 7, 11, 12, 18, 13, 20, 16, 15, 14)];
+# selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol;
 dependency.05.box.part <- dependency.05.box[dependency.05.box$gene %in% selected.gene, ];
 
 # Convert score and status to numeric
@@ -220,9 +222,9 @@ dependency.05.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     dependency.05.box.plot,
-    c('Figure4ef', 'gene', 'dependency', 'example', 'box'),
-    width = 6,
-    height = 5
+    c('Figure4f', 'gene', 'dependency', 'example', 'box'),
+    width = 5.1,
+    height = 4.9
     );
 
 save.session.profile(file.path('output', 'Figure4ef.txt'));

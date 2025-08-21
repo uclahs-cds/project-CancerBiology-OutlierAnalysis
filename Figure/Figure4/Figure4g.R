@@ -42,7 +42,7 @@ gene.scatter.05.minus.overlap.label <- create.scatterplot(
     data = gene.rnai.diff.matrix.05.overlap,
     col = dot.colours,
     alpha = .6,
-    ylimits = c(-1.3, 1.05),
+    ylimits = c(-1.7, 1.05),
     xlimits = c(-1.4, 0.5),
     xaxis.fontface = 1,
     yaxis.fontface = 1,

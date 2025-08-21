@@ -51,6 +51,9 @@ colnames(two.outlier.promoter.symbol.sample.match.merge.filter.500) <- c(colname
 # Convert to data frame if necessary
 two.outlier.promoter.symbol.sample.match.merge.filter.500 <- as.data.frame(two.outlier.promoter.symbol.sample.match.merge.filter.500)
 
+all.na.row <- apply(two.outlier.promoter.symbol.sample.match.merge.filter.500, 1, function(row) all(is.na(row)))
+two.outlier.promoter.symbol.sample.match.merge.filter.500 <- two.outlier.promoter.symbol.sample.match.merge.filter.500[!all.na.row, ]
+
 # Merge outlier status data for BRCA and METABRIC
 outlier.patient.tag.01.brca.me.match <- outlier.patient.tag.01.brca[, colnames(brca.me.outlier.match)]
 outlier.patient.tag.01.brca.me.match <- outlier.patient.tag.01.brca.me.match[
@@ -71,7 +74,8 @@ for (i in 1:length(me.out.symbol.two.500)) {
             ];
         row.brca <- row.brca[row.brca %in% rownames(outlier.patient.tag.01.brca.me.match)];
         target.gene.brca <- as.numeric(
-            outlier.patient.tag.01.brca.me.match[row.brca, ]
+            # outlier.patient.tag.01.brca.me.match[row.brca, ]
+            apply(outlier.patient.tag.01.brca.me.match[row.brca, ], 2, sum)
             );
         } else {
         target.gene.brca <- rep('NA', ncol(brca.me.outlier.match));
@@ -98,6 +102,7 @@ for (i in 1:length(me.out.symbol.two.500)) {
 two.outlier.patient.status.merge.filter.500 <- do.call(rbind, two.outlier.patient.status.merge.filter.list.500)
 rownames(two.outlier.patient.status.merge.filter.500) <- me.out.symbol.two.500
 colnames(two.outlier.patient.status.merge.filter.500) <- c(colnames(brca.me.data), colnames(meta.me.data))
+two.outlier.patient.status.merge.filter.500 <- two.outlier.patient.status.merge.filter.500[!all.na.row, ]
 
 # Function to split outliers and non-outliers
 split_outliers <- function(gene_row, promoter_row) {

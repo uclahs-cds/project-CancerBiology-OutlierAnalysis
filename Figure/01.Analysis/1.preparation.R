@@ -29,10 +29,10 @@ outlier.symbol <- list(
     matador = substring(rownames(outlier.gene.fdr.01$matador), pos + 1),
     ispy = rownames(outlier.gene.fdr.01$ispy),
     icgc = fpkm.tumor.symbol.filter.symbol.icgc[rownames(outlier.patient.tag.01.icgc), ]$Symbol,
-    kao = fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.01.kao), ]$Symbol,
-    cheng = fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.01.cheng), ]$Symbol,
-    hatzis = fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.01.hatzis), ]$Symbol,
-    sjostrom = fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.01.sjostrom), ]$Symbol
+    kao = fpkm.tumor.symbol.filter.kao[rownames(outlier.gene.fdr.01$kao), ]$Symbol,
+    cheng = fpkm.tumor.symbol.filter.cheng[rownames(outlier.gene.fdr.01$cheng), ]$Symbol,
+    hatzis = fpkm.tumor.symbol.filter.hatzis[rownames(outlier.gene.fdr.01$hatzis), ]$Symbol,
+    sjostrom = fpkm.tumor.symbol.filter.sjostrom[rownames(outlier.gene.fdr.01$sjostrom), ]$Symbol
     )
 
 # Combine unique symbols across all datasets
@@ -51,13 +51,13 @@ outlier.symbol$unique <- na.omit(unique(c(
 ### MATCH OUTLIER PATIENTS ACROSS DATASETS #####################################
 
 # 1. MATADOR
-# Extract the symbol part after the underscore for the Metador dataset
-outlier.patient.tag.01.metador.pos <- which(strsplit(rownames(outlier.patient.tag.01.metador), '')[[1]] == '_')
-outlier.patient.tag.01.metador.symbol <- substring(rownames(outlier.patient.tag.01.metador), outlier.patient.tag.01.metador.pos + 1)
+# Extract the symbol part after the underscore for the matador dataset
+outlier.patient.tag.01.matador.pos <- which(strsplit(rownames(outlier.patient.tag.01.matador), '')[[1]] == '_')
+outlier.patient.tag.01.matador.symbol <- substring(rownames(outlier.patient.tag.01.matador), outlier.patient.tag.01.matador.pos + 1)
 
-# Match unique symbols to Metador outlier patients
-outlier.patient.tag.01.metador.match.five <- outlier.patient.tag.01.metador[
-    match(outlier.symbol$unique, outlier.patient.tag.01.metador.symbol),
+# Match unique symbols to matador outlier patients
+outlier.patient.tag.01.matador.match.five <- outlier.patient.tag.01.matador[
+    match(outlier.symbol$unique, outlier.patient.tag.01.matador.symbol),
     ]
 
 # 2. TCGA-BRCA
@@ -123,7 +123,7 @@ outlier.patient.all.nine.01 <- data.frame(
         outlier.patient.tag.01.brca.match.five,
         outlier.patient.tag.01.meta.match.five,
         outlier.patient.tag.01.ispy.match.five,
-        outlier.patient.tag.01.metador.match.five,
+        outlier.patient.tag.01.matador.match.five,
         outlier.patient.tag.01.icgc.match.five,
         outlier.patient.tag.01.kao.match.five,
         outlier.patient.tag.01.cheng.match.five,

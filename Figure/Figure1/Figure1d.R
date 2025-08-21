@@ -41,6 +41,7 @@ nine.outlier.gene.sum <- BoutrosLab.plotting.general::create.histogram(
     xlab.label = expression('Number of outlier genes per patient'),
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
+    yat = seq(0, 25, 5),
     xaxis.cex = 1,
     yaxis.cex = 1,
     xlab.cex = 1.3,

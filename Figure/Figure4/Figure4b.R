@@ -35,8 +35,8 @@ outlier.patient.tag.01.meta.gene.per.patient.sum <- apply(outlier.patient.tag.01
 # 3. ISPY
 outlier.patient.tag.01.ispy.gene.per.patient.sum <- apply(outlier.patient.tag.01.ispy, 2, sum);
 
-# 4. METADOR
-outlier.patient.tag.01.metador.gene.per.patient.sum <- apply(outlier.patient.tag.01.metador, 2, sum);
+# 4. matador
+outlier.patient.tag.01.matador.gene.per.patient.sum <- apply(outlier.patient.tag.01.matador, 2, sum);
 
 # 5. ICGC BRCA-EU
 outlier.patient.tag.01.icgc.gene.per.patient.sum <- apply(outlier.patient.tag.01.icgc, 2, sum);
@@ -59,7 +59,7 @@ outlier.patient.number.violin.tissue <- data.frame(
         outlier.patient.tag.01.brca.gene.per.patient.sum,
         outlier.patient.tag.01.meta.gene.per.patient.sum,
         outlier.patient.tag.01.ispy.gene.per.patient.sum,
-        outlier.patient.tag.01.metador.gene.per.patient.sum,
+        outlier.patient.tag.01.matador.gene.per.patient.sum,
         outlier.patient.tag.01.icgc.gene.per.patient.sum,
         outlier.patient.tag.01.cheng.gene.per.patient.sum,
         outlier.patient.tag.01.kao.gene.per.patient.sum,

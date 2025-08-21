@@ -40,10 +40,10 @@ meta.outlier.patient.number.frame <- data.frame(
     );
 
 
-outlier.patient.tag.01.metador.gene.per.patient.sum <- apply(outlier.patient.tag.01.metador, 2, sum);
-metador.outlier.patient.number.frame <- data.frame(
-    sample = rep('METADOR', length(patient.part.metador)),
-    value = as.numeric(outlier.patient.tag.01.metador.gene.per.patient.sum)
+outlier.patient.tag.01.matador.gene.per.patient.sum <- apply(outlier.patient.tag.01.matador, 2, sum);
+matador.outlier.patient.number.frame <- data.frame(
+    sample = rep('matador', length(patient.part.matador)),
+    value = as.numeric(outlier.patient.tag.01.matador.gene.per.patient.sum)
     );
 
 
@@ -91,7 +91,7 @@ nine.outlier.patient.number.frame <- rbind(
     ispy.outlier.patient.number.frame,
     sjostrom.outlier.patient.number.frame,
     cheng.outlier.patient.number.frame,
-    metador.outlier.patient.number.frame,
+    matador.outlier.patient.number.frame,
     icgc.outlier.patient.number.frame,
     kao.outlier.patient.number.frame,
     hatzis.outlier.patient.number.frame
@@ -106,7 +106,7 @@ nine.outlier.patient.number.frame.order <- cbind(
         rep('c', nrow(ispy.outlier.patient.number.frame)),
         rep('d', nrow(sjostrom.outlier.patient.number.frame)),
         rep('e', nrow(cheng.outlier.patient.number.frame)),
-        rep('f', nrow(metador.outlier.patient.number.frame)),
+        rep('f', nrow(matador.outlier.patient.number.frame)),
         rep('g', nrow(icgc.outlier.patient.number.frame)),
         rep('h', nrow(kao.outlier.patient.number.frame)),
         rep('i', nrow(hatzis.outlier.patient.number.frame))
@@ -144,7 +144,7 @@ nine.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
         'I-SPY2\n n = 988',
         'Sjostrom\n n = 765', 
         'Cheng\n n = 638', 
-        'METADOR\n n = 528',
+        'matador\n n = 528',
         'ICGC BRCA-EU\n n = 342',
         'Kao\n n = 327', 
         'Hatzis\n n = 310'
@@ -158,7 +158,7 @@ nine.outlier.patient.violin <- BoutrosLab.plotting.general::create.violinplot(
         expression('2'^'10')
         ),
     yat = c(0, 2, 4, 6, 8, 10),
-    ylimits = c(-1.2, 11),
+    ylimits = c(-1.3, 11.5),
     xlab.cex = 1.3,
     ylab.cex = 1.3,
     add.rectangle = TRUE,
@@ -185,7 +185,7 @@ nine.outlier.patient.violin;
 ### OUTPUT ######################################################################
 save.outlier.figure(
     nine.outlier.patient.violin,
-    c('Figure1e', '5_patient_number', 'violin'),
+    c('Figure1e', '9_patient_number', 'violin'),
     width = 5.5,
     height = 5.3
     );

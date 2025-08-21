@@ -73,7 +73,7 @@ create_gene_heatmap <- function(methylation_data, clustering = 'none', cluster.d
         yaxis.cex = 0,
         yaxis.rot = 0,
         ylab.cex = 0,
-        at = seq(0, 1, 0.001),
+        at = seq(0, 1, 0.1),
         colourkey.cex = 1.3,
         print.colour.key = show.color.key
         )
@@ -90,7 +90,7 @@ methylation_data <- process.methylation.data(
     )
 
 # Create heatmaps for different patient groups
-heatmap.outlier <- create_gene_heatmap(t(methylation_data$gene.me.patient));
+heatmap.outlier <- create_gene_heatmap(methylation_data$gene.me.patient);
 heatmap.outlier.normal <- create_gene_heatmap(t(methylation_data$gene.me.patient_normal));
 
 heatmap.non.outlier <- create_gene_heatmap(

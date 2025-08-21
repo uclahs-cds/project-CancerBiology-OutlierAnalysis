@@ -55,6 +55,7 @@ effect.05.box$status <- as.numeric(effect.05.box$status);
 
 
 i <- 'FOXP4';
+# i <- 'TNFSF10';
 
 # Prepare RNA abundance data
 i.fpkm <- fpkm.tumor.symbol.filter.ccle[i, ];
@@ -130,7 +131,7 @@ bar.protein.na <- BoutrosLab.plotting.general::create.barplot(
 
 # Prepare CNV data for heatmap
 i.cnv <- cnv.info.breast.t.num[rownames(i.fpkm), i.fpkm.data.order$sample];
-max.lim.cnv <- 2.1;
+max.lim.cnv <- 2.3;
 
 # Create CNV heatmap
 cnv.plot <- BoutrosLab.plotting.general::create.heatmap(
@@ -152,6 +153,7 @@ cnv.plot <- BoutrosLab.plotting.general::create.heatmap(
     ylab.cex = 0,
     xlab.cex = 1,
     colour.centering.value = 1,
+    # at = seq(0, 2.1, 0.001),
     at = seq(0, 2.1, 0.001),
     colourkey.cex = 1.3,
     print.colour.key = FALSE

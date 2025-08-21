@@ -84,7 +84,7 @@ meta.gis.table.num$se <- sqrt(meta.gis.table.num$Freq * (1 - meta.gis.table.num$
 
 
 ### 2. TCGA-BRCA
-brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis[na.omit(match(outlier.symbol$brca, brca.cnv.chr.new.gis$Hugo_Symbol)), ];
+brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis[na.omit(match(unique(outlier.symbol$brca), brca.cnv.chr.new.gis$Hugo_Symbol)), ];
 rownames(brca.cnv.chr.new.gis.match) <- brca.cnv.chr.new.gis.match$Hugo_Symbol;
 brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis.match[, 3:ncol(brca.cnv.chr.new.gis.match)];
 brca.cnv.chr.new.gis.match <- brca.cnv.chr.new.gis.match[, colnames(brca.cnv.chr.new.gis.match) %in% substr(colnames(outlier.patient.tag.01.brca), 1, 15)];

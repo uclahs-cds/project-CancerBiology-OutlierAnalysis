@@ -146,7 +146,7 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
     xaxis.rot = 0,
     outliers = FALSE,
     key = key.protien.na,
-    ylimits = c(-5, 8.5),
+    ylimits = c(-5, 7.5),
     # yat = seq(-110, 110, 20),
     # add.text = TRUE,
     # text.x = 1.5,
@@ -174,7 +174,7 @@ ccle.protein.box <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     ccle.protein.box,
-    c('Figure4cd', 'CCLE', 'outlier', 'protein', 'box'),
+    c('Figure4c', 'CCLE', 'outlier', 'protein', 'box'),
     width = 3.5,
     height = 5.5
     );
@@ -336,7 +336,7 @@ ccle.protein.box.all <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     ccle.protein.box.all,
-    c('Figure4cd', 'CCLE', 'outlier', 'protein', 'all', 'box'),
+    c('Figure4d', 'CCLE', 'outlier', 'protein', 'all', 'box'),
     width = 3.5,
     height = 5.5
     );

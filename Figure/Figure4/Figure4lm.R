@@ -272,13 +272,14 @@ sanger.zscore.drug.breast.match.mean.df.merge <- data.frame(sanger.zscore.drug.b
 
 # Do not merge genes, keep each Z-score separately
 sanger.zscore.drug.breast.match.out.non.each.df <- data.frame(
-    out = apply(sanger.zscore.drug.breast.match.out.df, 1, function(x) {
+    out = as.numeric(apply(sanger.zscore.drug.breast.match.out.df, 1, function(x) {
         na.omit(as.numeric(x))
-        }),
+        })),
     non = sanger.zscore.drug.breast.match.non.df
     );
 rownames(sanger.zscore.drug.breast.match.out.non.each.df) <- rownames(sanger.zscore.drug.breast.match.out.df);
-sanger.zscore.drug.breast.match.out.non.each.df <- sanger.zscore.drug.breast.match.out.non.each.df[!(duplicated(substr(rownames(sanger.zscore.drug.breast.match.out.non.each.df), 1, 9))),]
+sanger.zscore.drug.breast.match.out.non.each.df <- sanger.zscore.drug.breast.match.out.non.each.df[!(duplicated(substr(rownames(sanger.zscore.drug.breast.match.out.non.each.df), 1, 6))),];
+sanger.zscore.drug.breast.match.out.non.each.df <- sanger.zscore.drug.breast.match.out.non.each.df[!(is.na(sanger.zscore.drug.breast.match.out.non.each.df$out)),];
 
 # Prepare data for boxplot
 z.score.box.each <- data.frame(
@@ -365,7 +366,7 @@ zscore.box.sanger <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     zscore.box.sanger,
-    c('Figure4lm', 'sanger', 'drug', 'box'),
+    c('Figure4l', 'sanger', 'drug', 'box'),
     width = 4,
     height = 6
     );
@@ -436,7 +437,7 @@ i.drug.box.plot <- BoutrosLab.plotting.general::create.boxplot(
 
 save.outlier.figure(
     i.drug.box.plot,
-    c('Figure4lm', i, 'box', 'drug'),
+    c('Figure4m', i, 'box', 'drug'),
     width = 5,
     height = 6
     );

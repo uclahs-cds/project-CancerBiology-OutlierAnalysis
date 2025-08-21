@@ -20,6 +20,8 @@ library(outlierAnalysisSupport);
 ### DATA PREPARATION ############################################################
 attach(get.outlier.data.path());
 
+brca.clinic.order <- brca.clinic.order[match(substr(colnames(outlier.patient.tag.01.brca), 1, 12), rownames(brca.clinic.order)),]
+
 ### 1. TCGA-BRCA
 os.data.brca <- data.frame(cbind(
     status = substr(brca.clinic.order$Overall.Survival.Status, 1, 1),
@@ -28,6 +30,7 @@ os.data.brca <- data.frame(cbind(
     pam50 = sub('^BRCA_', '', brca.clinic.order$Subtype),
     age = brca.clinic.order$Diagnosis.Age
     ));
+# os.data.brca <- os.data.brca[!(duplicated(substr(rownames(os.data.brca), 1, 12))),]
 
 os.data.meta <- data.frame(cbind(
     status = substr(meta.clinic.5.order.combine$Overall.Survival.Status, 1, 1),
@@ -49,7 +52,7 @@ os.group.combine$sum <- as.numeric(os.group.combine$sum)
 os.group.combine$age <- as.numeric(os.group.combine$age)
 
 # Filter out any NC pam50 values, then convert that to a factor
-os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% 'NC'), ];
+# os.group.combine <- os.group.combine[!(os.group.combine$pam50 %in% 'NC'), ];
 os.group.combine$pam50 <- relevel(as.factor(os.group.combine$pam50), ref = 'LumA');
 
 # Group risk groups based on total sums
@@ -92,14 +95,15 @@ km.os.group.combine;
 
 save.outlier.figure(
     km.os.group.combine,
-    c('Figure3d', 'os', 'merge', 'km'),
+    c('Figure3h', 'os', 'merge', 'km'),
     width = 7.5,
     height = 7
     );
 
-i <- 'Basal'
+i <- 'LumA'
 
-os.group.basal <- os.group.combine[os.group.combine$pam50 %in% 'Basal', ];
+os.group.basal <- os.group.combine[os.group.combine$pam50 %in% i, ];
+
 
 km.os.group.combine <- create.km.plot(
     survival.object = Surv(os.group.basal$os, os.group.basal$status),
@@ -124,6 +128,7 @@ km.os.group.combine <- create.km.plot(
     ylab.axis.padding = 2,
     risk.label.fontface = 1,
     left.padding = 5.5,
+    ph.assumption.check = "ignore",
     key.groups.labels = c('Non-outlier patients', 'Outlier patients'),
     key.groups.cex = 1,
     line.colours = rev(c('red3', 'dodgerblue3'))
@@ -228,7 +233,7 @@ merge.surv.seg.log <- BoutrosLab.plotting.general::create.segplot(
     ylab.cex = 1.3,
     yaxis.cex = 1,
     xaxis.cex = 1,
-    xlimits = c(-0.8, 1.8),
+    xlimits = c(-1, 1.5),
     xaxis.lab = c('0.75', '1', '1.5', '2', '2.5'),
     xaxis.fontface = 1,
     xat = c(log2(0.75), log2(1), log2(1.5), log2(2), log2(2.5)),
@@ -256,4 +261,4 @@ save.outlier.figure(
     );
 
 
-save.session.profile(file.path('output', 'Figure3def.txt'));
+save.session.profile(file.path('output', 'Figure3ghi.txt'));

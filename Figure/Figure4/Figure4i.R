@@ -73,7 +73,7 @@ cor.scatter.effect.cas.rnai <- BoutrosLab.plotting.general::create.scatterplot(
     main.cex = 1.5,
     xaxis.fontface = 1,
     yaxis.fontface = 1,
-    ylimits = c(-1.2, 1.05),
+    ylimits = c(-1.72, 1.05),
     xlimits = c(-2.1, 0.9),
     type = c('p', 'r', 'g'),
     lwd = 1.5,

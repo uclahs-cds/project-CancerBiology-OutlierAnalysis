@@ -63,11 +63,17 @@ for (i in 1:length(outlier.protein.cptac.zscore.gene)) {
     row.name.target <- rownames(fpkm.tumor.symbol.filter.brca.outlier)[
         fpkm.tumor.symbol.filter.brca.outlier$Symbol %in% outlier.protein.cptac.zscore.gene[i]
         ];
+    # target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
+    #     outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ][1,] == 1
+    #     ];
+    # non.target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
+    #     outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ][1,] == 0
+    #     ];
     target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
-        outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 1
+        apply(outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ], 2, sum) == 1
         ];
     non.target.col <- colnames(outlier.patient.tag.01.brca.protein.cptac.zscore.match)[
-        outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ] == 0
+        apply(outlier.patient.tag.01.brca.protein.cptac.zscore.match[row.name.target, ], 2, sum) == 0
         ];
     target.gene.cptac.zscore.list <- c(target.gene.cptac.zscore.list, outlier.protein.cptac.zscore.gene[i]);
     outlier.protein.cptac.zscore.list[[i]] <- target.gene.name.protein[, substr(target.col, 1, 15)];
@@ -174,16 +180,19 @@ save.outlier.figure(
     height = 6.5
     );
 
+
+
 # Calculate quantiles of protein abundance for outlier genes
 percent.protein.cptac.quantile <- NULL;
-for (i in 1:length(outlier.protein.cptac.list.no.p.na)) {
+for (i in 1:length(outlier.protein.cptac.zscore.list)) {
     unequal.quan <- rev(seq(0, 0.9, 0.1));
-    value.vector <- na.omit(as.numeric(unlist(non.outlier.protein.cptac.list.no.p.na[i])));
+    value.vector <- na.omit(as.numeric(unlist(non.outlier.protein.cptac.zscore.list[i])));
     non.value <- quantile(value.vector, p = unequal.quan);
-    out.value <- as.numeric(unlist(outlier.protein.cptac.list.no.p.na[i]));
+    out.value <- mean(as.numeric(unlist(outlier.protein.cptac.zscore.list[i])));
     all.value <- c(out.value, non.value);
     percent.protein.cptac.quantile <- rbind(percent.protein.cptac.quantile, all.value);
     }
+percent.protein.cptac.quantile <- na.omit(percent.protein.cptac.quantile);
 
 # Prepare data for heatmap
 heat.df <- t(data.frame(percent.protein.cptac.quantile));

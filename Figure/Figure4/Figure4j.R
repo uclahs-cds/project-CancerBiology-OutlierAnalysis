@@ -52,9 +52,11 @@ effect.05.box$score <- as.numeric(effect.05.box$score);
 effect.05.box$status <- as.numeric(effect.05.box$status);
 
 
-
-
-gene.five.cas.rnai <- c('FGFR2', 'FOXP4', 'MECOM', 'WIPF2', 'TCF7', 'TNFSF10');
+# 
+# interesting.points <- cor.diff.cas.rnai.effect$cas < -0.5 & cor.diff.cas.rnai.effect$rnai < -0.4;
+# gene.five.cas.rnai <-  na.omit(cor.diff.cas.rnai.effect$symbol[interesting.points]);
+gene.five.cas.rnai <-  c("CTDSP2", "FGFR1", "FOXP4", "WIPF2", "MECOM","TNFSF10", "CCNE1");
+# gene.five.cas.rnai <- unique(effect.05.box$gene)
 rnai.05.box.4 <- rnai.05.box[rnai.05.box$gene %in% gene.five.cas.rnai, ];
 rnai.05.box.4$label <- rep('RNAi', nrow(rnai.05.box.4));
 effect.05.box.4 <- effect.05.box[effect.05.box$gene %in% gene.five.cas.rnai, ];
@@ -73,41 +75,48 @@ dot.colours <- rep('grey70', nrow(rnai.effect.05.box.4.order));
 dot.colours[rnai.effect.05.box.4.order$status == 1] <- 'dodgerblue2';
 # dot.colours[rnai.05.box.part$status == 1][13:14] <- 'red2';
 
+gene.order.rnai <- unique(rnai.effect.05.box.4.order$gene);
 
 key <- list(
     text = list(
-        lab = 'FGFR2',
+        lab = gene.order.rnai[1],
         cex = 1
         ),
-    x = 0.05,
+    # x = 0.05,
     y = 0.93,
     text = list(
-        lab = 'FOXP4',
+        lab = gene.order.rnai[2],
         cex = 1
         ),
     text = list(
-        lab = 'MECOM',
+        lab = gene.order.rnai[3],
         cex = 1
         ),
-    x = 0.9,
+    # x = 0.9,
     y = 0.93,
     text = list(
-        lab = 'TCF7',
+        lab = gene.order.rnai[4],
         cex = 1
         ),
-    x = 0.9,
+    # x = 0.9,
     y = 0.93,
     text = list(
-        lab = 'TNFSF10',
+        lab = gene.order.rnai[5],
         cex = 1
         ),
-    x = 0.9,
+    # x = 0.9,
     y = 0.93,
     text = list(
-        lab = 'WIPF2',
+        lab = gene.order.rnai[6],
         cex = 1
         ),
-    x = 0.9,
+    # x = 0.9,
+    y = 0.93,
+    text = list(
+        lab = gene.order.rnai[7],
+        cex = 1
+        ),
+    # x = 0.9,
     y = 0.93
     );
 
@@ -121,8 +130,8 @@ cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
     outlier = TRUE,
     add.stripplot = TRUE,
     add.rectangle = TRUE,
-    xleft.rectangle = seq(2.5, 10.5, 4),
-    xright.rectangle = seq(4.5, 12.5, 4),
+    xleft.rectangle = seq(2.5, 14.5, 4),
+    xright.rectangle = seq(4.5, 16.5, 4),
     ybottom.rectangle = -3,
     ytop.rectangle = 5,
     # set rectangle colour
@@ -130,40 +139,28 @@ cas.rnai.example.box <- BoutrosLab.plotting.general::create.boxplot(
     # set rectangle alpha (transparency)
     alpha.rectangle = 0.25,
     main.cex = 1.5,
-    xaxis.lab = rep(c('CRISPR', 'RNAi'), 6),
+    xaxis.lab = rep(c('CRISPR', 'RNAi'), 9),
+    # xaxis.lab = gene.five.cas.rnai,
     xlab.label = NULL,
     xlab.cex = 0,
     ylab.label = expression('Gene effect score'),
     ylab.cex = 1.3,
     yaxis.cex = 1.1,
     xaxis.cex = 1.1,
-    # xaxis.lab = c('Non-outlier', 'Outlier'),
     xaxis.fontface = 1,
     yaxis.fontface = 1,
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
     xaxis.rot = 90,
-    # add.text = TRUE,
-    # text.x = c(1.5, 3.5, 5.5, 7.5),
-    # text.y = rep(0.75, 4),
-    # text.labels = gene.five.cas.rnai,
-    # text.fontface = 1,
     ylimits = c(-1.8, 0.9),
     key = key,
-    # yat = seq(-110, 110, 20),
     sample.order = 'none',
-    # add.text = TRUE,
-    # text.x = 1.5,
-    # text.y = 2.6,
-    # text.labels = paste('p =', sprintf("%.1e",p.me$p.value)),
-    # text.fontface = 1,
-    # add.stripplot = TRUE,
     points.pch = 16,
     points.cex = 1,
     points.col = dot.colours,
     lwd = 1.2,
     # col = c('gold2'),
-    col = rep(c('red3', 'dodgerblue3'), 4),
+    col = rep(c('red3', 'dodgerblue3'), 9),
     alpha = 0.25
     );
 cas.rnai.example.box;
@@ -172,8 +169,8 @@ cas.rnai.example.box;
 save.outlier.figure(
     cas.rnai.example.box,
     c('Figure4j', 'cas', 'rnai', 'example', 'box'),
-    width = 4.5,
-    height = 6.5
+    width = 6.7,
+    height = 6.7
     );
 
 save.session.profile(file.path('output', 'Figure4j.txt'));
