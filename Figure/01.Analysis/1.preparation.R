@@ -140,7 +140,9 @@ rownames(outlier.patient.all.nine.01) <- outlier.symbol$unique
 cache.multiple.computed.variables(c(
     'outlier.symbol',
     'outlier.gene.fdr.01',
-    'outlier.patient.all.nine.01'
+    'outlier.patient.all.nine.01',
+    'outlier.patient.tag.01.brca.match.five',
+    'outlier.patient.tag.01.meta.match.five'
     ))
 
 # Save the session profile for reproducibility
