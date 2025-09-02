@@ -30,6 +30,13 @@ library(outlierAnalysisSupport);
 ### DATA PREPARATION ############################################################
 attach(get.outlier.data.path());
 
+load.multiple.computed.variables(c(
+    'outlier.patient.tag.01.brca.match.five',
+    'outlier.patient.tag.01.meta.match.five',
+    'outlier.symbol',
+    'os.group.combine'
+    ));
+
 
 # Filtering criteria
 
