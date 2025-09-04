@@ -186,7 +186,8 @@ frequent.gene.os <- BoutrosLab.plotting.general::create.segplot(
     yaxis.cex = 1,
     xaxis.cex = 1,
     xlimits = c(-3.5, 5.3),
-    xaxis.lab = c(NA, 2^-4, 2^-2, 2^0, 2^2, 2^4),
+    xat = c(-2, 0, 2, 4),
+    xaxis.lab = c(2^-2, 2^0, 2^2, 2^4),
     xaxis.fontface = 1,
     yaxis.tck = c(0.2, 0),
     xaxis.tck = c(0.2, 0),
@@ -232,6 +233,13 @@ cox_fit <- coxph(Surv(os, status) ~ out.group, data = os.group.combine.gene.na);
 # KM fit for the example gene
 fit <- survfit(Surv(os, status) ~ out.group, data = os.group.combine.gene.na);
 
+cox_summary <- summary(cox_fit);
+
+# Log-rank test for p-value
+logrank_test <- survdiff(Surv(os.group.combine.gene.na$os, os.group.combine.gene.na$status) ~ 
+        as.factor(os.group.combine.gene.na$out.group))
+logrank_p <- 1 - pchisq(logrank_test$chisq, length(logrank_test$n) - 1)
+
 # Kaplan-Meier survival plot
 km.os.group.gene <- create.km.plot(
     survival.object = Surv(os.group.combine.gene.na$os, os.group.combine.gene.na$status),
@@ -248,6 +256,10 @@ km.os.group.gene <- create.km.plot(
     xlab.cex = 1.3,
     ylab.cex = 1.3,
     main.cex = 1.5,
+    statistical.method = 'cox',
+    predefined.hr = round(cox_summary$conf.int[1, "exp(coef)"], digits = 2),  # Cox HR
+    predefined.hr.ci = round(cox_summary$conf.int[1, c("lower .95", "upper .95")], digits = 2),  # Cox CI
+    predefined.p = logrank_p,  # Log-rank p-value
     key.stats.cex = 1.1,
     patient.groups = as.factor(os.group.combine.gene.na$out.group),
     risktable.fontsize = 11.5,
