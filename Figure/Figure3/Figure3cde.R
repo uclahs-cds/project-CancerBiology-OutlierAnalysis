@@ -23,6 +23,20 @@ library(outlierAnalysisSupport);
 
 ### DATA PREPARATION ############################################################
 
+attach(get.outlier.data.path());
+
+load.multiple.computed.variables(c(
+    'outlier.patient.all.nine.01',
+    'subtype.total.outlier.num.1.brca',
+    'subtype.5.total.outlier.num.meta',
+    'subtype.total.outlier.num.1.ispy',
+    'subtype.total.outlier.num.1.cheng',
+    'subtype.total.outlier.num.1.sjostrom',
+    'subtype.total.outlier.num.1.matador',
+    'subtype.total.outlier.num.1.icgc',
+    'subtype.total.outlier.num.1.kao',
+    'subtype.total.outlier.num.1.hatzis'
+    ));
 
 # XEG enrichment in each subtype
 #   - volcano plot

@@ -260,5 +260,11 @@ save.outlier.figure(
     height = 3.8
     );
 
+### SAVE VARIABLES #############################################################
+# Cache the important variables for later use
+cache.multiple.computed.variables(c(
+    'os.group.combine'
+    ))
+
 
 save.session.profile(file.path('output', 'Figure3ghi.txt'));

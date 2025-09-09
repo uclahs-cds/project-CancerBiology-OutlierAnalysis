@@ -1612,4 +1612,18 @@ save.outlier.figure(
     height = 5
     );
 
-save.session.profile(file.path('output', 'Figure3abc.txt'));
+### SAVE VARIABLES #############################################################
+# Cache the important variables for later use
+cache.multiple.computed.variables(c(
+    'subtype.total.outlier.num.1.brca',
+    'subtype.5.total.outlier.num.meta',
+    'subtype.total.outlier.num.1.ispy',
+    'subtype.total.outlier.num.1.cheng',
+    'subtype.total.outlier.num.1.sjostrom',
+    'subtype.total.outlier.num.1.matador',
+    'subtype.total.outlier.num.1.icgc',
+    'subtype.total.outlier.num.1.kao',
+    'subtype.total.outlier.num.1.hatzis'
+    ))
+
+save.session.profile(file.path('output', 'Figure3abf.txt'));

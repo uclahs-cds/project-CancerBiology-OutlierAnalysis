@@ -2340,4 +2340,4 @@ save.outlier.figure(
     height = 4.5
     );
 
-save.session.profile(file.path('output', 'Figure1fgi.txt'));
+save.session.profile(file.path('output', 'Figure1fgi_9.txt'));
