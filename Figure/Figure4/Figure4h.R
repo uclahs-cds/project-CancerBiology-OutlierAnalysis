@@ -26,7 +26,7 @@ load.multiple.computed.variables(c(
 # Establish an arbitrary but consistent random seed for plotting consistency
 set.seed(sum(utf8ToInt('Figure4h')));
 
-rnai.selected.gene <- c('MECOM', 'CCNE1', 'FOXP4', 'NOTCH3', 'RASL11B', 'TNFSF10', 'WIPF2', 'CRLF1', 'CTDSP2', 'SMYD3', 'TRIM2');
+rnai.selected.gene <- c('MECOM', 'CCNE1', 'FOXP4', 'NOTCH3', 'RASL11B', 'TNFSF10', 'WIPF2', 'CRLF1', 'CTDSP2', 'SMYD3', 'TRIM2', 'SND1', 'FRS2');
 rnai.05.box.select <- rnai.05.box[rnai.05.box$gene %in% rnai.selected.gene,];
 # rnai.05.box.select <- rnai.05.box;
 

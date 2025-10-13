@@ -169,7 +169,8 @@ dependency.05.box$status <- as.numeric(dependency.05.box$status);
 
 # Filter out specific genes from the data
 # selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[1:11];
-selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[c(1,3, 2, 4, 7, 11, 12, 18, 13, 20, 16, 15, 14)];
+selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol[c(1, 2, 3, 4, 7, 8, 11, 12, 13, 15, 20, 16, 24, 19, 14)];
+
 # selected.gene <- gene.dependency.diff.matrix.05.overlap.minus.05[order(gene.dependency.diff.matrix.05.overlap.minus.05$non),]$symbol;
 dependency.05.box.part <- dependency.05.box[dependency.05.box$gene %in% selected.gene, ];
 
